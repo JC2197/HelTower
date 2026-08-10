@@ -8,7 +8,7 @@
       "hash": "1098272be0a1ae0d2cb36c05c287084b8f0fb2bd"
     },
     "com.joeconticello.characters2d": {
-      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d#v0.1.0",
+      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d#v0.1.1",
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -17,7 +17,7 @@
       "hash": "6111a6fe8548e448112f90c118d53a60528d23f3"
     },
     "com.joeconticello.characters2d.fishnet": {
-      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d.fishnet#v0.1.0",
+      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d.fishnet#v0.1.1",
       "depth": 0,
       "source": "git",
       "dependencies": {
