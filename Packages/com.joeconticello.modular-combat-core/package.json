@@ -1,0 +1,16 @@
+{
+  "name": "com.joeconticello.modular-combat-core",
+  "version": "0.1.3",
+  "displayName": "Modular Combat Core",
+  "description": "Reusable damage contracts and modular stats for Unity projects.",
+  "unity": "6000.0",
+  "keywords": [
+    "combat",
+    "damage",
+    "stats"
+  ],
+  "author": {
+    "name": "Joe Conticello"
+  },
+  "_fingerprint": "fb79177e60287e28a4cfd4fc059ff8ad32824d8c"
+}
