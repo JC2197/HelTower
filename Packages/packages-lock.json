@@ -1,5 +1,30 @@
 {
   "dependencies": {
+    "com.heathen.gameframework": {
+      "version": "https://codeberg.org/Heathen-Engineering/Unity-Game-Framework.git?path=/com.heathen.gameframework#v1.0.2",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "hash": "46933dd697d5442def4c2ba1adfe3f5026527fd9"
+    },
+    "com.heathen.steamworksfoundation": {
+      "version": "https://codeberg.org/Heathen-Engineering/Unity-Foundation-for-Steamworks.git?path=/com.heathen.steamworksfoundation",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "17fbca43c733eea41aee35c411ecebb18738b0e4"
+    },
+    "com.heathen.toolbox": {
+      "version": "https://codeberg.org/Heathen-Engineering/Unity-Heathen-Toolbox.git?path=/com.heathen.toolbox",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "hash": "25f5123d1e31358e204a330aba1999f201ab84e9"
+    },
     "com.joe-conticello.visual-effects": {
       "version": "https://github.com/JC2197/unity-2D-visual-effects.git#v1.0.2",
       "depth": 0,
@@ -24,7 +49,7 @@
         "com.joeconticello.characters2d": "0.1.4",
         "com.unity.inputsystem": "1.18.0"
       },
-      "hash": "6ad061d21025e4954493ce26048d833e75e9f60c"
+      "hash": "1b096abaae8f22df2702c0890bd3da0a1d6c086b"
     },
     "com.joeconticello.modular-combat-core": {
       "version": "https://github.com/JC2197/unity-modular-combat-core.git#v0.1.6",
@@ -32,6 +57,13 @@
       "source": "git",
       "dependencies": {},
       "hash": "97dc4517cbaf83098aecbb242630ed008c9e9051"
+    },
+    "com.rlabrecque.steamworks.net": {
+      "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2025.164.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "c21a8f0e31c56ae8707130967faf491f7dd7c0d8"
     },
     "com.unity.2d.animation": {
       "version": "13.0.4",

@@ -1,0 +1,24 @@
+{
+    "name": "SteamTools.Generated",
+    "rootNamespace": "SteamTools",
+    "references": [
+        "Heathen.Foundations.Steamworks",
+        "com.rlabrecque.steamworks.net",
+        "Heathen.GameFramework"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.heathen.gameframework",
+            "expression": "",
+            "define": "HEATHEN_GAMEFRAMEWORK"
+        }
+    ],
+    "noEngineReferences": false
+}

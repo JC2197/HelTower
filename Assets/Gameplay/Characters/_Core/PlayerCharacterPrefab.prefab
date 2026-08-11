@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 939052996780319900}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CameraHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5258996844253052858}
   - component: {fileID: 7336285618830796135}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3220463590396056228}
   - component: {fileID: 2611961506185812579}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -217,7 +217,7 @@ GameObject:
   - component: {fileID: 3106003874198906797}
   - component: {fileID: 1745610414549855004}
   - component: {fileID: 6101047406371913932}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Footsteps
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5126,8 +5126,8 @@ GameObject:
   - component: {fileID: 1982527419454777385}
   - component: {fileID: 2243682345346522727}
   - component: {fileID: 299155514535836926}
-  - component: {fileID: -8860957559549459533}
-  m_Layer: 0
+  - component: {fileID: 9151821784917077401}
+  m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -5250,7 +5250,7 @@ CircleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -5343,7 +5343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: 0}
+  m_Actions: {fileID: -944628639613478452, guid: eb058988d59c04e45a1afac7fc6d2b93, type: 3}
   m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
@@ -5408,7 +5408,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584151449447107194
+  _initializedTimestamp: -8584151426135546360
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5550,7 +5550,7 @@ MonoBehaviour:
   _interpolation: 2
   _clientAuthoritative: 1
   _sendToOwner: 0
---- !u!114 &-8860957559549459533
+--- !u!114 &9151821784917077401
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5559,11 +5559,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7ca16fb6dd13684ca34ff51fc268b0f, type: 3}
+  m_Script: {fileID: 11500000, guid: a54ee3bd1ee94452aad756158fcfb43c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
+  m_EditorClassIdentifier: JoeConticello.Characters2D.FishNet.Runtime::JoeConticello.Characters2D.FishNet.FishNetCharacterCamera
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 8054363077136831453}
   _networkObjectCache: {fileID: 0}
-  _cameraPrefab: {fileID: 9055760651053536888, guid: 4159eabad3860a84b8e9f61f88bac370, type: 3}
   _cameraHolder: {fileID: 939052996780319900}
+  _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  _orthographicSize: 5

@@ -1,0 +1,132 @@
+{
+  "LastGenerated": "2026-08-11 12:46:59",
+  "activeAppIndex": -1,
+  "startMode": 2,
+  "mainAppSettings": {
+    "editorName": "Main",
+    "applicationId": 480,
+    "enableListenServer": false,
+    "leaderboards": [],
+    "stats": [],
+    "achievements": [],
+    "actionSets": [
+      "menu_controls",
+      "ship_controls"
+    ],
+    "actionSetLayers": [
+      "thrust_action_layer"
+    ],
+    "actions": [
+      {
+        "name": "analog_controls",
+        "type": "Analog"
+      },
+      {
+        "name": "backward_thrust",
+        "type": "Digital"
+      },
+      {
+        "name": "fire_lasers",
+        "type": "Digital"
+      },
+      {
+        "name": "forward_thrust",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_cancel",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_down",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_left",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_right",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_select",
+        "type": "Digital"
+      },
+      {
+        "name": "menu_up",
+        "type": "Digital"
+      },
+      {
+        "name": "pause_menu",
+        "type": "Digital"
+      },
+      {
+        "name": "turn_left",
+        "type": "Digital"
+      },
+      {
+        "name": "turn_right",
+        "type": "Digital"
+      }
+    ]
+  },
+  "dlcNames": [],
+  "dlc": [],
+  "defaultServerSettings": {
+    "autoInitialise": true,
+    "autoLogon": true,
+    "ip": 0,
+    "gamePort": 27015,
+    "queryPort": 27016,
+    "spectatorPort": 27017,
+    "serverVersion": "1.0.0.0",
+    "usingGameServerAuthApi": false,
+    "enableHeartbeats": true,
+    "supportSpectators": false,
+    "spectatorServerName": "",
+    "anonymousServerLogin": true,
+    "gameServerToken": "",
+    "isPasswordProtected": false,
+    "serverName": "Must Not Be Empty | Must be Less than 64",
+    "gameDescription": "Must Not Be Empty | Must be Less than 64",
+    "gameDirectory": "Must Not Be Empty | Must be Less than 32",
+    "isDedicated": false,
+    "maxPlayerCount": 4,
+    "botPlayerCount": 0,
+    "mapName": "",
+    "gameData": "",
+    "IpAddress": "0.0.0.0"
+  },
+  "playtestSettings": [],
+  "inventoryItems": [],
+  "appIds": [
+    480
+  ],
+  "leaderboards": [],
+  "stats": [],
+  "achievements": [],
+  "inputSets": [
+    "menu_controls",
+    "ship_controls"
+  ],
+  "inputLayers": [
+    "thrust_action_layer"
+  ],
+  "inputActions": [
+    "analog_controls",
+    "backward_thrust",
+    "fire_lasers",
+    "forward_thrust",
+    "menu_cancel",
+    "menu_down",
+    "menu_left",
+    "menu_right",
+    "menu_select",
+    "menu_up",
+    "pause_menu",
+    "turn_left",
+    "turn_right"
+  ],
+  "items": []
+}
