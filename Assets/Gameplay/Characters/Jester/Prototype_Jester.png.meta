@@ -1,34 +1,7 @@
 fileFormatVersion: 2
 guid: 376d467d30d1b1e4eaed93b4da047966
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: -6747785366562021651
-    second: Prototype_Jester_0
-  - first:
-      213: 1856660085194319189
-    second: Prototype_Jester_1
-  - first:
-      213: 7969125819819537615
-    second: Prototype_Jester_2
-  - first:
-      213: 1645613208572387154
-    second: Prototype_Jester_3
-  - first:
-      213: 5434300544987826215
-    second: Prototype_Jester_4
-  - first:
-      213: 7114632246503108090
-    second: Prototype_Jester_5
-  - first:
-      213: 4999003194261044474
-    second: Prototype_Jester_6
-  - first:
-      213: 7929908739215462801
-    second: Prototype_Jester_7
-  - first:
-      213: -2448432583316816006
-    second: Prototype_Jester_8
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,9 +70,9 @@ TextureImporter:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 4096
-    resizeAlgorithm: 0
+    resizeAlgorithm: 1
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -124,189 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prototype_Jester_0
+      name: Prototype_Druid_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: deedd7dd5fc0b52a0800000000000000
-      internalID: -6747785366562021651
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_1
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 55567aea28e24c910800000000000000
-      internalID: 1856660085194319189
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_2
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fc4bcbcf5b5089e60800000000000000
-      internalID: 7969125819819537615
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_3
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 25fd5ae8e7466d610800000000000000
-      internalID: 1645613208572387154
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_4
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 72806b2bd838a6b40800000000000000
-      internalID: 5434300544987826215
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_5
-      rect:
-        serializedVersion: 2
-        x: 80
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: afd6b5055504cb260800000000000000
-      internalID: 7114632246503108090
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_6
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: afcf8f85be6006540800000000000000
-      internalID: 4999003194261044474
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_7
-      rect:
-        serializedVersion: 2
-        x: 112
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 191143edbf1bc0e60800000000000000
-      internalID: 7929908739215462801
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_Jester_8
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 0
-        width: 16
-        height: 16
+        width: 15
+        height: 15
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -315,8 +112,184 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ea009b1caa9063c4fb1a4ea157195ad5
-      internalID: -2448432583316816006
+      spriteID: d676984a7d743fa41aeb379eb19d8d55
+      internalID: 1460292128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_1
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 067eff6a14ab3304b93572cf8f23dbc2
+      internalID: 2033617478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_2
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3599925dba4714f4983e7c765d3ea8e1
+      internalID: 261181940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_3
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: db075599f9af7174fabc17f9a2fa0011
+      internalID: 354194503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_4
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2cc616497df21d045924672875fad57a
+      internalID: 1501578203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_5
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 268115a36d27dc24d878d16f2e7ade8b
+      internalID: -651590753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_6
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f3926add2a4e1c4080303dc0b2143a7
+      internalID: -1937749427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_7
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e55f70329065984eb4ead181de12f32
+      internalID: 1458652740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_8
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39fae890f51bdf8468741fb821a81973
+      internalID: 1966356388
       vertices: []
       indices: 
       edges: []
@@ -325,7 +298,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: db20fbab0ce79764f9a19efcdae4883d
+    spriteID: 67d6c672d63a3a245be9e735bbf29c83
     internalID: 0
     vertices: []
     indices: 
@@ -335,17 +308,17 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":9.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":9.0,"y":1.0},"gridSpriteSize":{"x":15.0,"y":15.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Prototype_Jester_0: -6747785366562021651
-      Prototype_Jester_1: 1856660085194319189
-      Prototype_Jester_2: 7969125819819537615
-      Prototype_Jester_3: 1645613208572387154
-      Prototype_Jester_4: 5434300544987826215
-      Prototype_Jester_5: 7114632246503108090
-      Prototype_Jester_6: 4999003194261044474
-      Prototype_Jester_7: 7929908739215462801
-      Prototype_Jester_8: -2448432583316816006
+      Prototype_Druid_0: 1460292128
+      Prototype_Druid_1: 2033617478
+      Prototype_Druid_2: 261181940
+      Prototype_Druid_3: 354194503
+      Prototype_Druid_4: 1501578203
+      Prototype_Druid_5: -651590753
+      Prototype_Druid_6: -1937749427
+      Prototype_Druid_7: 1458652740
+      Prototype_Druid_8: 1966356388
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

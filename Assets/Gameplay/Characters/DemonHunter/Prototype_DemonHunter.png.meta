@@ -1,34 +1,7 @@
 fileFormatVersion: 2
 guid: 87edaacd68e0aed42b8af88bd394ff4a
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 5673153267193775841
-    second: Prototype_DemonHunter_0
-  - first:
-      213: 2312529668147811951
-    second: Prototype_DemonHunter_1
-  - first:
-      213: 3492897517331248356
-    second: Prototype_DemonHunter_2
-  - first:
-      213: 484599421837841367
-    second: Prototype_DemonHunter_3
-  - first:
-      213: 4340992617782813080
-    second: Prototype_DemonHunter_4
-  - first:
-      213: -1554760495801685712
-    second: Prototype_DemonHunter_5
-  - first:
-      213: -510547617793264044
-    second: Prototype_DemonHunter_6
-  - first:
-      213: 9160941855190094683
-    second: Prototype_DemonHunter_7
-  - first:
-      213: -6697133100287752689
-    second: Prototype_DemonHunter_8
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -61,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -96,10 +69,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
+    maxTextureSize: 4096
+    resizeAlgorithm: 1
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -124,199 +97,199 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prototype_DemonHunter_0
+      name: Prototype_Druid_0
       rect:
         serializedVersion: 2
-        x: 1
-        y: 0
-        width: 15
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1e68e6fb6d61bbe40800000000000000
-      internalID: 5673153267193775841
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_DemonHunter_1
-      rect:
-        serializedVersion: 2
-        x: 18
-        y: 0
-        width: 15
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f66908a1b71c71020800000000000000
-      internalID: 2312529668147811951
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_DemonHunter_2
-      rect:
-        serializedVersion: 2
-        x: 34
-        y: 0
-        width: 15
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4e47f5d29c3497030800000000000000
-      internalID: 3492897517331248356
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_DemonHunter_3
-      rect:
-        serializedVersion: 2
-        x: 50
+        x: 0
         y: 0
         width: 15
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7d3110d4b94a9b600800000000000000
-      internalID: 484599421837841367
+      spriteID: d676984a7d743fa41aeb379eb19d8d55
+      internalID: 1460292128
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype_DemonHunter_4
+      name: Prototype_Druid_1
       rect:
         serializedVersion: 2
-        x: 66
+        x: 15
         y: 0
         width: 15
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 891a98b49cd4e3c30800000000000000
-      internalID: 4340992617782813080
+      spriteID: 067eff6a14ab3304b93572cf8f23dbc2
+      internalID: 2033617478
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype_DemonHunter_5
+      name: Prototype_Druid_2
       rect:
         serializedVersion: 2
-        x: 82
-        y: 0
-        width: 15
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0392ee801916c6ae0800000000000000
-      internalID: -1554760495801685712
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_DemonHunter_6
-      rect:
-        serializedVersion: 2
-        x: 98
-        y: 0
-        width: 15
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 456b28885ab2ae8f0800000000000000
-      internalID: -510547617793264044
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Prototype_DemonHunter_7
-      rect:
-        serializedVersion: 2
-        x: 114
+        x: 30
         y: 0
         width: 15
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b531d9e9414322f70800000000000000
-      internalID: 9160941855190094683
+      spriteID: 3599925dba4714f4983e7c765d3ea8e1
+      internalID: 261181940
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype_DemonHunter_8
+      name: Prototype_Druid_3
       rect:
         serializedVersion: 2
-        x: 130
+        x: 45
         y: 0
-        width: 14
+        width: 15
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f0686df9de00f03a0800000000000000
-      internalID: -6697133100287752689
+      spriteID: db075599f9af7174fabc17f9a2fa0011
+      internalID: 354194503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_4
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2cc616497df21d045924672875fad57a
+      internalID: 1501578203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_5
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 268115a36d27dc24d878d16f2e7ade8b
+      internalID: -651590753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_6
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f3926add2a4e1c4080303dc0b2143a7
+      internalID: -1937749427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_7
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e55f70329065984eb4ead181de12f32
+      internalID: 1458652740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prototype_Druid_8
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39fae890f51bdf8468741fb821a81973
+      internalID: 1966356388
       vertices: []
       indices: 
       edges: []
@@ -325,7 +298,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 67d6c672d63a3a245be9e735bbf29c83
     internalID: 0
     vertices: []
     indices: 
@@ -333,17 +306,19 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":9.0,"y":1.0},"gridSpriteSize":{"x":15.0,"y":15.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Prototype_DemonHunter_0: 5673153267193775841
-      Prototype_DemonHunter_1: 2312529668147811951
-      Prototype_DemonHunter_2: 3492897517331248356
-      Prototype_DemonHunter_3: 484599421837841367
-      Prototype_DemonHunter_4: 4340992617782813080
-      Prototype_DemonHunter_5: -1554760495801685712
-      Prototype_DemonHunter_6: -510547617793264044
-      Prototype_DemonHunter_7: 9160941855190094683
-      Prototype_DemonHunter_8: -6697133100287752689
+      Prototype_Druid_0: 1460292128
+      Prototype_Druid_1: 2033617478
+      Prototype_Druid_2: 261181940
+      Prototype_Druid_3: 354194503
+      Prototype_Druid_4: 1501578203
+      Prototype_Druid_5: -651590753
+      Prototype_Druid_6: -1937749427
+      Prototype_Druid_7: 1458652740
+      Prototype_Druid_8: 1966356388
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

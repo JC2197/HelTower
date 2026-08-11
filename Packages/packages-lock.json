@@ -8,29 +8,30 @@
       "hash": "1098272be0a1ae0d2cb36c05c287084b8f0fb2bd"
     },
     "com.joeconticello.characters2d": {
-      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d#v0.1.1",
+      "version": "https://github.com/JC2197/unity-2D-characters.git?path=/packages/com.joeconticello.characters2d#main",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.inputsystem": "1.18.0"
       },
-      "hash": "6111a6fe8548e448112f90c118d53a60528d23f3"
+      "hash": "f1cbed5d57ccd2102fe004a9be8dbd814a10c2f0"
     },
     "com.joeconticello.characters2d.fishnet": {
-      "version": "https://github.com/JC2197/unity-2d-characters.git?path=/packages/com.joeconticello.characters2d.fishnet#v0.1.1",
+      "version": "https://github.com/JC2197/unity-2D-characters.git?path=/packages/com.joeconticello.characters2d.fishnet#main",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.joeconticello.characters2d": "0.1.0"
+        "com.joeconticello.characters2d": "0.1.4",
+        "com.unity.inputsystem": "1.18.0"
       },
-      "hash": "6111a6fe8548e448112f90c118d53a60528d23f3"
+      "hash": "6ad061d21025e4954493ce26048d833e75e9f60c"
     },
     "com.joeconticello.modular-combat-core": {
-      "version": "https://github.com/JC2197/unity-modular-combat-core.git#v0.1.3",
+      "version": "https://github.com/JC2197/unity-modular-combat-core.git#v0.1.6",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "fb79177e60287e28a4cfd4fc059ff8ad32824d8c"
+      "hash": "97dc4517cbaf83098aecbb242630ed008c9e9051"
     },
     "com.unity.2d.animation": {
       "version": "13.0.4",
@@ -209,9 +210,25 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
+    "com.unity.multiplayer.playmode": {
+      "version": "2.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.2"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.6",
       "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.2",
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
