@@ -6,7 +6,6 @@
     "com.joe-conticello.visual-effects": "https://github.com/JC2197/unity-2D-visual-effects.git#v1.0.2",
     "com.joeconticello.characters2d": "https://github.com/JC2197/unity-2D-characters.git?path=/packages/com.joeconticello.characters2d#main",
     "com.joeconticello.characters2d.fishnet": "https://github.com/JC2197/unity-2D-characters.git?path=/packages/com.joeconticello.characters2d.fishnet#main",
-    "com.joeconticello.modular-combat-core": "https://github.com/JC2197/unity-modular-combat-core.git#v0.1.6",
     "com.rlabrecque.steamworks.net": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2025.164.1",
     "com.unity.2d.animation": "13.0.4",
     "com.unity.2d.aseprite": "3.0.1",

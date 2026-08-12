@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 748356222c9577f4696713d16ee6a70c, type: 3}
+  m_Name: StatTypeDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::StatTypeDatabase
+  categories:
+  - categoryId: BASE
+    displayName: Base Stats
+    description: 
+    tint: {r: 0, g: 0, b: 0, a: 0}
+    sortOrder: 0
+  statTypes:
+  - statId: STR
+    displayName: STR
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: VIG
+    displayName: VIG
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: INT
+    displayName: BASE
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: DEX
+    displayName: DEX
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: FTH
+    displayName: FTH
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: LUK
+    displayName: LUK
+    categoryId: BASE
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 

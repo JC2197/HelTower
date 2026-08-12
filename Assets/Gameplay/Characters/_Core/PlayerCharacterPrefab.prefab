@@ -1,5 +1,50 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1030570013801734906
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4300221802488895558}
+  - component: {fileID: 222708021723064611}
+  m_Layer: 3
+  m_Name: WeaponHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4300221802488895558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030570013801734906}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 102942654033116495}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &222708021723064611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030570013801734906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3020903a116128943a6605d925aa6a2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponHolder
+  weaponSortingOrder: 1
 --- !u!1 &1249845471537461738
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,7 +367,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 1
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -374,9 +419,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 0
-      minScalar: 5
+      minMaxState: 3
+      scalar: 1
+      minScalar: 0
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -817,7 +862,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 2
       minMaxState: 3
-      scalar: -0.3
+      scalar: -0.2
       minScalar: -0.1
       maxCurve:
         serializedVersion: 2
@@ -870,13 +915,13 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 12
+    type: 10
     angle: 25
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: -0.1, y: -0.54, z: 0}
+    m_Position: {x: 0, y: -0.54, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
@@ -957,7 +1002,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.1868639
+      value: 0.0001
       mode: 0
       spread: 0
       speed:
@@ -1014,7 +1059,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 45
+      value: 360
       mode: 0
       spread: 0
       speed:
@@ -1186,7 +1231,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 5
+        scalar: 3
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -1572,8 +1617,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 1}
+        key0: {r: 0.21568629, g: 0.18431373, b: 0.22352943, a: 0.24705882}
+        key1: {r: 0.7509433, g: 0.7509433, b: 0.7509433, a: 0}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1581,8 +1626,8 @@ ParticleSystem:
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
-        ctime1: 65535
-        ctime2: 0
+        ctime1: 1002
+        ctime2: 65535
         ctime3: 0
         ctime4: 0
         ctime5: 0
@@ -1597,8 +1642,8 @@ ParticleSystem:
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: -1
-        m_NumColorKeys: 2
+        m_ColorSpace: 0
+        m_NumColorKeys: 3
         m_NumAlphaKeys: 2
       minGradient:
         serializedVersion: 2
@@ -5116,17 +5161,15 @@ GameObject:
   - component: {fileID: 2865609290191467688}
   - component: {fileID: 4711688659248804734}
   - component: {fileID: 6066638730956382958}
-  - component: {fileID: 4553147282209563259}
-  - component: {fileID: 6232153593639730389}
   - component: {fileID: 8911498876829106899}
   - component: {fileID: 2901999614785917333}
   - component: {fileID: 8054363077136831453}
   - component: {fileID: -6924435267670265924}
-  - component: {fileID: 2719091447910550874}
   - component: {fileID: 1982527419454777385}
-  - component: {fileID: 2243682345346522727}
   - component: {fileID: 299155514535836926}
   - component: {fileID: 9151821784917077401}
+  - component: {fileID: -6323806338761550441}
+  - component: {fileID: -8027385352663489862}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5151,6 +5194,7 @@ Transform:
   - {fileID: 3106003874198906797}
   - {fileID: 3220463590396056228}
   - {fileID: 939052996780319900}
+  - {fileID: 4300221802488895558}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8662488452663639749
@@ -5297,40 +5341,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &4553147282209563259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5979735782993668707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32ed12bb4b57406c9b7639311dea56aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: JoeConticello.Characters2D.Runtime::JoeConticello.Characters2D.UnityInputSystemCharacterInputSource
-  moveAction: {fileID: 150689461134969005, guid: eb058988d59c04e45a1afac7fc6d2b93, type: 3}
-  aimAction: {fileID: -5630003636116016378, guid: eb058988d59c04e45a1afac7fc6d2b93, type: 3}
-  aimCamera: {fileID: 0}
-  aimActionIsScreenPosition: 1
-  actions: []
---- !u!114 &6232153593639730389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5979735782993668707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c050952217a5407f8916fee3d41fffd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: JoeConticello.Characters2D.Runtime::JoeConticello.Characters2D.TopDownCharacterMotor
-  moveSpeed: 5
-  body: {fileID: 6066638730956382958}
-  facingMode: 0
-  animator: {fileID: 0}
-  movingParameter: IsMoving
 --- !u!114 &8911498876829106899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5395,9 +5405,9 @@ MonoBehaviour:
   NetworkBehaviours:
   - {fileID: -6924435267670265924}
   - {fileID: 1982527419454777385}
-  - {fileID: 2243682345346522727}
   - {fileID: 299155514535836926}
-  - {fileID: 0}
+  - {fileID: 9151821784917077401}
+  - {fileID: -6323806338761550441}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -5408,7 +5418,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584151426135546360
+  _initializedTimestamp: -8584150957173453525
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5427,7 +5437,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 8
+  <PrefabId>k__BackingField: 9
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 14722824134187673337
   SceneId: 0
@@ -5451,19 +5461,6 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 8054363077136831453}
   _networkObjectCache: {fileID: 8054363077136831453}
---- !u!114 &2719091447910550874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5979735782993668707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97e4886be47adc24c8a662515ef379bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EffectTrigger
-  targetParticle: {fileID: 1745610414549855004}
 --- !u!114 &1982527419454777385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5510,24 +5507,6 @@ MonoBehaviour:
     X: 0
     Y: 0
     Z: 0
---- !u!114 &2243682345346522727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5979735782993668707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f435660276fe46f0ab450e85349647f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: JoeConticello.Characters2D.FishNet.Runtime::JoeConticello.Characters2D.FishNet.FishNetCharacterMotorDriver
-  _componentIndexCache: 2
-  _addedNetworkObject: {fileID: 8054363077136831453}
-  _networkObjectCache: {fileID: 8054363077136831453}
-  motor: {fileID: 6232153593639730389}
-  inputSourceComponent: {fileID: 4553147282209563259}
-  playerInput: {fileID: 0}
 --- !u!114 &299155514535836926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5540,7 +5519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8cac635f24954048aad3a6ff9110beb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FishNet.Runtime::FishNet.Component.Animating.NetworkAnimator
-  _componentIndexCache: 3
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 8054363077136831453}
   _networkObjectCache: {fileID: 8054363077136831453}
   IgnoredParameters: []
@@ -5562,9 +5541,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a54ee3bd1ee94452aad756158fcfb43c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: JoeConticello.Characters2D.FishNet.Runtime::JoeConticello.Characters2D.FishNet.FishNetCharacterCamera
-  _componentIndexCache: 255
+  _componentIndexCache: 3
   _addedNetworkObject: {fileID: 8054363077136831453}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8054363077136831453}
   _cameraHolder: {fileID: 939052996780319900}
   _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
   _orthographicSize: 5
+--- !u!114 &-6323806338761550441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 554d6ad8e9f2b504bb8f5c847faddbaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  _componentIndexCache: 4
+  _addedNetworkObject: {fileID: 8054363077136831453}
+  _networkObjectCache: {fileID: 8054363077136831453}
+  _rigidbody: {fileID: 6066638730956382958}
+  _moveSpeed: 5
+  _visualTransform: {fileID: 102942654033116495}
+  _facingDirectionThreshold: 0.01
+  _bodyAnimator: {fileID: 8662488452663639749}
+  _movingParameter: IsMoving
+  _abilities:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _inputAsset: {fileID: -944628639613478452, guid: eb058988d59c04e45a1afac7fc6d2b93, type: 3}
+  _playerMapName: Player
+  _moveActionName: Movement
+  _aimActionName: Aim
+  _abilityActionNames:
+  - Ability1
+  - Ability2
+  - Ability3
+  - Ability4
+  - Ability5
+--- !u!114 &-8027385352663489862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f5debd18c47cd847b9fdde61488d11d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
+  moveSpeed: 5
+  body: {fileID: 6066638730956382958}
+  facingMode: 0
+  visualTransform: {fileID: 102942654033116495}
+  facingDirectionThreshold: 0.01
+  animator: {fileID: 8662488452663639749}
+  movingParameter: IsMoving

@@ -51,13 +51,6 @@
       },
       "hash": "1b096abaae8f22df2702c0890bd3da0a1d6c086b"
     },
-    "com.joeconticello.modular-combat-core": {
-      "version": "https://github.com/JC2197/unity-modular-combat-core.git#v0.1.6",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "97dc4517cbaf83098aecbb242630ed008c9e9051"
-    },
     "com.rlabrecque.steamworks.net": {
       "version": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2025.164.1",
       "depth": 0,
