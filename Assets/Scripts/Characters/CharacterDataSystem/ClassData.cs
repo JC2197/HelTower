@@ -32,14 +32,29 @@ public class ClassData : ScriptableObject
     [Tooltip("Starting stat values for this class. Use the context menu 'Initialize Base Stats from Database' if empty.")]
     public StatContainer baseStatContainer = new StatContainer();
 
-    [ContextMenu("Initialize Base Stats from Database")]
-    private void InitializeBaseStatsFromDatabase()
+    private void OnValidate()
     {
-        baseStatContainer.InitializeFromDatabase();
+        if (baseStatContainer == null)
+            baseStatContainer = new StatContainer();
+
+        StatTypeDatabase database = StatTypeDatabase.Instance;
+        if (database == null)
+            return;
+
+        int addedStats = baseStatContainer.Migrate(database);
 #if UNITY_EDITOR
-        UnityEditor.EditorUtility.SetDirty(this);
+        if (addedStats > 0)
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+    }
+
+    [ContextMenu("Synchronize Base Stats from Database")]
+    private void SynchronizeBaseStatsFromDatabase()
+    {
+        OnValidate();
+#if UNITY_EDITOR
         UnityEditor.AssetDatabase.SaveAssets();
-        Debug.Log($"[ClassData] Initialized baseStatContainer for '{className}' from StatTypeDatabase.");
+        Debug.Log($"[ClassData] Synchronized baseStatContainer for '{className}' with StatTypeDatabase.");
 #endif
     }
 }

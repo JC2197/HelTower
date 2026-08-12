@@ -42,22 +42,11 @@ public class CharacterSelectionConfig : ScriptableObject
         newCharacter.displayName = characterName ?? classData.className;
         newCharacter.classData = classData;
 
-        // STEP 1: Copy baseStatContainer directly from ClassData
-        newCharacter.baseStatContainer = new StatContainer();
-        newCharacter.baseStatContainer.InitializeFromDatabase();
-        foreach (var stat in classData.baseStatContainer.GetAllStats())
-        {
-            if (stat.CurrentValue != 0f)
-                newCharacter.baseStatContainer.SetStat(stat.StatId, stat.CurrentValue);
-        }
-
-        // STEP 2: statContainer starts as a copy of baseStatContainer
-        newCharacter.statContainer = new StatContainer();
-        newCharacter.statContainer.InitializeFromDatabase();
-        foreach (var stat in newCharacter.baseStatContainer.GetAllStats())
-        {
-            newCharacter.statContainer.SetStat(stat.StatId, stat.CurrentValue);
-        }
+        // Each run owns independent copies so trait and conversion changes cannot mutate the class template.
+        newCharacter.baseStatContainer = classData.baseStatContainer != null
+            ? classData.baseStatContainer.Clone()
+            : new StatContainer();
+        newCharacter.statContainer = newCharacter.baseStatContainer.Clone();
 
         // Weapon selection: chosen weapon, or the class's first available weapon
         if (chosenWeapon == null && classData.availableWeapons != null && classData.availableWeapons.Length > 0)

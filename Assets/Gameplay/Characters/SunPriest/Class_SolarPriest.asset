@@ -19,4 +19,56 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 85ad2872cec2f2a429d9b322d97426b5, type: 2}
   abilities: []
   baseStatContainer:
-    stats: []
+    stats:
+    - statId: 
+      displayName: 
+      categoryId: 
+      currentValue: 0
+    - statId: STR
+      displayName: STR
+      categoryId: BASE
+      currentValue: 0
+    - statId: VIG
+      displayName: VIG
+      categoryId: BASE
+      currentValue: 0
+    - statId: INT
+      displayName: BASE
+      categoryId: BASE
+      currentValue: 0
+    - statId: DEX
+      displayName: DEX
+      categoryId: BASE
+      currentValue: 0
+    - statId: FTH
+      displayName: FTH
+      categoryId: BASE
+      currentValue: 0
+    - statId: LUK
+      displayName: LUK
+      categoryId: BASE
+      currentValue: 0
+    - statId: MOVESPEED
+      displayName: Movement Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: ATTACKSPEED
+      displayName: Attack Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: MAXHP
+      displayName: Maximum HP
+      categoryId: Active
+      currentValue: 10
+    - statId: PHYSICAL
+      displayName: Physical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: MAGICAL
+      displayName: Magical Damage Bonus
+      categoryId: Ative
+      currentValue: 0
+    - statId: MaxHealth
+      displayName: Maximum HP
+      categoryId: Active
+      currentValue: 0

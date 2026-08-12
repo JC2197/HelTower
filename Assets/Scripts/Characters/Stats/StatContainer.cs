@@ -146,6 +146,22 @@ public class StatContainer
         }
     }
 
+    public StatContainer Clone()
+    {
+        StatContainer clone = new StatContainer();
+        for (int i = 0; i < stats.Count; i++)
+        {
+            StatValue stat = stats[i];
+            if (stat == null || string.IsNullOrWhiteSpace(stat.StatId))
+                continue;
+
+            clone.stats.Add(new StatValue(stat.StatId, stat.DisplayName, stat.CategoryId, stat.CurrentValue));
+        }
+
+        clone.RebuildLookup();
+        return clone;
+    }
+
     private void EnsureLookup()
     {
         if (statLookup == null)

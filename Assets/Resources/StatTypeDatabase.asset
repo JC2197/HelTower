@@ -18,6 +18,11 @@ MonoBehaviour:
     description: 
     tint: {r: 0, g: 0, b: 0, a: 0}
     sortOrder: 0
+  - categoryId: Active
+    displayName: Active Stats
+    description: 
+    tint: {r: 0, g: 0, b: 0, a: 0}
+    sortOrder: 0
   statTypes:
   - statId: STR
     displayName: STR
@@ -65,5 +70,45 @@ MonoBehaviour:
     icon: {fileID: 0}
     defaultValue: 0
     isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: MOVESPEED
+    displayName: Movement Speed
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: AttackSpeed
+    displayName: Attack Speed
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: MaxHealth
+    displayName: Maximum HP
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 0
+    maxValue: 0
+    description: 
+  - statId: PHYSICAL
+    displayName: Physical Damage Bonus
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 1
+    maxValue: 0
+    description: 
+  - statId: MAGICAL
+    displayName: Magical Damage Bonus
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 1
     maxValue: 0
     description: 

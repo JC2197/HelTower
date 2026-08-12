@@ -2,11 +2,10 @@ using System;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : NetworkBehaviour
+public class PlayerController : Organism
 {
     [Header("Movement")]
     [SerializeField] private Rigidbody2D _rigidbody;
@@ -21,10 +20,6 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField] private string _movingParameter = "IsMoving";
 
-    [Header("Network Presentation")]
-    [SerializeField, Min(0f)] private float _aimSyncSendThresholdDegrees = 0.35f;
-    [SerializeField, Min(0f)] private float _remoteAimSmoothing = 20f;
-
     [Header("Abilities")]
     [SerializeField] private DataDrivenAbility[] _abilities = new DataDrivenAbility[5];
     [SerializeField] private InputActionAsset _inputAsset;
@@ -35,7 +30,6 @@ public class PlayerController : NetworkBehaviour
 
     public static bool InputEnabled { get; set; } = true;
     public static PlayerController LocalPlayer { get; private set; }
-    public float CurrentEnergy { get; private set; } = 100f;
 
     private CharacterData _currentCharacterData;
     private NetworkObject _currentMainWeaponNob;
@@ -44,20 +38,8 @@ public class PlayerController : NetworkBehaviour
     private WeaponSortingManager _weaponSortingManager;
     private SpriteRenderer _characterSpriteRenderer;
     private bool _isFacingLeft;
-    private float _lastSentAimAngle;
-    private bool _hasSentAimAngle;
-    private bool _lastSentFacingLeft;
-    private float _targetRemoteAimAngle;
-    private float _smoothedRemoteAimAngle;
-    private bool _hasRemoteAimAngle;
-    private bool _syncWeaponFlipYValue;
     private string _assignedCharacterName;
-    private Organism _organism;
     private bool _hasFacing;
-
-    private readonly SyncVar<float> _syncAimAngle = new SyncVar<float>();
-    private readonly SyncVar<bool> _syncFacingLeft = new SyncVar<bool>();
-    private readonly SyncVar<bool> _syncWeaponFlipY = new SyncVar<bool>();
     /// <summary>Fired on the local owner when the player spawns / gains ownership.</summary>
     public static event Action<PlayerController> OnPlayerSpawned;
 
@@ -118,21 +100,21 @@ public class PlayerController : NetworkBehaviour
 
         _currentCharacterData = characterData;
 
-        if (_organism == null)
-            _organism = GetComponent<Organism>();
-
         // Stats -> runtime Organism container, then refresh derived values.
         StatContainer target = AllStats;
         if (target != null && characterData.statContainer != null)
         {
             characterData.statContainer.CopyToStatContainer(target);
-            _organism?.RefreshMoveSpeedFromStats();
+            RefreshMoveSpeedFromStats();
         }
 
-        // Refill to the new maximums.
-        if (_organism != null)
-            _organism.ModifyHealth(_organism.MaxHealth - _organism.CurrentHealth);
-        CurrentEnergy = target != null ? target.GetStat("MaxEnergy", 100f) : 100f;
+        // Refill only when the class has a valid configured maximum. A missing/zero
+        // MaxHealth must not turn the spawn refill into lethal damage.
+        if (MaxHealth > 0f)
+            ModifyHealth(MaxHealth - CurrentHealth);
+
+        if (MaxEnergy > 0f)
+            ModifyEnergy(MaxEnergy - CurrentEnergy);
 
         // Body animator (class visual).
         Animator bodyAnimator = ResolveBodyAnimator();
@@ -152,17 +134,6 @@ public class PlayerController : NetworkBehaviour
         GetComponent<CharacterTraitManager>()?.SetCharacterData(characterData);
 
         Debug.Log($"[PlayerController] Applied character '{characterData.displayName}'.");
-    }
-
-    /// <summary>Runtime, trait-merged stat container (sourced from the Organism on this object).</summary>
-    public StatContainer AllStats
-    {
-        get
-        {
-            if (_organism == null)
-                _organism = GetComponent<Organism>();
-            return _organism != null ? _organism.AllStats : null;
-        }
     }
 
     public void RequestStatsRecalculation()
@@ -336,8 +307,10 @@ public class PlayerController : NetworkBehaviour
         return null;
     }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         if (_rigidbody == null)
             _rigidbody = GetComponent<Rigidbody2D>();
 
@@ -373,29 +346,6 @@ public class PlayerController : NetworkBehaviour
             EnsureCharacterAssigned();
             OnPlayerSpawned?.Invoke(this);
         }
-    }
-
-    public override void OnStartNetwork()
-    {
-        base.OnStartNetwork();
-        _syncAimAngle.OnChange += OnAimAngleSyncChanged;
-        _syncFacingLeft.OnChange += OnFacingSyncChanged;
-        _syncWeaponFlipY.OnChange += OnWeaponFlipYSyncChanged;
-
-        if (!base.Owner.IsLocalClient)
-        {
-            _targetRemoteAimAngle = _syncAimAngle.Value;
-            _smoothedRemoteAimAngle = _targetRemoteAimAngle;
-            _hasRemoteAimAngle = true;
-        }
-    }
-
-    public override void OnStopNetwork()
-    {
-        _syncAimAngle.OnChange -= OnAimAngleSyncChanged;
-        _syncFacingLeft.OnChange -= OnFacingSyncChanged;
-        _syncWeaponFlipY.OnChange -= OnWeaponFlipYSyncChanged;
-        base.OnStopNetwork();
     }
 
     public override void OnOwnershipClient(NetworkConnection prevOwner)
@@ -462,6 +412,7 @@ public class PlayerController : NetworkBehaviour
 
         _equippedMainWeaponConfig = weaponConfig;
         _currentMainWeaponSettings = weaponConfig.ToWeaponSettings();
+        GetComponent<CharacterAbilityManager>()?.SetWeaponAbility(weaponConfig.grantedPrimaryAbility);
 
         string weaponName = weaponConfig.weaponName;
         if (string.IsNullOrWhiteSpace(weaponName))
@@ -534,7 +485,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        InstanceFinder.ServerManager.Spawn(spawnedWeapon);
+        InstanceFinder.ServerManager.Spawn(spawnedWeapon, Owner);
         weaponNob.SetParent(this.NetworkObject);
         _currentMainWeaponNob = weaponNob;
 
@@ -662,36 +613,35 @@ public class PlayerController : NetworkBehaviour
         DisableInputActions();
     }
 
-    private void Update()
+    protected override void HandleUpdate()
     {
-        if (!InputEnabled)
+        if (!InputEnabled || !IsOwner)
             return;
 
-        if (IsOwner)
-        {
-            ReadInputs();
-            if (TryGetOwnerAimAngle(out float ownerAimAngle))
-            {
-                bool facingLeftFromAim = IsFacingLeftFromAngle(ownerAimAngle);
-                ApplyFacingVisual(facingLeftFromAim);
-                bool weaponFlipY = GetWeaponFlipYForAngle(ownerAimAngle);
-                PushAimStateToNetwork(ownerAimAngle, facingLeftFromAim, weaponFlipY);
-            }
-        }
-        else
-        {
-            UpdateRemoteAimSmoothingAndFacing();
-        }
-
+        ReadInputs();
         UpdateMainWeaponPresentation();
+        HandleAbilityInput();
+    }
 
+    private void LateUpdate()
+    {
         if (IsOwner)
-            HandleAbilityInput();
+            return;
+
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
+        if (weaponHolder == null || !weaponHolder.HasWeapon())
+            return;
+
+        GameObject weapon = weaponHolder.GetCurrentWeapon();
+        if (weapon == null)
+            return;
+
+        ApplyFacingVisual(IsFacingLeftFromAngle(weapon.transform.localEulerAngles.z));
     }
 
     private void FixedUpdate()
     {
-        if (!InputEnabled || !IsOwner || _rigidbody == null)
+        if (!isAlive || !InputEnabled || !IsOwner || _rigidbody == null)
             return;
 
         Vector2 velocity = _moveInput * _moveSpeed;
@@ -713,7 +663,7 @@ public class PlayerController : NetworkBehaviour
         for (int i = 0; i < _abilityActions.Length; i++)
         {
             if (_abilityActions[i] != null && _abilityActions[i].WasPressedThisFrame())
-                TriggerAbility(i);
+                TriggerAbility(i + 2);
         }
     }
 
@@ -722,14 +672,12 @@ public class PlayerController : NetworkBehaviour
         if (!InputEnabled || !IsOwner)
             return;
 
-        if (slotIndex < 0 || slotIndex >= _abilities.Length)
+        DataDrivenAbility ability = GetComponent<CharacterAbilityManager>()?.GetDataDrivenAbilityAtSlot(slotIndex);
+        if (ability == null)
             return;
 
-        if (_abilities[slotIndex] == null)
-            return;
-
-        _abilities[slotIndex].SetAbilitySlot(slotIndex + 2);
-        _abilities[slotIndex].TryUseAbility();
+        ability.SetAbilitySlot(slotIndex);
+        ability.TryUseAbility();
     }
 
     private Animator ResolveBodyAnimator()
@@ -804,7 +752,7 @@ public class PlayerController : NetworkBehaviour
 
     private void UpdateMainWeaponPresentation()
     {
-        if (_currentMainWeaponSettings == null)
+        if (!IsOwner || _currentMainWeaponSettings == null)
             return;
 
         WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
@@ -819,30 +767,10 @@ public class PlayerController : NetworkBehaviour
         if (_weaponSortingManager == null || _characterSpriteRenderer == null)
             return;
 
-        float aimAngle;
-        WeaponSortingManager.Direction aimDir;
-        float? overrideAngle = null;
-
-        if (IsOwner)
-        {
-            Vector2 origin = _rigidbody != null ? _rigidbody.position : (Vector2)transform.position;
-            Vector2 aimWorld = GetAimWorldPosition();
-            Vector2 aimDirection = aimWorld - origin;
-            aimDir = GetAimDirection(aimDirection);
-            aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-            if (aimAngle < 0f)
-                aimAngle += 360f;
-        }
-        else
-        {
-            aimAngle = _hasRemoteAimAngle ? _smoothedRemoteAimAngle : _syncAimAngle.Value;
-            Vector2 aimDirection = new Vector2(
-                Mathf.Cos(aimAngle * Mathf.Deg2Rad),
-                Mathf.Sin(aimAngle * Mathf.Deg2Rad));
-            aimDir = GetAimDirection(aimDirection);
-            overrideAngle = aimAngle;
-            ApplyFacingVisual(IsFacingLeftFromAngle(aimAngle));
-        }
+        Vector2 origin = _rigidbody != null ? _rigidbody.position : (Vector2)transform.position;
+        Vector2 aimWorld = GetAimWorldPosition();
+        Vector2 aimDirection = aimWorld - origin;
+        WeaponSortingManager.Direction aimDir = GetAimDirection(aimDirection);
 
         _weaponSortingManager.UpdateActiveAimingWeapon(
             currentWeapon.transform,
@@ -859,123 +787,7 @@ public class PlayerController : NetworkBehaviour
             _ => { },
             IsClientStarted || IsServerStarted,
             IsOwner,
-            overrideAngle);
-
-            if (!IsOwner)
-                ApplyWeaponYFlip(currentWeapon.transform, _syncWeaponFlipYValue);
-    }
-
-            private void PushAimStateToNetwork(float aimAngle, bool facingLeft, bool weaponFlipY)
-    {
-        if (!IsOwner)
-            return;
-
-        if (IsServerStarted)
-        {
-            _syncAimAngle.Value = aimAngle;
-            _syncFacingLeft.Value = facingLeft;
-            _syncWeaponFlipY.Value = weaponFlipY;
-            _hasSentAimAngle = true;
-            _lastSentAimAngle = aimAngle;
-            _lastSentFacingLeft = facingLeft;
-            return;
-        }
-
-        bool shouldSend = !_hasSentAimAngle ||
-                          Mathf.Abs(Mathf.DeltaAngle(_lastSentAimAngle, aimAngle)) >= _aimSyncSendThresholdDegrees ||
-                          _lastSentFacingLeft != facingLeft;
-        if (!shouldSend)
-            return;
-
-        ServerRpcSetAimPresentation(aimAngle, facingLeft, weaponFlipY);
-        _hasSentAimAngle = true;
-        _lastSentAimAngle = aimAngle;
-        _lastSentFacingLeft = facingLeft;
-    }
-
-    [ServerRpc]
-    private void ServerRpcSetAimPresentation(float aimAngle, bool facingLeft, bool weaponFlipY)
-    {
-        _syncAimAngle.Value = aimAngle;
-        _syncFacingLeft.Value = facingLeft;
-        _syncWeaponFlipY.Value = weaponFlipY;
-    }
-
-    private void OnAimAngleSyncChanged(float prev, float next, bool asServer)
-    {
-        if (IsOwner)
-            return;
-
-        _targetRemoteAimAngle = next;
-        if (!_hasRemoteAimAngle)
-        {
-            _smoothedRemoteAimAngle = next;
-            _hasRemoteAimAngle = true;
-        }
-    }
-
-    private bool TryGetOwnerAimAngle(out float angle)
-    {
-        Vector2 origin = _rigidbody != null ? _rigidbody.position : (Vector2)transform.position;
-        Vector2 aimWorld = GetAimWorldPosition();
-        Vector2 aimDirection = aimWorld - origin;
-        if (aimDirection.sqrMagnitude <= 0.000001f)
-        {
-            angle = 0f;
-            return false;
-        }
-
-        angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        if (angle < 0f)
-            angle += 360f;
-        return true;
-    }
-
-    private void UpdateRemoteAimSmoothingAndFacing()
-    {
-        if (!_hasRemoteAimAngle)
-        {
-            _targetRemoteAimAngle = _syncAimAngle.Value;
-            _smoothedRemoteAimAngle = _targetRemoteAimAngle;
-            _hasRemoteAimAngle = true;
-        }
-
-        float smoothT = 1f - Mathf.Exp(-_remoteAimSmoothing * Time.deltaTime);
-        _smoothedRemoteAimAngle = Mathf.LerpAngle(_smoothedRemoteAimAngle, _targetRemoteAimAngle, smoothT);
-        ApplyFacingVisual(IsFacingLeftFromAngle(_smoothedRemoteAimAngle));
-    }
-
-    private void OnFacingSyncChanged(bool prev, bool next, bool asServer)
-    {
-        if (IsOwner)
-            return;
-
-        ApplyFacingVisual(next);
-    }
-
-    private void OnWeaponFlipYSyncChanged(bool prev, bool next, bool asServer)
-    {
-        _syncWeaponFlipYValue = next;
-    }
-
-    private bool GetWeaponFlipYForAngle(float aimAngle)
-    {
-        if (_currentMainWeaponSettings == null ||
-            !_currentMainWeaponSettings.flipWeaponOnTurn ||
-            !_currentMainWeaponSettings.flipWeaponOnYAxis)
-            return false;
-
-        return IsFacingLeftFromAngle(aimAngle);
-    }
-
-    private void ApplyWeaponYFlip(Transform weapon, bool flipY)
-    {
-        if (weapon == null)
-            return;
-
-        Vector3 scale = weapon.localScale;
-        scale.y = flipY ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
-        weapon.localScale = scale;
+            null);
     }
 
     private void ApplyFacingVisual(bool facingLeft)
@@ -1025,9 +837,10 @@ public class PlayerController : NetworkBehaviour
         return worldPoint;
     }
 
-    public void ModifyEnergy(float amount)
+    protected override void HandleDeath()
     {
-        CurrentEnergy = Mathf.Max(0f, CurrentEnergy + amount);
+        if (_rigidbody != null)
+            _rigidbody.linearVelocity = Vector2.zero;
     }
 
     private void InitializeInputActions()

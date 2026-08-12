@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponTypeConfig
   typeName: Staff
   defaultPositioning:
-    aimingRadius: 0.5
+    aimingRadius: 0.35
     isMainHand: 0
     is2Handed: 1
     northEastOffset: {x: 0, y: 0}
     northWestOffset: {x: 0, y: 0}
-    southEastOffset: {x: 0, y: 0.25}
-    southWestOffset: {x: 0, y: 0.25}
+    southEastOffset: {x: 0, y: 0}
+    southWestOffset: {x: 0, y: 0}
     weaponBehindOnNE: 1
     weaponBehindOnNW: 1
     weaponBehindOnSE: 0
