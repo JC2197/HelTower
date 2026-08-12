@@ -2,6 +2,7 @@ using System;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,11 +12,18 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Rigidbody2D _rigidbody;
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private Transform _visualTransform;
+    
     [SerializeField, Min(0f)] private float _facingDirectionThreshold = 0.01f;
 
     [Header("Animation")]
     [SerializeField] private Animator _bodyAnimator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
     [SerializeField] private string _movingParameter = "IsMoving";
+
+    [Header("Network Presentation")]
+    [SerializeField, Min(0f)] private float _aimSyncSendThresholdDegrees = 0.35f;
+    [SerializeField, Min(0f)] private float _remoteAimSmoothing = 20f;
 
     [Header("Abilities")]
     [SerializeField] private DataDrivenAbility[] _abilities = new DataDrivenAbility[5];
@@ -31,13 +39,25 @@ public class PlayerController : NetworkBehaviour
 
     private CharacterData _currentCharacterData;
     private NetworkObject _currentMainWeaponNob;
+    private WeaponConfig _equippedMainWeaponConfig;
     private WeaponSettings _currentMainWeaponSettings;
     private WeaponSortingManager _weaponSortingManager;
     private SpriteRenderer _characterSpriteRenderer;
+    private bool _isFacingLeft;
+    private float _lastSentAimAngle;
+    private bool _hasSentAimAngle;
+    private bool _lastSentFacingLeft;
+    private float _targetRemoteAimAngle;
+    private float _smoothedRemoteAimAngle;
+    private bool _hasRemoteAimAngle;
+    private bool _syncWeaponFlipYValue;
     private string _assignedCharacterName;
     private Organism _organism;
     private bool _hasFacing;
 
+    private readonly SyncVar<float> _syncAimAngle = new SyncVar<float>();
+    private readonly SyncVar<bool> _syncFacingLeft = new SyncVar<bool>();
+    private readonly SyncVar<bool> _syncWeaponFlipY = new SyncVar<bool>();
     /// <summary>Fired on the local owner when the player spawns / gains ownership.</summary>
     public static event Action<PlayerController> OnPlayerSpawned;
 
@@ -77,7 +97,6 @@ public class PlayerController : NetworkBehaviour
         bodyAnimator.runtimeAnimatorController = controller;
 
         WeaponConfig defaultWeapon = GetDefaultWeaponForClass(classData);
-        _currentMainWeaponSettings = defaultWeapon != null ? defaultWeapon.ToWeaponSettings() : null;
         if (defaultWeapon != null)
             EquipMainHandWeapon(defaultWeapon);
 
@@ -123,14 +142,7 @@ public class PlayerController : NetworkBehaviour
 
         // Main-hand weapon.
         if (characterData.mainHandWeaponConfig != null)
-        {
-            _currentMainWeaponSettings = characterData.mainHandWeaponConfig.ToWeaponSettings();
             EquipMainHandWeapon(characterData.mainHandWeaponConfig);
-        }
-        else
-        {
-            _currentMainWeaponSettings = null;
-        }
 
         // Ability loadout.
         GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(characterData);
@@ -348,11 +360,7 @@ public class PlayerController : NetworkBehaviour
         if (_abilities == null)
             _abilities = new DataDrivenAbility[5];
 
-        _characterSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
-        _weaponSortingManager = GetComponent<WeaponSortingManager>();
-        if (_weaponSortingManager == null)
-            _weaponSortingManager = gameObject.AddComponent<WeaponSortingManager>();
-        _weaponSortingManager.Initialize(_characterSpriteRenderer, _currentCharacterData);
+        EnsureWeaponSortingManager();
 
         InitializeInputActions();
     }
@@ -365,6 +373,29 @@ public class PlayerController : NetworkBehaviour
             EnsureCharacterAssigned();
             OnPlayerSpawned?.Invoke(this);
         }
+    }
+
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        _syncAimAngle.OnChange += OnAimAngleSyncChanged;
+        _syncFacingLeft.OnChange += OnFacingSyncChanged;
+        _syncWeaponFlipY.OnChange += OnWeaponFlipYSyncChanged;
+
+        if (!base.Owner.IsLocalClient)
+        {
+            _targetRemoteAimAngle = _syncAimAngle.Value;
+            _smoothedRemoteAimAngle = _targetRemoteAimAngle;
+            _hasRemoteAimAngle = true;
+        }
+    }
+
+    public override void OnStopNetwork()
+    {
+        _syncAimAngle.OnChange -= OnAimAngleSyncChanged;
+        _syncFacingLeft.OnChange -= OnFacingSyncChanged;
+        _syncWeaponFlipY.OnChange -= OnWeaponFlipYSyncChanged;
+        base.OnStopNetwork();
     }
 
     public override void OnOwnershipClient(NetworkConnection prevOwner)
@@ -429,6 +460,9 @@ public class PlayerController : NetworkBehaviour
         if (weaponConfig == null)
             return;
 
+        _equippedMainWeaponConfig = weaponConfig;
+        _currentMainWeaponSettings = weaponConfig.ToWeaponSettings();
+
         string weaponName = weaponConfig.weaponName;
         if (string.IsNullOrWhiteSpace(weaponName))
         {
@@ -454,11 +488,8 @@ public class PlayerController : NetworkBehaviour
         if (settings.weaponPrefab == null)
             return;
 
-        WeaponHolder weaponHolder = GetComponent<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = GetComponentInChildren<WeaponHolder>();
-
-        weaponHolder?.EquipWeapon(settings.weaponPrefab);
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
+        weaponHolder.EquipWeapon(settings.weaponPrefab);
     }
 
     [ServerRpc]
@@ -492,11 +523,7 @@ public class PlayerController : NetworkBehaviour
             _currentMainWeaponNob = null;
         }
 
-        WeaponHolder weaponHolder = GetComponent<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = GetComponentInChildren<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = gameObject.AddComponent<WeaponHolder>();
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
 
         GameObject spawnedWeapon = Instantiate(settings.weaponPrefab);
         NetworkObject weaponNob = spawnedWeapon.GetComponent<NetworkObject>();
@@ -511,24 +538,118 @@ public class PlayerController : NetworkBehaviour
         weaponNob.SetParent(this.NetworkObject);
         _currentMainWeaponNob = weaponNob;
 
-        ObserversRpcSetupPlayerWeaponVisuals(weaponNob);
-        ApplyCurrentWeaponPresentation();
+        ObserversRpcSetupPlayerWeaponVisuals(
+            weaponNob,
+            weaponName,
+            settings.aimingRadius,
+            settings.northEastOffset,
+            settings.northWestOffset,
+            settings.southEastOffset,
+            settings.southWestOffset,
+            settings.lockTo2Directions,
+            settings.flipWeaponOnTurn,
+            settings.flipWeaponOnYAxis,
+            settings.flipWeaponOnXAxis,
+            settings.weaponBehindOnNE,
+            settings.weaponBehindOnNW,
+            settings.weaponBehindOnSE,
+            settings.weaponBehindOnSW,
+            settings.handBehindOnNE,
+            settings.handBehindOnNW,
+            settings.handBehindOnSE,
+            settings.handBehindOnSW,
+            settings.handRotationOffset);
     }
 
     [ObserversRpc(BufferLast = true, RunLocally = true)]
-    private void ObserversRpcSetupPlayerWeaponVisuals(NetworkObject mainWeaponNob)
+    private void ObserversRpcSetupPlayerWeaponVisuals(
+        NetworkObject mainWeaponNob,
+        string weaponName,
+        float aimingRadius,
+        Vector2 northEastOffset,
+        Vector2 northWestOffset,
+        Vector2 southEastOffset,
+        Vector2 southWestOffset,
+        bool lockTo2Directions,
+        bool flipWeaponOnTurn,
+        bool flipWeaponOnYAxis,
+        bool flipWeaponOnXAxis,
+        bool weaponBehindOnNE,
+        bool weaponBehindOnNW,
+        bool weaponBehindOnSE,
+        bool weaponBehindOnSW,
+        bool handBehindOnNE,
+        bool handBehindOnNW,
+        bool handBehindOnSE,
+        bool handBehindOnSW,
+        float handRotationOffset)
     {
         if (mainWeaponNob == null)
             return;
 
-        WeaponHolder weaponHolder = GetComponent<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = GetComponentInChildren<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = gameObject.AddComponent<WeaponHolder>();
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
 
         weaponHolder.SetupNetworkWeapon(mainWeaponNob.gameObject);
-        ApplyCurrentWeaponPresentation();
+
+        _currentMainWeaponSettings = new WeaponSettings
+        {
+            aimingRadius = aimingRadius,
+            northEastOffset = northEastOffset,
+            northWestOffset = northWestOffset,
+            southEastOffset = southEastOffset,
+            southWestOffset = southWestOffset,
+            lockTo2Directions = lockTo2Directions,
+            flipWeaponOnTurn = flipWeaponOnTurn,
+            flipWeaponOnYAxis = flipWeaponOnYAxis,
+            flipWeaponOnXAxis = flipWeaponOnXAxis,
+            weaponBehindOnNE = weaponBehindOnNE,
+            weaponBehindOnNW = weaponBehindOnNW,
+            weaponBehindOnSE = weaponBehindOnSE,
+            weaponBehindOnSW = weaponBehindOnSW,
+            handBehindOnNE = handBehindOnNE,
+            handBehindOnNW = handBehindOnNW,
+            handBehindOnSE = handBehindOnSE,
+            handBehindOnSW = handBehindOnSW,
+            handRotationOffset = handRotationOffset
+        };
+
+        if (!string.IsNullOrWhiteSpace(weaponName))
+        {
+            WeaponConfig weaponConfig = WeaponConfigRegistry.GetConfig(weaponName);
+            if (weaponConfig != null)
+            {
+                _equippedMainWeaponConfig = weaponConfig;
+            }
+        }
+    }
+
+    private WeaponHolder GetOrCreateMainWeaponHolder()
+    {
+        Transform namedHolder = transform.Find("WeaponHolder");
+        if (namedHolder != null)
+        {
+            WeaponHolder holderOnNamedChild = namedHolder.GetComponent<WeaponHolder>();
+            if (holderOnNamedChild == null)
+            {
+                holderOnNamedChild = namedHolder.gameObject.AddComponent<WeaponHolder>();
+                Debug.LogWarning("[PlayerController] Added missing WeaponHolder component on existing child 'WeaponHolder'.");
+            }
+
+            return holderOnNamedChild;
+        }
+
+        WeaponHolder anyExistingHolder = GetComponentInChildren<WeaponHolder>(true);
+        if (anyExistingHolder != null)
+            return anyExistingHolder;
+
+        GameObject holderObject = new GameObject("WeaponHolder");
+        holderObject.transform.SetParent(transform);
+        holderObject.transform.localPosition = Vector3.zero;
+        holderObject.transform.localRotation = Quaternion.identity;
+        holderObject.transform.localScale = Vector3.one;
+
+        Debug.LogWarning("[PlayerController] Created missing child 'WeaponHolder' at runtime.");
+        return holderObject.AddComponent<WeaponHolder>();
     }
 
     private void OnEnable()
@@ -543,11 +664,29 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (!InputEnabled || !IsOwner)
+        if (!InputEnabled)
             return;
 
-        ReadInputs();
-        HandleAbilityInput();
+        if (IsOwner)
+        {
+            ReadInputs();
+            if (TryGetOwnerAimAngle(out float ownerAimAngle))
+            {
+                bool facingLeftFromAim = IsFacingLeftFromAngle(ownerAimAngle);
+                ApplyFacingVisual(facingLeftFromAim);
+                bool weaponFlipY = GetWeaponFlipYForAngle(ownerAimAngle);
+                PushAimStateToNetwork(ownerAimAngle, facingLeftFromAim, weaponFlipY);
+            }
+        }
+        else
+        {
+            UpdateRemoteAimSmoothingAndFacing();
+        }
+
+        UpdateMainWeaponPresentation();
+
+        if (IsOwner)
+            HandleAbilityInput();
     }
 
     private void FixedUpdate()
@@ -608,50 +747,6 @@ public class PlayerController : NetworkBehaviour
         Animator bodyAnimator = ResolveBodyAnimator();
         if (bodyAnimator != null && !string.IsNullOrWhiteSpace(_movingParameter))
             bodyAnimator.SetBool(_movingParameter, velocity.sqrMagnitude > 0f);
-
-        ApplyCurrentWeaponPresentation();
-    }
-
-    private void ApplyCurrentWeaponPresentation()
-    {
-        if (!IsOwner || _currentMainWeaponSettings == null)
-            return;
-
-        if (_weaponSortingManager == null)
-        {
-            _characterSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
-            _weaponSortingManager = GetComponent<WeaponSortingManager>();
-            if (_weaponSortingManager == null)
-                _weaponSortingManager = gameObject.AddComponent<WeaponSortingManager>();
-            _weaponSortingManager.Initialize(_characterSpriteRenderer, _currentCharacterData);
-        }
-
-        WeaponHolder weaponHolder = GetComponent<WeaponHolder>();
-        if (weaponHolder == null)
-            weaponHolder = GetComponentInChildren<WeaponHolder>();
-
-        if (weaponHolder == null || !weaponHolder.HasWeapon())
-            return;
-
-        GameObject weapon = weaponHolder.GetCurrentWeapon();
-        if (weapon == null)
-            return;
-
-        Animator bodyAnimator = ResolveBodyAnimator();
-        string animationName = GetCurrentAnimatorClipName(bodyAnimator);
-        _weaponSortingManager.UpdateWeaponSorting(animationName, weapon.transform, _currentMainWeaponSettings, _moveInput);
-    }
-
-    private string GetCurrentAnimatorClipName(Animator animator)
-    {
-        if (animator == null)
-            return string.Empty;
-
-        AnimatorClipInfo[] clips = animator.GetCurrentAnimatorClipInfo(0);
-        if (clips == null || clips.Length == 0 || clips[0].clip == null)
-            return string.Empty;
-
-        return clips[0].clip.name;
     }
 
     private void ApplyFacingFromAim()
@@ -663,14 +758,259 @@ public class PlayerController : NetworkBehaviour
             return;
 
         bool facingLeft = directionX < 0f;
-        if (_hasFacing && facingLeft == (_visualTransform != null ? _visualTransform.localScale.x < 0f : transform.localScale.x < 0f))
+        if (_hasFacing && facingLeft == _isFacingLeft)
             return;
 
-        Transform visual = _visualTransform != null ? _visualTransform : transform;
-        Vector3 scale = visual.localScale;
-        scale.x = Mathf.Abs(scale.x) * (facingLeft ? -1f : 1f);
-        visual.localScale = scale;
+        SpriteRenderer renderTarget = spriteRenderer != null ? spriteRenderer : ResolveCharacterSpriteRenderer();
+        if (renderTarget != null)
+            renderTarget.flipX = facingLeft;
+
+        _isFacingLeft = facingLeft;
         _hasFacing = true;
+    }
+
+    private void EnsureWeaponSortingManager()
+    {
+        if (_weaponSortingManager == null)
+            _weaponSortingManager = GetComponent<WeaponSortingManager>();
+
+        if (_weaponSortingManager == null)
+            _weaponSortingManager = gameObject.AddComponent<WeaponSortingManager>();
+
+        _characterSpriteRenderer = ResolveCharacterSpriteRenderer();
+        if (_characterSpriteRenderer != null)
+            _weaponSortingManager.Initialize(_characterSpriteRenderer, _currentCharacterData);
+    }
+
+    private SpriteRenderer ResolveCharacterSpriteRenderer()
+    {
+        Animator bodyAnimator = ResolveBodyAnimator();
+        if (bodyAnimator != null)
+        {
+            SpriteRenderer bodyRenderer = bodyAnimator.GetComponent<SpriteRenderer>();
+            if (bodyRenderer != null)
+                return bodyRenderer;
+        }
+
+        if (_visualTransform != null)
+        {
+            SpriteRenderer visualRenderer = _visualTransform.GetComponentInChildren<SpriteRenderer>(true);
+            if (visualRenderer != null)
+                return visualRenderer;
+        }
+
+        return GetComponentInChildren<SpriteRenderer>(true);
+    }
+
+    private void UpdateMainWeaponPresentation()
+    {
+        if (_currentMainWeaponSettings == null)
+            return;
+
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
+        if (weaponHolder == null || !weaponHolder.HasWeapon())
+            return;
+
+        GameObject currentWeapon = weaponHolder.GetCurrentWeapon();
+        if (currentWeapon == null)
+            return;
+
+        EnsureWeaponSortingManager();
+        if (_weaponSortingManager == null || _characterSpriteRenderer == null)
+            return;
+
+        float aimAngle;
+        WeaponSortingManager.Direction aimDir;
+        float? overrideAngle = null;
+
+        if (IsOwner)
+        {
+            Vector2 origin = _rigidbody != null ? _rigidbody.position : (Vector2)transform.position;
+            Vector2 aimWorld = GetAimWorldPosition();
+            Vector2 aimDirection = aimWorld - origin;
+            aimDir = GetAimDirection(aimDirection);
+            aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+            if (aimAngle < 0f)
+                aimAngle += 360f;
+        }
+        else
+        {
+            aimAngle = _hasRemoteAimAngle ? _smoothedRemoteAimAngle : _syncAimAngle.Value;
+            Vector2 aimDirection = new Vector2(
+                Mathf.Cos(aimAngle * Mathf.Deg2Rad),
+                Mathf.Sin(aimAngle * Mathf.Deg2Rad));
+            aimDir = GetAimDirection(aimDirection);
+            overrideAngle = aimAngle;
+            ApplyFacingVisual(IsFacingLeftFromAngle(aimAngle));
+        }
+
+        _weaponSortingManager.UpdateActiveAimingWeapon(
+            currentWeapon.transform,
+            _currentMainWeaponSettings,
+            _equippedMainWeaponConfig != null ? _equippedMainWeaponConfig.weaponName : currentWeapon.name,
+            aimDir,
+            transform,
+            Camera.main,
+            _characterSpriteRenderer,
+            false,
+            transform.Find("BackpackHolder"),
+            () => _isFacingLeft,
+            value => _isFacingLeft = value,
+            _ => { },
+            IsClientStarted || IsServerStarted,
+            IsOwner,
+            overrideAngle);
+
+            if (!IsOwner)
+                ApplyWeaponYFlip(currentWeapon.transform, _syncWeaponFlipYValue);
+    }
+
+            private void PushAimStateToNetwork(float aimAngle, bool facingLeft, bool weaponFlipY)
+    {
+        if (!IsOwner)
+            return;
+
+        if (IsServerStarted)
+        {
+            _syncAimAngle.Value = aimAngle;
+            _syncFacingLeft.Value = facingLeft;
+            _syncWeaponFlipY.Value = weaponFlipY;
+            _hasSentAimAngle = true;
+            _lastSentAimAngle = aimAngle;
+            _lastSentFacingLeft = facingLeft;
+            return;
+        }
+
+        bool shouldSend = !_hasSentAimAngle ||
+                          Mathf.Abs(Mathf.DeltaAngle(_lastSentAimAngle, aimAngle)) >= _aimSyncSendThresholdDegrees ||
+                          _lastSentFacingLeft != facingLeft;
+        if (!shouldSend)
+            return;
+
+        ServerRpcSetAimPresentation(aimAngle, facingLeft, weaponFlipY);
+        _hasSentAimAngle = true;
+        _lastSentAimAngle = aimAngle;
+        _lastSentFacingLeft = facingLeft;
+    }
+
+    [ServerRpc]
+    private void ServerRpcSetAimPresentation(float aimAngle, bool facingLeft, bool weaponFlipY)
+    {
+        _syncAimAngle.Value = aimAngle;
+        _syncFacingLeft.Value = facingLeft;
+        _syncWeaponFlipY.Value = weaponFlipY;
+    }
+
+    private void OnAimAngleSyncChanged(float prev, float next, bool asServer)
+    {
+        if (IsOwner)
+            return;
+
+        _targetRemoteAimAngle = next;
+        if (!_hasRemoteAimAngle)
+        {
+            _smoothedRemoteAimAngle = next;
+            _hasRemoteAimAngle = true;
+        }
+    }
+
+    private bool TryGetOwnerAimAngle(out float angle)
+    {
+        Vector2 origin = _rigidbody != null ? _rigidbody.position : (Vector2)transform.position;
+        Vector2 aimWorld = GetAimWorldPosition();
+        Vector2 aimDirection = aimWorld - origin;
+        if (aimDirection.sqrMagnitude <= 0.000001f)
+        {
+            angle = 0f;
+            return false;
+        }
+
+        angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        if (angle < 0f)
+            angle += 360f;
+        return true;
+    }
+
+    private void UpdateRemoteAimSmoothingAndFacing()
+    {
+        if (!_hasRemoteAimAngle)
+        {
+            _targetRemoteAimAngle = _syncAimAngle.Value;
+            _smoothedRemoteAimAngle = _targetRemoteAimAngle;
+            _hasRemoteAimAngle = true;
+        }
+
+        float smoothT = 1f - Mathf.Exp(-_remoteAimSmoothing * Time.deltaTime);
+        _smoothedRemoteAimAngle = Mathf.LerpAngle(_smoothedRemoteAimAngle, _targetRemoteAimAngle, smoothT);
+        ApplyFacingVisual(IsFacingLeftFromAngle(_smoothedRemoteAimAngle));
+    }
+
+    private void OnFacingSyncChanged(bool prev, bool next, bool asServer)
+    {
+        if (IsOwner)
+            return;
+
+        ApplyFacingVisual(next);
+    }
+
+    private void OnWeaponFlipYSyncChanged(bool prev, bool next, bool asServer)
+    {
+        _syncWeaponFlipYValue = next;
+    }
+
+    private bool GetWeaponFlipYForAngle(float aimAngle)
+    {
+        if (_currentMainWeaponSettings == null ||
+            !_currentMainWeaponSettings.flipWeaponOnTurn ||
+            !_currentMainWeaponSettings.flipWeaponOnYAxis)
+            return false;
+
+        return IsFacingLeftFromAngle(aimAngle);
+    }
+
+    private void ApplyWeaponYFlip(Transform weapon, bool flipY)
+    {
+        if (weapon == null)
+            return;
+
+        Vector3 scale = weapon.localScale;
+        scale.y = flipY ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
+        weapon.localScale = scale;
+    }
+
+    private void ApplyFacingVisual(bool facingLeft)
+    {
+        SpriteRenderer renderTarget = spriteRenderer != null ? spriteRenderer : ResolveCharacterSpriteRenderer();
+        if (renderTarget != null)
+            renderTarget.flipX = facingLeft;
+
+        _isFacingLeft = facingLeft;
+        _hasFacing = true;
+    }
+
+    private WeaponSortingManager.Direction GetAimDirection(Vector2 aimDirection)
+    {
+        if (aimDirection.sqrMagnitude <= 0.0001f)
+            return _isFacingLeft ? WeaponSortingManager.Direction.SouthWest : WeaponSortingManager.Direction.SouthEast;
+
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        if (angle < 0f)
+            angle += 360f;
+
+        if (angle >= 22.5f && angle < 90f)
+            return WeaponSortingManager.Direction.NorthEast;
+        if (angle >= 90f && angle < 156.5f)
+            return WeaponSortingManager.Direction.NorthWest;
+        if (angle >= 156.5f && angle < 270f)
+            return WeaponSortingManager.Direction.SouthWest;
+
+        return WeaponSortingManager.Direction.SouthEast;
+    }
+
+    private bool IsFacingLeftFromAngle(float angleDegrees)
+    {
+        float normalized = Mathf.Repeat(angleDegrees, 360f);
+        return normalized > 90f && normalized < 270f;
     }
 
     private Vector2 GetAimWorldPosition()

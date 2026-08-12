@@ -5170,6 +5170,7 @@ GameObject:
   - component: {fileID: 9151821784917077401}
   - component: {fileID: -6323806338761550441}
   - component: {fileID: -8027385352663489862}
+  - component: {fileID: -2646983330549828241}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5418,7 +5419,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584150957173453525
+  _initializedTimestamp: -8584150678236946102
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5567,6 +5568,7 @@ MonoBehaviour:
   _visualTransform: {fileID: 102942654033116495}
   _facingDirectionThreshold: 0.01
   _bodyAnimator: {fileID: 8662488452663639749}
+  spriteRenderer: {fileID: 2865609290191467688}
   _movingParameter: IsMoving
   _abilities:
   - {fileID: 0}
@@ -5603,3 +5605,15 @@ MonoBehaviour:
   facingDirectionThreshold: 0.01
   animator: {fileID: 8662488452663639749}
   movingParameter: IsMoving
+--- !u!114 &-2646983330549828241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a8502664c1cfa545bac79fbb88827ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponSortingManager

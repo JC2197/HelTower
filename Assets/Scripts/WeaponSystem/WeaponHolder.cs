@@ -144,7 +144,7 @@ public class WeaponHolder : MonoBehaviour
             netAnimator.SetAnimator(weaponAnimator);
             Debug.Log($"[WeaponHolder] NetworkAnimator configured for '{weapon.name}'");
         }
-
+        
         // Sorting orders
         SpriteRenderer weaponRenderer = null;
         Transform weaponSpriteChild = weapon.transform.Find("WeaponSprite");

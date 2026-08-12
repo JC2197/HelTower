@@ -305,7 +305,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2
+      scalar: 1.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -769,7 +769,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.0001
+      value: 0.12510002
       mode: 0
       spread: 0
       speed:
@@ -888,7 +888,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4
+      scalar: 7
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1327,7 +1327,7 @@ ParticleSystem:
       maxGradient:
         serializedVersion: 2
         key0: {r: 0.9568628, g: 0.65882355, b: 0.015686275, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 0.9722897}
+        key1: {r: 1, g: 1, b: 1, a: 0}
         key2: {r: 1, g: 1, b: 1, a: 0}
         key3: {r: 1, g: 1, b: 1, a: 0}
         key4: {r: 1, g: 1, b: 1, a: 0}
@@ -1342,8 +1342,8 @@ ParticleSystem:
         ctime5: 0
         ctime6: 0
         ctime7: 0
-        atime0: 26600
-        atime1: 38010
+        atime0: 9021
+        atime1: 65535
         atime2: 65535
         atime3: 65535
         atime4: 65535
@@ -1353,7 +1353,7 @@ ParticleSystem:
         m_Mode: 0
         m_ColorSpace: 0
         m_NumColorKeys: 2
-        m_NumAlphaKeys: 3
+        m_NumAlphaKeys: 2
       minGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -1505,7 +1505,6 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: -1227417338347808894, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     - sprite: {fileID: -63078289, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     - sprite: {fileID: -341705036, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     flipU: 0
@@ -5052,7 +5051,6 @@ GameObject:
   - component: {fileID: 5461491058662692328}
   - component: {fileID: 5635738715058586113}
   - component: {fileID: 8867155689882789776}
-  - component: {fileID: 1635045289176919611}
   m_Layer: 0
   m_Name: SolarStaff
   m_TagString: Untagged
@@ -5108,7 +5106,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584150957173453525
+  _initializedTimestamp: -8584150664728746544
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5158,7 +5156,7 @@ MonoBehaviour:
     Rotation: 1
     Scale: 0
   _useScaledTime: 1
-  _interpolation: 2
+  _interpolation: 1
   _extrapolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
@@ -5182,25 +5180,3 @@ MonoBehaviour:
     X: 0
     Y: 0
     Z: 0
---- !u!95 &1635045289176919611
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8236306081892218492}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 1379c8b00f574514493fcafeb5bc01e9, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
