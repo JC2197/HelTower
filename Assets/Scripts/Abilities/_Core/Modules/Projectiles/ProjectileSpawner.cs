@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using FishNet;
+using JoeConticello.VisualEffects;
 
 /// <summary>
 /// Utility class for spawning projectiles from ProjectileConfig.
@@ -10,6 +11,39 @@ using FishNet;
 public static class ProjectileSpawner
 {
     private const string AbilityPipelineTag = "[Ability pipeline]";
+
+    public static ParticleSystem InstantiateMuzzleFlashRoot(ParticleSystem flashPrefab, Vector3 position, Quaternion rotation, Transform parent = null, bool shouldFlipY = false, bool autoDestroy = true)
+    {
+        if (flashPrefab == null)
+            return null;
+
+        GameObject prefabRoot = flashPrefab.transform.root.gameObject;
+        GameObject instance = Object.Instantiate(prefabRoot, position, rotation);
+        instance.SetActive(true);
+
+        if (parent != null)
+            instance.transform.SetParent(parent, true);
+
+        SpriteRenderer[] spriteRenderers = instance.GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (SpriteRenderer sr in spriteRenderers)
+            sr.flipY = shouldFlipY;
+
+        ParticleSystemRenderer[] renderers = instance.GetComponentsInChildren<ParticleSystemRenderer>(true);
+        foreach (ParticleSystemRenderer renderer in renderers)
+        {
+            renderer.sortingLayerName = "Effects";
+            renderer.sortingOrder = 10000;
+        }
+
+        if (autoDestroy)
+            AutoDestroyEffect.SetupAutoDestroy(instance);
+
+        ParticleSystem particleSystem = instance.GetComponent<ParticleSystem>();
+        if (particleSystem == null)
+            particleSystem = instance.GetComponentInChildren<ParticleSystem>(true);
+
+        return particleSystem;
+    }
 
     /// <summary>
     /// Spawns projectile(s) based on config (backwards compatibility)
@@ -423,13 +457,6 @@ public static class ProjectileSpawner
             if (isServer)
             {
                 projectile.RpcClientInitialize(spawnPosition, projectileDirection, config.speed, tick);
-
-                // Broadcast muzzle flash for first projectile only
-                if (i == 0)
-                {
-                    float muzzleAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    projectile.BroadcastMuzzleFlash(spawnPosition, muzzleAngle);
-                }
             }
         }
     }
@@ -460,19 +487,9 @@ public static class ProjectileSpawner
             // Calculate rotation to face fire direction
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, 0, angle);
+            bool shouldFlipY = Mathf.Abs(angle) > 90f;
 
-            ParticleSystem muzzleFlash = Object.Instantiate(config.muzzleFlashPrefab, position, rotation);
-
-            // Attach to weapon if found, otherwise leave in world space
-            if (weaponTransform != null)
-            {
-                muzzleFlash.transform.SetParent(weaponTransform, true);
-            }
-
-
-            // Auto-destroy after particle lifetime
-            var main = muzzleFlash.main;
-            Object.Destroy(muzzleFlash.gameObject, main.duration + main.startLifetime.constantMax);
+            InstantiateMuzzleFlashRoot(config.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY);
         }
 
         // Spawn muzzle flash light

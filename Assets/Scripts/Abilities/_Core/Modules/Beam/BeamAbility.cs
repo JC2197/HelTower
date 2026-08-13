@@ -934,18 +934,9 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, 0, angle);
+            bool shouldFlipY = Mathf.Abs(angle) > 90f;
 
-            muzzleFlash = Instantiate(beamConfig.muzzleFlashPrefab, position, rotation);
-
-            if (weaponTransform != null)
-                muzzleFlash.transform.SetParent(weaponTransform, true);
-
-            ParticleSystemRenderer[] renderers = muzzleFlash.GetComponentsInChildren<ParticleSystemRenderer>(true);
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                renderers[i].sortingLayerName = "Effects";
-                renderers[i].sortingOrder = 10000;
-            }
+            muzzleFlash = ProjectileSpawner.InstantiateMuzzleFlashRoot(beamConfig.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY, false);
 
             var main = muzzleFlash.main;
             main.loop = true;

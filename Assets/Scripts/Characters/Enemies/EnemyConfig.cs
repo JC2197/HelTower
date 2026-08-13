@@ -17,6 +17,10 @@ public class EnemyConfig : ScriptableObject
 
     [Tooltip("Enemy stat values (health, resistances, etc.)")]
     public StatContainer stats = new StatContainer();
+
+    [Tooltip("Stat type database used to initialize and synchronize this enemy's stat container")]
+    public StatTypeDatabase statTypeDatabase;
+
     public bool isBoss = false;
     [Header("Detection")]
     [Tooltip("How far enemy can detect targets")]
@@ -142,6 +146,32 @@ public class EnemyConfig : ScriptableObject
     
     [Tooltip("Maximum total items this enemy can drop (includes universal + specific drops)")]
     public int maxDrops = 3;
+
+    private void OnValidate()
+    {
+        if (stats == null)
+            stats = new StatContainer();
+
+        StatTypeDatabase database = statTypeDatabase != null ? statTypeDatabase : StatTypeDatabase.Instance;
+        if (database == null)
+            return;
+
+        int addedStats = stats.Migrate(database);
+#if UNITY_EDITOR
+        if (addedStats > 0)
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+    }
+
+    [ContextMenu("Synchronize Stats from Database")]
+    private void SynchronizeStatsFromDatabase()
+    {
+        OnValidate();
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.SaveAssets();
+        Debug.Log($"[EnemyConfig] Synchronized stats for '{enemyName}' with StatTypeDatabase.");
+#endif
+    }
 
 }
 

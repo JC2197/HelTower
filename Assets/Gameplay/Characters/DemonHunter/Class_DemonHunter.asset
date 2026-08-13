@@ -15,7 +15,8 @@ MonoBehaviour:
   className: Demon Hunter
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: da7112c1f96fe0a448ab3f4750ca6d28, type: 2}
-  availableWeapons: []
+  availableWeapons:
+  - {fileID: 11400000, guid: a82a4d7b8fecb554c92d67457561fc94, type: 2}
   abilities: []
   baseStatContainer:
     stats:

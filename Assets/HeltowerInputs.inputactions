@@ -16,15 +16,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Attacks",
-                    "type": "Button",
-                    "id": "9e74bfa7-3a5c-4d16-968e-a522fc67549e",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Ability1",
                     "type": "Button",
                     "id": "f22c6d51-6e74-4b3e-ba24-c91e5bc9c724",
@@ -198,17 +189,6 @@
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "06c23a6f-d9bf-4632-962e-b7762a046c34",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Attacks",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 },
                 {
                     "name": "",

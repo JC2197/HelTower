@@ -74,6 +74,15 @@ public class CharacterSelectionConfig : ScriptableObject
         Debug.Log($"[CharacterSelectionConfig] Created character '{newCharacter.displayName}' from class '{classData.className}'");
         return newCharacter;
     }
+
+    public ClassData GetRandomClass()
+    {
+        if (availableClasses == null || availableClasses.Length == 0)
+            return defaultClass;
+
+        int randomIndex = Random.Range(0, availableClasses.Length);
+        return availableClasses[randomIndex];
+    }
     
     public ClassData GetClassByIndex(int index)
     {

@@ -15,7 +15,8 @@ MonoBehaviour:
   className: Inquisitor
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: c96a6d91809d4b74897a23c3598a3bf9, type: 2}
-  availableWeapons: []
+  availableWeapons:
+  - {fileID: 11400000, guid: c04ec44a547f9e04b88bf412f08c0037, type: 2}
   abilities: []
   baseStatContainer:
     stats:

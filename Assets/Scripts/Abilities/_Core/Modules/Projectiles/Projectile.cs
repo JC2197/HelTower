@@ -1300,57 +1300,6 @@ public abstract class Projectile : NetworkBehaviour
         AutoDestroyEffect.SetupAutoDestroy(effect);
     }
 
-    /// <summary>
-    /// Called by ProjectileSpawner on the server after network-spawning the first projectile of a volley.
-    /// Broadcasts muzzle flash VFX to all remote clients. Server already created muzzle flash locally.
-    /// </summary>
-    public void BroadcastMuzzleFlash(Vector3 position, float angle)
-    {
-        if (!IsSpawned || muzzleFlashPrefab == null) return;
-        RpcSpawnMuzzleFlash(position, angle);
-    }
-
-    /// <summary>
-    /// Broadcast muzzle flash VFX to remote clients. Server spawns locally via ProjectileSpawner.SpawnMuzzleFlash.
-    /// Clients use muzzle flash prefab from ProjectilePrefab overrides (pre-populated in Awake).
-    /// </summary>
-    [ObserversRpc(ExcludeServer = true)]
-    private void RpcSpawnMuzzleFlash(Vector3 position, float angle)
-    {
-        if (muzzleFlashPrefab == null) return;
-
-        Quaternion rotation = Quaternion.Euler(0, 0, angle);
-        ParticleSystem flash = Instantiate(muzzleFlashPrefab, position, rotation);
-
-        // Set sorting order to render in front of everything
-        ParticleSystemRenderer[] renderers = flash.GetComponentsInChildren<ParticleSystemRenderer>(true);
-        foreach (ParticleSystemRenderer renderer in renderers)
-        {
-            renderer.sortingLayerName = "Effects";
-            renderer.sortingOrder = 10000;
-        }
-
-        // Auto-destroy after particle lifetime
-        var main = flash.main;
-        Destroy(flash.gameObject, main.duration + main.startLifetime.constantMax);
-
-        // Spawn muzzle flash light if configured
-        if (enableMuzzleLight)
-        {
-            GameObject lightObj = new GameObject("MuzzleFlashLight");
-            lightObj.transform.position = position;
-
-            Light2D light2D = lightObj.AddComponent<Light2D>();
-            light2D.lightType = Light2D.LightType.Point;
-            light2D.color = muzzleLightColor;
-            light2D.intensity = muzzleLightIntensity;
-            light2D.pointLightOuterRadius = muzzleLightRange;
-
-            MuzzleLightFader fader = lightObj.AddComponent<MuzzleLightFader>();
-            fader.Initialize(muzzleLightDuration);
-        }
-    }
-
     // Public setters
     public void SetSpeed(float newSpeed) => speed = newSpeed;
     public void SetLifetime(float newLifetime) => lifetime = newLifetime;

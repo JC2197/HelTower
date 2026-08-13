@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: SmashKnockback
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: SmashKnockback
+  displayName: SmashKnockback
+  description: Increase the knockback of Smash by {v3}%.\nIncrease the radius of
+    Smash by {v1}%
+  traitIcon: {fileID: 6269333815379761492, guid: bbe837abdc176c744938ba4a6671a447, type: 3}
+  colorTheme: Combat
+  specializedTraitTag1: Defense
+  specializedTraitTag2: Combat
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 0
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
+    abilityIcon: {fileID: 0}
+    overrides:
+    - propertyPath: meleeConfig.hitbox.scaleX
+      overrideMode: 1
+      numericValue: 5
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: meleeConfig.hitbox.scaleY
+      overrideMode: 1
+      numericValue: 5
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: meleeConfig.hitbox.knockback.force
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

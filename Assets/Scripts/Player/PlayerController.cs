@@ -53,6 +53,16 @@ public class PlayerController : Organism
 
     public CharacterData GetCurrentCharacterData() => _currentCharacterData;
     public void SetCurrentCharacterData(CharacterData characterData) => _currentCharacterData = characterData;
+    public WeaponConfig GetEquippedMainWeaponConfig() => _equippedMainWeaponConfig;
+
+    public WeaponConfig GetEquippedOffhandWeaponConfig()
+    {
+        CharacterData characterData = _currentCharacterData;
+        if (characterData != null && characterData.hasDualWeapons && characterData.offHandWeaponConfig != null)
+            return characterData.offHandWeaponConfig;
+
+        return _equippedMainWeaponConfig != null ? _equippedMainWeaponConfig.offhandWeaponConfig : null;
+    }
 
     public bool ApplyClassAnimator(ClassData classData)
     {
@@ -62,25 +72,14 @@ public class PlayerController : Organism
             return false;
         }
 
-        Animator bodyAnimator = ResolveBodyAnimator();
-        if (bodyAnimator == null)
-        {
-            Debug.LogWarning("[PlayerController] Cannot switch class animator because no Animator is attached.");
+        if (!ApplyClassAnimatorVisual(classData))
             return false;
-        }
-
-        RuntimeAnimatorController controller = classData.animatorController;
-        if (controller == null)
-        {
-            Debug.LogWarning($"[PlayerController] Class '{classData.className}' has no animator controller assigned.");
-            return false;
-        }
-
-        bodyAnimator.runtimeAnimatorController = controller;
 
         WeaponConfig defaultWeapon = GetDefaultWeaponForClass(classData);
         if (defaultWeapon != null)
             EquipMainHandWeapon(defaultWeapon);
+
+        SynchronizeClassVisual(classData.className);
 
         Debug.Log($"[PlayerController] Switched animator to class '{classData.className}'.");
         return true;
@@ -121,6 +120,9 @@ public class PlayerController : Organism
         RuntimeAnimatorController controller = characterData.GetAnimatorController();
         if (bodyAnimator != null && controller != null)
             bodyAnimator.runtimeAnimatorController = controller;
+
+        if (characterData.classData != null)
+            SynchronizeClassVisual(characterData.classData.className);
 
         // Main-hand weapon.
         if (characterData.mainHandWeaponConfig != null)
@@ -218,15 +220,32 @@ public class PlayerController : Organism
     /// The owner already spawned theirs immediately, so it is skipped here.
     /// </summary>
     [ObserversRpc]
-    public void ObserversRpcSpawnMuzzleFlash(int abilitySlot, string abilityName, Vector3 position, float angle)
+    public void ObserversRpcSpawnMuzzleFlash(int abilitySlot, string abilityName, Vector3 position, float angle, bool firedFromOffhand)
     {
+        // Host already renders authoritative muzzle flash on the server path.
+        // Skipping the client-RPC echo prevents duplicate flashes in host mode.
+        if (InstanceFinder.IsServerStarted)
+            return;
+
         if (IsOwner) return;
 
+        Debug.Log($"[MuzzleFlashTrace][RPC-Recv] player={gameObject.name}, slot={abilitySlot}, ability={abilityName}, offhand={firedFromOffhand}, pos={position}, angle={angle:F1}");
+
         CharacterAbilityManager mgr = GetComponent<CharacterAbilityManager>();
-        if (mgr == null) return;
+        if (mgr == null)
+        {
+            Debug.LogWarning($"[MuzzleFlashTrace][RPC-Recv] Missing CharacterAbilityManager on {gameObject.name}");
+            return;
+        }
 
         DataDrivenAbility ability = mgr.FindDataDrivenAbility(abilitySlot, abilityName);
-        ability?.SpawnMuzzleFlashLocally(position, angle);
+        if (ability == null)
+        {
+            Debug.LogWarning($"[MuzzleFlashTrace][RPC-Recv] No DataDrivenAbility found. player={gameObject.name}, slot={abilitySlot}, ability={abilityName}");
+            return;
+        }
+
+        ability?.SpawnMuzzleFlashLocally(position, angle, firedFromOffhand);
     }
 
     private InputActionMap _playerMap;
@@ -379,17 +398,9 @@ public class PlayerController : Organism
             return;
         }
 
-        ClassData defaultClass = selectionConfig.defaultClass;
-        if (defaultClass == null && selectionConfig.availableClasses != null && selectionConfig.availableClasses.Length > 0)
-            defaultClass = selectionConfig.availableClasses[0];
+        ClassData randomClass = selectionConfig.GetRandomClass();
 
-        if (defaultClass == null)
-        {
-            Debug.LogWarning("[PlayerController] CharacterSelectionConfig has no default/available class.");
-            return;
-        }
-
-        CharacterData runtimeCharacter = selectionConfig.CreateCharacterFromClass(defaultClass);
+        CharacterData runtimeCharacter = selectionConfig.CreateCharacterFromClass(randomClass);
         if (runtimeCharacter == null)
             return;
 
@@ -405,6 +416,79 @@ public class PlayerController : Organism
         return classData.availableWeapons[0];
     }
 
+    private bool ApplyClassAnimatorVisual(ClassData classData)
+    {
+        Animator bodyAnimator = ResolveBodyAnimator();
+        if (bodyAnimator == null)
+        {
+            Debug.LogWarning("[PlayerController] Cannot switch class animator because no Animator is attached.");
+            return false;
+        }
+
+        if (classData.animatorController == null)
+        {
+            Debug.LogWarning($"[PlayerController] Class '{classData.className}' has no animator controller assigned.");
+            return false;
+        }
+
+        bodyAnimator.runtimeAnimatorController = classData.animatorController;
+        return true;
+    }
+
+    private void SynchronizeClassVisual(string className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+            return;
+
+        if (IsServerStarted)
+        {
+            ObserversRpcApplyClassVisual(className);
+            return;
+        }
+
+        if (IsOwner && IsClientStarted)
+            ServerRpcSetClassVisual(className);
+    }
+
+    [ServerRpc]
+    private void ServerRpcSetClassVisual(string className)
+    {
+        if (FindClassData(className) == null)
+        {
+            Debug.LogWarning($"[PlayerController] Cannot synchronize unknown class '{className}'.");
+            return;
+        }
+
+        ObserversRpcApplyClassVisual(className);
+    }
+
+    [ObserversRpc(BufferLast = true, RunLocally = true)]
+    private void ObserversRpcApplyClassVisual(string className)
+    {
+        ClassData classData = FindClassData(className);
+        if (classData != null)
+            ApplyClassAnimatorVisual(classData);
+    }
+
+    private static ClassData FindClassData(string className)
+    {
+        CharacterSelectionConfig selectionConfig = Resources.Load<CharacterSelectionConfig>("CharacterSelectionConfig");
+        if (selectionConfig == null || selectionConfig.availableClasses == null)
+            return null;
+
+        for (int i = 0; i < selectionConfig.availableClasses.Length; i++)
+        {
+            ClassData classData = selectionConfig.availableClasses[i];
+            if (classData != null && string.Equals(classData.className, className, StringComparison.Ordinal))
+                return classData;
+        }
+
+        return selectionConfig.defaultClass != null &&
+               string.Equals(selectionConfig.defaultClass.className, className, StringComparison.Ordinal)
+            ? selectionConfig.defaultClass
+            : null;
+    }
+
     private void EquipMainHandWeapon(WeaponConfig weaponConfig)
     {
         if (weaponConfig == null)
@@ -412,7 +496,7 @@ public class PlayerController : Organism
 
         _equippedMainWeaponConfig = weaponConfig;
         _currentMainWeaponSettings = weaponConfig.ToWeaponSettings();
-        GetComponent<CharacterAbilityManager>()?.SetWeaponAbility(weaponConfig.grantedPrimaryAbility);
+        SyncWeaponGrantedAbility(weaponConfig);
 
         string weaponName = weaponConfig.weaponName;
         if (string.IsNullOrWhiteSpace(weaponName))
@@ -461,6 +545,9 @@ public class PlayerController : Organism
             return;
         }
 
+        // Keep authoritative ability state in sync for dedicated server gameplay logic.
+        SyncWeaponGrantedAbility(weaponConfig);
+
         WeaponSettings settings = weaponConfig.ToWeaponSettings();
         if (settings.weaponPrefab == null)
         {
@@ -468,13 +555,30 @@ public class PlayerController : Organism
             return;
         }
 
-        if (_currentMainWeaponNob != null)
+        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
+
+        // Robust cleanup: if the cached reference is stale, still clear any existing held weapon.
+        // This guarantees class/character weapon swaps replace the previous main-hand object.
+        GameObject existingWeapon = weaponHolder.GetCurrentWeapon();
+        if (existingWeapon != null)
         {
-            InstanceFinder.ServerManager.Despawn(_currentMainWeaponNob);
-            _currentMainWeaponNob = null;
+            NetworkObject existingNob = existingWeapon.GetComponent<NetworkObject>();
+            if (existingNob != null && existingNob.IsSpawned)
+            {
+                InstanceFinder.ServerManager.Despawn(existingNob);
+            }
+            else
+            {
+                Destroy(existingWeapon);
+            }
         }
 
-        WeaponHolder weaponHolder = GetOrCreateMainWeaponHolder();
+        if (_currentMainWeaponNob != null)
+        {
+            if (_currentMainWeaponNob.IsSpawned)
+                InstanceFinder.ServerManager.Despawn(_currentMainWeaponNob);
+            _currentMainWeaponNob = null;
+        }
 
         GameObject spawnedWeapon = Instantiate(settings.weaponPrefab);
         NetworkObject weaponNob = spawnedWeapon.GetComponent<NetworkObject>();
@@ -570,8 +674,14 @@ public class PlayerController : Organism
             if (weaponConfig != null)
             {
                 _equippedMainWeaponConfig = weaponConfig;
+                SyncWeaponGrantedAbility(weaponConfig);
             }
         }
+    }
+
+    private void SyncWeaponGrantedAbility(WeaponConfig weaponConfig)
+    {
+        GetComponent<CharacterAbilityManager>()?.SetWeaponAbility(weaponConfig != null ? weaponConfig.grantedPrimaryAbility : null);
     }
 
     private WeaponHolder GetOrCreateMainWeaponHolder()
@@ -663,7 +773,7 @@ public class PlayerController : Organism
         for (int i = 0; i < _abilityActions.Length; i++)
         {
             if (_abilityActions[i] != null && _abilityActions[i].WasPressedThisFrame())
-                TriggerAbility(i + 2);
+                TriggerAbility(i);
         }
     }
 

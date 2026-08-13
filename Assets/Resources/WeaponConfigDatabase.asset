@@ -15,3 +15,6 @@ MonoBehaviour:
   allWeaponConfigs:
   - {fileID: 11400000, guid: 85ad2872cec2f2a429d9b322d97426b5, type: 2}
   - {fileID: 11400000, guid: 4d7f2e3c4b5a69788796a5b4c3d2e1f3, type: 2}
+  - {fileID: 11400000, guid: 0137e9495b97ad649bf6f9a6c413cac8, type: 2}
+  - {fileID: 11400000, guid: c04ec44a547f9e04b88bf412f08c0037, type: 2}
+  - {fileID: 11400000, guid: a82a4d7b8fecb554c92d67457561fc94, type: 2}

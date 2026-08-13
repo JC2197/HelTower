@@ -6,7 +6,7 @@ public class WeaponSortingManager : MonoBehaviour
     private SpriteRenderer characterRenderer;
     private CharacterData characterData;
 
-    private const string WeaponTransformDebugTag = "[WeaponTransformDebug]";
+    private const string WeaponTransformDebugTag = "Debug]";
 
     public void Initialize(SpriteRenderer renderer, CharacterData data)
     {
@@ -762,18 +762,6 @@ public class WeaponSortingManager : MonoBehaviour
         Vector3 animatedLocalEuler = animatedTransform.localEulerAngles;
         Vector3 animatedWorldEuler = animatedTransform.eulerAngles;
 
-        Debug.Log(
-            $"{WeaponTransformDebugTag} frame={Time.frameCount} clip={clipName} weaponName={weaponName} " +
-            $"aimDir={aimDir} targetAngle={targetAngle:F2} aimingLeft={aimingLeft} lock2Dir={weaponSettings.lockTo2Directions} " +
-            $"directionLocked={isDirectionLocked} lockedAngle={lockedAngle:F2} " +
-            $"flipOnTurn={weaponSettings.flipWeaponOnTurn} flipX={weaponSettings.flipWeaponOnXAxis} flipY={weaponSettings.flipWeaponOnYAxis} " +
-            $"appliedScale=({scaleX:F2},{scaleY:F2},{weapon.localScale.z:F2}) isFlipped={isFlipped} " +
-            $"weaponLocalPos={weapon.localPosition} weaponWorldPos={weapon.position} " +
-            $"weaponLocalEulerZ={weaponLocalEuler.z:F2} weaponWorldEulerZ={weaponWorldEuler.z:F2} " +
-            $"weaponLossyScale={weapon.lossyScale} " +
-            $"animatedPath={animatedTransform.name} animatedLocalPos={animatedTransform.localPosition} animatedWorldPos={animatedTransform.position} " +
-            $"animatedLocalEulerZ={animatedLocalEuler.z:F2} animatedWorldEulerZ={animatedWorldEuler.z:F2} " +
-            $"animatedLocalScale={animatedTransform.localScale} animatedLossyScale={animatedTransform.lossyScale}");
     }
 
     private float SnapToCardinalDirection(float angle)

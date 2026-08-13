@@ -72,7 +72,7 @@ MonoBehaviour:
     isPercentage: 0
     maxValue: 0
     description: 
-  - statId: MOVESPEED
+  - statId: MoveSpeed
     displayName: Movement Speed
     categoryId: Active
     icon: {fileID: 0}

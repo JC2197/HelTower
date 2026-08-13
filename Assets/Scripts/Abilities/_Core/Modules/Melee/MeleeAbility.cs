@@ -64,7 +64,15 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
         Quaternion spawnRotation = Quaternion.Euler(0f, 0f, angle);
 
         hitboxInstance = Object.Instantiate(config.hitbox.prefab, spawnPos, spawnRotation);
-
+        if (Mathf.Abs(angle) > 90f)
+        {
+            Debug.Log("[MeleeAbility] Flipping meleeFX visuals for attack angle " + angle);
+            foreach (SpriteRenderer spriteRenderer in hitboxInstance.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                Debug.Log($"[MeleeAbility] Flipping SpriteRenderer '{spriteRenderer.name}'");
+                spriteRenderer.flipX = true;
+            }
+        }
         // Apply scale override
         if (config.hitbox.scaleX > 0f && config.hitbox.scaleX != 1f || config.hitbox.scaleY > 0f && config.hitbox.scaleY != 1f)
             hitboxInstance.transform.localScale = new Vector3(config.hitbox.scaleX, config.hitbox.scaleY, 1f);
@@ -166,7 +174,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
             DestroyHitbox();
         }
     }
-    
+
     private void OnHitboxTriggerEnter(Collider2D other)
     {
         if (other.gameObject == owner)
@@ -215,7 +223,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
         hitTargets.Clear();
         Destroy(this);
     }
-    
+
     private void OnDestroy()
     {
         if (!destroyTriggersApplied)
@@ -239,7 +247,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 public class TriggerHandler : MonoBehaviour
 {
     public System.Action<Collider2D> onTriggerEnter;
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         onTriggerEnter?.Invoke(other);

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Trait_MagicMissilesCount
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: MagicMissilesProjectileCount
+  displayName: More Missiles
+  description: Magic Missiles fires +{v1} projectiles.
+  traitIcon: {fileID: 1786895532929179333, guid: 7f3e5fb7478931b439ecba25e5968c8a, type: 3}
+  colorTheme: Magic
+  specializedTraitTag1: Magic
+  specializedTraitTag2: 
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 0
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
+    abilityIcon: {fileID: 0}
+    overrides:
+    - propertyPath: projectileConfig.projectileCount
+      overrideMode: 0
+      numericValue: 2
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 11400000, guid: 47cc0d13885a34b40a7163b89c9e99dd, type: 2}

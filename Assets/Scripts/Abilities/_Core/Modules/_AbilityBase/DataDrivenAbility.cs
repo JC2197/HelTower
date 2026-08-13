@@ -1920,8 +1920,32 @@ public class DataDrivenAbility : Ability
 
         // Apply charge damage multiplier when called from AbilityCastSequence (isCharging == true)
         float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
+                    
+        // Fire animation is triggered by OnAbilityActivated() earlier in the cast flow.
+        // Delay one frame so Animator state is applied before projectile spawn.
+        if (HasConfiguredCastAnimation(config))
+        {
+            StartCoroutine(SpawnStandaloneProjectileNextFrame(damageMultiplier));
+            return true;
+        }
+
         PerformProjectileShoot(damageMultiplier);
         return true;
+    }
+
+    private IEnumerator SpawnStandaloneProjectileNextFrame(float damageMultiplier)
+    {
+        yield return null;
+        PerformProjectileShoot(damageMultiplier);
+    }
+
+    private static bool HasConfiguredCastAnimation(AbilityDataConfig abilityConfig)
+    {
+        return abilityConfig != null &&
+               (!string.IsNullOrEmpty(abilityConfig.characterAnimationName)
+                || !string.IsNullOrEmpty(abilityConfig.characterAnimationUp)
+                || !string.IsNullOrEmpty(abilityConfig.mainhandAnimationName)
+                || !string.IsNullOrEmpty(abilityConfig.offhandAnimationName));
     }
 
     /// <summary>
@@ -2225,24 +2249,28 @@ public class DataDrivenAbility : Ability
             if (isOwner)
             {
                 Debug.Log($"{AbilityPipelineTag} Projectile path: owner predictive + ServerRpc, ability={config.abilityName}, slot={abilitySlotIndex}");
-                // IMMEDIATE OWNER FEEDBACK — zero latency, no server round-trip.
-                // Spawn a cosmetic muzzle flash and a predictive (non-authoritative) projectile
-                // clone right now. The ServerRpc below then asks the server to spawn the real
-                // authoritative version; that one handles collision, damage and replication.
-                float muzzleAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                SpawnMuzzleFlashLocally(spawnPos, muzzleAngle);
+                // IMMEDIATE OWNER FEEDBACK is only needed on non-host clients.
+                // In host mode the authoritative server spawn runs locally and already renders
+                // this shot, so predictive visuals would duplicate muzzle/projectile effects.
+                bool shouldUsePredictiveVisuals = !isServer;
                 int salvoSizeOwner = effectiveProjectileConfig.salvoSize;
                 float salvoIntervalOwner = effectiveProjectileConfig.salvoInterval;
                 float salvoAngleOwner = effectiveProjectileConfig.salvoAngle;
                 uint clientTick = InstanceFinder.TimeManager.Tick;
                 GameObject capturedOverrideOwner = projectileOverride;
                 WeaponConfig capturedWeaponCfgOwner = weaponConfig;
-                if (salvoSizeOwner <= 1)
-                    SpawnPredictiveProjectile(spawnPos, direction, capturedOverrideOwner, capturedWeaponCfgOwner);
-                else
-                    StartCoroutine(SalvoCoroutine(
-                        salvoDirection => SpawnPredictiveProjectile(spawnPos, salvoDirection, capturedOverrideOwner, capturedWeaponCfgOwner),
-                        direction, salvoSizeOwner, salvoIntervalOwner, salvoAngleOwner, clientTick));
+                if (shouldUsePredictiveVisuals)
+                {
+                    float muzzleAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    SpawnMuzzleFlashLocally(spawnPos, muzzleAngle);
+
+                    if (salvoSizeOwner <= 1)
+                        SpawnPredictiveProjectile(spawnPos, direction, capturedOverrideOwner, capturedWeaponCfgOwner);
+                    else
+                        StartCoroutine(SalvoCoroutine(
+                            salvoDirection => SpawnPredictiveProjectile(spawnPos, salvoDirection, capturedOverrideOwner, capturedWeaponCfgOwner),
+                            direction, salvoSizeOwner, salvoIntervalOwner, salvoAngleOwner, clientTick));
+                }
 
                 // Server authoritative spawn — handles hits, damage and observer replication.
                 // Pass current TimeManager.Tick so the server can compute how much time elapsed
@@ -2404,7 +2432,7 @@ public class DataDrivenAbility : Ability
         if (ownerAsPlayer != null && InstanceFinder.IsServerStarted)
         {
             float muzzleAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            ownerAsPlayer.ObserversRpcSpawnMuzzleFlash(abilitySlotIndex, config.abilityName, spawnPos, muzzleAngle);
+            ownerAsPlayer.ObserversRpcSpawnMuzzleFlash(abilitySlotIndex, config.abilityName, spawnPos, muzzleAngle, firedFromOffhand);
         }
     }
 
@@ -2458,40 +2486,72 @@ public class DataDrivenAbility : Ability
     /// Spawns muzzle flash VFX locally using ScriptableObject asset references available on all clients.
     /// Called on non-server clients via PlayerController.ObserversRpcSpawnMuzzleFlash.
     /// </summary>
-    public void SpawnMuzzleFlashLocally(Vector3 position, float angle)
+    public void SpawnMuzzleFlashLocally(Vector3 position, float angle, bool firedFromOffhand = false)
     {
-        ProjectileConfig projConfig = config?.projectileConfig;
-        if (projConfig == null) return;
-
-        ParticleSystem flashPrefab = projConfig.muzzleFlashPrefab;
-        if (flashPrefab == null) return;
-
-        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
-        ParticleSystem flash = Object.Instantiate(flashPrefab, position, rotation);
-
-        // Ensure the effect renders above characters
-        ParticleSystemRenderer[] renderers = flash.GetComponentsInChildren<ParticleSystemRenderer>(true);
-        foreach (var r in renderers)
+        ProjectileConfig baseProjectileConfig = GetEffectiveProjectileConfig();
+        if (baseProjectileConfig == null)
         {
-            r.sortingLayerName = "Effects";
-            r.sortingOrder = 10000;
+            Debug.LogWarning($"[MuzzleFlashTrace][Local-Resolve] ability={config?.abilityName ?? "<null>"}, owner={gameObject.name}, reason=NoEffectiveProjectileConfig");
+            return;
         }
 
-        var main = flash.main;
-        Object.Destroy(flash.gameObject, main.duration + main.startLifetime.constantMax);
+        Transform weaponTransform = GetActiveWeaponTransform(firedFromOffhand);
+        GameObject projectileOverride = GetWeaponProjectileOverride(weaponTransform, config != null && config.autocast, firedFromOffhand);
+        WeaponConfig weaponConfig = GetCurrentWeaponConfig(firedFromOffhand);
+
+        ProjectileConfig flashConfig = baseProjectileConfig;
+        bool hasWeaponOverrides = baseProjectileConfig.allowOverride &&
+                                  (projectileOverride != null ||
+                                   (weaponConfig != null && (weaponConfig.muzzleFlashOverride != null ||
+                                                             weaponConfig.overrideMuzzleLight ||
+                                                             weaponConfig.overrideHitEffects)));
+        if (hasWeaponOverrides)
+        {
+            GameObject prefabToUse = projectileOverride != null ? projectileOverride : baseProjectileConfig.hitbox.prefab;
+            flashConfig = CreateConfigWithWeaponOverrides(baseProjectileConfig, prefabToUse, weaponConfig);
+        }
+
+        // Match ProjectileSpawner behavior: projectile-prefab-level overrides can define
+        // muzzle flash even when the base/weapon config leaves it empty.
+        GameObject flashProjectilePrefab = flashConfig != null && flashConfig.hitbox != null ? flashConfig.hitbox.prefab : null;
+        ProjectilePrefab projectilePrefabComponent = flashProjectilePrefab != null ? flashProjectilePrefab.GetComponent<ProjectilePrefab>() : null;
+        if (projectilePrefabComponent != null)
+            flashConfig = projectilePrefabComponent.ApplyOverrides(flashConfig);
+
+        string resolvedWeaponName = weaponConfig != null ? weaponConfig.weaponName : "<none>";
+        string overridePrefabName = projectileOverride != null ? projectileOverride.name : "<none>";
+        string projectilePrefabName = flashProjectilePrefab != null ? flashProjectilePrefab.name : "<none>";
+        bool usedProjectilePrefabOverrides = projectilePrefabComponent != null;
+        string muzzlePrefabName = flashConfig != null && flashConfig.muzzleFlashPrefab != null ? flashConfig.muzzleFlashPrefab.name : "<none>";
+        Debug.Log($"[MuzzleFlashTrace][Local-Resolve] ability={config?.abilityName ?? "<null>"}, owner={gameObject.name}, offhand={firedFromOffhand}, weapon={resolvedWeaponName}, hasOverrides={hasWeaponOverrides}, projectileOverride={overridePrefabName}, projectilePrefab={projectilePrefabName}, usedProjectilePrefabOverrides={usedProjectilePrefabOverrides}, muzzlePrefab={muzzlePrefabName}, allowOverride={baseProjectileConfig.allowOverride}, angle={angle:F1}");
+
+        ParticleSystem flashPrefab = flashConfig.muzzleFlashPrefab;
+        if (flashPrefab == null)
+        {
+            Debug.LogWarning($"[MuzzleFlashTrace][Local-Resolve] ability={config?.abilityName ?? "<null>"}, owner={gameObject.name}, reason=ResolvedMuzzlePrefabNull");
+            return;
+        }
+
+        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
+        bool shouldFlipY = Mathf.Abs(angle) > 90f;
+        ProjectileSpawner.InstantiateMuzzleFlashRoot(flashPrefab, position, rotation, weaponTransform, shouldFlipY);
 
         // Optional point light burst
-        if (projConfig.enableMuzzleLight)
+        if (flashConfig.enableMuzzleLight)
         {
             GameObject lightObj = new GameObject("MuzzleFlashLight");
             lightObj.transform.position = position;
+
+            if (weaponTransform != null)
+                lightObj.transform.SetParent(weaponTransform, true);
+
             Light2D light2D = lightObj.AddComponent<Light2D>();
             light2D.lightType = Light2D.LightType.Point;
-            light2D.color = projConfig.muzzleLightColor;
-            light2D.intensity = projConfig.muzzleLightIntensity;
-            light2D.pointLightOuterRadius = projConfig.muzzleLightRange;
+            light2D.color = flashConfig.muzzleLightColor;
+            light2D.intensity = flashConfig.muzzleLightIntensity;
+            light2D.pointLightOuterRadius = flashConfig.muzzleLightRange;
             MuzzleLightFader fader = lightObj.AddComponent<MuzzleLightFader>();
-            fader.Initialize(projConfig.muzzleLightDuration);
+            fader.Initialize(flashConfig.muzzleLightDuration);
         }
     }
 
@@ -2647,16 +2707,30 @@ public class DataDrivenAbility : Ability
     private WeaponConfig GetCurrentWeaponConfig(bool offhand = false)
     {
         if (ownerAsPlayer == null) return null;
+
         CharacterData characterData = ownerAsPlayer.GetCurrentCharacterData();
-        if (characterData == null) return null;
+
         if (offhand)
         {
-            WeaponConfig offhandConfig = characterData.mainHandWeaponConfig?.offhandWeaponConfig;
-            if (offhandConfig == null && characterData.hasDualWeapons)
-                offhandConfig = characterData.offHandWeaponConfig;
+            WeaponConfig offhandConfig = null;
+            if (characterData != null)
+            {
+                offhandConfig = characterData.mainHandWeaponConfig?.offhandWeaponConfig;
+                if (offhandConfig == null && characterData.hasDualWeapons)
+                    offhandConfig = characterData.offHandWeaponConfig;
+            }
+
+            if (offhandConfig == null)
+                offhandConfig = ownerAsPlayer.GetEquippedOffhandWeaponConfig();
+
             return offhandConfig;
         }
-        return characterData.mainHandWeaponConfig;
+
+        WeaponConfig mainConfig = characterData != null ? characterData.mainHandWeaponConfig : null;
+        if (mainConfig == null)
+            mainConfig = ownerAsPlayer.GetEquippedMainWeaponConfig();
+
+        return mainConfig;
     }
 
     private bool IsCurrentShotFromOffhand()

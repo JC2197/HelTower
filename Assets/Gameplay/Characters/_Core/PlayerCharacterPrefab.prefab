@@ -5420,7 +5420,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584150678236946102
+  _initializedTimestamp: -8584150111116442119
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5439,7 +5439,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 9
+  <PrefabId>k__BackingField: 15
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 14722824134187673337
   SceneId: 0
@@ -5548,7 +5548,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 8054363077136831453}
   _cameraHolder: {fileID: 939052996780319900}
   _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  _orthographicSize: 5
+  _orthographicSize: 6
 --- !u!114 &-6323806338761550441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5564,6 +5564,18 @@ MonoBehaviour:
   _componentIndexCache: 4
   _addedNetworkObject: {fileID: 8054363077136831453}
   _networkObjectCache: {fileID: 8054363077136831453}
+  moveSpeed: 5
+  isTangible: 1
+  isAlive: 1
+  statContainer:
+    stats: []
+  enableDamageFlash: 1
+  damageFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  damageFlashDuration: 0.2
+  damageFlashCount: 2
+  damageTypeRegistry: []
+  forceFieldRegenDelay: 3
+  forceFieldRegenDuration: 2
   _rigidbody: {fileID: 6066638730956382958}
   _moveSpeed: 5
   _visualTransform: {fileID: 102942654033116495}

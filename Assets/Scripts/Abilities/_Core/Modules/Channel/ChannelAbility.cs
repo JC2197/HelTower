@@ -405,7 +405,9 @@ public class ChannelAbility : MonoBehaviour, ISubAbility
         // Play muzzle flash
         if (channelConfig.muzzleFlashPrefab != null && launchZone != null)
         {
-            muzzleFlash = Instantiate(channelConfig.muzzleFlashPrefab, launchZone.position, launchZone.rotation, launchZone);
+            float angle = launchZone.eulerAngles.z;
+            bool shouldFlipY = Mathf.Abs(angle) > 90f;
+            muzzleFlash = ProjectileSpawner.InstantiateMuzzleFlashRoot(channelConfig.muzzleFlashPrefab, launchZone.position, launchZone.rotation, launchZone, shouldFlipY, false);
             muzzleFlash.Play();
         }
 

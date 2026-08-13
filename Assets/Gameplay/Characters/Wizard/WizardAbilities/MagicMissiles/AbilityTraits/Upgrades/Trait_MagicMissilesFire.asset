@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Trait_MagicMissilesFire
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: MagicMissilesFire
+  displayName: Fire Bolts
+  description: 'Magic Missiles now deals {v2} damage and apply burn. '
+  traitIcon: {fileID: 4828638856498408670, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
+  colorTheme: Blaze
+  specializedTraitTag1: Magic
+  specializedTraitTag2: Blaze
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 4
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
+  requiredAbilityLevel: 5
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities:
+  - abilityConfig: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
+    targetSlot: 2
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
+    abilityIcon: {fileID: 4828638856498408670, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
+    overrides:
+    - propertyPath: projectileConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 956519983054772351, guid: a5a18da5b7e13234cbb4248012619122, type: 3}
+    - propertyPath: projectileConfig.hitbox.damageTypeName
+      overrideMode: 2
+      numericValue: 0
+      stringValue: Fire
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.onHitEffects.canBurn
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 0}
