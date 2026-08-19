@@ -89,7 +89,6 @@ public class Enemy : Organism
     private bool isCharging = false;
     private Vector2 chargeDirection;
     private float chargeCooldownTimer = 0f;
-
     protected override void Awake()
     {
         base.Awake();
@@ -243,6 +242,21 @@ public class Enemy : Organism
     {
         base.OnStartServer();
         StartCoroutine(DeferredNetworkEquipWeapons());
+    }
+
+    /// <summary>
+    /// On every non-server machine, make the Rigidbody2D kinematic. AI movement (HandleUpdate)
+    /// is already server-only, but the body itself stayed Dynamic everywhere, so every client's
+    /// local physics independently resolved player-enemy collisions with their own push impulse —
+    /// diverging from the server's authoritative result and desyncing the player's position.
+    /// Kinematic bodies still physically shove Dynamic bodies (the player) on contact, but never
+    /// receive force/collision response themselves, so only the server's copy can drift.
+    /// </summary>
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        if (!IsServerStarted && rb != null)
+            rb.bodyType = RigidbodyType2D.Kinematic;
     }
 
     private IEnumerator DeferredNetworkEquipWeapons()
@@ -1386,7 +1400,9 @@ public class Enemy : Organism
         float nearestDist = detectionRange;
 
         // Find all game objects with valid target tags
-        string[] targetTags = { "Player", "Construct", "Ally", "Companion" };
+        string[] targetTags = config != null && config.targetTags != null && config.targetTags.Length > 0
+            ? config.targetTags
+            : new string[] { "Player" }; // Default to Player if no tags specified
 
         foreach (string tag in targetTags)
         {
@@ -1523,6 +1539,12 @@ public class Enemy : Organism
         PlayerController player = PlayerController.GetLocalPlayer();
         TriggerDeathAbility();
 
+
+        //Death Animation
+        if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))
+        {
+            PlayAnimationSafe(config.deathAnimationName);
+        }
         // Destroy enemy GameObject
         if (deathVFXPrefab != null)
         {
@@ -1545,8 +1567,41 @@ public class Enemy : Organism
                 AutoDestroyEffect.SetupAutoDestroy(effect);
             }
         }
+        StartCoroutine(DeathAnimation());
+    }
 
-        Destroy(gameObject, 0.1f);
+    private IEnumerator DeathAnimation()
+    {
+        // set THIS enemy's movement speed to 0 (statContainer is per-instance;
+        // config.stats is the shared EnemyConfig asset and would zero every enemy of this type)
+        statContainer.SetStat("MoveSpeed", 0f);
+        if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))
+        {
+            PlayAnimationSafe(config.deathAnimationName);
+            // Wait for the animation to finish
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            float animationLength = stateInfo.length;
+            yield return new WaitForSeconds(animationLength);
+        }
+
+        // This runs on every client (HandleDeath is called from an ObserversRpc), so calling
+        // plain Destroy() here would tear down the GameObject on clients without ever going
+        // through FishNet's despawn — leaving the server's NetworkObject bookkeeping stale.
+        // Only the server (or an offline/single-player instance) may destroy it; other clients
+        // rely on the server's ServerManager.Despawn() to remove their copy for them.
+        var networkManager = InstanceFinder.NetworkManager;
+        bool isNetworked = networkManager != null && NetworkObject != null;
+
+        if (!isNetworked)
+        {
+            Destroy(gameObject, 0.1f);
+        }
+        else if (IsServerStarted)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (this != null && NetworkObject != null && NetworkObject.IsSpawned)
+                networkManager.ServerManager.Despawn(gameObject);
+        }
     }
 
     private void TriggerDeathAbility()

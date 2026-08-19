@@ -8,7 +8,6 @@ using FishNet.Object.Synchronizing;
 public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSource
 {
     [Header("Basic Properties")]
-    [SerializeField] protected float moveSpeed = 5f;
     [SerializeField] protected bool isTangible = true;
     [SerializeField] protected bool isAlive = true;
 
@@ -39,7 +38,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     protected FishNet.Managing.NetworkManager _cachedNetworkManager;
     
     // Helper property to check if networking is active
-    protected bool IsNetworkActive => _cachedNetworkManager != null && _cachedNetworkManager.IsServerStarted && NetworkObject != null;
+    protected bool IsNetworkActive => _cachedNetworkManager != null &&
+        (_cachedNetworkManager.IsServerStarted || _cachedNetworkManager.IsClientStarted) &&
+        NetworkObject != null;
 
     // Force field regeneration (built-in, no component needed)
     [Header("Force Field Regeneration")]
@@ -70,7 +71,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
    
     
 
-    public float MoveSpeed => moveSpeed;
+    public float MoveSpeed => (statContainer != null && statContainer.HasStat("MoveSpeed"))
+        ? statContainer.GetStat("MoveSpeed")
+        : 5f;
     public bool IsTangible => isTangible;
     public StatContainer AllStats => statContainer;
     public virtual bool IsAlive => isAlive;
@@ -97,10 +100,8 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
     public void RefreshMoveSpeedFromStats()
     {
-        if (statContainer != null && statContainer.HasStat("MoveSpeed"))
-        {
-            moveSpeed = statContainer.GetStat("MoveSpeed");
-        }
+        // MoveSpeed is stat-driven via the MoveSpeed getter.
+        // This method remains for compatibility with existing callers.
     }
 
     protected virtual void Awake()
@@ -361,11 +362,15 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         float oldHealth = _syncCurrentHealth.Value;
         _syncCurrentHealth.Value = Mathf.Clamp(_syncCurrentHealth.Value + amount, 0f, MaxHealth);
 
+        bool willDie = _syncCurrentHealth.Value <= 0 && isAlive;
+        Debug.Log($"[MeleeAbility][KillTrace] ModifyHealth on {gameObject.name}: {oldHealth:F1} -> {_syncCurrentHealth.Value:F1} " +
+            $"(amount={amount:F1}, willDie={willDie}, isServerStarted={IsServerStarted})");
+
         // SyncVar will automatically sync to clients in networked mode
         // Event triggers on clients via OnHealthSync callback
         OnHealthChanged?.Invoke(this, _syncCurrentHealth.Value);
 
-        if (_syncCurrentHealth.Value <= 0 && isAlive)
+        if (willDie)
         {
             Die();
         }
@@ -536,6 +541,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     [ServerRpc(RequireOwnership = false)]
     public void TakeDamageServerRpc(float damage, string damageTypeName, Vector3 attackerPosition, float critMultiplier = 1f)
     {
+        Debug.Log($"[MeleeAbility][KillTrace] TakeDamageServerRpc received on {gameObject.name} (server={IsServerStarted}) damage={damage:F1}, type={damageTypeName}");
         TakeDamageInternal(damage, damageTypeName, attackerPosition, Color.white, critMultiplier);
     }
 
@@ -812,6 +818,59 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
     }
 
+    /// <summary>
+    /// Finds a DataDrivenAbility on this Organism whose effective config matches abilityName.
+    /// Used to resolve the shared MeleeConfig/AbilityDataConfig on remote clients so hitbox-based
+    /// abilities (melee, area, explosion, projectiles) can replicate visuals without networking
+    /// the config asset itself. Public so non-Organism NetworkBehaviours (e.g. Projectile) can
+    /// resolve the owner's ability config the same way.
+    /// </summary>
+    public DataDrivenAbility FindDataDrivenAbilityByName(string abilityName)
+    {
+        if (string.IsNullOrEmpty(abilityName)) return null;
+
+        DataDrivenAbility[] abilities = GetComponents<DataDrivenAbility>();
+        foreach (DataDrivenAbility ability in abilities)
+        {
+            if (ability != null && ability.EffectiveAbilityConfig != null && ability.EffectiveAbilityConfig.abilityName == abilityName)
+                return ability;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Replicates a melee hitbox's swing visual to observers. The instigating machine (server for
+    /// enemies, owner for players) already shows its own local copy, so this is skipped there.
+    /// </summary>
+    [ObserversRpc]
+    public void ObserversRpcSpawnMeleeSwingVisual(string abilityName, Vector3 spawnPos, float angle, bool firedFromOffhand)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host already showed it locally
+        if (IsOwner) return; // owner already showed it locally
+
+        MeleeConfig meleeConfig = FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig?.meleeConfig;
+        if (meleeConfig == null || meleeConfig.hitbox.prefab == null) return;
+
+        MeleeAbility.SpawnVisualOnly(meleeConfig, spawnPos, Quaternion.Euler(0f, 0f, angle));
+    }
+
+    /// <summary>
+    /// Replicates a melee hit's particle/sound feedback to observers, mirroring RpcCreateHitEffect
+    /// on Projectile. No owner-skip here (unlike the swing visual): the local melee copy on a
+    /// non-server owner has its colliders disabled and never runs OnHitboxTriggerEnter itself, so
+    /// the owner needs this RPC too in order to see their own hit feedback.
+    /// </summary>
+    [ObserversRpc]
+    public void ObserversRpcSpawnMeleeHitFeedback(string abilityName, Vector3 position)
+    {
+        if (InstanceFinder.IsServerStarted) return; // host already showed it locally
+
+        AbilityDataConfig abilityConfig = FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig;
+        if (abilityConfig == null) return;
+
+        HitVisualHelper.SpawnHitVisual(abilityConfig, position);
+    }
+
     [ObserversRpc]
     private void ShowHealingFloaterObserversRpc(float amount)
     {
@@ -1067,6 +1126,7 @@ protected virtual void Die()
 [ObserversRpc]
 private void OnDeathObserversRpc()
 {
+    Debug.Log($"[MeleeAbility][KillTrace] OnDeathObserversRpc executing on {gameObject.name} — isServerStarted={IsServerStarted}, isOwner={IsOwner}");
     OnOrganismDeath?.Invoke(this);
     HandleDeath();
 }

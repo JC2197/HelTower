@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9033830674609152591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6461643797961199941}
+  - component: {fileID: 264439935901772248}
+  m_Layer: 0
+  m_Name: CursorManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6461643797961199941
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033830674609152591}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 430.111, y: 380.90405, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &264439935901772248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033830674609152591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cd0ecfaaf9c385469ee8954679ae608, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CursorManager
+  cursorReticlePrefab: {fileID: 7764238001095742521, guid: d0a19ea5d5953294db7eeffbded6dcaf, type: 3}
+  uiCursorPrefab: {fileID: 7764238001095742521, guid: d0a19ea5d5953294db7eeffbded6dcaf, type: 3}
+  gameplayCursorSortingOrder: 50
+  uiCursorSortingOrder: 500
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  showReticle: 1
+  maxCursorDistance: 15
+  constrainToRange: 0
+  enableViewportClamping: 0
+  clampLeftEdge: 0
+  clampRightEdge: 0
+  clampTopEdge: 0
+  clampBottomEdge: 1
+  leftEdgeMargin: 0.02
+  rightEdgeMargin: 0.02
+  topEdgeMargin: 0.02
+  bottomEdgeMargin: 0.15
+  enableEnemyTargeting: 1
+  targetingRadius: 0.5
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  allyLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  targetPrefab: {fileID: 5286427443723509363, guid: 708f1e422810ce6449fc2dd3bd9e09bc, type: 3}
+  targetFollowLerpSpeed: 15
+  targetScaleLerpSpeed: 12
+  targetWorldYOffset: 0.5
+  targetSortingLayerName: UI
+  targetSortingOrder: 200
+  defaultTargetColor: {r: 1, g: 0, b: 0, a: 1}
+  targetTagColors:
+  - tag: Enemy
+    color: {r: 1, g: 0, b: 0.0049567223, a: 1}
+  - tag: Player
+    color: {r: 0, g: 1, b: 0.0119121075, a: 1}
+  targetingCursorColor: {r: 1, g: 0, b: 0, a: 1}
+  normalCursorColor: {r: 1, g: 1, b: 1, a: 1}
+  enemyOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineMaterial: {fileID: 0}

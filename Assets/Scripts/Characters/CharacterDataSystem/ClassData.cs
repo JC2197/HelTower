@@ -24,6 +24,10 @@ public class ClassData : ScriptableObject
     [Tooltip("Weapons this class can choose from. The chosen weapon supplies the primary ability.")]
     public WeaponConfig[] availableWeapons;
 
+    [Header("Accessories")]
+    [Tooltip("Accessories available to this class.")]
+    public AccessoryConfig[] availableAccessories;
+
     [Header("Abilities")]
     [Tooltip("Ability-traits this class can roll during a run.")]
     public List<AbilityConfig> abilities = new List<AbilityConfig>();
@@ -41,7 +45,7 @@ public class ClassData : ScriptableObject
         if (database == null)
             return;
 
-        int addedStats = baseStatContainer.Migrate(database);
+        int addedStats = baseStatContainer.Synchronize(database);
 #if UNITY_EDITOR
         if (addedStats > 0)
             UnityEditor.EditorUtility.SetDirty(this);

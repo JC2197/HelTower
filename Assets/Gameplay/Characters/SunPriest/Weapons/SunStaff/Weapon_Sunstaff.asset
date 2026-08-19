@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_Sunstaff
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
-  weaponName: Solar Staff
+  weaponName: Sun Staff
   weaponType: Staff
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 8236306081892218492, guid: 4374eeaaa12969946a96bcaead290ca0, type: 3}

@@ -56,7 +56,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
                 yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("maxRange"), position, yPos);
             }
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("behavior"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("targetingMode"), position, yPos);
             SerializedProperty behavior = property.FindPropertyRelative("behavior");
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("chargeDamageMultiplier"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("canCancelCharge"), position, yPos);
@@ -180,7 +179,9 @@ public class ProjectileConfigDrawer : PropertyDrawer
             SerializedProperty muzzleFlashSound = property.FindPropertyRelative("muzzleFlashSound");
             EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(muzzleFlashSound)), muzzleFlashSound);
             yPos += EditorGUI.GetPropertyHeight(muzzleFlashSound) + EditorGUIUtility.standardVerticalSpacing;
-
+            SerializedProperty localMuzzle = property.FindPropertyRelative("localMuzzle");
+            EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(localMuzzle)), localMuzzle);
+            yPos += EditorGUI.GetPropertyHeight(localMuzzle) + EditorGUIUtility.standardVerticalSpacing;
             SerializedProperty enableMuzzleLight = property.FindPropertyRelative("enableMuzzleLight");
             EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(enableMuzzleLight)), enableMuzzleLight);
             yPos += EditorGUI.GetPropertyHeight(enableMuzzleLight) + EditorGUIUtility.standardVerticalSpacing;
@@ -204,6 +205,7 @@ public class ProjectileConfigDrawer : PropertyDrawer
                 SerializedProperty muzzleLightDuration = property.FindPropertyRelative("muzzleLightDuration");
                 EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(muzzleLightDuration)), muzzleLightDuration);
                 yPos += EditorGUI.GetPropertyHeight(muzzleLightDuration) + EditorGUIUtility.standardVerticalSpacing;
+
 
                 EditorGUI.indentLevel--;
             }
@@ -234,7 +236,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
         SerializedProperty lifetime = property.FindPropertyRelative("lifetime");
         SerializedProperty maxRange = property.FindPropertyRelative("maxRange");
         SerializedProperty behavior = property.FindPropertyRelative("behavior");
-        SerializedProperty targetingMode = property.FindPropertyRelative("targetingMode");
         SerializedProperty chargeDamageMultiplier = property.FindPropertyRelative("chargeDamageMultiplier");
         SerializedProperty canCancelCharge = property.FindPropertyRelative("canCancelCharge");
         SerializedProperty hasMultiShot = property.FindPropertyRelative("hasMultiShot");
@@ -290,7 +291,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
         }
 
         height += EditorGUI.GetPropertyHeight(behavior) + EditorGUIUtility.standardVerticalSpacing;
-        height += EditorGUI.GetPropertyHeight(targetingMode) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(chargeDamageMultiplier) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(canCancelCharge) + EditorGUIUtility.standardVerticalSpacing;
 
@@ -386,12 +386,11 @@ public class ProjectileConfigDrawer : PropertyDrawer
         SerializedProperty muzzleLightIntensity = property.FindPropertyRelative("muzzleLightIntensity");
         SerializedProperty muzzleLightRange = property.FindPropertyRelative("muzzleLightRange");
         SerializedProperty muzzleLightDuration = property.FindPropertyRelative("muzzleLightDuration");
-
+        SerializedProperty localMuzzle = property.FindPropertyRelative("localMuzzle");
         height += EditorGUI.GetPropertyHeight(muzzleFlashPrefab) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(muzzleFlashSound) + EditorGUIUtility.standardVerticalSpacing;
-
+        height += EditorGUI.GetPropertyHeight(localMuzzle) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(enableMuzzleLight) + EditorGUIUtility.standardVerticalSpacing;
-
         if (enableMuzzleLight.boolValue)
         {
             height += EditorGUI.GetPropertyHeight(muzzleLightColor) + EditorGUIUtility.standardVerticalSpacing;
@@ -399,6 +398,7 @@ public class ProjectileConfigDrawer : PropertyDrawer
             height += EditorGUI.GetPropertyHeight(muzzleLightRange) + EditorGUIUtility.standardVerticalSpacing;
             height += EditorGUI.GetPropertyHeight(muzzleLightDuration) + EditorGUIUtility.standardVerticalSpacing;
         }
+        height += 20;
 
         return height;
     }

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42cbe91dd0af2534ca401b72d755bce6, type: 3}
+  m_Name: Spawner_Skeletons
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnGroup
+  GroupName: Skeletons
+  waves:
+  - enemyCountRange: {x: 4, y: 8}
+    enemies:
+    - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
+      spawnWeight: 100
+      spawnDelay: 0
+  - enemyCountRange: {x: 10, y: 15}
+    enemies:
+    - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
+      spawnWeight: 1
+      spawnDelay: 0.05
+  - enemyCountRange: {x: 20, y: 30}
+    enemies:
+    - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
+      spawnWeight: 1
+      spawnDelay: 0.05
+  spawnRadius: 5

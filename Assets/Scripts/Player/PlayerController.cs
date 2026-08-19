@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Component.Animating;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,7 +13,7 @@ public class PlayerController : Organism
     [SerializeField] private Rigidbody2D _rigidbody;
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private Transform _visualTransform;
-    
+
     [SerializeField, Min(0f)] private float _facingDirectionThreshold = 0.01f;
 
     [Header("Animation")]
@@ -21,12 +23,12 @@ public class PlayerController : Organism
     [SerializeField] private string _movingParameter = "IsMoving";
 
     [Header("Abilities")]
-    [SerializeField] private DataDrivenAbility[] _abilities = new DataDrivenAbility[5];
+    [SerializeField] private DataDrivenAbility[] _abilities = new DataDrivenAbility[6];
     [SerializeField] private InputActionAsset _inputAsset;
     [SerializeField] private string _playerMapName = "Player";
     [SerializeField] private string _moveActionName = "Movement";
     [SerializeField] private string _aimActionName = "Aim";
-    [SerializeField] private string[] _abilityActionNames = { "Ability1", "Ability2", "Ability3", "Ability4", "Ability5" };
+    [SerializeField] private string[] _abilityActionNames = { "Ability1", "Ability2", "Ability3", "Ability4", "Ability5", "Ability6" };
 
     public static bool InputEnabled { get; set; } = true;
     public static PlayerController LocalPlayer { get; private set; }
@@ -35,6 +37,7 @@ public class PlayerController : Organism
     private NetworkObject _currentMainWeaponNob;
     private WeaponConfig _equippedMainWeaponConfig;
     private WeaponSettings _currentMainWeaponSettings;
+    private readonly List<AccessorySettings> _equippedAccessorySettings = new List<AccessorySettings>();
     private WeaponSortingManager _weaponSortingManager;
     private SpriteRenderer _characterSpriteRenderer;
     private bool _isFacingLeft;
@@ -54,6 +57,13 @@ public class PlayerController : Organism
     public CharacterData GetCurrentCharacterData() => _currentCharacterData;
     public void SetCurrentCharacterData(CharacterData characterData) => _currentCharacterData = characterData;
     public WeaponConfig GetEquippedMainWeaponConfig() => _equippedMainWeaponConfig;
+
+    public Transform GetEquippedMainWeaponTransform()
+    {
+        WeaponHolder weaponHolder = GetExistingMainWeaponHolder();
+        GameObject weapon = weaponHolder != null ? weaponHolder.GetCurrentWeapon() : null;
+        return weapon != null ? weapon.transform : null;
+    }
 
     public WeaponConfig GetEquippedOffhandWeaponConfig()
     {
@@ -75,6 +85,8 @@ public class PlayerController : Organism
         if (!ApplyClassAnimatorVisual(classData))
             return false;
 
+        ApplyClassBaseStats(classData);
+
         WeaponConfig defaultWeapon = GetDefaultWeaponForClass(classData);
         if (defaultWeapon != null)
             EquipMainHandWeapon(defaultWeapon);
@@ -83,6 +95,48 @@ public class PlayerController : Organism
 
         Debug.Log($"[PlayerController] Switched animator to class '{classData.className}'.");
         return true;
+    }
+
+    /// <summary>
+    /// Reseeds the character's base and current stats from the class template, reapplies stat
+    /// conversions, and pushes the result onto the live Organism container.
+    /// </summary>
+    private void ApplyClassBaseStats(ClassData classData)
+    {
+        if (classData == null || classData.baseStatContainer == null)
+        {
+            Debug.LogWarning($"[PlayerController] Class '{classData?.className}' has no base stats to apply.");
+            return;
+        }
+
+        StatContainer source = classData.baseStatContainer;
+
+        if (_currentCharacterData != null)
+        {
+            _currentCharacterData.classData = classData;
+            _currentCharacterData.baseStatContainer = classData.baseStatContainer.Clone();
+            _currentCharacterData.statContainer = _currentCharacterData.baseStatContainer.Clone();
+            CharacterStatConverter.ApplyConversions(_currentCharacterData);
+            source = _currentCharacterData.statContainer;
+        }
+
+        StatContainer target = AllStats;
+        if (target != null)
+        {
+            source.CopyToStatContainer(target);
+            RefreshMoveSpeedFromStats();
+        }
+
+        if (MaxHealth > 0f)
+            ModifyHealth(MaxHealth - CurrentHealth);
+
+        if (MaxEnergy > 0f)
+            ModifyEnergy(MaxEnergy - CurrentEnergy);
+
+        // Traits reapply their bonuses on top of the freshly seeded base.
+        RequestStatsRecalculation();
+
+        Debug.Log($"[PlayerController] Applied base stats from class '{classData.className}'.");
     }
 
     /// <summary>
@@ -127,6 +181,11 @@ public class PlayerController : Organism
         // Main-hand weapon.
         if (characterData.mainHandWeaponConfig != null)
             EquipMainHandWeapon(characterData.mainHandWeaponConfig);
+        else
+            UnequipMainHandWeapon();
+
+        // Accessories (any number, all under the single AccessoryHolder).
+        EquipAccessories(characterData.accessoryConfigs);
 
         // Ability loadout.
         GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(characterData);
@@ -215,6 +274,20 @@ public class PlayerController : Organism
         ability.ExecuteServerSpawn(spawnPos, direction, damageMultiplier, tick, firedFromOffhand);
     }
 
+    [ServerRpc]
+    public void ServerRpcExecuteMeleeAbility(int abilitySlot, string abilityName, Vector2 direction, bool firedFromOffhand)
+    {
+        CharacterAbilityManager manager = GetComponent<CharacterAbilityManager>();
+        DataDrivenAbility ability = manager != null ? manager.FindDataDrivenAbility(abilitySlot, abilityName) : null;
+        if (ability == null)
+        {
+            Debug.LogWarning($"[NET] ServerRpcExecuteMeleeAbility: no ability at slot {abilitySlot} / '{abilityName}' on {gameObject.name}");
+            return;
+        }
+
+        ability.ExecuteServerMelee(direction, firedFromOffhand);
+    }
+
     /// <summary>
     /// Tells all non-server clients to spawn a muzzle flash for this player.
     /// The owner already spawned theirs immediately, so it is skipped here.
@@ -251,7 +324,7 @@ public class PlayerController : Organism
     private InputActionMap _playerMap;
     private InputAction _moveAction;
     private InputAction _aimAction;
-    private InputAction[] _abilityActions = new InputAction[5];
+    private InputAction[] _abilityActions = new InputAction[6];
     private Vector2 _moveInput;
     private Vector2 _aimInput;
 
@@ -527,6 +600,16 @@ public class PlayerController : Organism
         weaponHolder.EquipWeapon(settings.weaponPrefab);
     }
 
+    private void UnequipMainHandWeapon()
+    {
+        _equippedMainWeaponConfig = null;
+        _currentMainWeaponSettings = null;
+
+        WeaponHolder weaponHolder = GetExistingMainWeaponHolder();
+        if (weaponHolder != null)
+            weaponHolder.UnequipWeapon();
+    }
+
     [ServerRpc]
     private void ServerRpcEquipMainHandWeaponByName(string weaponName)
     {
@@ -679,29 +762,82 @@ public class PlayerController : Organism
         }
     }
 
-    private void SyncWeaponGrantedAbility(WeaponConfig weaponConfig)
+    /// <summary>
+    /// Replaces all equipped accessories with the supplied configs. Accessories are purely visual
+    /// here, so they are instantiated locally rather than network-spawned like weapons.
+    /// </summary>
+    public void EquipAccessories(IReadOnlyList<AccessoryConfig> accessoryConfigs)
     {
-        GetComponent<CharacterAbilityManager>()?.SetWeaponAbility(weaponConfig != null ? weaponConfig.grantedPrimaryAbility : null);
+        AccessoryHolder accessoryHolder = GetOrCreateAccessoryHolder();
+        accessoryHolder.UnequipAllAccessories();
+        _equippedAccessorySettings.Clear();
+
+        if (accessoryConfigs == null)
+            return;
+
+        for (int i = 0; i < accessoryConfigs.Count; i++)
+        {
+            AccessoryConfig config = accessoryConfigs[i];
+            if (config == null)
+                continue;
+
+            AccessorySettings settings = config.ToAccessorySettings();
+            if (settings.accessoryPrefab == null)
+            {
+                Debug.LogWarning($"[PlayerController] Cannot equip accessory '{config.accessoryname}': prefab is null.");
+                continue;
+            }
+
+            accessoryHolder.EquipAccessory(settings.accessoryPrefab, settings.animatorController);
+            _equippedAccessorySettings.Add(settings);
+        }
     }
 
-    private WeaponHolder GetOrCreateMainWeaponHolder()
+    private AccessoryHolder GetOrCreateAccessoryHolder()
     {
-        Transform namedHolder = transform.Find("WeaponHolder");
+        Transform namedHolder = transform.Find("AccessoryHolder");
         if (namedHolder != null)
         {
-            WeaponHolder holderOnNamedChild = namedHolder.GetComponent<WeaponHolder>();
+            AccessoryHolder holderOnNamedChild = namedHolder.GetComponent<AccessoryHolder>();
             if (holderOnNamedChild == null)
-            {
-                holderOnNamedChild = namedHolder.gameObject.AddComponent<WeaponHolder>();
-                Debug.LogWarning("[PlayerController] Added missing WeaponHolder component on existing child 'WeaponHolder'.");
-            }
+                holderOnNamedChild = namedHolder.gameObject.AddComponent<AccessoryHolder>();
 
             return holderOnNamedChild;
         }
 
-        WeaponHolder anyExistingHolder = GetComponentInChildren<WeaponHolder>(true);
+        AccessoryHolder anyExistingHolder = GetComponentInChildren<AccessoryHolder>(true);
         if (anyExistingHolder != null)
             return anyExistingHolder;
+
+        GameObject holderObject = new GameObject("AccessoryHolder");
+        holderObject.transform.SetParent(transform);
+        holderObject.transform.localPosition = Vector3.zero;
+        holderObject.transform.localRotation = Quaternion.identity;
+        holderObject.transform.localScale = Vector3.one;
+
+        return holderObject.AddComponent<AccessoryHolder>();
+    }
+
+    private void SyncWeaponGrantedAbility(WeaponConfig weaponConfig)
+    {
+        CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
+        abilityManager?.SetWeaponAbility(weaponConfig != null ? weaponConfig.grantedPrimaryAbility : null);
+        abilityManager?.SetSecondaryWeaponAbility(weaponConfig != null ? weaponConfig.grantedSecondaryAbility : null);
+
+    }
+
+    private WeaponHolder GetOrCreateMainWeaponHolder()
+    {
+        WeaponHolder existingHolder = GetExistingMainWeaponHolder();
+        if (existingHolder != null)
+            return existingHolder;
+
+        Transform namedHolder = transform.Find("WeaponHolder");
+        if (namedHolder != null)
+        {
+            Debug.LogWarning("[PlayerController] Added missing WeaponHolder component on existing child 'WeaponHolder'.");
+            return namedHolder.gameObject.AddComponent<WeaponHolder>();
+        }
 
         GameObject holderObject = new GameObject("WeaponHolder");
         holderObject.transform.SetParent(transform);
@@ -711,6 +847,19 @@ public class PlayerController : Organism
 
         Debug.LogWarning("[PlayerController] Created missing child 'WeaponHolder' at runtime.");
         return holderObject.AddComponent<WeaponHolder>();
+    }
+
+    private WeaponHolder GetExistingMainWeaponHolder()
+    {
+        Transform namedHolder = transform.Find("WeaponHolder");
+        if (namedHolder != null)
+        {
+            WeaponHolder holder = namedHolder.GetComponent<WeaponHolder>();
+            if (holder != null)
+                return holder;
+        }
+
+        return GetComponentInChildren<WeaponHolder>(true);
     }
 
     private void OnEnable()
@@ -754,7 +903,25 @@ public class PlayerController : Organism
         if (!isAlive || !InputEnabled || !IsOwner || _rigidbody == null)
             return;
 
-        Vector2 velocity = _moveInput * _moveSpeed;
+        DataDrivenAbility[] abilities = GetComponents<DataDrivenAbility>();
+        for (int i = 0; i < abilities.Length; i++)
+        {
+            if (abilities[i] != null && !abilities[i].HasPlayerControl)
+                return;
+        }
+
+        // Use Organism.MoveSpeed so runtime stat modifiers (slow, root, cast penalties)
+        // immediately affect player movement without duplicating speed state.
+        float effectiveMoveSpeed = MoveSpeed;
+        Vector2 velocity = _moveInput * effectiveMoveSpeed;
+
+        MovementAbility[] movementAbilities = GetComponents<MovementAbility>();
+        for (int i = 0; i < movementAbilities.Length; i++)
+        {
+            if (movementAbilities[i] != null)
+                velocity += movementAbilities[i].AdditiveVelocity;
+        }
+
         _rigidbody.linearVelocity = velocity;
         UpdateMovementPresentation(velocity);
     }
@@ -787,7 +954,7 @@ public class PlayerController : Organism
             return;
 
         ability.SetAbilitySlot(slotIndex);
-        ability.TryUseAbility();
+        ability.TryUseAbilityManually();
     }
 
     private Animator ResolveBodyAnimator()
@@ -955,6 +1122,10 @@ public class PlayerController : Organism
 
     private void InitializeInputActions()
     {
+        string[] expectedAbilityActions = { "Ability1", "Ability2", "Ability3", "Ability4", "Ability5", "Ability6" };
+        if (_abilityActionNames == null || _abilityActionNames.Length != expectedAbilityActions.Length)
+            _abilityActionNames = expectedAbilityActions;
+
         if (_inputAsset == null)
         {
 #if UNITY_EDITOR
@@ -998,19 +1169,22 @@ public class PlayerController : Organism
                 switch (i)
                 {
                     case 0:
-                        action.AddBinding("<Keyboard>/q");
+                        action.AddBinding("<Mouse>/leftButton");
                         break;
                     case 1:
-                        action.AddBinding("<Keyboard>/e");
+                        action.AddBinding("<Mouse>/rightButton");
                         break;
                     case 2:
-                        action.AddBinding("<Keyboard>/r");
+                        action.AddBinding("<Keyboard>/shift");
                         break;
                     case 3:
-                        action.AddBinding("<Keyboard>/f");
+                        action.AddBinding("<Keyboard>/q");
                         break;
                     case 4:
-                        action.AddBinding("<Keyboard>/c");
+                        action.AddBinding("<Keyboard>/e");
+                        break;
+                    case 5:
+                        action.AddBinding("<Keyboard>/r");
                         break;
                 }
 

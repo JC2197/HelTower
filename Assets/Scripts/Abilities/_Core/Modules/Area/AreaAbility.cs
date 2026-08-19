@@ -276,8 +276,8 @@ public class AreaAbility : MonoBehaviour, ISubAbility
             spellCollider.enabled = true;
         }
 
-        // Detect enemies already inside the area at spawn
-        DetectCollidersInArea();
+        // Detect enemies already inside the area and apply the first tick immediately.
+        DetectCollidersInArea(applyInitialTick: true);
 
 
         // Play spawn sound
@@ -333,8 +333,8 @@ public class AreaAbility : MonoBehaviour, ISubAbility
                     nextDamageTime = Time.time + damageInterval;
                 }
 
-                // Detect all colliders already in the area and add them to affectedTargets
-                DetectCollidersInArea();
+                // Detect all colliders already in the area and apply the first tick immediately.
+                DetectCollidersInArea(applyInitialTick: true);
 
             }
             return; // Don't process anything else until delay is over
@@ -452,7 +452,7 @@ public class AreaAbility : MonoBehaviour, ISubAbility
     /// Detect all colliders currently in the area and add them to affectedTargets.
     /// Used when aura activates to detect enemies already inside.
     /// </summary>
-    private void DetectCollidersInArea()
+    private void DetectCollidersInArea(bool applyInitialTick)
     {
         if (spellCollider == null) return;
 
@@ -487,10 +487,9 @@ public class AreaAbility : MonoBehaviour, ISubAbility
                 if (canPositive)
                     hitbox.ApplyBuffEffects(results[i].gameObject, gameObject, owner);
 
-                // Apply immediate damage if damage interval is 0 (instant-only)
                 bool hasNegativePayload = damage > 0f || hitbox.useWeaponDamage;
                 bool hasPositivePayload = hitbox.positiveHealing > 0f;
-                if (damageInterval == 0 && ((canNegative && hasNegativePayload) || (canPositive && hasPositivePayload)))
+                if (applyInitialTick && ((canNegative && hasNegativePayload) || (canPositive && hasPositivePayload)))
                     ApplyDamage(results[i]);
             }
         }

@@ -50,6 +50,8 @@ public enum ParticleRotationMode
 public class AbilityDataConfig : AbilityConfig
 {
     [Header("Mechanical Properties")]
+    [Tooltip("Prevents this ability from being manually cast. System-driven behavior such as permanent auras can still initialize it.")]
+    public bool disableCast = false;
     [Tooltip("Is this an attack (affected by attack speed) or a spell (cooldown only)?")]
     public bool isAttack = false;
     
@@ -91,6 +93,9 @@ public class AbilityDataConfig : AbilityConfig
     public bool disablesMovementDuringCast = false;
     [Tooltip("How long to block player movement (in seconds). Only used if disablesMovementDuringCast is true.")]
     public float movementBlockDuration = 0.5f;
+    [Tooltip("Optional movement speed multiplier while casting (1 = no change, 0 = cannot move). If < 1, this is used instead of hard control lock.")]
+    [Range(0f, 1f)]
+    public float movementSpeedMultiplierDuringCast = 1f;
 
     [Header("Charge System")]
     [Tooltip("Does this ability use a charge system instead of cooldown?")]
@@ -100,7 +105,9 @@ public class AbilityDataConfig : AbilityConfig
 
     [Header("Combo System")]
     [Tooltip("Use this ability as a shell that sequentially casts the abilities in Combo Abilities.")]
-    public bool hasCombo = false;
+    // Assets authored before the rename still serialize "hasCombo"; without this they silently load as false.
+    [UnityEngine.Serialization.FormerlySerializedAs("hasCombo")]
+    public bool isCombo = false;
     [Tooltip("Abilities to execute in order when this shell ability is cast.")]
     [NonReorderable]
     public AbilityDataConfig[] comboAbilities;
@@ -160,8 +167,6 @@ public class AbilityDataConfig : AbilityConfig
     public bool isTrapAbility = false;
     [Tooltip("Is this ability focused on movement (dash, teleport, blink)?")]
     public bool isMovementAbility = false;
-    [Tooltip("Should this ability be assigned to the Dash slot (Shift key)? Only one dash ability can be active.")]
-    public bool isDash = false;
     [Tooltip("Does the area follow a projectile?")]
     public bool areaFollowsProjectile = false;
     [Tooltip("Is this a channeled ability?")]
@@ -174,8 +179,6 @@ public class AbilityDataConfig : AbilityConfig
     public bool isExplosionAbility = false;
     [Tooltip("Is this a summon ability (spawns a pet that follows and fights)?")] 
     public bool isSummonAbility = false;
-    [Tooltip("Is this a passive aura ability (always on, attached to player, no activation required)?")]
-    public bool isAuraAbility = false;
     [Tooltip("Is this a passive ability (no activation, attaches a MonoBehaviour script to the player for the duration)?")]
     public bool isPassiveAbility = false;
     [Tooltip("Shown if isPassiveAbility = true. The fully-qualified class name of the MonoBehaviour to attach (e.g. 'FireBurnPassive').")]
@@ -245,7 +248,7 @@ public class AbilityDataConfig : AbilityConfig
     /// Returns true if this ability requires manual activation via keybind.
     /// Passive auras and autocast abilities do not require keybinds.
     /// </summary>
-    public bool RequiresKeybind => !isAuraAbility && !isPassiveAbility && !autocast && !retaliationCast;
+    public bool RequiresKeybind => !disableCast && !(areaConfig?.isAura ?? false) && !isPassiveAbility && !autocast && !retaliationCast;
 
     [Header("Triggered Ability")]
     [Tooltip("This ability is never cast directly by the player. It only fires via on-hit EffectData triggers. " +

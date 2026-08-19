@@ -202,27 +202,27 @@ public class AbilityReplacement
 
 /// <summary>
 /// [DEPRECATED] Which ability slot/list a trait-unlocked ability should be placed into.
-/// Slot assignment is now auto-determined by ability type (isDash → Dash slot).
+/// Abilities are now added to the next available trait slot.
 /// This enum is kept for backward compatibility but should not be used for new code.
 /// </summary>
 public enum AbilityUISlotType
 {
     Weapon = 0,  // LMB - WeaponAbility InputAction
-    Dash = 1,  // Shift - DashAbility InputAction
-    Trait = 2,  // Ability1-Ability9 InputActions
+    SecondaryWeapon = 1,  // RMB - secondary weapon ability
+    Trait = 2,  // Shift, Q, E, R
 
     // Legacy aliases for backward compatibility
     [System.Obsolete("Use Weapon instead")] Primary = 0,
     [System.Obsolete("Use Trait instead")] Secondary = 2,
-    [System.Obsolete("Use Dash instead")] Tertiary = 1,
+    [System.Obsolete("Use SecondaryWeapon instead")] Tertiary = 1,
     [System.Obsolete("Use Trait instead")] Ultimate = 2,
     [System.Obsolete("Use Trait instead")] Passive = 2,
-    [System.Obsolete("Use Weapon instead")] Offhand = 0
+    [System.Obsolete("Use SecondaryWeapon instead")] Offhand = 1
 }
 
 /// <summary>
 /// Pairs an AbilityConfig with a trait for ability unlocks.
-/// The slot is auto-determined by the ability's type (isDash → Dash slot, otherwise → Trait slot).
+/// The ability is assigned to the next available trait slot.
 /// </summary>
 [System.Serializable]
 public class TraitAbilityUnlock
@@ -230,8 +230,8 @@ public class TraitAbilityUnlock
     [Tooltip("The ability to grant")]
     public AbilityConfig abilityConfig;
 
-    [System.Obsolete("targetSlot is no longer used. Slot is auto-determined by ability type (isDash → Dash slot, otherwise → Trait slot).")]
-    [Tooltip("[DEPRECATED] Slot is now auto-determined by ability type. This field is ignored.")]
+    [System.Obsolete("targetSlot is no longer used. Abilities use the next available trait slot.")]
+    [Tooltip("[DEPRECATED] Abilities use the next available trait slot. This field is ignored.")]
     public AbilityUISlotType targetSlot = AbilityUISlotType.Trait;
 }
 

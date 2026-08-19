@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-
+using FishNet.Object;
+using FishNet;
 /// <summary>
 /// Manages all active effects (buffs, debuffs, DoTs) on an entity.
 /// Unified system for all temporary status effects.
 /// </summary>
-public class EffectManager : MonoBehaviour
+public class EffectManager : NetworkBehaviour
 {
     [Header("References")]
     public IDamageable damageable;
@@ -15,9 +16,17 @@ public class EffectManager : MonoBehaviour
     [SerializeField] private List<ActiveEffect> activeEffects = new List<ActiveEffect>();
 
     private Dictionary<string, GameObject> activeParticles = new Dictionary<string, GameObject>();
+    private EffectRegistry effectRegistry;
+
+    private bool IsNetworkActive => InstanceFinder.NetworkManager != null && NetworkObject != null;
 
     void Awake()
     {
+        effectRegistry = Resources.Load<EffectRegistry>("EffectRegistry");
+        if (effectRegistry == null)
+        {
+            Debug.LogError("[EffectManager] EffectRegistry not found in Resources.");
+        }
         if (damageable == null)
         {
             damageable = GetComponent<IDamageable>();
@@ -104,39 +113,111 @@ public class EffectManager : MonoBehaviour
     public void ApplyEffect(EffectConfig config, GameObject source)
     {
         if (config == null) return;
+        if (!config.CanTarget(gameObject, source)) return;
 
-        Debug.Log($"[EffectManager] ApplyEffect called: {config.effectName} on {gameObject.name}. Is DoT? {config is DamageOverTimeConfig}");
-
-        // Check if target is valid
-        if (!config.CanTarget(gameObject, source))
-        {
-            Debug.Log($"Cannot apply {config.effectName} - invalid target");
-            return;
-        }
-
-        // Check for existing effect
-        ActiveEffect existingEffect = activeEffects.FirstOrDefault(e => e.config.effectID == config.effectID);
+        ActiveEffect existingEffect =
+            activeEffects.FirstOrDefault(e => e.config.effectID == config.effectID);
 
         if (existingEffect != null)
         {
             StackOrRefreshEffect(existingEffect, config);
+            return;
         }
-        else
+
+        ActiveEffect newEffect = new ActiveEffect(config, source);
+        activeEffects.Add(newEffect);
+
+        if (config.applySound != null)
         {
-            ActiveEffect newEffect = new ActiveEffect(config, source);
-            activeEffects.Add(newEffect);
-
-            // Debug logging for DoT effects
-
-            SpawnVisualEffects(config);
-            config.OnApply(gameObject, source);
-            if (config.applySound != null)
-            {
-                AudioManager.Instance.PlaySpatialSound(config.applySound, transform.position, 1f, Random.Range(0.9f, 1.1f));
-            }
-
-            Debug.Log($"Applied {config.effectName} to {gameObject.name}");
+            AudioManager.Instance.PlaySpatialSound(config.applySound, transform.position, 1f, Random.Range(0.9f, 1.1f));
         }
+
+        string particleName = config.particleEffect != null ? config.particleEffect.name : "NULL";
+        Debug.Log($"[MeleeAbility][KillTrace] ApplyEffect on {gameObject.name}: effectID={config.effectID}, isServerStarted={IsServerStarted}, isNetworkActive={IsNetworkActive}, particleEffect={particleName}");
+
+        if (IsServerInitialized)
+            ObserversRpcStartEffect(config.effectID); // tells remote clients
+
+        if (!IsNetworkActive || IsServerInitialized)
+            StartEffectVisualsLocal(config, source); // shows locally (offline or host)
+
+    }
+
+    [ObserversRpc(RunLocally = false)]
+    private void ObserversRpcStartEffect(string effectID)
+    {
+        Debug.Log($"[MeleeAbility][KillTrace] ObserversRpcStartEffect received on {gameObject.name}: effectID={effectID}, registryFound={effectRegistry != null}");
+
+        EffectConfig config = effectRegistry.Get(effectID);
+        if (config == null)
+        {
+            Debug.LogWarning($"[MeleeAbility][KillTrace] effectRegistry.Get returned NULL for effectID={effectID} on {gameObject.name} — check EffectRegistry has this effectID registered.");
+            return;
+        }
+
+        StartEffectVisualsLocal(config, null);
+    }
+
+    /// <summary>
+    /// Spawns the effect's particle (sized/sorted to fill the target's sprite) and runs the
+    /// config's apply hook (e.g. burning tint). Runs on every machine that should see the effect.
+    /// </summary>
+    private void StartEffectVisualsLocal(EffectConfig config, GameObject source)
+    {
+        config.OnApply(gameObject, source);
+
+        string particleName = config.particleEffect != null ? config.particleEffect.name : "NULL";
+        Debug.Log($"[MeleeAbility][KillTrace] StartEffectVisualsLocal on {gameObject.name}: effectID={config.effectID}, particleEffect={particleName}, alreadyActive={activeParticles.ContainsKey(config.effectID)}");
+
+        if (config.particleEffect == null || activeParticles.ContainsKey(config.effectID))
+            return;
+
+        GameObject particles = Instantiate(config.particleEffect, transform);
+        particles.transform.localPosition = config.particleOffset;
+
+        // Get the target's sprite renderer and collider for sizing
+        SpriteRenderer targetRenderer = GetComponent<SpriteRenderer>();
+        Collider2D targetCollider = GetComponent<Collider2D>();
+
+        // Calculate bounds based on sprite or collider
+        Vector3 targetBounds = Vector3.one;
+        if (targetRenderer != null && targetRenderer.sprite != null)
+        {
+            // Use sprite bounds
+            Bounds spriteBounds = targetRenderer.bounds;
+            targetBounds = new Vector3(spriteBounds.size.x, spriteBounds.size.y, spriteBounds.size.z);
+        }
+        else if (targetCollider != null)
+        {
+            // Fallback to collider bounds
+            Bounds colliderBounds = targetCollider.bounds;
+            targetBounds = new Vector3(colliderBounds.size.x, colliderBounds.size.y, colliderBounds.size.z);
+        }
+
+        // Adjust shape bounds to fill the target sprite for ALL particle systems in the hierarchy
+        // (including children). Prefabs are configured to play on awake, so no need to call Play().
+        ParticleSystem[] allParticleSystems = particles.GetComponentsInChildren<ParticleSystem>(true);
+        foreach (ParticleSystem ps in allParticleSystems)
+        {
+            var shape = ps.shape;
+            if (!shape.enabled)
+                continue;
+
+            if (shape.shapeType == ParticleSystemShapeType.SingleSidedEdge)
+            {
+                shape.scale = new Vector3(targetBounds.x, targetBounds.y, 1f);
+            }
+            else
+            {
+                shape.shapeType = ParticleSystemShapeType.Sprite;
+                if (targetRenderer != null && targetRenderer.sprite != null)
+                {
+                    shape.sprite = targetRenderer.sprite;
+                }
+            }
+        }
+
+        activeParticles[config.effectID] = particles;
     }
 
     /// <summary>
@@ -388,14 +469,14 @@ public class EffectManager : MonoBehaviour
     {
         if (!activeEffects.Contains(effect)) return;
 
-        effect.config.OnRemove(gameObject);
+        string effectID = effect.config.effectID;
         activeEffects.Remove(effect);
 
-        if (activeParticles.ContainsKey(effect.config.effectID))
-        {
-            Destroy(activeParticles[effect.config.effectID]);
-            activeParticles.Remove(effect.config.effectID);
-        }
+        if (IsServerInitialized)
+            ObserversRpcStopEffect(effectID); // tells remote clients
+
+        if (!IsNetworkActive || IsServerInitialized)
+            StopEffectVisualsLocal(effectID); // shows locally (offline or host)
 
         if (effect.config.expireSound != null)
         {
@@ -405,60 +486,25 @@ public class EffectManager : MonoBehaviour
         Debug.Log($"Removed {effect.config.effectName} from {gameObject.name}");
     }
 
-    private void SpawnVisualEffects(EffectConfig config)
+    [ObserversRpc(RunLocally = false)]
+    private void ObserversRpcStopEffect(string effectID)
     {
-        if (config.particleEffect != null && !activeParticles.ContainsKey(config.effectID))
+        StopEffectVisualsLocal(effectID);
+    }
+
+    /// <summary>
+    /// Destroys the effect's particle and runs the config's remove hook (e.g. clear burning tint).
+    /// Runs on every machine that should see the effect end.
+    /// </summary>
+    private void StopEffectVisualsLocal(string effectID)
+    {
+        EffectConfig config = effectRegistry != null ? effectRegistry.Get(effectID) : null;
+        config?.OnRemove(gameObject);
+
+        if (activeParticles.TryGetValue(effectID, out GameObject particles))
         {
-            GameObject particles = Instantiate(config.particleEffect, transform);
-            particles.transform.localPosition = config.particleOffset;
-
-            // Get the target's sprite renderer and collider for sizing
-            SpriteRenderer targetRenderer = GetComponent<SpriteRenderer>();
-            Collider2D targetCollider = GetComponent<Collider2D>();
-            int targetSortingOrder = targetRenderer != null ? targetRenderer.sortingOrder : 0;
-            string targetSortingLayer = targetRenderer != null ? targetRenderer.sortingLayerName : "Default";
-
-            // Calculate bounds based on sprite or collider
-            Vector3 targetBounds = Vector3.one;
-            if (targetRenderer != null && targetRenderer.sprite != null)
-            {
-                // Use sprite bounds
-                Bounds spriteBounds = targetRenderer.bounds;
-                targetBounds = new Vector3(spriteBounds.size.x, spriteBounds.size.y, spriteBounds.size.z);
-            }
-            else if (targetCollider != null)
-            {
-                // Fallback to collider bounds
-                Bounds colliderBounds = targetCollider.bounds;
-                targetBounds = new Vector3(colliderBounds.size.x, colliderBounds.size.y, colliderBounds.size.z);
-            }
-
-            // Set sorting order and shape bounds for ALL particle systems in the hierarchy (including children)
-            ParticleSystem[] allParticleSystems = particles.GetComponentsInChildren<ParticleSystem>(true);
-            foreach (ParticleSystem ps in allParticleSystems)
-            {
-                // Adjust shape module to match target bounds
-                var shape = ps.shape;
-                if (shape.enabled)
-                {
-                    if (shape.shapeType == ParticleSystemShapeType.SingleSidedEdge)
-                    {
-                        shape.scale = new Vector3(targetBounds.x, targetBounds.y, 1f);
-                    }
-                    else
-                    {
-                        shape.shapeType = ParticleSystemShapeType.Sprite;
-                        if (targetRenderer != null && targetRenderer.sprite != null)
-                        {
-                            shape.sprite = targetRenderer.sprite;
-                        }
-                    }
-                }
-
-                ps.Play();
-            }
-
-            activeParticles[config.effectID] = particles;
+            if (particles != null) Destroy(particles);
+            activeParticles.Remove(effectID);
         }
     }
 

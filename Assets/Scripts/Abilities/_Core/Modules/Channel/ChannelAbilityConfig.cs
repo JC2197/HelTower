@@ -63,7 +63,7 @@ public class ChannelAbilityConfig
     
     [Header("Visual Effects")]
     [Tooltip("Particle effect at weapon origin when channeling starts")]
-    public ParticleSystem muzzleFlashPrefab;
+    public GameObject muzzleFlashPrefab;
     
     [Tooltip("Enable light effect at channel origin")]
     public bool enableMuzzleLight = false;

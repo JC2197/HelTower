@@ -5,8 +5,8 @@ using System.Collections.Generic;
 /// <summary>
 /// Manages the player's ability loadout:
 /// - Weapon ability (LMB) - granted by equipped weapon
-/// - Dash ability (Shift) - movement ability with isDash=true
-/// - Active trait abilities - Q, E, 1-7 (Ability1-Ability9)
+/// - Secondary weapon ability (RMB) - granted by equipped offhand weapon
+/// - Active trait abilities - Shift, Q, E, R
 /// - Passive trait abilities - autocast, no keybind
 /// - Aura abilities - managed by PlayerAuraManager
 /// </summary>
@@ -15,27 +15,17 @@ public class CharacterAbilityManager : MonoBehaviour
     // === Events ===
     /// <summary>Fired when weapon ability changes (weapon swap).</summary>
     public event Action<AbilityReference, Ability> OnWeaponAbilityChanged;
-    
-    /// <summary>Fired when dash ability changes.</summary>
-    public event Action<AbilityReference, Ability> OnDashAbilityChanged;
+    public event Action<AbilityReference, Ability> OnSecondaryWeaponAbilityChanged;
     
     /// <summary>Fired when trait abilities list changes (add/remove/clear).</summary>
     public event Action OnTraitAbilitiesChanged;
     
-    /// <summary>Fired when offhand ability is set or cleared.</summary>
-    public event Action<AbilityReference, Ability> OnOffhandAbilityChanged;
-    
-    /// <summary>Fired when CTRL toggles between weapon and offhand ability.</summary>
-    public event Action<bool> OnOffhandToggled;
-
     // === Core Abilities ===
-    private Ability weaponAbility;           // Slot 0 = LMB
+    private Ability weaponAbility;    
     private AbilityReference weaponAbilityRef;
+
     
-    private Ability dashAbility;             // Slot 1 = Space
-    private AbilityReference dashAbilityRef;
-    
-    // Active trait abilities get dynamic keybinds (slots 2, 3, 4... = Q, E, 1, 2, 3...)
+    // Active trait abilities get dynamic keybinds (slots 2-5 = Shift, Q, E, R)
     private readonly List<Ability> activeTraitAbilities = new List<Ability>();
     private readonly List<AbilityReference> activeTraitAbilityRefs = new List<AbilityReference>();
     
@@ -43,12 +33,9 @@ public class CharacterAbilityManager : MonoBehaviour
     private readonly List<Ability> passiveTraitAbilities = new List<Ability>();
     private readonly List<AbilityReference> passiveTraitAbilityRefs = new List<AbilityReference>();
     
-    // === Offhand (for dual-wielding) ===
+    // Secondary weapon ability occupies slot 1 (RMB).
     private Ability offhandAbility;
     private AbilityReference offhandAbilityRef;
-    private bool isOffhandActive = false;
-    private bool shouldAlternate = false;
-    private bool lastAttackWasMainhand = true;
 
     private PlayerController playerController;
 
@@ -81,15 +68,15 @@ public class CharacterAbilityManager : MonoBehaviour
             weaponAbility = LoadAbility(weaponAbilityRef, 0);
         }
 
-        // Load Dash Ability (Slot 1 = Space)
-        if (loadout.DashAbility?.Config != null)
+        // Load Secondary Weapon Ability (Slot 1 = RMB)
+        if (loadout.SecondaryWeaponAbility?.Config != null)
         {
-            dashAbilityRef = loadout.DashAbility;
-            dashAbility = LoadAbility(dashAbilityRef, 1);
+            offhandAbilityRef = loadout.SecondaryWeaponAbility;
+            offhandAbility = LoadAbility(offhandAbilityRef, 1);
         }
 
         // Load Trait Abilities
-        int activeSlot = 2; // Start at slot 2 for active traits (keys 1, 2, 3...)
+        int activeSlot = 2;
         foreach (var traitRef in loadout.TraitAbilities)
         {
             if (traitRef?.Config == null) continue;
@@ -97,26 +84,34 @@ public class CharacterAbilityManager : MonoBehaviour
             var dataConfig = traitRef.Config as AbilityDataConfig;
             if (dataConfig == null) continue;
             
-            // Auras also register with PlayerAuraManager for runtime behavior
-            if (dataConfig.isAuraAbility)
+            bool requiresKeybind = dataConfig.RequiresKeybind;
+            if (requiresKeybind && activeSlot > 5)
             {
-                GetComponent<PlayerAuraManager>().AddAura(dataConfig);
+                Debug.LogWarning($"[CharacterAbilityManager] No input slot available for {traitRef.AbilityName}; Shift, Q, E, and R are occupied.");
+                continue;
             }
-            
-            // All trait abilities get sequential slots
-            var ability = LoadAbility(traitRef, activeSlot);
+
+            var ability = LoadAbility(traitRef, requiresKeybind ? activeSlot : -1);
             if (ability != null)
             {
-                activeTraitAbilities.Add(ability);
-                activeTraitAbilityRefs.Add(traitRef);
-                Debug.Log($"[CharacterAbilityManager] Loaded trait slot {activeSlot}: {traitRef.AbilityName}");
-                activeSlot++;
+                if (requiresKeybind)
+                {
+                    activeTraitAbilities.Add(ability);
+                    activeTraitAbilityRefs.Add(traitRef);
+                    Debug.Log($"[CharacterAbilityManager] Loaded trait slot {activeSlot}: {traitRef.AbilityName}");
+                    activeSlot++;
+                }
+                else
+                {
+                    passiveTraitAbilities.Add(ability);
+                    passiveTraitAbilityRefs.Add(traitRef);
+                }
             }
         }
 
         Debug.Log($"[CharacterAbilityManager] Loaded abilities:");
         Debug.Log($"  Weapon: {weaponAbility?.AbilityName ?? "None"}");
-        Debug.Log($"  Dash: {dashAbility?.AbilityName ?? "None"}");
+        Debug.Log($"  Secondary Weapon: {offhandAbility?.AbilityName ?? "None"}");
         Debug.Log($"  Active Traits: {activeTraitAbilities.Count}");
     }
 
@@ -144,17 +139,22 @@ public class CharacterAbilityManager : MonoBehaviour
         string slotName = slotIndex switch
         {
             0 => "Weapon (LMB)",
-            1 => "Dash (Shift)",
+            1 => "Secondary Weapon (RMB)",
             -1 => "Passive/Autocast",
-            2 => "Ability1 (Q)",
-            3 => "Ability2 (E)",
-            _ => $"Ability{slotIndex - 1} ({slotIndex - 3})"  // Slot 4 = Ability3 (1), etc.
+            2 => "Ability (Shift)",
+            3 => "Ability (Q)",
+            4 => "Ability (E)",
+            5 => "Ability (R)",
+            _ => $"Ability slot {slotIndex}"
         };
         
         var dataConfig = abilityRef.Config as AbilityDataConfig;
+        if (dataConfig?.areaConfig?.isAura == true)
+            GetComponent<PlayerAuraManager>().AddAura(dataConfig);
+
         Debug.Log($"[CharacterAbilityManager] ✓ Loaded {abilityRef.AbilityName} -> {slotName}");
         Debug.Log($"[CharacterAbilityManager]   Config type: {abilityRef.Config.GetType().Name}");
-        Debug.Log($"[CharacterAbilityManager]   isAuraAbility={dataConfig?.isAuraAbility}, autocast={dataConfig?.autocast}, isDash={dataConfig?.isDash}");
+        Debug.Log($"[CharacterAbilityManager]   isAura={dataConfig?.areaConfig?.isAura}, autocast={dataConfig?.autocast}, disableCast={dataConfig?.disableCast}");
 
         return newAbility;
     }
@@ -176,19 +176,13 @@ public class CharacterAbilityManager : MonoBehaviour
 
         weaponAbility = null;
         weaponAbilityRef = null;
-        dashAbility = null;
-        dashAbilityRef = null;
+        offhandAbility = null;
+        offhandAbilityRef = null;
         activeTraitAbilities.Clear();
         activeTraitAbilityRefs.Clear();
         passiveTraitAbilities.Clear();
         passiveTraitAbilityRefs.Clear();
         
-        // Clear offhand
-        offhandAbility = null;
-        offhandAbilityRef = null;
-        isOffhandActive = false;
-        shouldAlternate = false;
-        lastAttackWasMainhand = true;
     }
 
     // ===========================
@@ -197,9 +191,6 @@ public class CharacterAbilityManager : MonoBehaviour
     
     public Ability GetWeaponAbility() => weaponAbility;
     public AbilityReference GetWeaponAbilityRef() => weaponAbilityRef;
-    
-    public Ability GetDashAbility() => dashAbility;
-    public AbilityReference GetDashAbilityRef() => dashAbilityRef;
     
     public List<Ability> GetActiveTraitAbilities() => new List<Ability>(activeTraitAbilities);
     public List<AbilityReference> GetActiveTraitAbilityRefs() => new List<AbilityReference>(activeTraitAbilityRefs);
@@ -224,19 +215,19 @@ public class CharacterAbilityManager : MonoBehaviour
     
     public Ability GetOffhandAbility() => offhandAbility;
     public AbilityReference GetOffhandAbilityRef() => offhandAbilityRef;
-    public bool IsOffhandActive => isOffhandActive;
-    public bool ShouldAlternate => shouldAlternate;
+    public Ability GetSecondaryWeaponAbility() => offhandAbility;
+    public AbilityReference GetSecondaryWeaponAbilityRef() => offhandAbilityRef;
 
     /// <summary>
     /// Get ability by slot index:
-    /// 0 = Weapon (LMB), 1 = Dash (Shift), 2 = Ability1 (Q), 3 = Ability2 (E), 4+ = Ability3-9 (1-7)
+    /// 0 = primary weapon (LMB), 1 = secondary weapon (RMB), 2-5 = Shift, Q, E, R.
     /// </summary>
     public DataDrivenAbility GetDataDrivenAbilityAtSlot(int slot)
     {
         return slot switch
         {
             0 => weaponAbility as DataDrivenAbility,
-            1 => dashAbility as DataDrivenAbility,
+            1 => offhandAbility as DataDrivenAbility,
             _ when slot >= 2 && slot - 2 < activeTraitAbilities.Count => activeTraitAbilities[slot - 2] as DataDrivenAbility,
             -1 when passiveTraitAbilities.Count == 1 => passiveTraitAbilities[0] as DataDrivenAbility,
             _ => null
@@ -246,31 +237,20 @@ public class CharacterAbilityManager : MonoBehaviour
     public DataDrivenAbility FindDataDrivenAbility(int slot, string abilityName = null)
     {
         DataDrivenAbility bySlot = GetDataDrivenAbilityAtSlot(slot);
-        if (bySlot != null)
+        if (bySlot != null && (string.IsNullOrEmpty(abilityName) || string.Equals(bySlot.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase)))
             return bySlot;
 
         if (!string.IsNullOrEmpty(abilityName))
         {
-            if (weaponAbility is DataDrivenAbility weaponDda && string.Equals(weaponDda.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase))
-                return weaponDda;
-
-            if (dashAbility is DataDrivenAbility dashDda && string.Equals(dashDda.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase))
-                return dashDda;
-
-            foreach (Ability ability in activeTraitAbilities)
+            // Covers combo step runners, which share the shell's slot and are not in the loadout lists.
+            foreach (DataDrivenAbility candidate in GetComponents<DataDrivenAbility>())
             {
-                if (ability is DataDrivenAbility dda && string.Equals(dda.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase))
-                    return dda;
-            }
-
-            foreach (Ability ability in passiveTraitAbilities)
-            {
-                if (ability is DataDrivenAbility dda && string.Equals(dda.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase))
-                    return dda;
+                if (string.Equals(candidate.AbilityName, abilityName, StringComparison.OrdinalIgnoreCase))
+                    return candidate;
             }
         }
 
-        return null;
+        return bySlot;
     }
 
     /// <summary>
@@ -295,6 +275,9 @@ public class CharacterAbilityManager : MonoBehaviour
     /// <summary>Set weapon ability (called when weapons are equipped).</summary>
     public void SetWeaponAbility(AbilityConfig abilityConfig)
     {
+        if (weaponAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+            GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
+
         // Remove existing
         if (weaponAbility != null)
         {
@@ -316,30 +299,32 @@ public class CharacterAbilityManager : MonoBehaviour
         Debug.Log($"[CharacterAbilityManager] Set weapon ability: {weaponAbility?.AbilityName ?? "None"}");
         OnWeaponAbilityChanged?.Invoke(weaponAbilityRef, weaponAbility);
     }
-
-    /// <summary>Set dash ability.</summary>
-    public void SetDashAbility(AbilityConfig abilityConfig)
+    public void SetSecondaryWeaponAbility(AbilityConfig abilityConfig)
     {
-        if (dashAbility != null)
+        if (offhandAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+            GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
+
+        if (offhandAbility != null)
         {
-            Destroy(dashAbility);
-            dashAbility = null;
+            Destroy(offhandAbility);
+            offhandAbility = null;
         }
-        dashAbilityRef = null;
+        offhandAbilityRef = null;
 
         if (abilityConfig == null)
         {
-            Debug.Log("[CharacterAbilityManager] Cleared dash ability");
-            OnDashAbilityChanged?.Invoke(null, null);
+            Debug.Log("[CharacterAbilityManager] Cleared secondary weapon ability");
+            OnSecondaryWeaponAbilityChanged?.Invoke(null, null);
             return;
         }
 
-        dashAbilityRef = new AbilityReference(abilityConfig);
-        dashAbility = LoadAbility(dashAbilityRef, 1);
+        offhandAbilityRef = new AbilityReference(abilityConfig);
+        offhandAbility = LoadAbility(offhandAbilityRef, 1);
         
-        Debug.Log($"[CharacterAbilityManager] Set dash ability: {dashAbility?.AbilityName ?? "None"}");
-        OnDashAbilityChanged?.Invoke(dashAbilityRef, dashAbility);
+        Debug.Log($"[CharacterAbilityManager] Set secondary weapon ability: {offhandAbility?.AbilityName ?? "None"}");
+        OnSecondaryWeaponAbilityChanged?.Invoke(offhandAbilityRef, offhandAbility);
     }
+
 
     /// <summary>Add a trait ability. Returns the slot index assigned.</summary>
     public int AddTraitAbility(AbilityConfig abilityConfig)
@@ -348,12 +333,6 @@ public class CharacterAbilityManager : MonoBehaviour
 
         var dataConfig = abilityConfig as AbilityDataConfig;
         if (dataConfig == null) return -1;
-
-        // Auras also register with PlayerAuraManager for runtime behavior
-        if (dataConfig.isAuraAbility)
-        {
-            GetComponent<PlayerAuraManager>().AddAura(dataConfig);
-        }
 
         // Guard: skip if this exact config is already registered
         bool alreadyRegistered = activeTraitAbilityRefs.Exists(r => r.Config == abilityConfig);
@@ -364,7 +343,26 @@ public class CharacterAbilityManager : MonoBehaviour
             return -1;
         }
 
-        // All trait abilities get next available slot
+        if (!dataConfig.RequiresKeybind)
+        {
+            var passiveRef = new AbilityReference(abilityConfig);
+            var passiveAbility = LoadAbility(passiveRef, -1);
+            if (passiveAbility == null)
+                return -1;
+
+            passiveTraitAbilities.Add(passiveAbility);
+            passiveTraitAbilityRefs.Add(passiveRef);
+            OnTraitAbilitiesChanged?.Invoke();
+            return -1;
+        }
+
+        if (activeTraitAbilities.Count >= 4)
+        {
+            Debug.LogWarning($"[CharacterAbilityManager] Cannot add {abilityConfig.abilityName}; Shift, Q, E, and R are occupied.");
+            return -1;
+        }
+
+        // Keybound abilities get the next available slot: Shift, Q, E, then R.
         int slotIndex = 2 + activeTraitAbilities.Count;
         var traitRef = new AbilityReference(abilityConfig);
         var ability = LoadAbility(traitRef, slotIndex);
@@ -388,7 +386,7 @@ public class CharacterAbilityManager : MonoBehaviour
 
         // Check if it's an aura
         var dataConfig = abilityConfig as AbilityDataConfig;
-        if (dataConfig != null && dataConfig.isAuraAbility)
+        if (dataConfig?.areaConfig?.isAura == true)
         {
             GetComponent<PlayerAuraManager>().ClearAura(dataConfig);
             OnTraitAbilitiesChanged?.Invoke();
@@ -429,74 +427,6 @@ public class CharacterAbilityManager : MonoBehaviour
     }
 
     // ===========================
-    // OFFHAND (DUAL-WIELD)
-    // ===========================
-    
-    /// <summary>
-    /// Sets the offhand ability. When <paramref name="mainWeaponConfig"/> and
-    /// <paramref name="offhandWeaponConfig"/> are provided and share the same weaponType
-    /// (e.g. Pistol + Pistol, Dagger + Dagger), alternating mode is enabled and the shared
-    /// weaponAbility instance is used for both hands (DataDrivenAbility handles alternating
-    /// the animation/ammo cost between hands internally). Weapon TYPE is the source of truth
-    /// here — not ability reference equality — so two separately-tuned weapons of the same
-    /// type still alternate correctly even if they grant distinct AbilityConfig assets.
-    /// </summary>
-    public void SetOffhandAbility(AbilityConfig abilityConfig, WeaponConfig mainWeaponConfig = null, WeaponConfig offhandWeaponConfig = null)
-    {
-        if (offhandAbility != null)
-        {
-            Destroy(offhandAbility);
-            offhandAbility = null;
-        }
-        offhandAbilityRef = null;
-        shouldAlternate = false;
-        isOffhandActive = false;
-        
-        if (abilityConfig == null)
-        {
-            Debug.Log("[CharacterAbilityManager] Cleared offhand ability");
-            OnOffhandAbilityChanged?.Invoke(null, null);
-            return;
-        }
-        
-        // Alternate whenever both hands wield the same weapon type.
-        bool sameWeaponType = mainWeaponConfig != null && offhandWeaponConfig != null
-            && !string.IsNullOrEmpty(mainWeaponConfig.weaponType)
-            && string.Equals(mainWeaponConfig.weaponType, offhandWeaponConfig.weaponType, StringComparison.OrdinalIgnoreCase);
-
-        if (sameWeaponType)
-        {
-            shouldAlternate = true;
-            lastAttackWasMainhand = true;
-            OnOffhandAbilityChanged?.Invoke(null, null);
-            return;
-        }
-        
-        // Different weapon type — load into offhand
-        offhandAbilityRef = new AbilityReference(abilityConfig);
-        offhandAbility = LoadAbility(offhandAbilityRef, 10); // Use high slot for offhand
-        OnOffhandAbilityChanged?.Invoke(offhandAbilityRef, offhandAbility);
-    }
-    
-    public void ClearOffhandAbility() => SetOffhandAbility(null);
-    
-    public void SetOffhandToggle(bool active)
-    {
-        if (offhandAbility == null || shouldAlternate) return;
-        
-        isOffhandActive = active;
-        OnOffhandToggled?.Invoke(isOffhandActive);
-    }
-    
-    public Ability GetActiveWeaponAbility()
-    {
-        if (shouldAlternate)
-            return weaponAbility;
-        
-        return isOffhandActive && offhandAbility != null ? offhandAbility : weaponAbility;
-    }
-
-    // ===========================
     // LEGACY COMPATIBILITY
     // ===========================
     // These methods maintain compatibility with old code during transition
@@ -504,14 +434,8 @@ public class CharacterAbilityManager : MonoBehaviour
     [Obsolete("Use GetWeaponAbility() instead")]
     public Ability GetPrimaryAbility() => weaponAbility;
     
-    [Obsolete("Use GetDashAbility() instead")]
-    public Ability GetTertiaryAbility() => dashAbility;
-    
     [Obsolete("Use SetWeaponAbility() instead")]
     public void SetPrimaryAbility(AbilityConfig config) => SetWeaponAbility(config);
-    
-    [Obsolete("Use SetDashAbility() instead")]  
-    public void SetTertiaryAbility(AbilityConfig config) => SetDashAbility(config);
     
     // Legacy events - redirect to new events
     public event Action<AbilityReference, Ability> OnPrimaryAbilityChanged
@@ -519,42 +443,18 @@ public class CharacterAbilityManager : MonoBehaviour
         add => OnWeaponAbilityChanged += value;
         remove => OnWeaponAbilityChanged -= value;
     }
-    
-    public event Action<AbilityReference, Ability> OnTertiaryAbilityChanged
+    public event Action<AbilityReference, Ability> OnSecondaryAbilityChanged
     {
-        add => OnDashAbilityChanged += value;
-        remove => OnDashAbilityChanged -= value;
+        add => OnSecondaryWeaponAbilityChanged += value;
+        remove => OnSecondaryWeaponAbilityChanged -= value;
     }
-
     /// <summary>
-    /// Add an ability and auto-route to the correct slot based on ability type.
-    /// - Dash abilities (isDash=true) → Dash slot (Shift key)
-    /// - Aura abilities → PlayerAuraManager (passive background)
-    /// - All others → Trait ability list (Ability1-Ability9)
-    /// This is the preferred method for trait-unlocked abilities.
+    /// Add an ability to the next available trait slot.
     /// </summary>
     public void AddAbility(AbilityConfig abilityConfig)
     {
         if (abilityConfig == null) return;
 
-        var dataConfig = abilityConfig as AbilityDataConfig;
-        if (dataConfig == null)
-        {
-            // Fallback for non-data configs
-            AddTraitAbility(abilityConfig);
-            return;
-        }
-
-        // Route based on ability type flags
-        if (dataConfig.isDash)
-        {
-            SetDashAbility(abilityConfig);
-            Debug.Log($"[CharacterAbilityManager] Auto-routed {abilityConfig.abilityName} to Dash slot (isDash=true)");
-        }
-        else
-        {
-            // Auras are handled inside AddTraitAbility, everything else goes to trait slots
-            AddTraitAbility(abilityConfig);
-        }
+        AddTraitAbility(abilityConfig);
     }
 }

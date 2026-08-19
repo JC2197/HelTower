@@ -5,7 +5,6 @@ public class Aura : MonoBehaviour, ISubAbility
 {
     private AreaConfig config;
     private float nextEffectTick;
-    private float startTime;
     private bool isActive;
     private GameObject ownerGameObject;
     private GameObject spellPrefabInstance;
@@ -27,11 +26,8 @@ public class Aura : MonoBehaviour, ISubAbility
         if (config == null)
             return;
 
-        if (config.enabled)
-        {
-            startTime = Time.time + config.auraDelay;
-            nextEffectTick = startTime + config.damageInterval;
-        }
+        nextEffectTick = Time.time;
+        isActive = true;
 
         // Apply scale directly to the spell prefab instance so particle systems
         // in Local scaling mode see the correct localScale rather than relying
@@ -41,7 +37,7 @@ public class Aura : MonoBehaviour, ISubAbility
         if (config.hitbox.prefab != null)
         {
             spellPrefabInstance = Instantiate(config.hitbox.prefab, transform);
-            spellPrefabInstance.transform.localPosition = new Vector3(config.offset.x, config.offset.y, 0f);
+            spellPrefabInstance.transform.localPosition = Vector3.zero;
             spellPrefabInstance.transform.localRotation = Quaternion.identity;
             spellPrefabInstance.transform.localScale = new Vector3(
                 config.hitbox.scaleX > 0f ? config.hitbox.scaleX : 1f,
@@ -60,11 +56,8 @@ public class Aura : MonoBehaviour, ISubAbility
 
     private void Update()
     {
-        if (config == null || !config.enabled)
+        if (config == null)
             return;
-
-        if (!isActive && Time.time >= startTime)
-            isActive = true;
 
         if (isActive && Time.time >= nextEffectTick)
         {
@@ -91,7 +84,7 @@ public class Aura : MonoBehaviour, ISubAbility
             return;
 
         spellPrefabInstance = Instantiate(config.hitbox.prefab, transform);
-        spellPrefabInstance.transform.localPosition = new Vector3(config.offset.x, config.offset.y, 0f);
+        spellPrefabInstance.transform.localPosition = Vector3.zero;
         spellPrefabInstance.transform.localRotation = Quaternion.identity;
         spellPrefabInstance.transform.localScale = new Vector3(
             config.hitbox.scaleX > 0f ? config.hitbox.scaleX : 1f,

@@ -49,7 +49,7 @@ public class ChannelAbility : MonoBehaviour, ISubAbility
     private List<Collider2D> hitResults = new List<Collider2D>();
 
     // Visual effects
-    private ParticleSystem muzzleFlash;
+    private GameObject muzzleFlash;
     private GameObject muzzleFlashLight;
     private AudioSource channelLoopAudioSource;
 
@@ -407,8 +407,7 @@ public class ChannelAbility : MonoBehaviour, ISubAbility
         {
             float angle = launchZone.eulerAngles.z;
             bool shouldFlipY = Mathf.Abs(angle) > 90f;
-            muzzleFlash = ProjectileSpawner.InstantiateMuzzleFlashRoot(channelConfig.muzzleFlashPrefab, launchZone.position, launchZone.rotation, launchZone, shouldFlipY, false);
-            muzzleFlash.Play();
+            ProjectileSpawner.InstantiateMuzzleFlashRoot(channelConfig.muzzleFlashPrefab, launchZone.position, launchZone.rotation, launchZone, shouldFlipY, false);
         }
 
         // Create muzzle light
@@ -637,25 +636,6 @@ public class ChannelAbility : MonoBehaviour, ISubAbility
             }
             channelObject = null;
             channelParticles = null;
-        }
-
-        // Clean up muzzle flash
-        if (muzzleFlash != null)
-        {
-            // Detach from parent so it finishes in world space
-            muzzleFlash.transform.SetParent(null);
-
-            var emission = muzzleFlash.emission;
-            emission.enabled = false; // Stop new particles
-            muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-
-            // Destroy after particles finish
-            var main = muzzleFlash.main;
-            float maxLifetime = main.startLifetime.constantMax + main.duration;
-            Destroy(muzzleFlash.gameObject, Mathf.Max(maxLifetime, 2f));
-
-            Debug.Log($"[ChannelAbility] Detached muzzle flash - will destroy in {Mathf.Max(maxLifetime, 2f)}s");
-            muzzleFlash = null;
         }
 
         // Clean up light

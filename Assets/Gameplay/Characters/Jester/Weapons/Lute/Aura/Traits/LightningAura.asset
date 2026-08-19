@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: LightningAura
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: LightningAura
+  displayName: Lightning Aura
+  description: Aura now deals {v1} Damage and has a 25% chance of stunning enemies.
+  traitIcon: {fileID: -7027815850616021409, guid: a9113d62f29ce174daadfe8c7236457d, type: 3}
+  colorTheme: Storm
+  specializedTraitTag1: Defense
+  specializedTraitTag2: Blaze
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 4
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
+    abilityIcon: {fileID: -7027815850616021409, guid: a9113d62f29ce174daadfe8c7236457d, type: 3}
+    overrides:
+    - propertyPath: areaConfig.hitbox.damageTypeName
+      overrideMode: 2
+      numericValue: 15
+      stringValue: Lightning
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 1509070395623345505, guid: 322b64f8d09ca71439092e156ff786c1, type: 3}
+    - propertyPath: areaConfig.onEnterEffects.canStun
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

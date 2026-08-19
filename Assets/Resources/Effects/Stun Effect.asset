@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26771e56a24b8a42a751ed77b02d8b6, type: 3}
+  m_Name: Stun Effect
+  m_EditorClassIdentifier: Assembly-CSharp::StunEffect
+  effectName: Stun
+  effectID: stun
+  isBuff: 0
+  canTargetAllies: 0
+  canTargetEnemies: 1
+  canTargetSelf: 0
+  duration: 5
+  stackingBehavior: 1
+  maxStacks: 1
+  refreshDurationOnStack: 1
+  maxDuration: 15
+  particleEffect: {fileID: 7955289331476888995, guid: bf6d0c57e64220a498a95b9fb8cbd65e, type: 3}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 0.9547066, g: 1, b: 0.68490565, a: 1}
+  icon: {fileID: 0}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  stunVisualEffect: {fileID: 7955289331476888995, guid: a2abc62d65234264387c20574c5fe0cc, type: 3}
+  stunTint: {r: 0.90596294, g: 1, b: 0.64716977, a: 1}

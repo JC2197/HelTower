@@ -695,7 +695,7 @@ public static class AbilityModifierRuntime
         if (config.isProjectileAbility && config.projectileConfig?.hitbox != null)
             AppendTriggeredAbility(config.projectileConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
 
-        if ((config.isAreaAbility || config.isAuraAbility) && config.areaConfig?.hitbox != null)
+        if (config.isAreaAbility && config.areaConfig?.hitbox != null)
             AppendTriggeredAbility(config.areaConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
 
         if (config.isMeleeAbility && config.meleeConfig?.hitbox != null)
@@ -1227,7 +1227,7 @@ public static class AbilityModifierRuntime
                 AddHitboxConfigFields("projectileConfig.hitbox.", result, config.projectileConfig.hitbox);
                 AddFieldsFromType(typeof(ProjectileConfig), "projectileConfig.", result);
             }
-            if ((config.isAreaAbility || config.isAuraAbility) && config.areaConfig != null)
+            if (config.isAreaAbility && config.areaConfig != null)
             {
                 AddHitboxConfigFields("areaConfig.hitbox.", result, config.areaConfig.hitbox);
                 AddFieldsFromType(typeof(AreaConfig), "areaConfig.", result);
@@ -1312,7 +1312,7 @@ public static class AbilityModifierRuntime
         if (config.isProjectileAbility && config.projectileConfig?.hitbox != null)
             result.Add("projectileConfig.hitbox.onHitEffects");
 
-        if ((config.isAreaAbility || config.isAuraAbility) && config.areaConfig?.hitbox != null)
+        if (config.isAreaAbility && config.areaConfig?.hitbox != null)
             result.Add("areaConfig.hitbox.onHitEffects");
 
         if (config.isMeleeAbility && config.meleeConfig?.hitbox != null)

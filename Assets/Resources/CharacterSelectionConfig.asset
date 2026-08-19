@@ -15,11 +15,12 @@ MonoBehaviour:
   availableClasses:
   - {fileID: 11400000, guid: 95afc63eced7af04e924342a4b1b54ab, type: 2}
   - {fileID: 11400000, guid: 694f899a000267d47a4d0e22eb09f454, type: 2}
-  - {fileID: 11400000, guid: fddd116db3f471d42b51c84451f12e34, type: 2}
   - {fileID: 11400000, guid: a5a498c41dd0a7c4b9a91d7f35123d2c, type: 2}
   - {fileID: 11400000, guid: 0a902bfd6271c7e44bddfeff05e42b99, type: 2}
   - {fileID: 11400000, guid: 78d911cc0284845468b9d4e108f75115, type: 2}
   - {fileID: 11400000, guid: 12879dd39d6f7d14288cd145d19077cb, type: 2}
+  - {fileID: 11400000, guid: 9bc763e468e253a4bae171f000f5bb3b, type: 2}
+  - {fileID: 11400000, guid: f76be42dbf33b43459f52aedeb575dfe, type: 2}
   defaultClass: {fileID: 11400000, guid: 78d911cc0284845468b9d4e108f75115, type: 2}
   gameSceneName: CommandScene
   mainMenuSceneName: MainMenu

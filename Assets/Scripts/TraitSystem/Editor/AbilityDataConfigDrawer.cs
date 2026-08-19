@@ -17,6 +17,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty requiredWeaponTypes;
 
     // Mechanical properties
+    private SerializedProperty disableCast;
     private SerializedProperty isAttack;
     private SerializedProperty attackSpeed;
     private SerializedProperty cooldownTime;
@@ -48,11 +49,11 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty hasCharges;
     private SerializedProperty maxCharges;
     private SerializedProperty chargeRechargeTime;
-    private SerializedProperty hasCombo;
+    private SerializedProperty isCombo;
     private SerializedProperty comboAbilities;
     private SerializedProperty comboStepDelays;
     private SerializedProperty comboInputWindow;
-
+    private SerializedProperty movementSpeedMultiplierDuringCast;
     // Type flags
     private SerializedProperty isProjectileAbility;
     private SerializedProperty isAreaAbility;
@@ -65,7 +66,6 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty isMeleeAbility;
     private SerializedProperty isExplosionAbility;
     private SerializedProperty isSummonAbility;
-    private SerializedProperty isAuraAbility;
     private SerializedProperty isPassiveAbility;
     // Ammo properties
     private SerializedProperty usesAmmo;
@@ -125,6 +125,7 @@ public class AbilityDataConfigEditor : Editor
         requiredWeaponTypes = serializedObject.FindProperty("requiredWeaponTypes");
 
         // Mechanical properties (from AbilityDataConfig)
+        disableCast = serializedObject.FindProperty("disableCast");
         isAttack = serializedObject.FindProperty("isAttack");
         attackSpeed = serializedObject.FindProperty("attackSpeed");
         cooldownTime = serializedObject.FindProperty("cooldownTime");
@@ -156,11 +157,11 @@ public class AbilityDataConfigEditor : Editor
         hasCharges = serializedObject.FindProperty("hasCharges");
         maxCharges = serializedObject.FindProperty("maxCharges");
         chargeRechargeTime = serializedObject.FindProperty("chargeRechargeTime");
-        hasCombo = serializedObject.FindProperty("hasCombo");
+        isCombo = serializedObject.FindProperty("isCombo");
         comboAbilities = serializedObject.FindProperty("comboAbilities");
         comboStepDelays = serializedObject.FindProperty("comboStepDelays");
         comboInputWindow = serializedObject.FindProperty("comboInputWindow");
-
+        movementSpeedMultiplierDuringCast = serializedObject.FindProperty("movementSpeedMultiplierDuringCast");
         // Type flags
         isProjectileAbility = serializedObject.FindProperty("isProjectileAbility");
         isAreaAbility = serializedObject.FindProperty("isAreaAbility");
@@ -173,7 +174,6 @@ public class AbilityDataConfigEditor : Editor
         isMeleeAbility = serializedObject.FindProperty("isMeleeAbility");
         isExplosionAbility = serializedObject.FindProperty("isExplosionAbility");
         isSummonAbility = serializedObject.FindProperty("isSummonAbility");
-        isAuraAbility = serializedObject.FindProperty("isAuraAbility");
         isPassiveAbility = serializedObject.FindProperty("isPassiveAbility");
         // Ammo properties
         usesAmmo = serializedObject.FindProperty("usesAmmo");
@@ -227,7 +227,7 @@ public class AbilityDataConfigEditor : Editor
         EditorGUILayout.Space(10);
 
         // Hide all type-specific configurations when combo is enabled
-        if (hasCombo.boolValue)
+        if (isCombo.boolValue)
         {
             serializedObject.ApplyModifiedProperties();
             return;
@@ -239,7 +239,7 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.Space(10);
         }
 
-        if (isAreaAbility.boolValue || isAuraAbility.boolValue)
+        if (isAreaAbility.boolValue)
         {
             DrawAreaConfiguration();
             EditorGUILayout.Space(10);
@@ -298,7 +298,7 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.Space(10);
         }
         // Only show cast effects if not a combo (each ability in chain has its own effects)
-        if (!hasCombo.boolValue)
+        if (!isCombo.boolValue)
         {
             DrawCastEffects();
         }
@@ -311,16 +311,16 @@ public class AbilityDataConfigEditor : Editor
 
     private void DrawKeybindBanner()
     {
-        bool isAura = isAuraAbility.boolValue;
+        bool auraEnabled = areaConfig?.FindPropertyRelative("isAura")?.boolValue == true;
         bool isAutocast = autocast.boolValue;
         bool isRetaliation = retaliationCast.boolValue;
-        bool isMovement = isMovementAbility.boolValue;
         bool isPassive = isPassiveAbility.boolValue;
+        bool castingDisabled = disableCast.boolValue;
 
         string label;
         MessageType msgType;
 
-        if (isAura)
+        if (auraEnabled)
         {
             label = "PASSIVE \u2014 No keybind. Activates automatically via PlayerAuraManager. Does not appear in the HUD.";
             msgType = MessageType.None;
@@ -335,14 +335,14 @@ public class AbilityDataConfigEditor : Editor
             label = "RETALIATION \u2014 No keybind. Fires at whoever hits the owner when damage is taken. Does not appear in the HUD.";
             msgType = MessageType.None;
         }
-        else if (isMovement)
-        {
-            label = "DASH SLOT \u2014 Assigned to the Dash slot (Space). Appears in the HUD with the \u201cSpace\u201d keybind label.";
-            msgType = MessageType.Info;
-        }
         else if (isPassive)
         {
             label = "PASSIVE \u2014 No keybind. Always active. Does not appear in the HUD.";
+            msgType = MessageType.None;
+        }
+        else if (castingDisabled)
+        {
+            label = "CAST DISABLED \u2014 No manual keybind. This ability can only run through system-driven behavior.";
             msgType = MessageType.None;
         }
         else
@@ -377,6 +377,7 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.Space(5);
 
             // Mechanical Properties (from AbilityDataConfig)
+            EditorGUILayout.PropertyField(disableCast, new GUIContent("Disable Cast", "Prevents manual casting. Permanent auras and other system-driven behavior can still initialize."));
             EditorGUILayout.PropertyField(isAttack, new GUIContent("Is Attack (vs Spell)"));
             if (isAttack.boolValue)
             {
@@ -414,9 +415,9 @@ public class AbilityDataConfigEditor : Editor
                 EditorGUILayout.PropertyField(movementBlockDuration, new GUIContent("Movement Block Duration (s)"));
                 EditorGUI.indentLevel--;
             }
-
+            EditorGUILayout.PropertyField(weaponIdleAnimationName, new GUIContent("Weapon Idle Animation"));
             // Hide animations when combo is enabled (each ability in chain has its own)
-            if (!hasCombo.boolValue)
+            if (!isCombo.boolValue)
             {
                 EditorGUILayout.PropertyField(characterAnimationName, new GUIContent("Character Animation"));
                 EditorGUILayout.PropertyField(characterAnimationUp, new GUIContent("Character Animation Up"));
@@ -432,7 +433,6 @@ public class AbilityDataConfigEditor : Editor
                 }
                 EditorGUILayout.PropertyField(mainhandAnimationName, new GUIContent("Mainhand Animation"));
                 EditorGUILayout.PropertyField(offhandAnimationName, new GUIContent("Offhand Animation"));
-                EditorGUILayout.PropertyField(weaponIdleAnimationName, new GUIContent("Weapon Idle Animation"));
                 EditorGUILayout.PropertyField(hasPrecast, new GUIContent("Has Pre-Cast Animation"));
                 if (hasPrecast.boolValue)
                 {
@@ -461,10 +461,10 @@ public class AbilityDataConfigEditor : Editor
                 EditorGUILayout.PropertyField(chargeRechargeTime);
                 EditorGUI.indentLevel--;
             }
-
+            EditorGUILayout.PropertyField(movementSpeedMultiplierDuringCast, new GUIContent("Movement Speed Multiplier During Cast", "Multiplier applied to movement speed while casting this ability."));
             EditorGUILayout.Space(5);
-            EditorGUILayout.PropertyField(hasCombo, new GUIContent("Has Combo Chain"));
-            if (hasCombo.boolValue)
+            EditorGUILayout.PropertyField(isCombo, new GUIContent("Has Combo Chain"));
+            if (isCombo.boolValue)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.HelpBox(
@@ -486,7 +486,7 @@ public class AbilityDataConfigEditor : Editor
     private void DrawTypeFlags()
     {
         // Hide ability types when combo is enabled (each ability in chain has its own type)
-        if (hasCombo.boolValue)
+        if (isCombo.boolValue)
         {
             return;
         }
@@ -499,13 +499,7 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.PropertyField(isAreaAbility, new GUIContent("Is Area Ability"));
             EditorGUILayout.PropertyField(isConstructAbility, new GUIContent("Is Construct Ability"));
             EditorGUILayout.PropertyField(isTrapAbility, new GUIContent("Is Trap Ability"));
-            EditorGUILayout.PropertyField(isMovementAbility, new GUIContent("Is Movement Ability (Dash)"));
-            if (isMovementAbility.boolValue)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.HelpBox("Movement abilities are assigned to the Dash slot (Space). Enable 'isDashing' in Movement Config to grant i-frames.", MessageType.Info);
-                EditorGUI.indentLevel--;
-            }
+            EditorGUILayout.PropertyField(isMovementAbility, new GUIContent("Is Movement Ability"));
             if (isProjectileAbility.boolValue && isAreaAbility.boolValue)
             {
                 EditorGUILayout.PropertyField(areaFollowsProjectile, new GUIContent("Area Follows Projectile"));
@@ -516,14 +510,6 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.PropertyField(isMeleeAbility, new GUIContent("Is Melee Ability"));
             EditorGUILayout.PropertyField(isExplosionAbility, new GUIContent("Is Explosion Ability"));
             EditorGUILayout.PropertyField(isSummonAbility, new GUIContent("Is Summon Ability"));
-            EditorGUILayout.PropertyField(isAuraAbility, new GUIContent("Is Aura Ability (Passive, Always-On)"));
-            if (isAuraAbility.boolValue)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.HelpBox("Auras are passive — no keybind is assigned. They activate automatically when the loadout is loaded.", MessageType.Info);
-                EditorGUI.indentLevel--;
-            }
-
             EditorGUILayout.PropertyField(usesAmmo, new GUIContent("Uses Ammo"));
             if (usesAmmo.boolValue)
             {
@@ -557,20 +543,16 @@ public class AbilityDataConfigEditor : Editor
     private void DrawAreaConfiguration()
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        string header = isAuraAbility.boolValue && !isAreaAbility.boolValue
-            ? "AREA CONFIGURATION (Aura Passive)"
-            : "AREA CONFIGURATION";
-        showAreaConfig = EditorGUILayout.BeginFoldoutHeaderGroup(showAreaConfig, header);
+        showAreaConfig = EditorGUILayout.BeginFoldoutHeaderGroup(showAreaConfig, "AREA CONFIGURATION");
 
         if (showAreaConfig)
         {
             EditorGUI.indentLevel++;
 
-            if (isAuraAbility.boolValue)
+            if (areaConfig.FindPropertyRelative("isAura").boolValue)
             {
                 EditorGUILayout.HelpBox(
-                    "Aura abilities are passive and still use this same Area Config. " +
-                    "Enable Is Aura inside Area Config for follow/delay behavior.",
+                    "This area is initialized once as a permanent aura. Size and shape come from the hitbox prefab/config.",
                     MessageType.Info
                 );
             }
@@ -641,20 +623,20 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.PropertyField(mc.FindPropertyRelative("isDashing"), new GUIContent("Is Dashing", "Grants i-frames (evade) for the duration."));
 
             EditorGUILayout.Space(4);
-            switch (mc.FindPropertyRelative("movementType").enumValueIndex)
+            MovementType movementType = (MovementType)mc.FindPropertyRelative("movementType").intValue;
+            switch (movementType)
             {
-                case 0: // Force
-                    EditorGUILayout.PropertyField(mc.FindPropertyRelative("forceAmount"), new GUIContent("Dash Force"));
-                    break;
-                case 1: // DistanceOverTime
+                case MovementType.DistanceOverTime:
                     EditorGUILayout.PropertyField(mc.FindPropertyRelative("distance"), new GUIContent("Dash Distance"));
                     EditorGUILayout.PropertyField(mc.FindPropertyRelative("duration"), new GUIContent("Dash Duration"));
+                    EditorGUILayout.PropertyField(mc.FindPropertyRelative("lerp"), new GUIContent("Lerp"));
                     break;
-                case 2: // SpeedOverTime
+                case MovementType.SpeedOverTime:
                     EditorGUILayout.PropertyField(mc.FindPropertyRelative("speed"), new GUIContent("Dash Speed"));
                     EditorGUILayout.PropertyField(mc.FindPropertyRelative("duration"), new GUIContent("Dash Duration"));
+                    EditorGUILayout.PropertyField(mc.FindPropertyRelative("lerp"), new GUIContent("Lerp"));
                     break;
-                case 3: // Teleport
+                case MovementType.Teleport:
                     EditorGUILayout.PropertyField(mc.FindPropertyRelative("distance"), new GUIContent("Teleport Distance"));
                     break;
             }

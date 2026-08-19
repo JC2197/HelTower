@@ -936,11 +936,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             Quaternion rotation = Quaternion.Euler(0, 0, angle);
             bool shouldFlipY = Mathf.Abs(angle) > 90f;
 
-            muzzleFlash = ProjectileSpawner.InstantiateMuzzleFlashRoot(beamConfig.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY, false);
-
-            var main = muzzleFlash.main;
-            main.loop = true;
-            muzzleFlash.Stop();
+            ProjectileSpawner.InstantiateMuzzleFlashRoot(beamConfig.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY, false);
         }
 
         if (beamConfig.enableMuzzleLight && muzzleFlashLight == null)

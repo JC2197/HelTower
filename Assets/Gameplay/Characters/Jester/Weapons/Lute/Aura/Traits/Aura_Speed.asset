@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Aura_Speed
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Aura_Speed
+  displayName: Tick Speed
+  description: '{v1}% time between damage ticks. '
+  traitIcon: {fileID: 7083499335977332664, guid: 149ee1a1821133044b03017839a748ea, type: 3}
+  colorTheme: Defense
+  specializedTraitTag1: 
+  specializedTraitTag2: 
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 0
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
+    abilityIcon: {fileID: 0}
+    overrides:
+    - propertyPath: areaConfig.damageInterval
+      overrideMode: 1
+      numericValue: -20
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

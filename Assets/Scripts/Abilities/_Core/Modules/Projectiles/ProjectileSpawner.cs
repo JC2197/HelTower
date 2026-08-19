@@ -12,15 +12,14 @@ public static class ProjectileSpawner
 {
     private const string AbilityPipelineTag = "[Ability pipeline]";
 
-    public static ParticleSystem InstantiateMuzzleFlashRoot(ParticleSystem flashPrefab, Vector3 position, Quaternion rotation, Transform parent = null, bool shouldFlipY = false, bool autoDestroy = true)
+    public static void InstantiateMuzzleFlashRoot(GameObject flashPrefab, Vector3 position, Quaternion rotation, Transform parent = null, bool shouldFlipY = false, bool autoDestroy = true)
     {
         if (flashPrefab == null)
-            return null;
+            return;
 
         GameObject prefabRoot = flashPrefab.transform.root.gameObject;
         GameObject instance = Object.Instantiate(prefabRoot, position, rotation);
         instance.SetActive(true);
-
         if (parent != null)
             instance.transform.SetParent(parent, true);
 
@@ -35,14 +34,28 @@ public static class ProjectileSpawner
             renderer.sortingOrder = 10000;
         }
 
-        if (autoDestroy)
-            AutoDestroyEffect.SetupAutoDestroy(instance);
+
+        AutoDestroyEffect.SetupAutoDestroy(instance);
 
         ParticleSystem particleSystem = instance.GetComponent<ParticleSystem>();
         if (particleSystem == null)
             particleSystem = instance.GetComponentInChildren<ParticleSystem>(true);
 
-        return particleSystem;
+        return;
+    }
+
+    public static void InstantiateMuzzleFlashWorld(GameObject flashPrefab, Vector3 position, Quaternion rotation, bool shouldFlipY = false, bool autoDestroy = true)
+    {
+        if (flashPrefab == null)
+            return;
+
+        GameObject instance = Object.Instantiate(flashPrefab, position, rotation);
+        instance.SetActive(true);
+        SpriteRenderer[] spriteRenderers = instance.GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (SpriteRenderer sr in spriteRenderers)
+            sr.flipY = shouldFlipY;
+        AutoDestroyEffect.SetupAutoDestroy(instance);
+        return;
     }
 
     /// <summary>
@@ -452,7 +465,7 @@ public static class ProjectileSpawner
             {
                 projectile.SetHomingInfo(cursorPosition ?? spawnPosition, isAutocast);
             }
-            
+
             // Server broadcasts to clients for smooth interpolation
             if (isServer)
             {
@@ -476,7 +489,7 @@ public static class ProjectileSpawner
             weaponTransform = character.transform.Find("WeaponHolder/Weapon");
         }
 
-        if(config.muzzleFlashSound != null)
+        if (config.muzzleFlashSound != null)
         {
             AudioManager.Instance.PlaySpatialSound(config.muzzleFlashSound, position, 1f, Random.Range(0.9f, 1.1f));
         }
@@ -488,8 +501,10 @@ public static class ProjectileSpawner
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, 0, angle);
             bool shouldFlipY = Mathf.Abs(angle) > 90f;
-
-            InstantiateMuzzleFlashRoot(config.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY);
+            if (config.localMuzzle){
+                InstantiateMuzzleFlashRoot(config.muzzleFlashPrefab, position, rotation, weaponTransform, shouldFlipY);
+            }
+                InstantiateMuzzleFlashWorld(config.muzzleFlashPrefab, position, rotation, shouldFlipY);
         }
 
         // Spawn muzzle flash light

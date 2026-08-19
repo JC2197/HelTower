@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
@@ -53,6 +54,10 @@ public class CharacterData : ScriptableObject
     
     [Tooltip("Off-hand weapon config (only used if hasDualWeapons is true)")]
     public WeaponConfig offHandWeaponConfig;
+
+    [Header("Accessory Configuration")]
+    [Tooltip("Accessories equipped by this character. All are spawned under the single AccessoryHolder.")]
+    public List<AccessoryConfig> accessoryConfigs = new List<AccessoryConfig>();
 
     [Header("Character Stats")]
     [Tooltip("Flag indicating if stats have been initialized with conversions applied (prevents re-initialization on load)")]
@@ -468,8 +473,9 @@ public class CharacterAbilityLoadout
     [Tooltip("Weapon-granted ability (LMB). Set automatically when weapon is equipped.")]
     [SerializeField] private AbilityReference weaponAbility;
     
-    [Tooltip("Dash/movement ability (Space). Uses stamina charge system.")]
-    [SerializeField] private AbilityReference dashAbility;
+    [FormerlySerializedAs("dashAbility")]
+    [Tooltip("Secondary weapon ability (RMB). Set automatically when an offhand weapon is equipped.")]
+    [SerializeField] private AbilityReference secondaryWeaponAbility;
     
     [Header("Trait Abilities")]
     [Tooltip("Abilities granted from traits. Passives/autocasts run automatically; actives get dynamic keybinds (1,2,3...).")]
@@ -482,7 +488,7 @@ public class CharacterAbilityLoadout
 
     // === Properties ===
     public AbilityReference WeaponAbility => weaponAbility;
-    public AbilityReference DashAbility => dashAbility;
+    public AbilityReference SecondaryWeaponAbility => secondaryWeaponAbility;
     public List<AbilityReference> TraitAbilities => traitAbilities ?? new List<AbilityReference>();
     public List<AbilityReference> TriggeredAbilities => triggeredAbilities ?? new List<AbilityReference>();
 
@@ -523,11 +529,11 @@ public class CharacterAbilityLoadout
     }
 
     /// <summary>
-    /// Set the dash ability.
+    /// Set the secondary weapon ability.
     /// </summary>
-    public void SetDashAbility(AbilityConfig config)
+    public void SetSecondaryWeaponAbility(AbilityConfig config)
     {
-        dashAbility = config != null ? new AbilityReference(config) : null;
+        secondaryWeaponAbility = config != null ? new AbilityReference(config) : null;
     }
 
     /// <summary>

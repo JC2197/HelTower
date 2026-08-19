@@ -172,54 +172,42 @@ public static class InputHelper
     public static bool GetCrouch => GetKey(Key.LeftCtrl);
 
     /// <summary>
-    /// [LEGACY] Returns true the frame the ability button for this slot is pressed.
-    /// NOTE: Weapon/Dash input is handled via Unity InputActions (PlayerController).
+    /// Returns true the frame the ability button for this slot is pressed.
     /// This is a fallback for abilities that poll input directly (e.g., trait abilities).
     /// 
     /// Slot mapping:
-    ///   Slot 0 = LMB (weapon) - handled by WeaponAbility InputAction
-    ///   Slot 1 = Shift (dash) - handled by DashAbility InputAction
-    ///   Slot 2 = Q (Ability1)
-    ///   Slot 3 = E (Ability2)
-    ///   Slot 4-10 = Keys 1-7 (Ability3-Ability9)
+    ///   Slot 0 = LMB (primary weapon)
+    ///   Slot 1 = RMB (secondary weapon)
+    ///   Slot 2 = Shift
+    ///   Slot 3 = Q
+    ///   Slot 4 = E
+    ///   Slot 5 = R
     ///   Slot -1 = autocast (no manual input)
     /// </summary>
     public static bool GetAbilityButtonDown(int slot) => slot switch
     {
         -1 => false, // Autocast abilities don't use manual input
-        0 => GetMouseButtonDown(0),      // Weapon = LMB (WeaponAbility)
-        1 => GetKeyDown(Key.LeftShift),  // Dash = Shift (DashAbility)
-        2 => GetKeyDown(Key.Q),          // Ability1 = Q
-        3 => GetKeyDown(Key.E),          // Ability2 = E
-        4 => GetKeyDown(Key.Digit1),     // Ability3 = Key 1
-        5 => GetKeyDown(Key.Digit2),     // Ability4 = Key 2
-        6 => GetKeyDown(Key.Digit3),     // Ability5 = Key 3
-        7 => GetKeyDown(Key.Digit4),     // Ability6 = Key 4
-        8 => GetKeyDown(Key.Digit5),     // Ability7 = Key 5
-        9 => GetKeyDown(Key.Digit6),     // Ability8 = Key 6
-        10 => GetKeyDown(Key.Digit7),    // Ability9 = Key 7
+        0 => GetMouseButtonDown(0),
+        1 => GetMouseButtonDown(1),
+        2 => GetKeyDown(Key.LeftShift),
+        3 => GetKeyDown(Key.Q),
+        4 => GetKeyDown(Key.E),
+        5 => GetKeyDown(Key.R),
         _ => false
     };
 
     /// <summary>
-    /// [LEGACY] Returns true while the ability button for this slot is held.
-    /// NOTE: Weapon/Dash input is handled via Unity InputActions (PlayerController).
-    /// This is a fallback for abilities that poll input directly (e.g., trait abilities).
+    /// Returns true while the ability button for this slot is held.
     /// </summary>
     public static bool IsAbilityButtonHeld(int slot) => slot switch
     {
         -1 => false, // Autocast abilities don't use manual input
-        0 => GetMouseButton(0),      // Weapon = LMB (WeaponAbility)
-        1 => GetKey(Key.LeftShift),  // Dash = Shift (DashAbility)
-        2 => GetKey(Key.Q),          // Ability1 = Q
-        3 => GetKey(Key.E),          // Ability2 = E
-        4 => GetKey(Key.Digit1),     // Ability3 = Key 1
-        5 => GetKey(Key.Digit2),     // Ability4 = Key 2
-        6 => GetKey(Key.Digit3),     // Ability5 = Key 3
-        7 => GetKey(Key.Digit4),     // Ability6 = Key 4
-        8 => GetKey(Key.Digit5),     // Ability7 = Key 5
-        9 => GetKey(Key.Digit6),     // Ability8 = Key 6
-        10 => GetKey(Key.Digit7),    // Ability9 = Key 7
+        0 => GetMouseButton(0),
+        1 => GetMouseButton(1),
+        2 => GetKey(Key.LeftShift),
+        3 => GetKey(Key.Q),
+        4 => GetKey(Key.E),
+        5 => GetKey(Key.R),
         _ => false
     };
 
@@ -231,16 +219,11 @@ public static class InputHelper
     {
         -1 => "Auto",
         0 => "LMB",
-        1 => "Shift",  // Dash = Shift (DashAbility InputAction)
-        2 => "Q",      // Ability1
-        3 => "E",      // Ability2
-        4 => "1",      // Ability3
-        5 => "2",      // Ability4
-        6 => "3",      // Ability5
-        7 => "4",      // Ability6
-        8 => "5",      // Ability7
-        9 => "6",      // Ability8
-        10 => "7",     // Ability9
+        1 => "RMB",
+        2 => "Shift",
+        3 => "Q",
+        4 => "E",
+        5 => "R",
         _ => "?"
     };
     

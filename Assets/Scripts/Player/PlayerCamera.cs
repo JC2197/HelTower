@@ -1,6 +1,7 @@
 using FishNet.Connection;
 using FishNet.Object;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerCamera : NetworkBehaviour
 {
@@ -33,6 +34,9 @@ public class PlayerCamera : NetworkBehaviour
 
         if (_activeCamera != null)
         {
+            UniversalAdditionalCameraData cameraData = _activeCamera.GetUniversalAdditionalCameraData();
+            cameraData.renderPostProcessing = true;
+
             _activeCamera.gameObject.SetActive(true);
             _activeCamera.enabled = true;
             _activeCamera.tag = "MainCamera";

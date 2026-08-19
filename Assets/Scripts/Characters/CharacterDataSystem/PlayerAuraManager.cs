@@ -11,13 +11,13 @@ public class PlayerAuraManager : MonoBehaviour
     private readonly Dictionary<string, Aura> _activeAuras = new Dictionary<string, Aura>();
 
     /// <summary>
-    /// Registers and activates a single aura from an AbilityDataConfig marked with isAuraAbility.
+    /// Registers and activates a single area ability marked as a permanent aura.
     /// Creates a child GameObject with an Aura component and initializes it with the config's areaConfig.
     /// Applies trait modifiers to the aura config before initialization.
     /// </summary>
     public void AddAura(AbilityDataConfig abilityDataConfig)
     {
-        if (abilityDataConfig == null || !abilityDataConfig.isAuraAbility || abilityDataConfig.areaConfig == null)
+        if (abilityDataConfig?.areaConfig?.isAura != true)
             return;
 
         string key = abilityDataConfig.abilityName;
@@ -28,6 +28,15 @@ public class PlayerAuraManager : MonoBehaviour
 
         AreaConfig effectiveAreaConfig = BuildEffectiveAuraConfig(abilityDataConfig);
         AreaConfig traitEffectiveConfig = effectiveAreaConfig; // capture before AbilitySize is applied
+
+        AreaConfig permanentAuraConfig = new AreaConfig();
+        foreach (var field in typeof(AreaConfig).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            field.SetValue(permanentAuraConfig, field.GetValue(effectiveAreaConfig));
+        permanentAuraConfig.hitbox = effectiveAreaConfig.hitbox.Clone();
+        permanentAuraConfig.isAura = true;
+        permanentAuraConfig.followCaster = true;
+        permanentAuraConfig.duration = -1f;
+        effectiveAreaConfig = permanentAuraConfig;
 
         // Apply AbilitySize stat so auras respect the same sizing stat as regular area abilities
         Organism organism = GetComponent<Organism>();
@@ -148,7 +157,7 @@ public class PlayerAuraManager : MonoBehaviour
 
     public void ClearAura(AbilityDataConfig abilityDataConfig)
     {
-        if (abilityDataConfig == null || !abilityDataConfig.isAuraAbility)
+        if (abilityDataConfig?.areaConfig?.isAura != true)
             return;
 
         string key = abilityDataConfig.abilityName;

@@ -21,7 +21,6 @@ MonoBehaviour:
   - Crossbow
   - Pistol
   - Rifle
-  - Sniper
   - Automatic
   - Shotgun
   - Staff
@@ -31,3 +30,5 @@ MonoBehaviour:
   - Hammer
   - Mace
   - Any
+  - Lute
+  - Artifact

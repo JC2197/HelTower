@@ -7,12 +7,6 @@ using UnityEngine;
 [System.Serializable]
 public class ProjectileConfig
 {
-    public enum ProjectileTargetingMode
-    {
-        CursorOrWeaponDirection,
-        ClosestTarget
-    }
-
     // Note: Custom drawer in ProjectileConfigDrawer.cs handles conditional display
     [Header("Hitbox")]
     [Tooltip("Shared hitbox configuration: prefab, scale, hit layers, damage, weapon damage, on-hit effects, knockback, pull, life steal, and hit feedback.")]
@@ -51,9 +45,6 @@ public class ProjectileConfig
 
     [Tooltip("Behavior pattern of the projectile")]
     public ProjectileBehavior behavior = ProjectileBehavior.Straight;
-
-    [Tooltip("How to aim this projectile: use current cursor/weapon direction, or auto-aim the nearest valid enemy.")]
-    public ProjectileTargetingMode targetingMode = ProjectileTargetingMode.ClosestTarget;
 
     [Header("Charge / Precast Modifiers")]
     [Tooltip("Damage multiplier applied when ability has precast animation (hasPrecast in AbilityDataConfig)")]
@@ -148,7 +139,7 @@ public class ProjectileConfig
 
     [Header("Muzzle Flash Effects")]
     [Tooltip("Particle effect to spawn at fire point when projectile is created")]
-    public ParticleSystem muzzleFlashPrefab;
+    public GameObject muzzleFlashPrefab;
     public AudioClip muzzleFlashSound;
     [Tooltip("Enable muzzle flash light")]
     public bool enableMuzzleLight = false;
@@ -164,7 +155,8 @@ public class ProjectileConfig
 
     [Tooltip("How long the muzzle flash light lasts")]
     public float muzzleLightDuration = 0.1f;
-
+    [Tooltip("Should prefab be spawned locally on weapon or in world space.")]
+    public bool localMuzzle = false;
 
     /// <summary>
     /// Get the DamageTypeData from the database

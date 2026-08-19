@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponTypeConfig
   typeName: Pistol
   defaultPositioning:
-    aimingRadius: 0.75
+    aimingRadius: 0.5
     isMainHand: 1
     is2Handed: 0
-    northEastOffset: {x: 0.35, y: 0.75}
-    northWestOffset: {x: 0.35, y: 0.75}
-    southEastOffset: {x: -0.35, y: 0.5}
-    southWestOffset: {x: -0.35, y: 0.5}
+    northEastOffset: {x: 0, y: 0}
+    northWestOffset: {x: 0, y: 0}
+    southEastOffset: {x: 0, y: 0}
+    southWestOffset: {x: 0, y: 0}
     weaponBehindOnNE: 1
     weaponBehindOnNW: 1
     weaponBehindOnSE: 0

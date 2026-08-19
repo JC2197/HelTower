@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3e0664ffd88bb6439cd669794f06c88, type: 3}
+  m_Name: Bleed Effect
+  m_EditorClassIdentifier: Assembly-CSharp::BleedEffect
+  effectName: Bleeding
+  effectID: bleed
+  isBuff: 0
+  canTargetAllies: 0
+  canTargetEnemies: 1
+  canTargetSelf: 0
+  duration: 5
+  stackingBehavior: 0
+  maxStacks: 5
+  refreshDurationOnStack: 1
+  maxDuration: 15
+  particleEffect: {fileID: 7955289331476888995, guid: eb9802c9890c5c84b958e5bca3e7dcf3, type: 3}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 1, g: 0.54905653, b: 0.54905653, a: 1}
+  icon: {fileID: -277719990, guid: d547f6578aa128f4bb1d5db60c54943c, type: 3}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  damageTypeName: Bleeding
+  damagePerTick: 5
+  tickInterval: 1
+  bloodParticle: {fileID: 0}
+  bleedTint: {r: 1, g: 0.7075472, b: 0.7075472, a: 1}

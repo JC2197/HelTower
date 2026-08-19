@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbad6c611fc3fd541926e608081035b7, type: 3}
+  m_Name: Poison Effect
+  m_EditorClassIdentifier: Assembly-CSharp::PoisonEffect
+  effectName: Poisoned
+  effectID: poison
+  isBuff: 0
+  canTargetAllies: 0
+  canTargetEnemies: 1
+  canTargetSelf: 0
+  duration: 5
+  stackingBehavior: 0
+  maxStacks: 3
+  refreshDurationOnStack: 1
+  maxDuration: 15
+  particleEffect: {fileID: 3836165806907009111, guid: a1701fa0ae7d86d4cadf237fd7d33acb, type: 3}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 0.6427303, g: 0.90188676, b: 0.4339266, a: 1}
+  icon: {fileID: 1101862172, guid: 052ae55046a35b145b0e925647c33d5a, type: 3}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  damageTypeName: Poison
+  damagePerTick: 1
+  tickInterval: 1
+  poisonParticle: {fileID: 3836165806907009111, guid: 0dcbd27b2bc99d74a9fe1c63000baa1e, type: 3}
+  poisonTint: {r: 0.50848305, g: 0.7056604, b: 0.17974362, a: 1}
+  canSpread: 0
+  spreadRadius: 2
+  spreadChance: 0.1

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b11569bc4528244cb5b0ac5b8f2b25b, type: 3}
+  m_Name: Slow Effect
+  m_EditorClassIdentifier: Assembly-CSharp::SlowEffect
+  effectName: Slow
+  effectID: slow
+  isBuff: 0
+  canTargetAllies: 0
+  canTargetEnemies: 1
+  canTargetSelf: 0
+  duration: 5
+  stackingBehavior: 1
+  maxStacks: 1
+  refreshDurationOnStack: 1
+  maxDuration: 15
+  particleEffect: {fileID: 7955289331476888995, guid: 5007abc8e74acd24db1643bce3450cd6, type: 3}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 0.78867924, g: 0.7234548, b: 0.57588464, a: 1}
+  icon: {fileID: 0}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  slowAmount: 0.5
+  slowVisualEffect: {fileID: 7955289331476888995, guid: 9697d96cf0186e84b96a5365c0abd513, type: 3}

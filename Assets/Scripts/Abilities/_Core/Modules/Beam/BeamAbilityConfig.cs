@@ -94,7 +94,7 @@ public class BeamAbilityConfig
 
     [Header("Muzzle Effect")]
     [Tooltip("Particle effect at beam origin when firing")]
-    public ParticleSystem muzzleFlashPrefab;
+    public GameObject muzzleFlashPrefab;
 
     [Tooltip("Enable light effect at beam origin")]
     public bool enableMuzzleLight = false;

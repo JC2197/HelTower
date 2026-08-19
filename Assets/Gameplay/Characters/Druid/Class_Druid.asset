@@ -15,7 +15,10 @@ MonoBehaviour:
   className: Druid
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: a24f28b3fdf297840a1eb062e095c04d, type: 2}
-  availableWeapons: []
+  availableWeapons:
+  - {fileID: 11400000, guid: add897fc7fe711f4d9dd1c11ccf9cfec, type: 2}
+  - {fileID: 11400000, guid: 195aa65b66c504841b8900b8142b80a9, type: 2}
+  availableAccessories: []
   abilities: []
   baseStatContainer:
     stats:
@@ -43,27 +46,23 @@ MonoBehaviour:
       displayName: LUK
       categoryId: BASE
       currentValue: 0
-    - statId: MOVESPEED
+    - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 0
-    - statId: ATTACKSPEED
+      currentValue: 3
+    - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
       currentValue: 0
-    - statId: MAXHP
+    - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 0
+      currentValue: 100
     - statId: PHYSICAL
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
     - statId: MAGICAL
       displayName: Magical Damage Bonus
-      categoryId: Ative
-      currentValue: 0
-    - statId: MaxHealth
-      displayName: Maximum HP
       categoryId: Active
       currentValue: 0

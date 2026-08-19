@@ -7,7 +7,7 @@ using System.Collections;
 public class MovementAbility : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private AbilityDataConfig config;
+    public AbilityDataConfig config;
     private bool isExecuting = false;
     private float startTime;
     private GameObject caster;
@@ -19,18 +19,25 @@ public class MovementAbility : MonoBehaviour
     private Vector2 teleportDestination;
     private SpriteRenderer[] cachedRenderers;
 
-    // Distance tracking
-    private Vector2 startPosition;
-    private float maxDistance;
+    private Vector2 movementDirection;
+    private Vector2 baseAdditiveVelocity;
 
     public bool IsExecuting => isExecuting;
-
-    private bool IsVelocityDrivenMovementType()
+    public Vector2 AdditiveVelocity
     {
-        if (config?.movementConfig == null) return false;
+        get
+        {
+            if (!isExecuting || config?.movementConfig == null)
+                return Vector2.zero;
 
-        return config.movementConfig.movementType == MovementType.SpeedOverTime
-            || config.movementConfig.movementType == MovementType.DistanceOverTime;
+            MovementConfig movementConfig = config.movementConfig;
+            if (!movementConfig.lerp || movementConfig.duration <= 0f)
+                return baseAdditiveVelocity;
+
+            float normalizedTime = Mathf.Clamp01((Time.time - startTime) / movementConfig.duration);
+            float velocityMultiplier = 6f * normalizedTime * (1f - normalizedTime);
+            return baseAdditiveVelocity * velocityMultiplier;
+        }
     }
 
     public void Initialize(AbilityDataConfig abilityConfig)
@@ -78,8 +85,8 @@ public class MovementAbility : MonoBehaviour
 
         isExecuting = true;
         startTime = Time.time;
-        startPosition = transform.position;
-        maxDistance = float.MaxValue;
+        movementDirection = GetMovementDirection();
+        baseAdditiveVelocity = Vector2.zero;
 
         float distanceMultiplier = GetDashDistanceMultiplier();
 
@@ -91,19 +98,12 @@ public class MovementAbility : MonoBehaviour
         }
 
         // Calculate direction
-        Vector2 direction = GetMovementDirection();
         switch (config.movementConfig.movementType)
         {
-            case MovementType.Force:
-                Vector2 forceVector = direction * config.movementConfig.forceAmount;
-                rb.AddForce(forceVector, ForceMode2D.Impulse);
-                break;
-
             case MovementType.SpeedOverTime:
                 if (config.movementConfig.speed > 0f)
                 {
-                    Vector2 velocityVector = direction * config.movementConfig.speed * distanceMultiplier;
-                    rb.linearVelocity = velocityVector;
+                    baseAdditiveVelocity = movementDirection * config.movementConfig.speed * distanceMultiplier;
                 }
                 else
                 {
@@ -114,8 +114,8 @@ public class MovementAbility : MonoBehaviour
             case MovementType.DistanceOverTime:
                 if (config.movementConfig.duration > 0f)
                 {
-                    maxDistance = config.movementConfig.distance * distanceMultiplier;
-                    rb.linearVelocity = direction * (maxDistance / config.movementConfig.duration);
+                    float distance = config.movementConfig.distance * distanceMultiplier;
+                    baseAdditiveVelocity = movementDirection * (distance / config.movementConfig.duration);
                 }
                 else
                 {
@@ -124,7 +124,7 @@ public class MovementAbility : MonoBehaviour
                 break;
 
             case MovementType.Teleport:
-                teleportDestination = (Vector2)transform.position + direction * (config.movementConfig.distance * distanceMultiplier);
+                teleportDestination = (Vector2)transform.position + movementDirection * (config.movementConfig.distance * distanceMultiplier);
                 if (config.movementConfig.teleportAnimationPrefab != null)
                 {   
                     Instantiate(config.movementConfig.teleportAnimationPrefab, transform.position, Quaternion.identity);
@@ -140,7 +140,7 @@ public class MovementAbility : MonoBehaviour
                 Debug.LogWarning($"[MovementAbility] Unknown movement type {config.movementConfig.movementType} for {config.abilityName}");
                 break;
         }
-        AudioManager.Instance.PlaySpatialSound(config.movementConfig.dashSound, transform.position);
+        AudioManager.Instance?.PlaySpatialSound(config.movementConfig.dashSound, transform.position);
         return true;
     }
 
@@ -167,25 +167,11 @@ public class MovementAbility : MonoBehaviour
         // Check duration limit
         bool durationExpired = config.movementConfig.duration > 0f && elapsed >= config.movementConfig.duration;
 
-        // Check distance limit
-        float traveled = Vector2.Distance(startPosition, (Vector2)transform.position);
-        bool distanceReached = config.movementConfig.movementType == MovementType.DistanceOverTime
-            && maxDistance < float.MaxValue
-            && traveled >= maxDistance;
-
-        if (durationExpired || distanceReached)
+        if (durationExpired)
         {
-            Debug.Log($"[MovementAbility] Movement complete for {config.abilityName}: elapsed={elapsed:F3}s, traveled={traveled:F2}");
+            Debug.Log($"[MovementAbility] Movement complete for {config.abilityName}: elapsed={elapsed:F3}s");
             End();
             return;
-        }
-
-        // Maintain velocity for velocity-based movement (re-apply each frame)
-        if (config.movementConfig.movementType == MovementType.SpeedOverTime)
-        {
-            Vector2 direction = GetMovementDirection();
-            Vector2 velocityVector = direction * config.movementConfig.speed * GetDashDistanceMultiplier();
-            rb.linearVelocity = velocityVector;
         }
     }
 
@@ -199,6 +185,7 @@ public class MovementAbility : MonoBehaviour
         Debug.Log($"[MovementAbility] Ended for {config?.abilityName}");
         isExecuting = false;
         isTeleporting = false;
+        baseAdditiveVelocity = Vector2.zero;
 
         // Re-enable renderers in case teleport was interrupted
         if (cachedRenderers != null)
@@ -214,12 +201,6 @@ public class MovementAbility : MonoBehaviour
             Debug.Log($"[MovementAbility] Evade DISABLED for {config.abilityName}");
         }
 
-        // Reset velocity for velocity-based movement
-        if (rb != null && config != null && IsVelocityDrivenMovementType())
-        {
-            rb.linearVelocity = Vector2.zero;
-            Debug.Log($"[MovementAbility] Velocity reset to zero");
-        }
     }
 
     /// <summary>

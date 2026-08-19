@@ -17,6 +17,8 @@ MonoBehaviour:
   animatorController: {fileID: 22100000, guid: da7112c1f96fe0a448ab3f4750ca6d28, type: 2}
   availableWeapons:
   - {fileID: 11400000, guid: a82a4d7b8fecb554c92d67457561fc94, type: 2}
+  - {fileID: 11400000, guid: a9184305fca725c479beaf15b7d4ab82, type: 2}
+  availableAccessories: []
   abilities: []
   baseStatContainer:
     stats:
@@ -44,27 +46,23 @@ MonoBehaviour:
       displayName: LUK
       categoryId: BASE
       currentValue: 0
-    - statId: MOVESPEED
+    - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 0
-    - statId: ATTACKSPEED
+      currentValue: 4
+    - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
       currentValue: 0
-    - statId: MAXHP
+    - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 0
+      currentValue: 100
     - statId: PHYSICAL
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
     - statId: MAGICAL
       displayName: Magical Damage Bonus
-      categoryId: Ative
-      currentValue: 0
-    - statId: MaxHealth
-      displayName: Maximum HP
       categoryId: Active
       currentValue: 0

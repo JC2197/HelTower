@@ -42,7 +42,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     /// <paramref name="firedFromOffhand"/> selects the offhand weapon as the spawn origin
     /// (for alternating dual-wield fire); defaults to mainhand.
     /// </summary>
-    public void PerformAttack(MeleeConfig meleeConfig, Vector2 direction, bool firedFromOffhand = false)
+    public void PerformAttack(MeleeConfig meleeConfig, Vector2 direction, bool firedFromOffhand = false, bool visualOnly = false)
     {
         config = meleeConfig;
         attackDirection = direction.normalized;
@@ -56,35 +56,43 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
         }
 
         // Spawn position: weapon root offset by radius along attack direction.
-        Vector3 spawnOrigin = ResolveMeleeSpawnOrigin();
-        Vector3 spawnPos = spawnOrigin + (Vector3)(attackDirection * config.meleeFXRadiusDistance);
+        Transform ownerTransform = owner != null ? owner.transform : transform;
+        Vector3 spawnPos = ownerTransform.position + (Vector3)(attackDirection * config.meleeFXRadiusDistance);
+
 
         // Rotation: 0° = facing right, rotated toward attack direction
         float angle = Mathf.Atan2(attackDirection.y, attackDirection.x) * Mathf.Rad2Deg;
         Quaternion spawnRotation = Quaternion.Euler(0f, 0f, angle);
 
         hitboxInstance = Object.Instantiate(config.hitbox.prefab, spawnPos, spawnRotation);
-        if (Mathf.Abs(angle) > 90f)
-        {
-            Debug.Log("[MeleeAbility] Flipping meleeFX visuals for attack angle " + angle);
-            foreach (SpriteRenderer spriteRenderer in hitboxInstance.GetComponentsInChildren<SpriteRenderer>(true))
-            {
-                Debug.Log($"[MeleeAbility] Flipping SpriteRenderer '{spriteRenderer.name}'");
-                spriteRenderer.flipX = true;
-            }
-        }
-        // Apply scale override
-        if (config.hitbox.scaleX > 0f && config.hitbox.scaleX != 1f || config.hitbox.scaleY > 0f && config.hitbox.scaleY != 1f)
-            hitboxInstance.transform.localScale = new Vector3(config.hitbox.scaleX, config.hitbox.scaleY, 1f);
 
-        // Network spawn if running as server
-        var networkManager = InstanceFinder.NetworkManager;
-        if (networkManager != null && networkManager.IsServerStarted)
+        // Local-only: never network-spawned. Damage/effects stay authoritative wherever this runs
+        // (server for enemies, owner for players); observers get the visual via the RPC below,
+        // avoiding FishNet's parenting/spawn-ordering rules entirely for this cosmetic object.
+        if (config.stickToCharacter)
         {
-            NetworkObject netObj = hitboxInstance.GetComponent<NetworkObject>();
-            if (netObj != null)
-                networkManager.ServerManager.Spawn(hitboxInstance);
+            hitboxInstance.transform.SetParent(ownerTransform, true);
         }
+        ApplyFlipAndScale(hitboxInstance, config, angle);
+
+        if (visualOnly)
+        {
+            foreach (Collider2D collider in hitboxInstance.GetComponentsInChildren<Collider2D>(true))
+                collider.enabled = false;
+
+            hitboxAnimator = hitboxInstance.GetComponentInChildren<Animator>();
+            spawnTime = Time.time;
+            return;
+        }
+
+        if (config.meleeSound != null)
+            AudioManager.Instance.PlaySpatialSound(config.meleeSound, spawnPos, 1f, 1f);
+
+        // Tell every other observer to show the same swing visual locally.
+        // ObserversRpc can only be invoked by the server; player-owner-triggered attacks on a
+        // true remote client skip this (mirrors PlayerController.ObserversRpcSpawnMuzzleFlash).
+        if (InstanceFinder.IsServerStarted)
+            owner?.GetComponent<Organism>()?.ObserversRpcSpawnMeleeSwingVisual(abilityName, spawnPos, angle, firedFromOffhand);
 
         // Find ALL colliders on the hitbox prefab (root + children) so every collider
         // shape contributes to hit detection, not just the first one found. This matters
@@ -113,40 +121,77 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
                 triggerHandler = colliderObject.AddComponent<TriggerHandler>();
             triggerHandler.onTriggerEnter = OnHitboxTriggerEnter;
         }
-        if (config.meleeSound != null)
-            AudioManager.Instance.PlaySpatialSound(config.meleeSound, spawnPos, 1f, 1f);
         // Get animator from root or first child
         hitboxAnimator = hitboxInstance.GetComponent<Animator>();
         if (hitboxAnimator == null)
             hitboxAnimator = hitboxInstance.GetComponentInChildren<Animator>();
 
         spawnTime = Time.time;
-        Debug.Log($"[MeleeAbility] Spawned meleeFX '{hitboxInstance.name}' at {spawnPos}, angle={angle:F1}°, speed={config.meleeFXSpeed}");
     }
 
-    private Vector3 ResolveMeleeSpawnOrigin()
+    /// <summary>Shared flip/scale setup used by both the authoritative instance and remote-visual copies.</summary>
+    private static void ApplyFlipAndScale(GameObject instance, MeleeConfig config, float angle)
+    {
+        if (config.flipMeleeFX || config.flipMeleeFXY)
+        {
+            if (Mathf.Abs(angle) > 90f)
+            {
+                foreach (SpriteRenderer spriteRenderer in instance.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    spriteRenderer.flipX = config.flipMeleeFX;
+                    spriteRenderer.flipY = config.flipMeleeFXY;
+                }
+            }
+        }
+        else if (config.hitbox.scaleX > 0f && config.hitbox.scaleX != 1f || config.hitbox.scaleY > 0f && config.hitbox.scaleY != 1f)
+        {
+            instance.transform.localScale = new Vector3(config.hitbox.scaleX, config.hitbox.scaleY, 1f);
+        }
+    }
+
+    /// <summary>
+    /// Spawns a purely cosmetic, non-colliding copy of the swing prefab. Called on observer
+    /// machines via Organism.ObserversRpcSpawnMeleeSwingVisual — no damage, no networking.
+    /// </summary>
+    public static void SpawnVisualOnly(MeleeConfig config, Vector3 spawnPos, Quaternion spawnRotation)
+    {
+        GameObject visual = Object.Instantiate(config.hitbox.prefab, spawnPos, spawnRotation);
+        foreach (Collider2D col in visual.GetComponentsInChildren<Collider2D>(true))
+            col.enabled = false; // visual-only: no hit detection on observer copies
+
+        ApplyFlipAndScale(visual, config, spawnRotation.eulerAngles.z);
+
+        Animator anim = visual.GetComponentInChildren<Animator>();
+        float lifetime = anim != null && anim.runtimeAnimatorController != null
+            ? anim.GetCurrentAnimatorStateInfo(0).length + 0.1f
+            : 1f;
+        Object.Destroy(visual, Mathf.Max(0.5f, lifetime));
+    }
+
+    private Transform ResolveMeleeSpawnOrigin()
     {
         if (owner == null)
-            return transform.position;
+            return transform;
 
         Transform ownerTransform = owner.transform;
-
+        if (config.stickToCharacter)
+            return ownerTransform;
         if (firedFromOffhand)
         {
             Transform offHandWeaponPreferred = ownerTransform.Find("OffHandWeaponHolder/OffHandWeapon");
             if (offHandWeaponPreferred != null)
-                return offHandWeaponPreferred.position;
+                return offHandWeaponPreferred;
         }
 
         Transform mainHandWeapon = ownerTransform.Find("WeaponHolder/Weapon");
         if (mainHandWeapon != null)
-            return mainHandWeapon.position;
+            return mainHandWeapon;
 
         Transform offHandWeapon = ownerTransform.Find("OffHandWeaponHolder/OffHandWeapon");
         if (offHandWeapon != null)
-            return offHandWeapon.position;
+            return offHandWeapon;
 
-        return ownerTransform.position;
+        return ownerTransform;
     }
 
     private void Update()
@@ -177,7 +222,10 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
     private void OnHitboxTriggerEnter(Collider2D other)
     {
-        if (other.gameObject == owner)
+        // Exclude self-hits by hierarchy, not just root-reference equality — "other" is often a
+        // child collider (e.g. "Visuals"), so a bare "other.gameObject == owner" check never
+        // matches and stickToCharacter swings can hit their own attacker.
+        if (owner != null && other.transform.IsChildOf(owner.transform))
             return;
 
         // Check if already hit this target in this activation window
@@ -191,16 +239,27 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
         // Mark as hit
         hitTargets.Add(other);
 
+        bool isServerStarted = InstanceFinder.IsServerStarted;
+        bool isNetworkActive = InstanceFinder.NetworkManager != null;
+        Debug.Log($"[MeleeAbility][KillTrace] OnHitboxTriggerEnter: attacker={owner?.name}, target={other.gameObject.name}, " +
+            $"isNetworkActive={isNetworkActive}, isServerStarted={isServerStarted}, ability={abilityName}");
+
         Vector3 hitPos = hitboxInstance.transform.position;
         Vector2 radialDir = ((Vector2)hitPos - (Vector2)transform.position).normalized;
         // Reusable hitbox processing. statOwner drives trait/stat scaling, weapon-damage
         // resolution, and life-steal healing (so summon attacks heal the player), while owner
         // is credited as the attacker.
-        config.hitbox.ApplyDamage(other, statOwner, owner, statOwner, hitPos, abilityName, abilityTags, parentConfig);
+        float damageDealt = config.hitbox.ApplyDamage(other, statOwner, owner, statOwner, hitPos, abilityName, abilityTags, parentConfig);
+        Debug.Log($"[MeleeAbility][KillTrace] ApplyDamage returned {damageDealt} for target={other.gameObject.name} " +
+            $"(isServerStarted={isServerStarted}); this machine {(isServerStarted ? "is" : "is NOT")} authoritative for the resulting SyncVar/despawn.");
         config.hitbox.ApplyKnockback(other, owner, radialDir);
         config.hitbox.ApplyPull(other, hitPos);
         config.hitbox.ApplyOnHitEffects(other.gameObject, owner, statOwner);
         config.hitbox.SpawnHitFeedback(other.transform.position, parentConfig, other);
+
+        // Tell every other observer to show the same hit feedback locally.
+        if (isServerStarted)
+            owner?.GetComponent<Organism>()?.ObserversRpcSpawnMeleeHitFeedback(abilityName, other.transform.position);
     }
 
     /// <summary>

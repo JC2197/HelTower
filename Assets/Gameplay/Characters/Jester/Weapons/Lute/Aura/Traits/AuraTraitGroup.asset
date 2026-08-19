@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4847edb348e11b54da26d42562dd7d43, type: 3}
+  m_Name: AuraTraitGroup
+  m_EditorClassIdentifier: Assembly-CSharp::TraitGroup
+  traits:
+  - {fileID: 11400000, guid: 0a5522168e4a84742a7444bf30923e3e, type: 2}
+  - {fileID: 11400000, guid: 6b32150fbf974d44ea776e28a850116f, type: 2}
+  - {fileID: 11400000, guid: 9f2177da72ff59d49a163b6d26fcbfad, type: 2}
+  - {fileID: 11400000, guid: 74e82d20238697e4bb87cd845a9c3b7d, type: 2}
+  - {fileID: 11400000, guid: b10aac986c8d6204c8ac1206e6d4dd41, type: 2}
+  - {fileID: 11400000, guid: 6e2d1a145afaec14da1a689f9bab1b5b, type: 2}
+  - {fileID: 11400000, guid: 9c38e6e51d30a544f8e1e8dc4305a1d4, type: 2}

@@ -5,11 +5,20 @@ using UnityEngine.InputSystem; // Add this
 
 public class CursorManager : MonoBehaviour
 {
+    [Serializable]
+    private struct TargetTagColorRule
+    {
+        public string tag;
+        public Color color;
+    }
+
     public static CursorManager Instance { get; private set; }
     
     [Header("Cursor Settings")]
     [SerializeField] private GameObject cursorReticlePrefab;
     [SerializeField] private GameObject uiCursorPrefab; // Cursor for menus/UI
+    [SerializeField] private int gameplayCursorSortingOrder = 50;
+    [SerializeField] private int uiCursorSortingOrder = 500;
     [SerializeField] private LayerMask groundLayerMask = 1; // What layers the cursor can target
     [SerializeField] private bool showReticle = true;
     
@@ -46,10 +55,19 @@ public class CursorManager : MonoBehaviour
     [SerializeField] [Tooltip("Margin from bottom edge in viewport units (0-0.5) - keeps cursor above ability bar")]
     [Range(0f, 0.5f)] private float bottomEdgeMargin = 0.15f;
     
-    [Header("Enemy Targeting")]
+    [Header("Targeting")]
     [SerializeField] private bool enableEnemyTargeting = true;
     [SerializeField] private float targetingRadius = 1.5f; // Detection radius around cursor
     [SerializeField] private LayerMask enemyLayerMask;
+    [SerializeField] private LayerMask allyLayerMask;
+    [SerializeField] private GameObject targetPrefab;
+    [SerializeField] private float targetFollowLerpSpeed = 15f;
+    [SerializeField] private float targetScaleLerpSpeed = 12f;
+    [SerializeField] private float targetWorldYOffset = 0.5f;
+    [SerializeField] private string targetSortingLayerName = "UI";
+    [SerializeField] private int targetSortingOrder = 200;
+    [SerializeField] private Color defaultTargetColor = Color.red;
+    [SerializeField] private List<TargetTagColorRule> targetTagColors = new List<TargetTagColorRule>();
     [SerializeField] private Color targetingCursorColor = Color.red;
     [SerializeField] private Color normalCursorColor = Color.white;
     [SerializeField] private Color enemyOutlineColor = Color.red;
@@ -62,17 +80,22 @@ public class CursorManager : MonoBehaviour
     private Vector2 cursorWorldPosition;
     private Vector2 constrainedCursorPosition;
     private Transform playerTransform;
+    private float _nextPlayerRefRefreshTime;
     
     // Enemy targeting
-    private Enemy currentTargetedEnemy;
+    private Organism currentTarget;
+    private GameObject targetIndicatorInstance;
+    private float targetIndicatorScale;
+    private bool targetIndicatorIsUi;
     
     // Events for other systems to subscribe to
     public System.Action<Vector2> OnCursorPositionChanged;
     
     public Vector2 CursorWorldPosition => cursorWorldPosition;
     public Vector2 ConstrainedCursorPosition => constrainedCursorPosition;
-    public Enemy TargetedEnemy => currentTargetedEnemy;
-    public bool IsTargetingEnemy => currentTargetedEnemy != null;
+    public Organism TargetedOrganism => currentTarget;
+    public Enemy TargetedEnemy => currentTarget as Enemy;
+    public bool IsTargetingEnemy => currentTarget is Enemy;
     public bool IsInUIMode => isInUIMode;
 
     // ── Panel stack ───────────────────────────────────────────────────────────
@@ -199,12 +222,20 @@ public class CursorManager : MonoBehaviour
         if (isNetworkActive && !newPlayer.IsOwner) return;
 
         playerTransform = newPlayer.transform;
+        EnsureCursorInstances();
     }
     
     private void LateUpdate()
     {
         // Force system cursor to stay hidden
         Cursor.visible = false;
+
+        EnsurePlayerReference();
+        EnsureCursorInstances();
+
+        // Safety: if panel stack is empty, gameplay cursor should be active.
+        if (_panelCloseStack.Count == 0 && isInUIMode)
+            SetUIMode(false);
         
         // Clamp mouse position to viewport bounds if enabled
         if (enableViewportClamping)
@@ -220,8 +251,50 @@ public class CursorManager : MonoBehaviour
         {
             UpdateEnemyTargeting();
         }
+        else
+        {
+            currentTarget = null;
+            UpdateTargetIndicatorVisual();
+        }
         
         UpdateReticlePosition();
+    }
+
+    private void EnsurePlayerReference()
+    {
+        if (playerTransform != null)
+            return;
+
+        if (Time.unscaledTime < _nextPlayerRefRefreshTime)
+            return;
+
+        _nextPlayerRefRefreshTime = Time.unscaledTime + 0.25f;
+        FindPlayerReference();
+    }
+
+    private void EnsureCursorInstances()
+    {
+        if (!showReticle)
+            return;
+
+        if (gameplayCursorInstance == null || (uiCursorPrefab != null && uiCursorInstance == null))
+        {
+            CreateCursorReticle();
+            return;
+        }
+
+        // Cursor prefab root can accidentally carry zero scale in authoring data.
+        if (gameplayCursorInstance != null && gameplayCursorInstance.transform.localScale.sqrMagnitude < 0.0001f)
+            gameplayCursorInstance.transform.localScale = Vector3.one;
+
+        if (uiCursorInstance != null && uiCursorInstance.transform.localScale.sqrMagnitude < 0.0001f)
+            uiCursorInstance.transform.localScale = Vector3.one;
+
+        if (currentReticle == null)
+            currentReticle = isInUIMode && uiCursorInstance != null ? uiCursorInstance : gameplayCursorInstance;
+
+        if (!isInUIMode && gameplayCursorInstance != null && !gameplayCursorInstance.activeSelf)
+            gameplayCursorInstance.SetActive(true);
     }
     
     private void FindPlayerReference()
@@ -331,7 +404,9 @@ public class CursorManager : MonoBehaviour
             gameplayCursorInstance = Instantiate(cursorReticlePrefab);
             gameplayCursorInstance.name = "GameplayCursor";
             DontDestroyOnLoad(gameplayCursorInstance);
-            SetupCursorCanvas(gameplayCursorInstance, 50); // Below tooltips
+            SetupCursorCanvas(gameplayCursorInstance, gameplayCursorSortingOrder);
+            if (gameplayCursorInstance.transform.localScale.sqrMagnitude < 0.0001f)
+                gameplayCursorInstance.transform.localScale = Vector3.one;
             Debug.Log("[CursorManager] Gameplay cursor created");
         }
         else
@@ -345,7 +420,9 @@ public class CursorManager : MonoBehaviour
             uiCursorInstance = Instantiate(uiCursorPrefab);
             uiCursorInstance.name = "UICursor";
             DontDestroyOnLoad(uiCursorInstance);
-            SetupCursorCanvas(uiCursorInstance, 50); // Below tooltips
+            SetupCursorCanvas(uiCursorInstance, uiCursorSortingOrder);
+            if (uiCursorInstance.transform.localScale.sqrMagnitude < 0.0001f)
+                uiCursorInstance.transform.localScale = Vector3.one;
             uiCursorInstance.SetActive(false); // Start hidden
             Debug.Log("[CursorManager] UI cursor created (hidden)");
         }
@@ -365,6 +442,49 @@ public class CursorManager : MonoBehaviour
         {
             Debug.LogError("[CursorManager] No cursor active! Assign cursor prefabs in inspector.");
         }
+
+        CreateTargetIndicator();
+    }
+
+    private void CreateTargetIndicator()
+    {
+        if (targetPrefab == null)
+            return;
+
+        if (targetIndicatorInstance != null)
+            Destroy(targetIndicatorInstance);
+
+        targetIndicatorIsUi = targetPrefab.GetComponentInChildren<Canvas>(true) != null
+            || targetPrefab.GetComponentInChildren<RectTransform>(true) != null;
+
+        if (targetIndicatorIsUi)
+        {
+            Transform parent = gameplayCursorInstance != null ? gameplayCursorInstance.transform : transform;
+            targetIndicatorInstance = Instantiate(targetPrefab, parent);
+        }
+        else
+        {
+            targetIndicatorInstance = Instantiate(targetPrefab);
+            DontDestroyOnLoad(targetIndicatorInstance);
+
+            SpriteRenderer[] spriteRenderers = targetIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(targetSortingLayerName))
+                    spriteRenderers[i].sortingLayerName = targetSortingLayerName;
+
+                spriteRenderers[i].sortingOrder = targetSortingOrder;
+            }
+        }
+
+        targetIndicatorInstance.name = "TargetIndicator";
+        targetIndicatorInstance.transform.localScale = Vector3.zero;
+        targetIndicatorScale = 0f;
+
+        // Ensure target indicator never blocks UI interactions.
+        UnityEngine.UI.Graphic[] graphics = targetIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+            graphics[i].raycastTarget = false;
     }
     
     private void SetupCursorCanvas(GameObject cursor, int sortOrder)
@@ -377,6 +497,7 @@ public class CursorManager : MonoBehaviour
         {
             // Set Canvas to Screen Space - Overlay for true screen space rendering
             reticleCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            reticleCanvas.overrideSorting = true;
             reticleCanvas.sortingOrder = sortOrder; // Below tooltips (100) but above most UI
             
             // CRITICAL: Disable Graphic Raycaster so cursor doesn't block UI clicks
@@ -490,7 +611,7 @@ public class CursorManager : MonoBehaviour
             Color targetColor = normalCursorColor;
             
             // Priority: targeting overrides constraint color
-            if (enableEnemyTargeting && currentTargetedEnemy != null)
+            if (enableEnemyTargeting && currentTarget != null)
             {
                 targetColor = targetingCursorColor;
             }
@@ -537,47 +658,110 @@ public class CursorManager : MonoBehaviour
     
     private void UpdateEnemyTargeting()
     {
+        Vector2 targetScanCenter = constrainedCursorPosition;
+        LayerMask targetMask = enemyLayerMask | allyLayerMask;
+        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(targetScanCenter, targetingRadius, targetMask);
 
-        
-        // Find all enemies within detection radius of cursor
-        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(cursorWorldPosition, targetingRadius, enemyLayerMask);
-       
-        
-        Enemy closestEnemy = null;
-        float closestDistance = float.MaxValue;
-        
-        // Find enemy closest to cursor center
-        foreach (Collider2D col in nearbyColliders)
+        // Keep current target while cursor stays within sensitivity radius.
+        Organism bestTarget = IsTargetWithinTargetRadius(currentTarget, targetScanCenter)
+            ? currentTarget
+            : null;
+
+        if (bestTarget == null)
         {
-            Enemy enemy = col.GetComponent<Enemy>();
-            if (enemy != null && enemy.isActiveAndEnabled)
+            float closestDistance = float.MaxValue;
+            for (int i = 0; i < nearbyColliders.Length; i++)
             {
-                float distance = Vector3.Distance(cursorWorldPosition, enemy.transform.position);
+                Collider2D col = nearbyColliders[i];
+                if (col == null)
+                    continue;
+
+                Organism target = col.GetComponentInParent<Organism>();
+                if (target == null || target.transform == playerTransform || !target.isActiveAndEnabled || !target.IsAlive)
+                    continue;
+
+                float distance = Vector2.Distance(targetScanCenter, target.transform.position);
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestEnemy = enemy;
-                }
-            }
-        }
-        
-
-        
-        // Find enemy closest to cursor center
-        foreach (Collider2D col in nearbyColliders)
-        {
-            Enemy enemy = col.GetComponent<Enemy>();
-            if (enemy != null && enemy.isActiveAndEnabled)
-            {
-                float distance = Vector3.Distance(cursorWorldPosition, enemy.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestEnemy = enemy;
+                    bestTarget = target;
                 }
             }
         }
 
+        currentTarget = bestTarget;
+        UpdateTargetIndicatorVisual();
+    }
+
+    private bool IsTargetWithinTargetRadius(Organism target, Vector2 scanCenter)
+    {
+        if (target == null || target.transform == playerTransform || !target.isActiveAndEnabled || !target.IsAlive)
+            return false;
+
+        return Vector2.Distance(scanCenter, target.transform.position) <= targetingRadius;
+    }
+
+    private void UpdateTargetIndicatorVisual()
+    {
+        if (targetIndicatorInstance == null)
+            return;
+
+        bool shouldShow = !isInUIMode && currentTarget != null;
+        float targetScale = shouldShow ? 1f : 0f;
+        targetIndicatorScale = Mathf.Lerp(targetIndicatorScale, targetScale, Time.deltaTime * targetScaleLerpSpeed);
+        targetIndicatorInstance.transform.localScale = Vector3.one * targetIndicatorScale;
+
+        if (!shouldShow)
+            return;
+
+        Vector3 worldPos = currentTarget.transform.position;
+
+        if (targetIndicatorIsUi)
+        {
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
+                targetIndicatorInstance.transform.position = Vector3.Lerp(
+                    targetIndicatorInstance.transform.position,
+                    screenPos,
+                    Time.deltaTime * targetFollowLerpSpeed);
+            }
+        }
+        else
+        {
+            worldPos.y += targetWorldYOffset;
+            targetIndicatorInstance.transform.position = Vector3.Lerp(
+                targetIndicatorInstance.transform.position,
+                worldPos,
+                Time.deltaTime * targetFollowLerpSpeed);
+        }
+
+        Color targetColor = ResolveTargetColor(currentTarget.gameObject.tag);
+        ApplyTargetIndicatorColor(targetColor);
+    }
+
+    private Color ResolveTargetColor(string targetTag)
+    {
+        for (int i = 0; i < targetTagColors.Count; i++)
+        {
+            TargetTagColorRule rule = targetTagColors[i];
+            if (!string.IsNullOrWhiteSpace(rule.tag) && string.Equals(rule.tag, targetTag, StringComparison.OrdinalIgnoreCase))
+                return rule.color;
+        }
+
+        return defaultTargetColor;
+    }
+
+    private void ApplyTargetIndicatorColor(Color targetColor)
+    {
+        UnityEngine.UI.Image[] images = targetIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Image>(true);
+        for (int i = 0; i < images.Length; i++)
+            images[i].color = targetColor;
+
+        SpriteRenderer[] sprites = targetIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < sprites.Length; i++)
+            sprites[i].color = targetColor;
     }
     
     
@@ -608,10 +792,10 @@ public class CursorManager : MonoBehaviour
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(cursorWorldPosition, targetingRadius);
             
-            if (currentTargetedEnemy != null)
+            if (currentTarget != null)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawLine(cursorWorldPosition, currentTargetedEnemy.transform.position);
+                Gizmos.DrawLine(cursorWorldPosition, currentTarget.transform.position);
             }
         }
     }

@@ -77,6 +77,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Ability6",
+                    "type": "Button",
+                    "id": "8b3f3c48-6c52-4ead-bfda-b4537f3768e7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -204,7 +213,7 @@
                 {
                     "name": "",
                     "id": "2c94a4d4-43aa-48fc-a762-e102cc503196",
-                    "path": "<Keyboard>/shift",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -215,7 +224,7 @@
                 {
                     "name": "",
                     "id": "11b9f2cd-86d6-4f69-af39-83f687f0556b",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -226,7 +235,7 @@
                 {
                     "name": "",
                     "id": "5c2c2644-5e42-428b-9870-c111b2daf4c2",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -237,7 +246,7 @@
                 {
                     "name": "",
                     "id": "70f10f89-d5ea-4444-871b-ef64bbd0ff0d",
-                    "path": "<Keyboard>/r",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -264,6 +273,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7bb29e82-9e7a-42ab-8d67-b855c5b92896",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Ability6",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

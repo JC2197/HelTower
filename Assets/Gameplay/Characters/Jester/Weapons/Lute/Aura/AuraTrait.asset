@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: AuraTrait
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Aura
+  displayName: Aura
+  description: 
+  traitIcon: {fileID: -4714381445611006446, guid: 7776c94cb0857b34ea0330d68dec83a6, type: 3}
+  colorTheme: Defense
+  specializedTraitTag1: Defense
+  specializedTraitTag2: 
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 3
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 0}
+  requiredAbilityLevel: 0
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities:
+  - abilityConfig: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
+    targetSlot: 2
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers: []
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 0}

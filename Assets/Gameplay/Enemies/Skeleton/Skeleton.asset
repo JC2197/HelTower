@@ -43,7 +43,7 @@ MonoBehaviour:
     - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 3
+      currentValue: 2
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
@@ -94,12 +94,14 @@ MonoBehaviour:
   obstacleAvoidanceStrength: 20.2
   debugDrawPathfindingRays: 0
   hasCollisionDamage: 1
+  targetTags:
+  - Player
   collisionDamage: 15
   collisionDamageCooldown: 1
-  collisionDamageType: Bludgeoning
+  collisionDamageType: Physical
   collisionHitLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   isFlying: 0
   isProjectileEnemy: 0
   projectileRange: 8

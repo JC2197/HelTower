@@ -67,6 +67,59 @@ public class StatContainer
         return addedCount;
     }
 
+    public int Synchronize(StatTypeDatabase database)
+    {
+        if (database == null)
+            throw new ArgumentNullException(nameof(database));
+
+        var existingValues = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < stats.Count; i++)
+        {
+            StatValue stat = stats[i];
+            if (stat != null && !string.IsNullOrWhiteSpace(stat.StatId))
+                existingValues[stat.StatId] = stat.CurrentValue;
+        }
+
+        var synchronizedStats = new List<StatValue>();
+        int changeCount = 0;
+
+        foreach (StatTypeData statType in database.StatTypes)
+        {
+            if (statType == null || string.IsNullOrWhiteSpace(statType.StatId))
+                continue;
+
+            float value = existingValues.TryGetValue(statType.StatId, out float existingValue)
+                ? existingValue
+                : statType.DefaultValue;
+            synchronizedStats.Add(new StatValue(statType.StatId, statType.DisplayName, statType.CategoryId, value));
+        }
+
+        if (stats.Count != synchronizedStats.Count)
+        {
+            changeCount++;
+        }
+        else
+        {
+            for (int i = 0; i < stats.Count; i++)
+            {
+                StatValue current = stats[i];
+                StatValue synchronized = synchronizedStats[i];
+                if (current == null
+                    || !string.Equals(current.StatId, synchronized.StatId, StringComparison.Ordinal)
+                    || !string.Equals(current.DisplayName, synchronized.DisplayName, StringComparison.Ordinal)
+                    || !string.Equals(current.CategoryId, synchronized.CategoryId, StringComparison.Ordinal))
+                {
+                    changeCount++;
+                    break;
+                }
+            }
+        }
+
+        stats = synchronizedStats;
+        RebuildLookup();
+        return changeCount;
+    }
+
     public bool TryGetStat(string statId, out float value)
     {
         EnsureLookup();

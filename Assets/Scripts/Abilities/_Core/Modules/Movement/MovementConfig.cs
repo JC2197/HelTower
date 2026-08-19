@@ -3,7 +3,6 @@ using UnityEngine;
 
 public enum MovementType
 {
-    Force = 0,
     DistanceOverTime = 1,
     SpeedOverTime = 2,
     Teleport = 3
@@ -12,11 +11,10 @@ public enum MovementType
 [System.Serializable]
 public class MovementConfig
 {
-    [Tooltip("If true, applies a force to the Rigidbody2D. Otherwise, sets velocity directly.")]
     public MovementType movementType = MovementType.DistanceOverTime;
-    [Tooltip("Amount of force to apply if useForce is true.")]
-    public float forceAmount = 10f;
-    [Tooltip("Movement speed if not using force.")]
+    [Tooltip("Smoothly accelerates and decelerates timed movement while preserving total distance.")]
+    public bool lerp = false;
+    [Tooltip("Movement speed for Speed Over Time.")]
     public float speed = 10f;
     [Tooltip("Maximum distance to move.")]
     public float distance = 5f;

@@ -36,7 +36,7 @@ public class ProjectilePrefab : Projectile
     public bool overrideMuzzleFlash = false;
     
     [Tooltip("Override muzzle flash particle effect")]
-    public ParticleSystem muzzleFlashPrefabOverride;
+    public GameObject muzzleFlashPrefabOverride;
 
     [Tooltip("Override muzzle flash sound")]
     public AudioClip muzzleFlashSoundOverride;

@@ -47,7 +47,7 @@ public class EnemyConfig : ScriptableObject
     [Header("AI Behavior System")]
     [Tooltip("Simple enemies skip weapon aiming and flip their sprite based on movement direction instead")]
     public bool isSimpleEnemy = false;
-    
+
     [Tooltip("List of actions this enemy can perform (evaluated by priority and conditions)")]
     public List<EnemyActionConfig> actions = new List<EnemyActionConfig>();
 
@@ -79,6 +79,8 @@ public class EnemyConfig : ScriptableObject
     [Tooltip("If true, this enemy deals damage on contact with the player")]
     public bool hasCollisionDamage = false;
     
+    public string[] targetTags = { "Player" };
+
     [Tooltip("Damage dealt per collision tick")]
     public float collisionDamage = 5f;
     
@@ -139,7 +141,8 @@ public class EnemyConfig : ScriptableObject
 
     [Tooltip("Animation name for upward movement")]
     public string moveUpAnimationName = "MoveUp";
-
+    [Tooltip("Animation name for death")]
+    public string deathAnimationName = "Death";
     [Header("Death")]
     [Tooltip("Ability triggered when this enemy dies. Runs from the enemy's position.")]
     public AbilityDataConfig onDeathAbility;
@@ -156,7 +159,7 @@ public class EnemyConfig : ScriptableObject
         if (database == null)
             return;
 
-        int addedStats = stats.Migrate(database);
+        int addedStats = stats.Synchronize(database);
 #if UNITY_EDITOR
         if (addedStats > 0)
             UnityEditor.EditorUtility.SetDirty(this);

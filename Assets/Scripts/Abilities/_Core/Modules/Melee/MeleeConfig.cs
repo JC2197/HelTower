@@ -18,6 +18,10 @@ public class MeleeConfig
     [Tooltip("Speed at which the meleeFX travels after spawning (0 = stationary).")]
     public float meleeFXSpeed = 0f;
 
+    public bool flipMeleeFX = false;
+    public bool flipMeleeFXY = false;
+    public bool stickToCharacter = false;
+
     [Tooltip("Can hit the same target multiple times in one attack?")]
     public bool allowMultiHit = false;
 

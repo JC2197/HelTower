@@ -15,7 +15,9 @@ MonoBehaviour:
   className: Paladin
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: e299a71dc8733e240a87a80d32f947e6, type: 2}
-  availableWeapons: []
+  availableWeapons:
+  - {fileID: 11400000, guid: 397872368eb0c764ca874159ab400af9, type: 2}
+  availableAccessories: []
   abilities: []
   baseStatContainer:
     stats:
@@ -43,27 +45,23 @@ MonoBehaviour:
       displayName: LUK
       categoryId: BASE
       currentValue: 0
-    - statId: MOVESPEED
+    - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 0
-    - statId: ATTACKSPEED
+      currentValue: 2
+    - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
       currentValue: 0
-    - statId: MAXHP
+    - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 0
+      currentValue: 100
     - statId: PHYSICAL
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
     - statId: MAGICAL
       displayName: Magical Damage Bonus
-      categoryId: Ative
-      currentValue: 0
-    - statId: MaxHealth
-      displayName: Maximum HP
       categoryId: Active
       currentValue: 0

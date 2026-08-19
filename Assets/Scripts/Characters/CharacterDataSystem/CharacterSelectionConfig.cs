@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "CharacterSelectionConfig", menuName = "Characters/Character Selection Configuration")]
 public class CharacterSelectionConfig : ScriptableObject
@@ -6,18 +7,18 @@ public class CharacterSelectionConfig : ScriptableObject
     [Header("Available Classes")]
     [Tooltip("All character classes available for selection (character creation)")]
     public ClassData[] availableClasses;
-    
+
     [Header("Default Class")]
     [Tooltip("Class to use if none is selected or saved data is invalid")]
     public ClassData defaultClass;
-    
+
     [Header("Scene Navigation")]
     [Tooltip("Scene to load when starting the game")]
     public string gameSceneName = "CommandScene";
-    
+
     [Tooltip("Scene to return to when canceling")]
     public string mainMenuSceneName = "MainMenu";
-    
+
     /// <summary>
     /// Creates a runtime character instance from a ClassData template.
     /// Run-based: no experience, no persistence, no gear slots. The chosen weapon
@@ -56,11 +57,18 @@ public class CharacterSelectionConfig : ScriptableObject
         newCharacter.mainHandWeaponConfig = chosenWeapon;
         newCharacter.offHandWeaponConfig = null;
 
+        // Copy the class accessory pool so each runtime character owns its loadout list.
+        newCharacter.accessoryConfigs = classData.availableAccessories != null
+            ? new List<AccessoryConfig>(classData.availableAccessories)
+            : new List<AccessoryConfig>();
+
         // Ability loadout: primary ability comes from the chosen weapon.
         // Trait abilities start empty and are rolled during the run from classData.abilities.
         newCharacter.abilityLoadout = new CharacterAbilityLoadout();
         if (chosenWeapon != null && chosenWeapon.grantedPrimaryAbility != null)
             newCharacter.abilityLoadout.SetWeaponAbility(chosenWeapon.grantedPrimaryAbility);
+        if (chosenWeapon != null && chosenWeapon.grantedSecondaryAbility != null)
+            newCharacter.abilityLoadout.SetSecondaryWeaponAbility(chosenWeapon.grantedSecondaryAbility);
 
         newCharacter.ResetRunRewardProgression();
 
@@ -83,7 +91,7 @@ public class CharacterSelectionConfig : ScriptableObject
         int randomIndex = Random.Range(0, availableClasses.Length);
         return availableClasses[randomIndex];
     }
-    
+
     public ClassData GetClassByIndex(int index)
     {
         if (availableClasses != null && index >= 0 && index < availableClasses.Length)
@@ -92,19 +100,19 @@ public class CharacterSelectionConfig : ScriptableObject
         }
         return defaultClass;
     }
-    
+
     public int GetClassIndex(ClassData classData)
     {
         if (availableClasses == null || classData == null)
             return -1;
-        
+
         for (int i = 0; i < availableClasses.Length; i++)
         {
             if (availableClasses[i] == classData)
                 return i;
         }
-        
+
         return -1;
     }
-    
+
 }

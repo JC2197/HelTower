@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - Construct
+  - Aura
+  - Ally
   layers:
   - Default
   - TransparentFX
@@ -13,9 +16,9 @@ TagManager:
   - Water
   - UI
   - Enemy
-  - 
-  - 
-  - 
+  - Environment
+  - Construct
+  - Projectile
   - 
   - 
   - 
@@ -48,7 +51,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: New Layer 2
+  - name: FX
     uniqueID: 1863725463
     locked: 0
   m_RenderingLayers:

@@ -94,7 +94,7 @@ public abstract class Projectile : NetworkBehaviour
 
     // Muzzle flash config - populated from ProjectilePrefab overrides in Awake,
     // or from InitializeFromConfig on server. Clients use prefab overrides for ObserversRpc.
-    protected ParticleSystem muzzleFlashPrefab;
+    protected GameObject muzzleFlashPrefab;
     protected bool enableMuzzleLight = false;
     protected Color muzzleLightColor = Color.yellow;
     protected float muzzleLightIntensity = 3f;
@@ -604,7 +604,7 @@ public abstract class Projectile : NetworkBehaviour
         if (!useLifetime) return;
 
         currentLifetime -= Time.deltaTime;
-        if (currentLifetime <= 0f)
+        if (currentLifetime <= 0f && IsAuthority)
         {
             DestroyProjectile();
         }
@@ -616,7 +616,7 @@ public abstract class Projectile : NetworkBehaviour
         if (maxRange > 0f && startPosition != Vector3.zero)
         {
             float distanceTraveled = Vector3.Distance(startPosition, transform.position);
-            if (distanceTraveled >= maxRange)
+            if (distanceTraveled >= maxRange && IsAuthority)
             {
                 DestroyProjectile();
             }
@@ -854,12 +854,16 @@ public abstract class Projectile : NetworkBehaviour
         // Removing ExcludeServer ensures the host uses the same SpawnLocalEffect path as clients,
         // avoiding issues with locally-instantiated prefabs that have a NetworkObject component.
         if (IsSpawned)
-            RpcCreateHitEffect(impactPosition);
+        {
+            NetworkObject ownerNob = owner != null ? owner.GetComponent<NetworkObject>() : null;
+            RpcCreateHitEffect(impactPosition, ownerNob, parentConfig?.abilityName);
+        }
         else
+        {
             CreateHitEffect(impactPosition, other); // single-player fallback
-
-        // Centralized hit visual from AbilityDataConfig (shared across all ability types)
-        HitVisualHelper.SpawnHitVisual(parentConfig, impactPosition, other, transform.rotation);
+            // Centralized hit visual from AbilityDataConfig (shared across all ability types)
+            HitVisualHelper.SpawnHitVisual(parentConfig, impactPosition, other, transform.rotation);
+        }
 
         // If this layer should destroy the projectile, destroy immediately (unless we just chained)
         Debug.Log($"[Projectile.HandleCollision] Post-OnHitTarget: justChained={justChained}, shouldDestroy={shouldDestroy}, countsPierce={countsPierce}");
@@ -1236,7 +1240,14 @@ public abstract class Projectile : NetworkBehaviour
             // Broadcast destroy VFX to ALL observers (including host) before despawning.
             // RPC is queued before Despawn so it is sent/received prior to the despawn message.
             // When called from a hit, spawnEffect=false so only trail cleanup happens (hit VFX already played).
-            RpcCreateDestroyEffect(transform.position, !fromHit, angle);
+            // ObserversRpc can only be invoked by the server; a non-authoritative copy (e.g. a
+            // late/duplicate call from a non-server client) would otherwise log a FishNet warning
+            // and silently fail to reach observers.
+            if (IsServerStarted)
+            {
+                NetworkObject ownerNob = owner != null ? owner.GetComponent<NetworkObject>() : null;
+                RpcCreateDestroyEffect(transform.position, !fromHit, angle, ownerNob, parentConfig?.abilityName);
+            }
 
             if (IsServerStarted)
             {
@@ -1258,21 +1269,33 @@ public abstract class Projectile : NetworkBehaviour
     /// <summary>
     /// Broadcast hit VFX to ALL observers including the server/host. Both sides use
     /// SpawnLocalEffect, avoiding any issues with locally-instantiated NetworkObjects.
+    /// The Projectile's own hitVisualPrefab/parentConfig fields are only populated on the machine
+    /// that locally called InitializeFromConfig (server or the predictive owner) — pure observers
+    /// never ran it, so we also resolve the centralized ability visual via the owner's ability
+    /// config (identical asset on every client) rather than relying on those fields there.
     /// </summary>
     [ObserversRpc]
-    private void RpcCreateHitEffect(Vector3 position)
+    private void RpcCreateHitEffect(Vector3 position, NetworkObject ownerNob, string abilityName)
     {
         SpawnLocalEffect(hitVisualPrefab, position, transform.rotation);
         if (hitSound != null)
             AudioManager.Instance?.PlaySpatialSound(hitSound, position, 1f, Random.Range(0.9f, 1.1f));
+
+        AbilityDataConfig abilityConfig = ownerNob != null
+            ? ownerNob.GetComponent<Organism>()?.FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig
+            : null;
+        if (abilityConfig != null)
+            HitVisualHelper.SpawnHitVisual(abilityConfig, position);
     }
 
     /// <summary>
     /// Broadcast destroy VFX to ALL observers including the server/host. Called before
     /// Despawn() so the RPC is queued first and arrives before the despawn message.
+    /// destroyVisualPrefab is only populated on the machine that spawned this projectile locally,
+    /// so pure observers resolve the same prefab via the owner's ability config instead.
     /// </summary>
     [ObserversRpc]
-    private void RpcCreateDestroyEffect(Vector3 position, bool spawnEffect, float angle = 0f)
+    private void RpcCreateDestroyEffect(Vector3 position, bool spawnEffect, float angle, NetworkObject ownerNob, string abilityName)
     {
         // Detach trail on ALL clients before the Despawn message arrives.
         // On the server, OnProjectileDestroy already ran and set trailChildInstance = null,
@@ -1280,12 +1303,21 @@ public abstract class Projectile : NetworkBehaviour
         // the trail before Despawn destroys the entire hierarchy.
         DetachAndDestroyTrail();
 
-        if (spawnEffect)
+        if (!spawnEffect)
+            return;
+
+        GameObject destroyPrefab = destroyVisualPrefab;
+        if (destroyPrefab == null && ownerNob != null)
         {
-            SpawnLocalEffect(destroyVisualPrefab, position, Quaternion.Euler(0f, 0f, angle));
-            if (destroySound != null)
-                AudioManager.Instance?.PlaySpatialSound(destroySound, position, 1f, Random.Range(0.9f, 1.1f));
+            AbilityDataConfig abilityConfig = ownerNob.GetComponent<Organism>()?.FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig;
+            destroyPrefab = abilityConfig?.projectileConfig?.destroyVisualPrefab;
         }
+
+        if (destroyPrefab != null)
+            SpawnLocalEffect(destroyPrefab, position, Quaternion.Euler(0f, 0f, angle));
+
+        if (destroySound != null)
+            AudioManager.Instance?.PlaySpatialSound(destroySound, position, 1f, Random.Range(0.9f, 1.1f));
     }
 
     /// <summary>

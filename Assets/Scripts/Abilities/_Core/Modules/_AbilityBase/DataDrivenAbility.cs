@@ -119,6 +119,15 @@ public class DataDrivenAbility : Ability
     // Weapon animation idle return tracking
 
     private Coroutine weaponIdleReturnCoroutine;
+    private Coroutine movementControlReleaseCoroutine;
+    private int movementControlLockToken = 0;
+    private Coroutine castMoveSpeedReleaseCoroutine;
+    private float castMoveSpeedAppliedDelta = 0f;
+    private bool hasCastMoveSpeedModifier = false;
+    private bool _lastMovementControlLoggedPlayerControl = true;
+    private bool _lastMovementControlLoggedMovementExecuting = false;
+    private bool _lastMovementControlLoggedPrecastPending = false;
+    private int _lastMovementControlLoggedToken = -1;
     // Weapon direction locking - locks weapon to a specific angle during ability
     private bool isWeaponDirectionLocked = false;
     private float lockedWeaponAngle = 0f;
@@ -146,6 +155,17 @@ public class DataDrivenAbility : Ability
         return succeeded;
     }
 
+    public bool TryUseAbilityManually()
+    {
+        if (config != null && config.disableCast)
+        {
+            Debug.Log($"{AbilityPipelineTag} Manual cast blocked: ability={config.abilityName}, reason=disableCast");
+            return false;
+        }
+
+        return TryUseAbility();
+    }
+
     /// <summary>
     /// Fired by the owner Organism when they take damage.
     /// If retaliationCast is enabled and the ability is off cooldown, cast at the attacker.
@@ -163,10 +183,13 @@ public class DataDrivenAbility : Ability
 
     // Combo tracking
     private int currentComboIndex = 0;
-    private float lastComboTime = -999f;
     private float comboWindowExpiresAt = -999f;
     private bool isExecutingCombo = false;
     private Coroutine comboChainCoroutine = null;
+    // One fully-initialized runner per combo step; the shell only sequences them.
+    private DataDrivenAbility[] comboSteps;
+    private bool isComboStep = false;
+    private Coroutine comboIdleWatcher = null;
 
     // Alternating animation tracking for dual-wielding
     private bool lastAnimationWasMainhand = false; // Tracks which hand animated last for alternating system
@@ -222,6 +245,16 @@ public class DataDrivenAbility : Ability
         abilitySlotIndex = -2;
     }
 
+    /// <summary>
+    /// Marks this runner as a step inside a combo shell: it never polls input or autocasts,
+    /// it is only cast by its owning shell.
+    /// </summary>
+    public void ConfigureAsComboStep(int ownerSlotIndex)
+    {
+        isComboStep = true;
+        abilitySlotIndex = ownerSlotIndex;
+    }
+
     public bool FireTriggeredProjectile(float damageMultiplier = 1f)
     {
         ProjectileConfig projectileConfig = GetEffectiveProjectileConfig();
@@ -270,27 +303,8 @@ public class DataDrivenAbility : Ability
         // If it's an attack, calculate cooldown from attack speed
         if (config.isAttack)
         {
-            float effectiveAttackSpeed = config.attackSpeed;
-            if (_accumulatedOverrides != null && _accumulatedOverrides.TryGetValue("attackSpeed", out var asAccum))
-            {
-                effectiveAttackSpeed = (effectiveAttackSpeed + asAccum.flatDelta) * (1f + asAccum.percentDelta / 100f);
-                if (asAccum.hasSetOverride) effectiveAttackSpeed = asAccum.setNumeric;
-            }
-            if (effectiveAttackSpeed <= 0f) effectiveAttackSpeed = 0.001f;
 
-            // Get owner's attack speed bonus
-            float attackSpeedBonus = 0f;
-            if (ownerOrganism != null && ownerOrganism.AllStats != null)
-            {
-                attackSpeedBonus = ownerOrganism.AllStats.GetStat("AttackSpeed");
-            }
-
-            // Convert to multiplier (0.03 = 1.03x, 0.5 = 1.5x, 2.5 = 3.5x)
-            float attackSpeedMultiplier = 1f + attackSpeedBonus;
-
-            // Calculate effective attack speed: baseAttackSpeed * multiplier
-            effectiveAttackSpeed *= attackSpeedMultiplier;
-
+            float effectiveAttackSpeed = GetEffectiveAttackSpeed();
             // Convert to cooldown (1 / attacks per second) + any additional cooldown
             baseCooldown = (1f / effectiveAttackSpeed) + effectiveCooldownTime;
         }
@@ -302,6 +316,31 @@ public class DataDrivenAbility : Ability
 
         // Ensure cooldown doesn't go below 0.1 seconds
         return Mathf.Max(0.1f, baseCooldown);
+    }
+
+    private float GetEffectiveAttackSpeed()
+    {
+        float effectiveAttackSpeed = config.attackSpeed;
+        if (_accumulatedOverrides != null && _accumulatedOverrides.TryGetValue("attackSpeed", out var asAccum))
+        {
+            effectiveAttackSpeed = (effectiveAttackSpeed + asAccum.flatDelta) * (1f + asAccum.percentDelta / 100f);
+            if (asAccum.hasSetOverride) effectiveAttackSpeed = asAccum.setNumeric;
+        }
+        if (effectiveAttackSpeed <= 0f) effectiveAttackSpeed = 0.001f;
+
+        // Get owner's attack speed bonus
+        float attackSpeedBonus = 0f;
+        if (ownerOrganism != null && ownerOrganism.AllStats != null)
+        {
+            attackSpeedBonus = ownerOrganism.AllStats.GetStat("AttackSpeed");
+        }
+
+        // Convert to multiplier (0.03 = 1.03x, 0.5 = 1.5x, 2.5 = 3.5x)
+        float attackSpeedMultiplier = 1f + attackSpeedBonus;
+
+        // Calculate effective attack speed: baseAttackSpeed * multiplier
+        effectiveAttackSpeed *= attackSpeedMultiplier;
+        return effectiveAttackSpeed;
     }
 
     private float GetEffectiveEnergyCost()
@@ -362,6 +401,11 @@ public class DataDrivenAbility : Ability
         if (config.hasCharges)
         {
             currentCharges = GetEffectiveMaxCharges();
+        }
+
+        if (config.isCombo)
+        {
+            BuildComboSteps();
         }
 
         // Initialize ammo system
@@ -526,42 +570,128 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private void OnAbilityActivated()
     {
+        Debug.Log($"[DataDrivenAbility] OnAbilityActivated: ability={config?.abilityName}, disablesMovementDuringCast={config?.disablesMovementDuringCast}, movementSpeedMultiplierDuringCast={config?.movementSpeedMultiplierDuringCast:F3}, movementBlockDuration={config?.movementBlockDuration:F3}");
+
         // Take control if ability disables movement
         if (config != null && config.disablesMovementDuringCast)
         {
-            playerControl = false;
-
-            // Zero out any existing velocity when taking control
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector2.zero;
-                Debug.Log($"[DataDrivenAbility] Zeroed velocity when taking control");
-            }
-
-            // Start coroutine to return control after duration
-            if (config.movementBlockDuration > 0)
-            {
-                StartCoroutine(ReturnControlAfterDuration(config.movementBlockDuration));
-            }
-
-            Debug.Log($"[DataDrivenAbility] {config.abilityName} started with disablesMovementDuringCast, playerControl=false for {config.movementBlockDuration}s");
+            float castSpeedMultiplier = Mathf.Clamp01(config.movementSpeedMultiplierDuringCast);
+            if (castSpeedMultiplier < 1f)
+                ApplyCastMoveSpeedModifier(castSpeedMultiplier, config.movementBlockDuration);
+            else
+                AcquireMovementControl(config.movementBlockDuration, $"{config.abilityName} cast lock");
         }
 
         PlayAbilityAnimations();
     }
 
-    /// <summary>
-    /// Coroutine to return player control after specified duration
-    /// </summary>
-    private System.Collections.IEnumerator ReturnControlAfterDuration(float duration)
+    private void ApplyCastMoveSpeedModifier(float speedMultiplier, float duration)
+    {
+        if (ownerOrganism == null || ownerOrganism.AllStats == null || !ownerOrganism.AllStats.HasStat("MoveSpeed"))
+        {
+            Debug.LogWarning($"[DataDrivenAbility] Cannot apply cast move speed modifier: ownerOrganism or MoveSpeed stat is null. Ability={config?.abilityName}");
+            return;
+        }
+
+        ClearCastMoveSpeedModifier("Reapply cast move speed modifier");
+
+        float currentMoveSpeed = ownerOrganism.AllStats.GetStat("MoveSpeed");
+        float targetMoveSpeed = currentMoveSpeed * speedMultiplier;
+        castMoveSpeedAppliedDelta = targetMoveSpeed - currentMoveSpeed;
+
+        if (Mathf.Abs(castMoveSpeedAppliedDelta) <= 0.0001f)
+            return;
+        Debug.Log($"[DataDrivenAbility] Applying cast move speed modifier: ability={config?.abilityName}, currentMoveSpeed={currentMoveSpeed:F3}, targetMoveSpeed={targetMoveSpeed:F3}, delta={castMoveSpeedAppliedDelta:F3}, duration={duration:F3}s");
+        ownerOrganism.AllStats.ModifyStat("MoveSpeed", castMoveSpeedAppliedDelta);
+        ownerOrganism.RefreshMoveSpeedFromStats();
+        Debug.Log($"[DataDrivenAbility] Move speed after applying modifier: ability={config?.abilityName}, newMoveSpeed={ownerOrganism.AllStats.GetStat("MoveSpeed"):F3}");
+        hasCastMoveSpeedModifier = true;
+
+        if (castMoveSpeedReleaseCoroutine != null)
+        {
+            StopCoroutine(castMoveSpeedReleaseCoroutine);
+            castMoveSpeedReleaseCoroutine = null;
+        }
+
+        if (duration > 0f)
+            castMoveSpeedReleaseCoroutine = StartCoroutine(ClearCastMoveSpeedModifierAfterDelay(duration));
+
+        Debug.Log($"[DataDrivenAbility] Applied cast move speed modifier: ability={config?.abilityName}, multiplier={speedMultiplier:F3}, delta={castMoveSpeedAppliedDelta:F3}, duration={duration:F3}s");
+    }
+
+    private IEnumerator ClearCastMoveSpeedModifierAfterDelay(float duration)
     {
         yield return new WaitForSeconds(duration);
+        ClearCastMoveSpeedModifier($"Cast speed modifier elapsed ({duration:F3}s)");
+    }
+
+    private void ClearCastMoveSpeedModifier(string reason)
+    {
+        if (castMoveSpeedReleaseCoroutine != null)
+        {
+            StopCoroutine(castMoveSpeedReleaseCoroutine);
+            castMoveSpeedReleaseCoroutine = null;
+        }
+
+        if (!hasCastMoveSpeedModifier)
+            return;
+
+        if (ownerOrganism != null && ownerOrganism.AllStats != null)
+        {
+            Debug.Log($"[DataDrivenAbility] Move speed modifier before clearing: ability={config?.abilityName}, currentMoveSpeed={ownerOrganism.AllStats.GetStat("MoveSpeed"):F3}, delta={castMoveSpeedAppliedDelta:F3}");
+            ownerOrganism.AllStats.ModifyStat("MoveSpeed", -castMoveSpeedAppliedDelta);
+            Debug.Log($"[DataDrivenAbility] Cleared cast move speed modifier: ability={config?.abilityName}, delta={-castMoveSpeedAppliedDelta:F3}");
+            ownerOrganism.RefreshMoveSpeedFromStats();
+        }
+
+        hasCastMoveSpeedModifier = false;
+        castMoveSpeedAppliedDelta = 0f;
+        Debug.Log($"[DataDrivenAbility] Cleared cast move speed modifier: reason={reason}, ability={config?.abilityName}");
+    }
+
+    private void AcquireMovementControl(float autoReleaseAfterSeconds, string reason)
+    {
+        Debug.Log("Enter Acquire movement control");
+        movementControlLockToken++;
+        int token = movementControlLockToken;
+        playerControl = false;
+
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+
+        if (movementControlReleaseCoroutine != null)
+        {
+            StopCoroutine(movementControlReleaseCoroutine);
+            movementControlReleaseCoroutine = null;
+        }
+
+        if (autoReleaseAfterSeconds > 0f)
+            movementControlReleaseCoroutine = StartCoroutine(AutoReleaseMovementControl(token, autoReleaseAfterSeconds));
+
+        Debug.Log($"[DataDrivenAbility] Movement control acquired: reason={reason}, token={token}, autoRelease={autoReleaseAfterSeconds:F3}s");
+    }
+
+    private IEnumerator AutoReleaseMovementControl(int token, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        ReleaseMovementControl($"Timed lock elapsed ({duration:F3}s)", token);
+    }
+
+    private void ReleaseMovementControl(string reason, int expectedToken = -1, bool force = false)
+    {
+        if (!force && expectedToken >= 0 && expectedToken != movementControlLockToken)
+            return;
+
+        if (movementControlReleaseCoroutine != null)
+        {
+            StopCoroutine(movementControlReleaseCoroutine);
+            movementControlReleaseCoroutine = null;
+        }
 
         if (!playerControl)
-        {
-            playerControl = true;
-            Debug.Log($"[DataDrivenAbility] Returned player control after {duration}s");
-        }
+            Debug.Log($"[DataDrivenAbility] Movement control released: reason={reason}");
+
+        playerControl = true;
     }
 
     /// <summary>
@@ -594,10 +724,8 @@ public class DataDrivenAbility : Ability
                 {
                     animationToPlay = config.characterAnimationUp;
                 }
-
-                Debug.Log($"[DataDrivenAbility] Playing character animation: '{animationToPlay}' at speed {animationSpeed}");
-                characterAnimator.speed = animationSpeed;
-                characterAnimator.Play(animationToPlay, 0, 0f);
+                float attackSpeed = GetEffectiveAttackSpeed();
+                PlayCharacterAnimationState(characterAnimator, animationToPlay, attackSpeed);
             }
         }
 
@@ -862,8 +990,18 @@ public class DataDrivenAbility : Ability
             Animator characterAnimator = GetComponent<Animator>();
             if (characterAnimator != null)
             {
-                characterAnimator.speed = animationSpeed;
-                characterAnimator.Play(config.characterPrecastAnimationName, 0, 0f);
+                if (config.isAttack)
+                {
+                    float attackSpeed = GetEffectiveAttackSpeed();
+                    PlayCharacterAnimationState(characterAnimator, config.characterPrecastAnimationName, attackSpeed);
+
+                }
+                else
+                {
+                    PlayCharacterAnimationState(characterAnimator, config.characterPrecastAnimationName);
+
+                }
+
             }
         }
 
@@ -905,6 +1043,18 @@ public class DataDrivenAbility : Ability
             // NOW play the pre-animation with the weapon at the correct angle
             PlayWeaponAnimationState(weaponTransform, config.preAnimationName, animationSpeed);
         }
+    }
+
+    private void PlayCharacterAnimationState(Animator characterAnimator, string stateName, float attackSpeed = 0)
+    {
+        if (characterAnimator == null || string.IsNullOrWhiteSpace(stateName))
+            return;
+
+        NetworkAnimator networkAnimator = characterAnimator.GetComponent<NetworkAnimator>();
+        if (networkAnimator != null)
+            networkAnimator.Play(stateName);
+        else
+            characterAnimator.Play(stateName, 0, 0f);
     }
 
     /// <summary>
@@ -1001,13 +1151,6 @@ public class DataDrivenAbility : Ability
             bool midMovement = movementAbility != null && movementAbility.IsExecuting;
             if (!midMovement)
                 ownerAsPlayer?.ForceAnimationUpdate();
-        }
-
-        // Return player control if this ability disabled movement during cast
-        if (config != null && config.disablesMovementDuringCast)
-        {
-            playerControl = true;
-            Debug.Log($"[DataDrivenAbility] {config.abilityName} animation complete, playerControl=true");
         }
 
         weaponIdleReturnCoroutine = null;
@@ -1153,29 +1296,7 @@ public class DataDrivenAbility : Ability
 
         if (config.isAttack)
         {
-            // Start with base attack speed, apply trait overrides
-            float effectiveAttackSpeed = config.attackSpeed;
-            if (_accumulatedOverrides != null && _accumulatedOverrides.TryGetValue("attackSpeed", out var asAccum))
-            {
-                effectiveAttackSpeed = (effectiveAttackSpeed + asAccum.flatDelta) * (1f + asAccum.percentDelta / 100f);
-                if (asAccum.hasSetOverride) effectiveAttackSpeed = asAccum.setNumeric;
-            }
-            if (effectiveAttackSpeed <= 0f) effectiveAttackSpeed = 0.001f;
-
-            // Get owner's attack speed bonus
-            float attackSpeedBonus = 0f;
-            if (ownerOrganism != null && ownerOrganism.AllStats != null)
-            {
-                attackSpeedBonus = ownerOrganism.AllStats.GetStat("AttackSpeed");
-            }
-
-            // Convert to multiplier (0.03 = 1.03x, 0.5 = 1.5x, 2.0 = 3.0x)
-            float attackSpeedMultiplier = 1f + attackSpeedBonus;
-
-            // Calculate effective attack speed: ability's attack speed * character's multiplier
-            effectiveAttackSpeed *= attackSpeedMultiplier;
-
-            return effectiveAttackSpeed;
+            return GetEffectiveAttackSpeed();
         }
         else
         {
@@ -1237,6 +1358,7 @@ public class DataDrivenAbility : Ability
         {
             if (clip.name == animationName)
             {
+
                 animClip = clip;
                 break;
             }
@@ -1244,6 +1366,7 @@ public class DataDrivenAbility : Ability
 
         if (animClip == null)
         {
+            Debug.LogWarning($"[GetCharacterAnimationDuration] Ability '{config.abilityName}' error");
             Debug.LogWarning($"[GetCharacterAnimationDuration] Animation '{animationName}' not found in character animator!");
             return 0.5f; // Fallback
         }
@@ -1398,8 +1521,7 @@ public class DataDrivenAbility : Ability
         bool success = movementAbility.Execute();
         if (success)
         {
-            playerControl = false; // Ability takes control
-            Debug.Log($"[Movement] Execute() succeeded — playerControl=false, movementAbility.IsExecuting={movementAbility.IsExecuting}");
+            Debug.Log($"[Movement] Execute() succeeded — additive movement started, movementAbility.IsExecuting={movementAbility.IsExecuting}");
         }
         else
         {
@@ -1425,14 +1547,12 @@ public class DataDrivenAbility : Ability
         bool success = movementAbility != null && movementAbility.Execute();
         if (success)
         {
-            playerControl = false;
             StartCooldown();
             ConsumeMana();
             Debug.Log($"[Movement] Precast complete — movement started for {movementConfig.abilityName}");
         }
         else
         {
-            playerControl = true;
             Debug.LogError($"[Movement] Precast complete but movement failed to start for {movementConfig.abilityName}");
         }
 
@@ -1555,7 +1675,9 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        if (!_autocastBurstActive && isOnCooldown)
+        // Follow-up combo steps ride the cooldown started by the opening step.
+        bool isComboFollowUp = config.isCombo && currentComboIndex > 0 && Time.time <= comboWindowExpiresAt;
+        if (!_autocastBurstActive && !isComboFollowUp && isOnCooldown)
         {
             reason = $"on cooldown (remaining={GetRemainingCooldown():F2}s, total={GetEffectiveCooldown():F2}s)";
             return false;
@@ -1594,7 +1716,7 @@ public class DataDrivenAbility : Ability
         return true;
     }
 
-    public override bool    TryUseAbility()
+    public override bool TryUseAbility()
     {
         string abilityName = config != null ? config.abilityName : "<null config>";
         Debug.Log($"{AbilityPipelineTag} TryUseAbility start: ability={abilityName}, slot={abilitySlotIndex}, owner={gameObject.name}, autocast={config?.autocast}, projectile={config?.isProjectileAbility}, construct={config?.isConstructAbility}");
@@ -1617,20 +1739,34 @@ public class DataDrivenAbility : Ability
         Debug.Log($"[DataDrivenAbility] TryUseAbility called for {config.abilityName}, isMovementAbility={config.isMovementAbility}, scene={UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
 
         // Check for combo system
-        if (config.hasCombo && config.comboAbilities != null && config.comboAbilities.Length > 0)
+        if (config.isCombo)
         {
-            // Reset combo if the follow-up input window expired.
-            if (!isExecutingCombo && (Time.time > comboWindowExpiresAt || currentComboIndex >= config.comboAbilities.Length))
-                currentComboIndex = 0;
-
-            if (isExecutingCombo)
+            if (isExecutingCombo || comboSteps == null || comboSteps.Length == 0)
                 return false;
 
-            if (!config.activateOnButtonRelease)
-                isHoldingFire = true;
+            // Reset combo if the follow-up input window expired.
+            if (Time.time > comboWindowExpiresAt || currentComboIndex >= comboSteps.Length)
+                ResetComboChain();
 
-            int stepIndex = Mathf.Clamp(currentComboIndex, 0, config.comboAbilities.Length - 1);
-            comboChainCoroutine = StartCoroutine(ExecuteComboStepShell(config, stepIndex));
+            int stepIndex = Mathf.Clamp(currentComboIndex, 0, comboSteps.Length - 1);
+
+            if (comboIdleWatcher != null)
+            {
+                StopCoroutine(comboIdleWatcher);
+                comboIdleWatcher = null;
+            }
+
+            // Charge the shell's cost/cooldown on the opening step. Follow-up steps are let
+            // through the cooldown gate by CanUseAbility while the input window is open, so an
+            // abandoned chain still leaves the ability on cooldown instead of being free to spam.
+            if (stepIndex == 0)
+            {
+                StartCooldown();
+                ConsumeMana();
+                lastFireTime = Time.time;
+            }
+
+            comboChainCoroutine = StartCoroutine(ExecuteComboChain(stepIndex));
             return true;
         }
 
@@ -1670,7 +1806,7 @@ public class DataDrivenAbility : Ability
         // Immediate path: no precast, no hold charge — fire now.
         OnAbilityActivated();
 
-        if (!config.activateOnButtonRelease)
+        if (!isComboStep && !config.activateOnButtonRelease)
             isHoldingFire = true;
 
         bool abilityExecuted = FireAbility();
@@ -1767,103 +1903,73 @@ public class DataDrivenAbility : Ability
         return abilityExecuted;
     }
 
-    private IEnumerator ExecuteComboStepShell(AbilityDataConfig shellConfig, int stepIndex)
+    private IEnumerator ExecuteComboChain(int startIndex)
     {
         isExecutingCombo = true;
-        bool success = false;
-        bool shouldAutoAdvance = false;
 
         try
         {
-            if (shellConfig == null || shellConfig.comboAbilities == null || shellConfig.comboAbilities.Length == 0)
-                yield break;
-            if (stepIndex < 0 || stepIndex >= shellConfig.comboAbilities.Length)
-                yield break;
+            int stepIndex = startIndex;
 
-            AbilityDataConfig comboConfig = shellConfig.comboAbilities[stepIndex];
-            if (comboConfig == null)
+            while (stepIndex >= 0 && stepIndex < comboSteps.Length)
             {
-                Debug.LogWarning($"[Combo] Null combo step at index {stepIndex} for shell ability {shellConfig.abilityName}");
-                currentComboIndex = 0;
-                comboWindowExpiresAt = -999f;
-                yield break;
-            }
-
-            // Release transient locks from the previous step so each step starts cleanly.
-            if (isWeaponDirectionLocked)
-            {
-                isWeaponDirectionLocked = false;
-                isMainhandLocked = false;
-                isOffhandLocked = false;
-            }
-
-            if (movementAbility != null && movementAbility.IsExecuting)
-            {
-                movementAbility.End();
-                playerControl = true;
-            }
-
-            AbilityDataConfig originalConfig = config;
-            config = comboConfig;
-
-            Debug.Log($"[Combo] Shell step {stepIndex + 1}/{shellConfig.comboAbilities.Length}: {comboConfig.abilityName}");
-
-            if (comboConfig.isMovementAbility)
-            {
-                if (movementAbility == null)
+                DataDrivenAbility step = comboSteps[stepIndex];
+                if (step == null)
                 {
-                    movementAbility = gameObject.AddComponent<MovementAbility>();
-                    Debug.Log($"[Combo/Movement] Added MovementAbility component for shell '{shellConfig.abilityName}'");
+                    Debug.LogWarning($"[Combo] Step {stepIndex} of '{config.abilityName}' has no runner; aborting chain.");
+                    ResetComboChain();
+                    yield break;
                 }
 
-                movementAbility.Initialize(comboConfig);
-                Debug.Log($"[Combo/Movement] Initialized movement step for {comboConfig.abilityName}");
-            }
+                Debug.Log($"[Combo] {config.abilityName} step {stepIndex + 1}/{comboSteps.Length}: {step.AbilityName}");
 
-            bool stepMovementHasDelayedPrecast = GetMovementPrecastDelay(comboConfig) > 0f;
-            bool stepIsPrecastAbilityType =
-                comboConfig.isProjectileAbility || comboConfig.isAreaAbility || comboConfig.isMeleeAbility || stepMovementHasDelayedPrecast;
-            bool stepHasPrecastSequence =
-                comboConfig.hasPrecast && HasConfiguredPrecastAnimation(comboConfig) && stepIsPrecastAbilityType;
-            bool stepNeedsCastSequence =
-                comboConfig.activateOnButtonRelease ||
-                stepHasPrecastSequence;
+                if (!step.TryUseAbility())
+                {
+                    ResetComboChain();
+                    yield break;
+                }
 
-            if (stepNeedsCastSequence)
-            {
-                yield return StartCoroutine(AbilityCastSequence(false));
-                success = _lastCastSequenceSucceeded;
-            }
-            else
-            {
-                OnAbilityActivated();
-                success = FireAbility();
-            }
+                // The last step wraps back to the first, so a held button cycles the chain
+                // instead of ending it. The pose only drops once the input window lapses.
+                bool isLastStep = stepIndex >= comboSteps.Length - 1;
+                currentComboIndex = isLastStep ? 0 : stepIndex + 1;
+                comboWindowExpiresAt = Time.time + GetConfiguredComboInputWindow(config);
 
-            config = originalConfig;
+                // Gate the next step behind this step's cast time so a held button
+                // cannot flush the whole chain in a single frame.
+                float stepEndsAt = Time.time + GetComboStepDelay(stepIndex);
+                while (Time.time < stepEndsAt)
+                    yield return null;
 
-            if (!success)
-            {
-                currentComboIndex = 0;
-                comboWindowExpiresAt = -999f;
-                yield break;
-            }
+                comboWindowExpiresAt = Time.time + GetConfiguredComboInputWindow(config);
 
-            lastComboTime = Time.time;
-            bool isLastStep = stepIndex >= shellConfig.comboAbilities.Length - 1;
-            if (isLastStep)
-            {
-                StartCooldown();
-                ConsumeMana();
-                lastFireTime = Time.time;
-                currentComboIndex = 0;
-                comboWindowExpiresAt = -999f;
-            }
-            else
-            {
-                currentComboIndex = stepIndex + 1;
-                comboWindowExpiresAt = Time.time + GetConfiguredComboInputWindow(shellConfig);
-                shouldAutoAdvance = IsAbilityButtonHeld();
+                // Holding the button auto-advances; otherwise the player re-triggers the next
+                // step manually via TryUseAbility while the input window is open.
+                if (!IsAbilityButtonHeld())
+                {
+                    comboIdleWatcher = StartCoroutine(ReturnToIdleWhenComboWindowExpires(step));
+                    yield break;
+                }
+
+                if (isLastStep)
+                {
+                    // A wrap costs the same as a fresh press.
+                    if (!CanUseAbility(out string blockedReason))
+                    {
+                        Debug.Log($"[Combo] {config.abilityName} cannot cycle: {blockedReason}");
+                        comboIdleWatcher = StartCoroutine(ReturnToIdleWhenComboWindowExpires(step));
+                        yield break;
+                    }
+
+                    StartCooldown();
+                    ConsumeMana();
+                    lastFireTime = Time.time;
+                    stepIndex = 0;
+                }
+                else
+                {
+                    stepIndex++;
+                }
             }
         }
         finally
@@ -1871,13 +1977,106 @@ public class DataDrivenAbility : Ability
             isExecutingCombo = false;
             comboChainCoroutine = null;
         }
+    }
 
-        if (shouldAutoAdvance && Time.time <= comboWindowExpiresAt)
+    /// <summary>
+    /// Combo steps hold their final pose while the next step can still be triggered.
+    /// Once the input window lapses, drop the pose using the shell's own idle animation.
+    /// </summary>
+    private IEnumerator ReturnToIdleWhenComboWindowExpires(DataDrivenAbility lastStep)
+    {
+        while (Time.time <= comboWindowExpiresAt)
+            yield return null;
+
+        ResetComboChain();
+        lastStep?.ClearWeaponDirectionLock();
+        ReturnToIdlePose();
+        comboIdleWatcher = null;
+    }
+
+    /// <summary>
+    /// Plays this ability's configured weapon idle animation on both hands.
+    /// </summary>
+    public void ReturnToIdlePose()
+    {
+        if (config == null || string.IsNullOrEmpty(config.weaponIdleAnimationName)) return;
+
+        if (weaponIdleReturnCoroutine != null)
         {
-            // Holding the button should advance the combo, while a single click naturally
-            // stops after step 1 because the button is no longer held by this point.
-            TryUseAbility();
+            StopCoroutine(weaponIdleReturnCoroutine);
+            weaponIdleReturnCoroutine = null;
         }
+
+        PlayWeaponAnimationState(transform.Find("WeaponHolder/Weapon"), config.weaponIdleAnimationName, 1f);
+        PlayWeaponAnimationState(transform.Find("OffHandWeaponHolder/OffHandWeapon"), config.weaponIdleAnimationName, 1f);
+
+        Debug.Log($"[Combo] {config.abilityName} returned weapons to '{config.weaponIdleAnimationName}'.");
+    }
+
+    /// <summary>
+    /// Releases the aim lock a cast pose was holding.
+    /// </summary>
+    public void ClearWeaponDirectionLock()
+    {
+        if (!isWeaponDirectionLocked) return;
+
+        isWeaponDirectionLocked = false;
+        isMainhandLocked = false;
+        isOffhandLocked = false;
+        rotationLockEndTime = 0f;
+        ownerAsPlayer?.ForceAnimationUpdate();
+    }
+
+    /// <summary>
+    /// Creates one runner component per combo step so each step casts through the normal,
+    /// fully-initialized ability pipeline instead of the shell borrowing their configs.
+    /// </summary>
+    private void BuildComboSteps()
+    {
+        if (config.comboAbilities == null || config.comboAbilities.Length == 0)
+            return;
+
+        comboSteps = new DataDrivenAbility[config.comboAbilities.Length];
+
+        for (int i = 0; i < config.comboAbilities.Length; i++)
+        {
+            AbilityDataConfig stepConfig = config.comboAbilities[i];
+            if (stepConfig == null)
+            {
+                Debug.LogWarning($"[Combo] '{config.abilityName}' has a null combo step at index {i}.");
+                continue;
+            }
+
+            if (stepConfig == config || stepConfig.isCombo)
+            {
+                Debug.LogError($"[Combo] Step {i} of '{config.abilityName}' points at a combo shell ('{stepConfig.abilityName}'); nested/self-referencing combos are not supported.");
+                continue;
+            }
+
+            DataDrivenAbility step = gameObject.AddComponent<DataDrivenAbility>();
+            step.SetAbilityReference(new AbilityReference(stepConfig));
+            step.ConfigureAsComboStep(abilitySlotIndex);
+            step.InitializeAbility();
+            comboSteps[i] = step;
+        }
+    }
+
+    private void DestroyComboSteps()
+    {
+        if (comboSteps == null) return;
+
+        foreach (DataDrivenAbility step in comboSteps)
+        {
+            if (step != null)
+                Destroy(step);
+        }
+        comboSteps = null;
+    }
+
+    private void ResetComboChain()
+    {
+        currentComboIndex = 0;
+        comboWindowExpiresAt = -999f;
     }
 
     private float GetConfiguredComboInputWindow(AbilityDataConfig shellConfig)
@@ -1886,24 +2085,44 @@ public class DataDrivenAbility : Ability
         return Mathf.Max(0.05f, configuredWindow);
     }
 
-    private float GetComboShellStepDelay(AbilityDataConfig shellConfig, AbilityDataConfig stepConfig, int stepIndex)
+    /// <summary>
+    /// Wait time before the next step: the step's own cast time (already scaled by its
+    /// attack/cast speed) plus the authored delay, which attack speed also shortens.
+    /// </summary>
+    private float GetComboStepDelay(int stepIndex)
     {
-        float animationDuration = GetCharacterAnimationDuration(stepConfig);
-        float movementDuration = 0f;
-
-        AbilityDataConfig effectiveStepConfig = ReferenceEquals(stepConfig, config) ? EffectiveAbilityConfig : stepConfig;
-        if (effectiveStepConfig != null && effectiveStepConfig.isMovementAbility && effectiveStepConfig.movementConfig != null)
-        {
-            movementDuration = effectiveStepConfig.movementConfig.duration + GetMovementPrecastDelay(effectiveStepConfig);
-        }
-
         float configuredDelay = 0.3f;
-        if (shellConfig != null && shellConfig.comboStepDelays != null && stepIndex >= 0 && stepIndex < shellConfig.comboStepDelays.Length)
-        {
-            configuredDelay = Mathf.Max(0f, shellConfig.comboStepDelays[stepIndex]);
-        }
+        if (config.comboStepDelays != null && stepIndex >= 0 && stepIndex < config.comboStepDelays.Length)
+            configuredDelay = Mathf.Max(0f, config.comboStepDelays[stepIndex]);
 
-        return Mathf.Max(animationDuration, movementDuration) + configuredDelay;
+        DataDrivenAbility step = comboSteps != null && stepIndex < comboSteps.Length ? comboSteps[stepIndex] : null;
+        float castDuration = step != null ? step.GetCastDuration() : 0f;
+
+        return castDuration + (configuredDelay / GetOwnerAttackSpeedMultiplier());
+    }
+
+    private float GetOwnerAttackSpeedMultiplier()
+    {
+        float bonus = ownerOrganism != null && ownerOrganism.AllStats != null
+            ? ownerOrganism.AllStats.GetStat("AttackSpeed")
+            : 0f;
+        return Mathf.Max(0.01f, 1f + bonus);
+    }
+
+    /// <summary>
+    /// How long this ability takes to resolve its cast, scaled by attack/cast speed.
+    /// </summary>
+    public float GetCastDuration()
+    {
+        if (config == null) return 0f;
+
+        float castTime = GetPrecastDelay() + GetCharacterAnimationDuration(config);
+
+        AbilityDataConfig effective = EffectiveAbilityConfig;
+        if (effective != null && effective.isMovementAbility && effective.movementConfig != null)
+            castTime = Mathf.Max(castTime, effective.movementConfig.duration + GetMovementPrecastDelay(effective));
+
+        return castTime;
     }
 
     #endregion
@@ -1920,7 +2139,7 @@ public class DataDrivenAbility : Ability
 
         // Apply charge damage multiplier when called from AbilityCastSequence (isCharging == true)
         float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
-                    
+
         // Fire animation is triggered by OnAbilityActivated() earlier in the cast flow.
         // Delay one frame so Animator state is applied before projectile spawn.
         if (HasConfiguredCastAnimation(config))
@@ -2028,7 +2247,7 @@ public class DataDrivenAbility : Ability
         bool abilityExecuted = FireAbility();
         _lastCastSequenceSucceeded = abilityExecuted;
 
-        if (abilityExecuted && !config.activateOnButtonRelease)
+        if (abilityExecuted && !isComboStep && !config.activateOnButtonRelease)
             isHoldingFire = true;
 
         // 6. Restore sub-configs and consume resources
@@ -2130,6 +2349,12 @@ public class DataDrivenAbility : Ability
     {
         isHoldingFire = false;
 
+        if (comboIdleWatcher != null)
+        {
+            StopCoroutine(comboIdleWatcher);
+            comboIdleWatcher = null;
+        }
+
         // Stop combo if active
         if (isExecutingCombo)
         {
@@ -2140,9 +2365,7 @@ public class DataDrivenAbility : Ability
                 StopCoroutine(comboChainCoroutine);
                 comboChainCoroutine = null;
             }
-            lastComboTime = Time.time;
-            currentComboIndex = 0;
-            comboWindowExpiresAt = -999f;
+            ResetComboChain();
         }
 
         // Cancel charging if can cancel — but NOT if we're in hold-for-release mode
@@ -2314,70 +2537,26 @@ public class DataDrivenAbility : Ability
 
     private Vector3 ResolveProjectileFireDirection(Vector3 spawnPos, Transform weaponTransform, ProjectileConfig projectileConfig, bool isAutocastProjectile)
     {
-        if (projectileConfig != null && projectileConfig.targetingMode == ProjectileConfig.ProjectileTargetingMode.ClosestTarget)
+        if (_autocastTarget.HasValue)
         {
-            Vector3? closestTarget = FindClosestProjectileTarget(spawnPos, projectileConfig);
-            if (closestTarget.HasValue)
-            {
-                Vector3 toTarget = closestTarget.Value - spawnPos;
-                if (toTarget.sqrMagnitude > 0.0001f)
-                    return toTarget.normalized;
-            }
+            Vector3 autocastDirection = _autocastTarget.Value - spawnPos;
+            if (autocastDirection.sqrMagnitude > 0.0001f)
+                return autocastDirection.normalized;
         }
 
-        // Use LaunchZone's facing direction so the projectile always fires
-        // along the weapon barrel. This prevents perpendicular shots at close
-        // cursor distances where (cursor - spawnPos) diverges from the visual aim.
-        if (!isAutocastProjectile && weaponTransform != null)
-            return WeaponLaunchPoint.GetLaunchDirection(weaponTransform);
+        if (ownerAsPlayer != null && CursorManager.Instance?.TargetedOrganism != null)
+        {
+            Vector3 targetDirection = CursorManager.Instance.TargetedOrganism.transform.position - spawnPos;
+            if (targetDirection.sqrMagnitude > 0.0001f)
+                return targetDirection.normalized;
+        }
 
-        // Fallback for enemies / no weapon: aim at target directly.
         Vector3 targetWorldPos = GetTargetWorldPosition();
         Vector3 fallbackDirection = targetWorldPos - spawnPos;
         if (fallbackDirection.sqrMagnitude <= 0.0001f)
             return Vector3.right;
 
         return fallbackDirection.normalized;
-    }
-
-    private Vector3? FindClosestProjectileTarget(Vector3 origin, ProjectileConfig projectileConfig)
-    {
-        if (_autocastTarget.HasValue)
-            return _autocastTarget.Value;
-
-        float searchRange = projectileConfig.maxRange > 0f
-            ? projectileConfig.maxRange
-            : Mathf.Max(1f, config != null ? config.autocastRange : 0f);
-
-        if (searchRange <= 0f)
-            return null;
-
-        LayerMask targetMask = projectileConfig.hitbox.hitLayers;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, searchRange, targetMask);
-
-        Organism closest = null;
-        float closestSqr = float.MaxValue;
-        int ownerLayer = GetOrganismParentLayer(ownerOrganism);
-
-        foreach (Collider2D hit in hits)
-        {
-            Organism candidate = hit.GetComponentInParent<Organism>();
-            if (candidate == null || !candidate.IsAlive || candidate == ownerOrganism)
-                continue;
-
-            int candidateLayer = GetOrganismParentLayer(candidate);
-            if (candidateLayer == ownerLayer)
-                continue;
-
-            float sqrDist = (candidate.transform.position - origin).sqrMagnitude;
-            if (sqrDist < closestSqr)
-            {
-                closestSqr = sqrDist;
-                closest = candidate;
-            }
-        }
-
-        return closest != null ? (Vector3?)closest.transform.position : null;
     }
 
     /// <summary>
@@ -2518,14 +2697,7 @@ public class DataDrivenAbility : Ability
         if (projectilePrefabComponent != null)
             flashConfig = projectilePrefabComponent.ApplyOverrides(flashConfig);
 
-        string resolvedWeaponName = weaponConfig != null ? weaponConfig.weaponName : "<none>";
-        string overridePrefabName = projectileOverride != null ? projectileOverride.name : "<none>";
-        string projectilePrefabName = flashProjectilePrefab != null ? flashProjectilePrefab.name : "<none>";
-        bool usedProjectilePrefabOverrides = projectilePrefabComponent != null;
-        string muzzlePrefabName = flashConfig != null && flashConfig.muzzleFlashPrefab != null ? flashConfig.muzzleFlashPrefab.name : "<none>";
-        Debug.Log($"[MuzzleFlashTrace][Local-Resolve] ability={config?.abilityName ?? "<null>"}, owner={gameObject.name}, offhand={firedFromOffhand}, weapon={resolvedWeaponName}, hasOverrides={hasWeaponOverrides}, projectileOverride={overridePrefabName}, projectilePrefab={projectilePrefabName}, usedProjectilePrefabOverrides={usedProjectilePrefabOverrides}, muzzlePrefab={muzzlePrefabName}, allowOverride={baseProjectileConfig.allowOverride}, angle={angle:F1}");
-
-        ParticleSystem flashPrefab = flashConfig.muzzleFlashPrefab;
+        GameObject flashPrefab = flashConfig.muzzleFlashPrefab;
         if (flashPrefab == null)
         {
             Debug.LogWarning($"[MuzzleFlashTrace][Local-Resolve] ability={config?.abilityName ?? "<null>"}, owner={gameObject.name}, reason=ResolvedMuzzlePrefabNull");
@@ -2534,7 +2706,15 @@ public class DataDrivenAbility : Ability
 
         Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
         bool shouldFlipY = Mathf.Abs(angle) > 90f;
-        ProjectileSpawner.InstantiateMuzzleFlashRoot(flashPrefab, position, rotation, weaponTransform, shouldFlipY);
+        if (flashConfig.localMuzzle)
+        {
+            ProjectileSpawner.InstantiateMuzzleFlashRoot(flashPrefab, position, rotation, weaponTransform, shouldFlipY);
+        }
+        else
+        {
+            ProjectileSpawner.InstantiateMuzzleFlashWorld(flashPrefab, position, rotation, weaponTransform, shouldFlipY);
+
+        }
 
         // Optional point light burst
         if (flashConfig.enableMuzzleLight)
@@ -2747,7 +2927,9 @@ public class DataDrivenAbility : Ability
                 return offhandTransform;
         }
 
-        return transform.Find("WeaponHolder/Weapon");
+        return ownerAsPlayer != null
+            ? ownerAsPlayer.GetEquippedMainWeaponTransform()
+            : transform.Find("WeaponHolder/Weapon");
     }
 
     private bool HasRequiredWeapons()
@@ -3142,6 +3324,13 @@ public class DataDrivenAbility : Ability
         // Players aim at mouse cursor
         if (ownerAsPlayer != null)
         {
+            if (CursorManager.Instance != null)
+            {
+                Organism targetedOrganism = CursorManager.Instance.TargetedOrganism;
+                if (targetedOrganism != null)
+                    return targetedOrganism.transform.position;
+            }
+
             return InputUtility.GetMouseWorldPosition();
         }
 
@@ -4243,18 +4432,37 @@ public class DataDrivenAbility : Ability
         Vector2 attackDirection = GetAimDirection();
         Debug.Log($"[Melee] Attack direction: {attackDirection} (angle={Mathf.Atan2(attackDirection.y, attackDirection.x) * Mathf.Rad2Deg:F1}°)");
 
-        SpawnMeleeAttack(attackDirection, GetEffectiveMeleeConfig(), IsCurrentShotFromOffhand());
+        bool firedFromOffhand = IsCurrentShotFromOffhand();
+        PlayerController ownerPlayer = GetComponent<PlayerController>();
+        bool isNetworkActive = InstanceFinder.NetworkManager != null &&
+            (InstanceFinder.IsServerStarted || InstanceFinder.IsClientStarted);
+
+        if (isNetworkActive && ownerPlayer != null && ownerPlayer.IsOwner && !InstanceFinder.IsServerStarted)
+        {
+            SpawnMeleeAttack(attackDirection, GetEffectiveMeleeConfig(), firedFromOffhand, visualOnly: true);
+            ownerPlayer.ServerRpcExecuteMeleeAbility(abilitySlotIndex, config.abilityName, attackDirection, firedFromOffhand);
+        }
+        else
+        {
+            SpawnMeleeAttack(attackDirection, GetEffectiveMeleeConfig(), firedFromOffhand);
+        }
 
         Debug.Log($"[Melee] Attack initiated — direction={attackDirection}, isWeaponDirectionLocked={isWeaponDirectionLocked}, playerControl={playerControl}");
         return true;
     }
 
-    private void SpawnMeleeAttack(Vector2 attackDirection, MeleeConfig meleeConfig, bool firedFromOffhand)
+    public void ExecuteServerMelee(Vector2 attackDirection, bool firedFromOffhand)
+    {
+        if (!InstanceFinder.IsServerStarted) return;
+        SpawnMeleeAttack(attackDirection, GetEffectiveMeleeConfig(), firedFromOffhand);
+    }
+
+    private void SpawnMeleeAttack(Vector2 attackDirection, MeleeConfig meleeConfig, bool firedFromOffhand, bool visualOnly = false)
     {
         Debug.Log($"[DmgPipeline] <{config.abilityName}> Melee, firedFromOffhand={firedFromOffhand}");
         MeleeAbility meleeAbility = gameObject.AddComponent<MeleeAbility>();
         meleeAbility.SetContext(CreateSubAbilityContext());
-        meleeAbility.PerformAttack(meleeConfig, attackDirection, firedFromOffhand);
+        meleeAbility.PerformAttack(meleeConfig, attackDirection, firedFromOffhand, visualOnly);
         Debug.Log($"[Melee] MeleeAbility.PerformAttack called successfully");
     }
 
@@ -4267,12 +4475,25 @@ public class DataDrivenAbility : Ability
         if (isTriggeredProjectileOnly)
             return;
 
+        bool movementExecutingNow = movementAbility != null && movementAbility.IsExecuting;
+        if (_lastMovementControlLoggedPlayerControl != playerControl
+            || _lastMovementControlLoggedMovementExecuting != movementExecutingNow
+            || _lastMovementControlLoggedPrecastPending != isMovementPrecastPending
+            || _lastMovementControlLoggedToken != movementControlLockToken)
+        {
+            Debug.Log($"[MovementControl] ability={config?.abilityName ?? "<null>"}, playerControl={playerControl}, movementExecuting={movementExecutingNow}, precastPending={isMovementPrecastPending}, lockToken={movementControlLockToken}");
+            _lastMovementControlLoggedPlayerControl = playerControl;
+            _lastMovementControlLoggedMovementExecuting = movementExecutingNow;
+            _lastMovementControlLoggedPrecastPending = isMovementPrecastPending;
+            _lastMovementControlLoggedToken = movementControlLockToken;
+        }
+
         // Update reload progress
         UpdateReload();
 
         // Manual keybind polling for active trait abilities (Q/E/1-7).
         // Weapon and dash are handled by PlayerController InputActions; autocast handles itself below.
-        if (config != null && config.RequiresKeybind && abilitySlotIndex >= 2 && InputHelper.GetAbilityButtonDown(abilitySlotIndex))
+        if (!isComboStep && config != null && config.RequiresKeybind && abilitySlotIndex >= 2 && InputHelper.GetAbilityButtonDown(abilitySlotIndex))
         {
             if (!PlayerController.InputEnabled)
             {
@@ -4285,13 +4506,13 @@ public class DataDrivenAbility : Ability
             else
             {
                 Debug.Log($"{AbilityPipelineTag} Manual input received: ability={config.abilityName}, slot={abilitySlotIndex}");
-                bool success = TryUseAbility();
+                bool success = TryUseAbilityManually();
                 Debug.Log($"{AbilityPipelineTag} Manual input result: ability={config.abilityName}, slot={abilitySlotIndex}, success={success}");
             }
         }
 
         // Autocast: fire at nearest enemy on cooldown, no player input required
-        if (config != null && config.autocast)
+        if (!isComboStep && config != null && config.autocast)
         {
             float cooldown = CooldownTime;
             bool cooldownReady = Time.time >= _lastAutocastAttempt + cooldown;
@@ -4435,8 +4656,7 @@ public class DataDrivenAbility : Ability
             // Check if movement ended
             if (!movementAbility.IsExecuting)
             {
-                playerControl = true; // Return control to player
-                Debug.Log($"[Movement] Movement ended — playerControl=true, isWeaponDirectionLocked={isWeaponDirectionLocked}, isExecutingCombo={isExecutingCombo}, comboIndex={currentComboIndex}");
+                Debug.Log($"[Movement] Movement ended — isWeaponDirectionLocked={isWeaponDirectionLocked}, isExecutingCombo={isExecutingCombo}, comboIndex={currentComboIndex}");
 
                 // Force PlayerController to update character animations immediately
                 // Force animation refresh to prevent character getting stuck in attack pose
@@ -4446,7 +4666,7 @@ public class DataDrivenAbility : Ability
         }
 
         // A combo-chain shell is executing its own coroutine sequence.
-        if (isExecutingCombo && config != null && config.hasCombo)
+        if (isExecutingCombo && config != null && config.isCombo)
         {
             return;
         }
@@ -4532,6 +4752,8 @@ public class DataDrivenAbility : Ability
     {
         StopContinuousFiring();
 
+        ClearCastMoveSpeedModifier("OnDisable");
+
         // End movement ability if still executing (prevents stuck movement state on scene transitions/teleport)
         if (movementAbility != null && movementAbility.IsExecuting)
         {
@@ -4542,7 +4764,7 @@ public class DataDrivenAbility : Ability
         // Always return control to player when disabled
         if (!playerControl)
         {
-            playerControl = true;
+            ReleaseMovementControl("OnDisable", force: true);
             Debug.Log($"[DataDrivenAbility] OnDisable returned playerControl for {config?.abilityName}");
         }
 
@@ -4590,6 +4812,8 @@ public class DataDrivenAbility : Ability
 
     private void OnDestroy()
     {
+        DestroyComboSteps();
+
         // Unsubscribe retaliation handler so the event doesn't fire on a destroyed ability
         if (config != null && config.retaliationCast && ownerOrganism != null)
         {
