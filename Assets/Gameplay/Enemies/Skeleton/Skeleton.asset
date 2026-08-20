@@ -74,7 +74,20 @@ MonoBehaviour:
   - actionType: 0
     minDistance: 0
     maxDistance: 0
-    healthPercentThreshold: 0
+    healthPercentThreshold: -1
+    movementSpeedMultiplier: 1
+    movementDuration: 120
+    strafeDistance: 0
+    strafeClockwise: 0
+    patrolRadius: 0
+    patrolWaitTime: 0
+    attackCooldownMin: 0
+    attackCooldownMax: 0
+    abilityIndex: 0
+  - actionType: 4
+    minDistance: 0
+    maxDistance: 1
+    healthPercentThreshold: -1
     movementSpeedMultiplier: 1
     movementDuration: 120
     strafeDistance: 0
@@ -214,7 +227,6 @@ MonoBehaviour:
     lifetime: 3
     maxRange: 0
     behavior: 0
-    targetingMode: 1
     chargeDamageMultiplier: 1
     canCancelCharge: 1
     hasMultiShot: 0
@@ -285,6 +297,7 @@ MonoBehaviour:
     muzzleLightIntensity: 3
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
+    localMuzzle: 0
   projectileAttackCooldownMin: 2
   projectileAttackCooldownMax: 3
   useChargeBehavior: 0
@@ -296,5 +309,6 @@ MonoBehaviour:
   idleUpAnimationName: IdleUp
   moveAnimationName: Run
   moveUpAnimationName: RunUp
+  deathAnimationName: Death
   onDeathAbility: {fileID: 0}
   maxDrops: 3

@@ -231,17 +231,12 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
         bool isServerStarted = InstanceFinder.IsServerStarted;
         bool isNetworkActive = InstanceFinder.NetworkManager != null;
-        Debug.Log($"[MeleeAbility][KillTrace] OnHitboxTriggerEnter: attacker={owner?.name}, target={other.gameObject.name}, " +
-            $"isNetworkActive={isNetworkActive}, isServerStarted={isServerStarted}, ability={abilityName}");
-
         Vector3 hitPos = hitboxInstance.transform.position;
         Vector2 radialDir = ((Vector2)hitPos - (Vector2)transform.position).normalized;
         // Reusable hitbox processing. statOwner drives trait/stat scaling, weapon-damage
         // resolution, and life-steal healing (so summon attacks heal the player), while owner
         // is credited as the attacker.
         float damageDealt = config.hitbox.ApplyDamage(other, statOwner, owner, statOwner, hitPos, abilityName, abilityTags, parentConfig);
-        Debug.Log($"[MeleeAbility][KillTrace] ApplyDamage returned {damageDealt} for target={other.gameObject.name} " +
-            $"(isServerStarted={isServerStarted}); this machine {(isServerStarted ? "is" : "is NOT")} authoritative for the resulting SyncVar/despawn.");
         config.hitbox.ApplyKnockback(other, owner, radialDir);
         config.hitbox.ApplyPull(other, hitPos);
         config.hitbox.ApplyOnHitEffects(other.gameObject, owner, statOwner);

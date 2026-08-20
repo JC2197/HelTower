@@ -32,7 +32,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     protected Coroutine damageFlashCoroutine;
     private List<Material> originalMaterials = new List<Material>();
     private Material damageFlashMaterial;
-    private Vector3 _baselineScale = Vector3.one; // Stored once to prevent squash/stretch stacking
+    private Vector3 _baselineScale = new Vector3(0.9f,0.9f,1f); // Stored once to prevent squash/stretch stacking
     
     // Cached network manager reference to avoid repeated lookups
     protected FishNet.Managing.NetworkManager _cachedNetworkManager;
@@ -81,6 +81,12 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     
     public void SetEvading(bool evading)
     {
+        //get collider2d and use mask to ignore enemy layer
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.excludeLayers += LayerMask.GetMask("Enemy");
+        }
         _isEvading = evading;
         Debug.Log($"[Organism] {gameObject.name} evading = {evading}");
     }

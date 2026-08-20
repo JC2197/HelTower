@@ -41,7 +41,7 @@ MonoBehaviour:
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
-  hasCombo: 0
+  isCombo: 0
   comboAbilities: []
   comboStepDelays:
   - 0.3
@@ -502,13 +502,14 @@ MonoBehaviour:
       m_Bits: 128
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
-    muzzleFlashPrefab: {fileID: 8543023562516343274, guid: 89b5bd275b4f8ac409899f234f00cb55, type: 3}
+    muzzleFlashPrefab: {fileID: 3240179893309576959, guid: 89b5bd275b4f8ac409899f234f00cb55, type: 3}
     muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
+    localMuzzle: 0
   onHitEffects:
     canRoot: 0
     rootConfig:
@@ -1201,6 +1202,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     projectileCount: 0
     projectileSpread: 360
     explosionConfig:
@@ -1730,6 +1732,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     beamConfig:
       beamRendererPrefab: {fileID: 0}
       targetingMode: 0

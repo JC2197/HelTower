@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: Swipe
+  m_Name: DruidSwipe
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
   abilityName: Swipe
   abilityIcon: {fileID: 0}
@@ -22,7 +22,7 @@ MonoBehaviour:
   disableCast: 0
   isAttack: 1
   requiredWeaponTypes: []
-  attackSpeed: 1
+  attackSpeed: 1.5
   cooldownTime: 0
   energyCost: 0
   baseCritChance: 0
@@ -228,7 +228,7 @@ MonoBehaviour:
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 5
+      damage: 2
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -259,8 +259,8 @@ MonoBehaviour:
         stunApplicationChance: 1
         canBleed: 1
         bleedEffect: {fileID: 11400000, guid: d959042579f05cc4d95c18a975fe1e86, type: 2}
-        bleedDamage: 5
-        bleedDuration: 3
+        bleedDamage: 2
+        bleedDuration: 4
         bleedApplicationChance: 1
         canBurn: 0
         burnEffect: {fileID: 0}
@@ -509,6 +509,7 @@ MonoBehaviour:
     muzzleLightIntensity: 3
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
+    localMuzzle: 0
   onHitEffects:
     canRoot: 0
     rootConfig:
@@ -1201,6 +1202,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     projectileCount: 0
     projectileSpread: 360
     explosionConfig:
@@ -1730,6 +1732,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     beamConfig:
       beamRendererPrefab: {fileID: 0}
       targetingMode: 0

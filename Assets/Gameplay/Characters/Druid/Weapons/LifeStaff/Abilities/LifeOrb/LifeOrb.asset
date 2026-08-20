@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: Stab
+  m_Name: LifeOrb
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Scavenger Spear
+  abilityName: Life Orb
   abilityIcon: {fileID: 0}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
   abilityTags:
     selectedTags: []
     selectedDamageTypes: []
+  disableCast: 0
   isAttack: 1
   requiredWeaponTypes: []
-  attackSpeed: 2
+  attackSpeed: 0.8
   cooldownTime: 0
   energyCost: 0
   baseCritChance: 0
@@ -34,24 +35,24 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 1
-  movementBlockDuration: 0.25
-  movementSpeedMultiplierDuringCast: 0.066
+  disablesMovementDuringCast: 0
+  movementBlockDuration: 0.5
+  movementSpeedMultiplierDuringCast: 1
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
-  hasCombo: 0
+  isCombo: 0
   comboAbilities: []
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: Attack
+  characterAnimationName: 
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: Stab
+  mainhandAnimationName: Cast1
   offhandAnimationName: 
-  hasPrecast: 0
-  preAnimationName: 
+  hasPrecast: 1
+  preAnimationName: Precast1
   activateOnButtonRelease: 0
   holdAnimationName: 
   holdChargeConfig:
@@ -65,19 +66,17 @@ MonoBehaviour:
   flipYOnLeftFacing: 0
   flipXOnLeftFacing: 0
   timedParticles: []
-  isProjectileAbility: 0
+  isProjectileAbility: 1
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
-  isMovementAbility: 1
-  isDash: 0
+  isMovementAbility: 0
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
-  isMeleeAbility: 1
+  isMeleeAbility: 0
   isExplosionAbility: 0
   isSummonAbility: 0
-  isAuraAbility: 0
   isPassiveAbility: 0
   passiveTypeName: 
   passiveConfig:
@@ -223,116 +222,6 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 6284264067008683432, guid: 80ae64967f520464c9d2310bf2f1e99e, type: 3}
-      scaleX: 1
-      scaleY: 1
-      hitLayers:
-        serializedVersion: 2
-        m_Bits: 64
-      damage: 10
-      damageTypeName: Physical
-      useWeaponDamage: 0
-      percentWeaponDamage: 100
-      lifeSteal:
-        enabled: 0
-        type: 1
-        amount: 5
-      knockback:
-        enabled: 1
-        force: 5
-        directionality: 0.505
-      pull:
-        enabled: 0
-        force: 5
-      forcedMovementPreference: 0
-      onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
-      triggerOneTriggeredAbilityOnDestroy: 0
-      positiveHitLayers:
-        serializedVersion: 2
-        m_Bits: 0
-      positiveHealing: 0
-      onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
-      effects:
-        hitEffectPrefab: {fileID: 0}
-        hitSound: {fileID: 0}
-        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 1
-    meleeFXSpeed: 0
-    flipMeleeFX: 0
-    flipMeleeFXY: 0
-    stickToCharacter: 0
-    allowMultiHit: 0
-    meleeSound: {fileID: 0}
-  weaponData:
-    weaponType: 0
-    weaponPrefab: {fileID: 0}
-    activationDelay: 0
-    drawTime: 0.5
-    canHoldToFire: 0
-  projectileConfig:
-    hitbox:
       prefab: {fileID: 0}
       scaleX: 1
       scaleY: 1
@@ -428,6 +317,116 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    meleeFXRadiusDistance: 0.5
+    meleeFXSpeed: 0
+    flipMeleeFX: 0
+    flipMeleeFXY: 0
+    stickToCharacter: 0
+    allowMultiHit: 0
+    meleeSound: {fileID: 0}
+  weaponData:
+    weaponType: 0
+    weaponPrefab: {fileID: 0}
+    activationDelay: 0
+    drawTime: 0.5
+    canHoldToFire: 0
+  projectileConfig:
+    hitbox:
+      prefab: {fileID: 956519983054772351, guid: 2dadb8d0f801f534e86c403ab8df60a1, type: 3}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 64
+      damage: 10
+      damageTypeName: Magical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        canRoot: 0
+        rootEffect: {fileID: 0}
+        rootDuration: 0
+        rootApplicationChance: 1
+        canSlow: 0
+        slowEffect: {fileID: 0}
+        slowDuration: 0
+        slowApplicationChance: 1
+        canStun: 0
+        stunEffect: {fileID: 0}
+        stunDuration: 0
+        stunApplicationChance: 1
+        canBleed: 0
+        bleedEffect: {fileID: 0}
+        bleedDamage: 5
+        bleedDuration: 3
+        bleedApplicationChance: 1
+        canBurn: 0
+        burnEffect: {fileID: 0}
+        burnDamage: 10
+        burnDuration: 3
+        burnApplicationChance: 1
+        canPoison: 0
+        poisonEffect: {fileID: 0}
+        poisonDamage: 3
+        poisonDuration: 5
+        poisonApplicationChance: 1
+        canApplyStatBuffs: 0
+        statBuffApplications: []
+        canTriggerAbility: 0
+        triggeredAbilityConfigs: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 8
+      positiveHealing: 5
+      onHitBuffEffects:
+        canRoot: 0
+        rootEffect: {fileID: 0}
+        rootDuration: 0
+        rootApplicationChance: 1
+        canSlow: 0
+        slowEffect: {fileID: 0}
+        slowDuration: 0
+        slowApplicationChance: 1
+        canStun: 0
+        stunEffect: {fileID: 0}
+        stunDuration: 0
+        stunApplicationChance: 1
+        canBleed: 0
+        bleedEffect: {fileID: 0}
+        bleedDamage: 5
+        bleedDuration: 3
+        bleedApplicationChance: 1
+        canBurn: 0
+        burnEffect: {fileID: 0}
+        burnDamage: 10
+        burnDuration: 3
+        burnApplicationChance: 1
+        canPoison: 0
+        poisonEffect: {fileID: 0}
+        poisonDamage: 3
+        poisonDuration: 5
+        poisonApplicationChance: 1
+        canApplyStatBuffs: 0
+        statBuffApplications: []
+        canTriggerAbility: 0
+        triggeredAbilityConfigs: []
+      effects:
+        hitEffectPrefab: {fileID: 3240179893309576959, guid: 052052ca40089c245b1c46a1ac376b54, type: 3}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0
     dealsDamageOverTime: 0
     damagePerTick: 5
@@ -435,12 +434,11 @@ MonoBehaviour:
     dotDuration: 3
     dotParticleEffectPrefab: {fileID: 0}
     startParticlesFromFeet: 0
-    speed: 15
+    speed: 7
     useLifetime: 1
     lifetime: 3
     maxRange: 0
     behavior: 0
-    targetingMode: 1
     chargeDamageMultiplier: 1
     canCancelCharge: 1
     hasMultiShot: 0
@@ -450,8 +448,8 @@ MonoBehaviour:
     salvoSize: 1
     salvoInterval: 0.15
     salvoAngle: 0
-    hasPierce: 0
-    pierceCount: 0
+    hasPierce: 1
+    pierceCount: 99
     hasChaining: 0
     chainRange: 10
     maxChains: 0
@@ -498,10 +496,10 @@ MonoBehaviour:
     spinSpeed: 0
     canPierceLayers:
       serializedVersion: 2
-      m_Bits: 0
+      m_Bits: 72
     destroyOnLayers:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 128
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
@@ -511,6 +509,7 @@ MonoBehaviour:
     muzzleLightIntensity: 3
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
+    localMuzzle: 0
   onHitEffects:
     canRoot: 0
     rootConfig:
@@ -1133,7 +1132,6 @@ MonoBehaviour:
       lifetime: 3
       maxRange: 0
       behavior: 0
-      targetingMode: 1
       chargeDamageMultiplier: 1
       canCancelCharge: 1
       hasMultiShot: 0
@@ -1204,6 +1202,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     projectileCount: 0
     projectileSpread: 360
     explosionConfig:
@@ -1663,7 +1662,6 @@ MonoBehaviour:
       lifetime: 3
       maxRange: 0
       behavior: 0
-      targetingMode: 1
       chargeDamageMultiplier: 1
       canCancelCharge: 1
       hasMultiShot: 0
@@ -1734,6 +1732,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     beamConfig:
       beamRendererPrefab: {fileID: 0}
       targetingMode: 0
@@ -1817,15 +1816,15 @@ MonoBehaviour:
     deathEffectPrefab: {fileID: 0}
   movementConfig:
     movementType: 1
-    forceAmount: 10
+    lerp: 0
     speed: 10
     distance: 5
-    duration: 0.15
+    duration: 0.5
     activateAfterPrecast: 0
     passThruDamage: 0
     passthruDamageAmount: 0
     damageTypeName: Physical
-    towardMouse: 1
+    towardMouse: 0
     awayFromMouse: 0
     isDashing: 0
     teleportAnimationPrefab: {fileID: 0}

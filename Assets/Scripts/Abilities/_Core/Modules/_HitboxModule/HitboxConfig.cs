@@ -66,7 +66,7 @@ public class HitboxConfig
     [Tooltip("Positive on-hit effects (buffs/support effects) applied to targets in Positive Hit Layers.")]
     public EffectData onHitBuffEffects = new EffectData();
 
-    [Header("Effects")]
+    [Header("Visual Effects")]
     [Tooltip("On-hit visual/audio feedback.")]
     public HitFeedbackModule effects = new HitFeedbackModule();
 

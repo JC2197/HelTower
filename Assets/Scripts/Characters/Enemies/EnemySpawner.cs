@@ -60,9 +60,9 @@ public class EnemySpawner : NetworkBehaviour
     [ContextMenu("Start Spawn Sequence")]
     public void TryStartSpawnSequence()
     {
-        if (_spawnSequenceStarted || _floorCompleted || !CanSpawnInCurrentMode())
-            return;
-
+        
+        if (!CanSpawnInCurrentMode()) return;
+        
         if (spawnGroup == null)
         {
             Debug.LogError("[EnemySpawner] No spawn group assigned.", this);
@@ -76,6 +76,8 @@ public class EnemySpawner : NetworkBehaviour
         }
 
         _spawnSequenceStarted = true;
+        _floorCompleted = false;
+        _isSpawningWave = false;
         _aliveSpawnedEnemyIds.Clear();
         _currentWaveIndex = -1;
 
@@ -156,7 +158,7 @@ public class EnemySpawner : NetworkBehaviour
             EnemySpawnData selectedEnemy = SelectWeightedEnemy(weightedEntries, totalWeight);
             if (selectedEnemy == null)
                 continue;
-
+            
             yield return SpawnSingleEnemyRoutine(selectedEnemy.enemyPrefab);
 
             float delay = Mathf.Max(0f, selectedEnemy.spawnDelay);
@@ -228,7 +230,7 @@ public class EnemySpawner : NetworkBehaviour
 
             float clipLength = animator.GetCurrentAnimatorStateInfo(0).length;
             if (clipLength > 0f)
-                yield return new WaitForSeconds(clipLength);
+                yield return new WaitForSeconds(clipLength/2);
         }
 
         Destroy(spawnEffect);
@@ -295,16 +297,23 @@ public class EnemySpawner : NetworkBehaviour
         if (rollTraitsOnFloorComplete)
             TriggerFloorCompleteTraitRoll();
         
-        StartCoroutine(FloorCompleteCoroutine());
+        FloorCompleteCoroutine();
 
     }
 
-    private IEnumerator FloorCompleteCoroutine()
+    private void FloorCompleteCoroutine()
     {
-        // Wait for a short duration to allow any final enemy death events to propagate
-        yield return new WaitForSeconds(30f);
+        EnableTeleporters();
+    }
 
-        FloorManager.Instance.TransitionToRandomFloor();
+    private void EnableTeleporters()
+    {
+        // find all FloorPortal.cs
+        FloorPortal[] portals = FindObjectsByType<FloorPortal>(FindObjectsSortMode.None);
+        foreach (var portal in portals)
+        {
+            portal.Enable();
+        }
     }
 
     /// <summary>
@@ -340,6 +349,11 @@ public class EnemySpawner : NetworkBehaviour
         }
 
         roller.RollTraits(rollType);
+    }
+
+    private static void ResetSpawner()
+    {
+        
     }
 
     private sealed class SpawnedEnemyTracker : MonoBehaviour

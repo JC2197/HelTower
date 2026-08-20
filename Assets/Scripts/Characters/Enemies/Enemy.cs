@@ -1538,7 +1538,11 @@ public class Enemy : Organism
         // even when HandleDeath runs inside an ObserversRpc (fires on all clients).
         PlayerController player = PlayerController.GetLocalPlayer();
         TriggerDeathAbility();
-
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null)
+        {
+            collider.enabled = false;
+        }
 
         //Death Animation
         if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))

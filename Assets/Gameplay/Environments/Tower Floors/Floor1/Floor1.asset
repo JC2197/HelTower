@@ -15,4 +15,9 @@ MonoBehaviour:
   floorName: Floor1
   floorPrefab: {fileID: 2725273619857020728, guid: 6da50422352793045a9b6b51b27cbbbc, type: 3}
   spawnGroup: {fileID: 11400000, guid: be9caa595d47007438b76780b39e51ac, type: 2}
+  spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   backgroundMusic: {fileID: 0}

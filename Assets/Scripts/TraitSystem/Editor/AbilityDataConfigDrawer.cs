@@ -641,16 +641,7 @@ public class AbilityDataConfigEditor : Editor
                     break;
             }
 
-            EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("Pass-Through Damage", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(mc.FindPropertyRelative("passThruDamage"), new GUIContent("Pass-Through Damage"));
-            if (mc.FindPropertyRelative("passThruDamage").boolValue)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(mc.FindPropertyRelative("passthruDamageAmount"), new GUIContent("Damage Amount"));
-                EditorGUILayout.PropertyField(mc.FindPropertyRelative("damageTypeName"), new GUIContent("Damage Type"));
-                EditorGUI.indentLevel--;
-            }
+           
 
             EditorGUI.indentLevel--;
         }

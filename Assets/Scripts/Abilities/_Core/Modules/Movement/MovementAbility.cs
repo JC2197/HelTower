@@ -193,7 +193,7 @@ public class MovementAbility : MonoBehaviour
             SetRenderersEnabled(true);
             cachedRenderers = null;
         }
-
+        
         // Disable evade when movement ends
         if (config != null && config.movementConfig.isDashing && casterDamageable != null)
         {

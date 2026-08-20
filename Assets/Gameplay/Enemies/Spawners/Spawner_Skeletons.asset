@@ -22,11 +22,17 @@ MonoBehaviour:
   - enemyCountRange: {x: 10, y: 15}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
+      spawnWeight: 2
+      spawnDelay: 0.05
+    - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
       spawnWeight: 1
       spawnDelay: 0.05
   - enemyCountRange: {x: 20, y: 30}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
+      spawnWeight: 1
+      spawnDelay: 0.05
+    - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
       spawnWeight: 1
       spawnDelay: 0.05
   spawnRadius: 5

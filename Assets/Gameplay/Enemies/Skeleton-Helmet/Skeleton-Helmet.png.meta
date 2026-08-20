@@ -1,0 +1,1039 @@
+fileFormatVersion: 2
+guid: e54aab9209a414e43adefc6de499c5c0
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 1
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Skeleton-Helmet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 14, y: -13}
+        - {x: 14, y: -6}
+        - {x: 10, y: -2}
+        - {x: 5, y: -2}
+        - {x: 1, y: -6}
+        - {x: 1, y: -14}
+        - {x: 3, y: -15}
+        - {x: 12, y: -15}
+      physicsShape:
+      - - {x: 12, y: -14}
+        - {x: 12, y: -6}
+        - {x: 10, y: -4}
+        - {x: 5, y: -4}
+        - {x: 3, y: -6}
+        - {x: 3, y: -13}
+        - {x: 4, y: -15}
+        - {x: 10, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54e4675bb6cb4fa49b71e88d36104fa9
+      internalID: -1605364484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_1
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -5}
+        - {x: 10, y: -2}
+        - {x: 5, y: -2}
+        - {x: 1, y: -6}
+        - {x: 4, y: -15}
+        - {x: 11, y: -15}
+      physicsShape:
+      - - {x: 13, y: -13}
+        - {x: 13, y: -9}
+        - {x: 12, y: -6}
+        - {x: 10, y: -4}
+        - {x: 5, y: -4}
+        - {x: 3, y: -6}
+        - {x: 5, y: -15}
+        - {x: 8, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: f17dae047e54d3141b0d3a56fdfaaeb3
+      internalID: -107956850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_2
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -6}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 1, y: -7}
+        - {x: 4, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 13, y: -14}
+        - {x: 13, y: -10}
+        - {x: 12, y: -7}
+        - {x: 10, y: -5}
+        - {x: 5, y: -5}
+        - {x: 3, y: -7}
+        - {x: 5, y: -15}
+        - {x: 10, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59b8f0ffb19fe454584ac784a58b52c8
+      internalID: -599478143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_3
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -4}
+        - {x: 10, y: -1}
+        - {x: 5, y: -1}
+        - {x: 1, y: -5}
+        - {x: 4, y: -14}
+        - {x: 6, y: -15}
+        - {x: 11, y: -15}
+      physicsShape:
+      - - {x: 13, y: -13}
+        - {x: 13, y: -8}
+        - {x: 12, y: -5}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 3, y: -4}
+        - {x: 3, y: -7}
+        - {x: 6, y: -14}
+        - {x: 11, y: -14}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f90d59a632c5144c8ef4d6d8c4a1cee
+      internalID: 488248687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_4
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -4}
+        - {x: 10, y: -1}
+        - {x: 5, y: -1}
+        - {x: 1, y: -5}
+        - {x: 4, y: -14}
+        - {x: 6, y: -15}
+        - {x: 11, y: -15}
+      physicsShape:
+      - - {x: 13, y: -13}
+        - {x: 13, y: -8}
+        - {x: 12, y: -5}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 3, y: -4}
+        - {x: 3, y: -7}
+        - {x: 6, y: -14}
+        - {x: 11, y: -14}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1540ff8da9e4402439463f6b6cac94e0
+      internalID: 1444675182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_5
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -1}
+        - {x: 2, y: -1}
+        - {x: 1, y: -5}
+        - {x: 1, y: -12}
+        - {x: 4, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 13, y: -14}
+        - {x: 13, y: -4}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 3, y: -4}
+        - {x: 3, y: -7}
+        - {x: 5, y: -14}
+        - {x: 7, y: -15}
+        - {x: 9, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 65a91a8a5ac24884196c723cd8744330
+      internalID: -1381375909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_6
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -6}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 1, y: -7}
+        - {x: 4, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 13, y: -14}
+        - {x: 13, y: -10}
+        - {x: 12, y: -7}
+        - {x: 10, y: -5}
+        - {x: 5, y: -5}
+        - {x: 3, y: -7}
+        - {x: 5, y: -15}
+        - {x: 10, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2cad226d2a349e644b3c25558b89a311
+      internalID: -1702133244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_7
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -2}
+        - {x: 10, y: -1}
+        - {x: 3, y: -1}
+        - {x: 1, y: -5}
+        - {x: 4, y: -14}
+        - {x: 5, y: -15}
+        - {x: 9, y: -15}
+      physicsShape:
+      - - {x: 13, y: -12}
+        - {x: 13, y: -8}
+        - {x: 12, y: -5}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 3, y: -5}
+        - {x: 5, y: -14}
+        - {x: 8, y: -14}
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbdb9f76e0f081e45b4f1616f75249e9
+      internalID: 268517699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_8
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -2}
+        - {x: 10, y: -1}
+        - {x: 3, y: -1}
+        - {x: 1, y: -5}
+        - {x: 4, y: -14}
+        - {x: 5, y: -15}
+        - {x: 9, y: -15}
+      physicsShape:
+      - - {x: 13, y: -12}
+        - {x: 13, y: -8}
+        - {x: 12, y: -5}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 3, y: -5}
+        - {x: 5, y: -14}
+        - {x: 8, y: -14}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54441ff7f3f038048b87027b7b94c868
+      internalID: -1258908495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_9
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 14, y: -5}
+        - {x: 13, y: 0}
+        - {x: 2, y: 0}
+        - {x: 1, y: -1}
+        - {x: 1, y: -7}
+        - {x: 4, y: -15}
+        - {x: 14, y: -15}
+      physicsShape:
+      - - {x: 12, y: -14}
+        - {x: 12, y: -6}
+        - {x: 10, y: -3}
+        - {x: 5, y: -2}
+        - {x: 3, y: -2}
+        - {x: 3, y: -7}
+        - {x: 5, y: -15}
+        - {x: 9, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 663a58a6f1c090741a5fdf7cf28683cb
+      internalID: 519681923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_10
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -14}
+        - {x: 15, y: -6}
+        - {x: 7, y: 1}
+        - {x: 1, y: 1}
+        - {x: 1, y: -10}
+        - {x: 4, y: -15}
+        - {x: 14, y: -15}
+      physicsShape:
+      - - {x: 13, y: -6}
+        - {x: 7, y: -1}
+        - {x: 3, y: -1}
+        - {x: 3, y: -8}
+        - {x: 5, y: -15}
+        - {x: 13, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1e9a686134ee2664190f036e64d8c516
+      internalID: -1332022435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_11
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -4}
+        - {x: 12, y: -3}
+        - {x: 3, y: -3}
+        - {x: 2, y: -6}
+        - {x: 2, y: -9}
+        - {x: 4, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 13, y: -5}
+        - {x: 5, y: -5}
+        - {x: 4, y: -6}
+        - {x: 4, y: -9}
+        - {x: 6, y: -15}
+        - {x: 13, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: a25191b397ec336409beb4c8c782f76f
+      internalID: -821432385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_12
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -4}
+        - {x: 11, y: -3}
+        - {x: 4, y: -3}
+        - {x: 2, y: -6}
+        - {x: 2, y: -9}
+        - {x: 4, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 13, y: -14}
+        - {x: 13, y: -7}
+        - {x: 11, y: -5}
+        - {x: 6, y: -5}
+        - {x: 4, y: -6}
+        - {x: 4, y: -9}
+        - {x: 6, y: -15}
+        - {x: 9, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ef6e5915a0c5d746a5e1fc379c6b1eb
+      internalID: 2053206920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_13
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 14, y: -13}
+        - {x: 14, y: -7}
+        - {x: 10, y: -3}
+        - {x: 5, y: -3}
+        - {x: 1, y: -6}
+        - {x: 1, y: -9}
+        - {x: 3, y: -15}
+        - {x: 12, y: -15}
+      physicsShape:
+      - - {x: 12, y: -14}
+        - {x: 12, y: -7}
+        - {x: 11, y: -5}
+        - {x: 5, y: -5}
+        - {x: 3, y: -6}
+        - {x: 3, y: -9}
+        - {x: 5, y: -15}
+        - {x: 9, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: da9dab1d6b57f2d4da84e6718da55176
+      internalID: 244324766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_14
+      rect:
+        serializedVersion: 2
+        x: 420
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -13}
+        - {x: 15, y: -2}
+        - {x: 9, y: 1}
+        - {x: 0, y: 1}
+        - {x: -2, y: -2}
+        - {x: -2, y: -15}
+        - {x: 12, y: -15}
+      physicsShape:
+      - - {x: 13, y: -11}
+        - {x: 13, y: -6}
+        - {x: 8, y: -1}
+        - {x: 3, y: -1}
+        - {x: 1, y: -3}
+        - {x: 1, y: -4}
+        - {x: 0, y: -7}
+        - {x: 0, y: -10}
+        - {x: 1, y: -10}
+        - {x: 6, y: -15}
+        - {x: 10, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ba0a847407d81f409c0deea53c8c472
+      internalID: -574009320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_15
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: 3}
+        - {x: 9, y: 6}
+        - {x: -4, y: 6}
+        - {x: -6, y: 5}
+        - {x: -6, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 9, y: 2}
+        - {x: 7, y: 4}
+        - {x: 2, y: 4}
+        - {x: 0, y: 2}
+        - {x: 0, y: 1}
+        - {x: 9, y: 1}
+      - - {x: 9, y: -6}
+        - {x: 9, y: -3}
+        - {x: 8, y: -2}
+        - {x: 3, y: -2}
+        - {x: 2, y: -3}
+        - {x: 2, y: -6}
+        - {x: 3, y: -7}
+        - {x: 8, y: -7}
+      - - {x: 14, y: -5}
+        - {x: 12, y: -5}
+        - {x: 12, y: -7}
+        - {x: 13, y: -8}
+        - {x: 14, y: -8}
+      - - {x: -2, y: -6}
+        - {x: -4, y: -6}
+        - {x: -4, y: -8}
+        - {x: -1, y: -8}
+      - - {x: 8, y: -14}
+        - {x: 10, y: -10}
+        - {x: 10, y: -9}
+        - {x: 5, y: -9}
+        - {x: 5, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f3f286a7fb6e80489fceed175e82680
+      internalID: -807298594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_16
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: -7, y: -10}
+        - {x: 1, y: -15}
+        - {x: 13, y: -15}
+        - {x: 15, y: -10}
+        - {x: 15, y: 0}
+        - {x: 9, y: 0}
+        - {x: 11, y: 2}
+        - {x: 11, y: 3}
+        - {x: 7, y: 7}
+        - {x: 2, y: 7}
+        - {x: -2, y: 3}
+        - {x: -2, y: 2}
+        - {x: 0, y: 0}
+        - {x: -7, y: 0}
+      physicsShape:
+      - - {x: 9, y: 3}
+        - {x: 7, y: 5}
+        - {x: 2, y: 5}
+        - {x: 0, y: 3}
+        - {x: 0, y: 2}
+        - {x: 9, y: 2}
+      - - {x: 8, y: -6}
+        - {x: 8, y: -3}
+        - {x: 7, y: -2}
+        - {x: 2, y: -2}
+        - {x: 1, y: -3}
+        - {x: 1, y: -6}
+        - {x: 2, y: -7}
+        - {x: 7, y: -7}
+      - - {x: 14, y: -4}
+        - {x: 12, y: -4}
+        - {x: 12, y: -6}
+        - {x: 13, y: -7}
+        - {x: 14, y: -7}
+      - - {x: -3, y: -5}
+        - {x: -5, y: -5}
+        - {x: -5, y: -7}
+        - {x: -2, y: -7}
+      - - {x: 4, y: -15}
+        - {x: 11, y: -15}
+        - {x: 11, y: -14}
+        - {x: 9.199997, y: -11}
+        - {x: 10, y: -11}
+        - {x: 11, y: -8}
+        - {x: 8, y: -9}
+        - {x: 4, y: -9}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c6efe65b00eacd4caa1e26eb4cbe403
+      internalID: 758354124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_17
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: -8, y: -7}
+        - {x: -8, y: -15}
+        - {x: 15, y: -15}
+        - {x: 15, y: -7}
+        - {x: 14, y: -6}
+        - {x: 12, y: -6}
+        - {x: 10, y: -7}
+        - {x: 6, y: -4}
+        - {x: 11, y: -4}
+        - {x: 11, y: 2}
+        - {x: 9, y: 3}
+        - {x: -1, y: 3}
+        - {x: -2, y: -1}
+        - {x: -2, y: -4}
+        - {x: -5, y: -4}
+      physicsShape:
+      - - {x: 9, y: -1}
+        - {x: 7, y: 1}
+        - {x: 2, y: 1}
+        - {x: 0, y: -1}
+        - {x: 0, y: -2}
+        - {x: 9, y: -2}
+      - - {x: 14, y: -11}
+        - {x: 14, y: -6}
+        - {x: 0, y: -6}
+        - {x: 0, y: -12}
+        - {x: 1, y: -15}
+        - {x: 11, y: -15}
+      - - {x: -4, y: -9}
+        - {x: -6, y: -9}
+        - {x: -6, y: -11}
+        - {x: -3, y: -11}
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5932e1c5a7f4e84f96af8d00bf9c280
+      internalID: 1348172148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_18
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -5}
+        - {x: 12, y: -1}
+        - {x: 0, y: -1}
+        - {x: -5, y: -3}
+        - {x: -7, y: -9}
+        - {x: -7, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 9, y: -5}
+        - {x: 7, y: -3}
+        - {x: 2, y: -3}
+        - {x: 0, y: -5}
+        - {x: 0, y: -6}
+        - {x: 9, y: -6}
+      - - {x: 14, y: -14}
+        - {x: 14, y: -10}
+        - {x: 10, y: -8}
+        - {x: 0, y: -8}
+        - {x: 0, y: -13}
+        - {x: 3, y: -15}
+        - {x: 9, y: -15}
+      - - {x: -3, y: -12}
+        - {x: -5, y: -13}
+        - {x: -5, y: -15}
+        - {x: -3, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f11747a31961864aa47d319b4e2164d
+      internalID: 992162337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_19
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -8}
+        - {x: 13, y: -6}
+        - {x: -2, y: -6}
+        - {x: -7, y: -9}
+        - {x: -7, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 15, y: -9}
+        - {x: 11, y: -8}
+        - {x: -1, y: -8}
+        - {x: -1, y: -12}
+        - {x: 0, y: -15}
+        - {x: 15, y: -15}
+      - - {x: -3, y: -13}
+        - {x: -5, y: -13}
+        - {x: -5, y: -15}
+        - {x: -2, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: f2eec51b4f216d84ba9be593d2f38fa9
+      internalID: 1934012717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_20
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -8}
+        - {x: 13, y: -6}
+        - {x: -2, y: -6}
+        - {x: -7, y: -9}
+        - {x: -7, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 14, y: -12}
+        - {x: 8, y: -8}
+        - {x: 0, y: -8}
+        - {x: -1, y: -10}
+        - {x: -1, y: -12}
+        - {x: 1, y: -15}
+        - {x: 15, y: -15}
+      - - {x: -3, y: -13}
+        - {x: -5, y: -13}
+        - {x: -5, y: -15}
+        - {x: -2, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4d10e4e03363844ab082e4716be72d9
+      internalID: 1055272017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeleton-Helmet_21
+      rect:
+        serializedVersion: 2
+        x: 630
+        y: 0
+        width: 30
+        height: 30
+      alignment: 9
+      pivot: {x: 0.75, y: 0.25333333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 15, y: -8}
+        - {x: 13, y: -6}
+        - {x: -2, y: -6}
+        - {x: -7, y: -9}
+        - {x: -7, y: -15}
+        - {x: 15, y: -15}
+      physicsShape:
+      - - {x: 14, y: -12}
+        - {x: 8, y: -8}
+        - {x: 0, y: -8}
+        - {x: -1, y: -10}
+        - {x: -1, y: -12}
+        - {x: 1, y: -15}
+        - {x: 15, y: -15}
+      - - {x: -3, y: -13}
+        - {x: -5, y: -13}
+        - {x: -5, y: -15}
+        - {x: -2, y: -15}
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b969e45005435145bcddd329244a017
+      internalID: -1280162718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 67d6c672d63a3a245be9e735bbf29c83
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":22.0,"y":1.0},"gridSpriteSize":{"x":30.0,"y":30.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.75,"y":0.25333333015441897},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":1,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Skeleton-Helmet_0: -1605364484
+      Skeleton-Helmet_1: -107956850
+      Skeleton-Helmet_10: -1332022435
+      Skeleton-Helmet_11: -821432385
+      Skeleton-Helmet_12: 2053206920
+      Skeleton-Helmet_13: 244324766
+      Skeleton-Helmet_14: -574009320
+      Skeleton-Helmet_15: -807298594
+      Skeleton-Helmet_16: 758354124
+      Skeleton-Helmet_17: 1348172148
+      Skeleton-Helmet_18: 992162337
+      Skeleton-Helmet_19: 1934012717
+      Skeleton-Helmet_2: -599478143
+      Skeleton-Helmet_20: 1055272017
+      Skeleton-Helmet_21: -1280162718
+      Skeleton-Helmet_3: 488248687
+      Skeleton-Helmet_4: 1444675182
+      Skeleton-Helmet_5: -1381375909
+      Skeleton-Helmet_6: -1702133244
+      Skeleton-Helmet_7: 268517699
+      Skeleton-Helmet_8: -1258908495
+      Skeleton-Helmet_9: 519681923
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

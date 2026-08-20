@@ -1,0 +1,314 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314b876028dce5b468eb6ea7e0902966, type: 3}
+  m_Name: Skeleton-Helmet
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
+  enemyName: Skeleton
+  displayName: Skeleton
+  stats:
+    stats:
+    - statId: STR
+      displayName: STR
+      categoryId: BASE
+      currentValue: 0
+    - statId: VIG
+      displayName: VIG
+      categoryId: BASE
+      currentValue: 0
+    - statId: INT
+      displayName: BASE
+      categoryId: BASE
+      currentValue: 0
+    - statId: DEX
+      displayName: DEX
+      categoryId: BASE
+      currentValue: 0
+    - statId: FTH
+      displayName: FTH
+      categoryId: BASE
+      currentValue: 0
+    - statId: LUK
+      displayName: LUK
+      categoryId: BASE
+      currentValue: 0
+    - statId: MoveSpeed
+      displayName: Movement Speed
+      categoryId: Active
+      currentValue: 2.2
+    - statId: AttackSpeed
+      displayName: Attack Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxHealth
+      displayName: Maximum HP
+      categoryId: Active
+      currentValue: 45
+    - statId: PHYSICAL
+      displayName: Physical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: MAGICAL
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  statTypeDatabase: {fileID: 11400000, guid: 692b506b6c5a55e48b4de66a8edfbfe0, type: 2}
+  isBoss: 0
+  detectionRange: 1000
+  abilities: []
+  mainHandWeaponConfig: {fileID: 0}
+  offhandWeaponConfig: {fileID: 0}
+  handSprite: {fileID: 0}
+  useWeaponGrantedAbilities: 0
+  weaponAbilityRange: 0.2
+  isSimpleEnemy: 1
+  actions:
+  - actionType: 0
+    minDistance: 0
+    maxDistance: 0
+    healthPercentThreshold: -1
+    movementSpeedMultiplier: 1
+    movementDuration: 120
+    strafeDistance: 0
+    strafeClockwise: 0
+    patrolRadius: 0
+    patrolWaitTime: 0
+    attackCooldownMin: 0
+    attackCooldownMax: 0
+    abilityIndex: 0
+  - actionType: 4
+    minDistance: 0
+    maxDistance: 1
+    healthPercentThreshold: -1
+    movementSpeedMultiplier: 1
+    movementDuration: 120
+    strafeDistance: 0
+    strafeClockwise: 0
+    patrolRadius: 0
+    patrolWaitTime: 0
+    attackCooldownMin: 0
+    attackCooldownMax: 0
+    abilityIndex: 0
+  canMove: 1
+  continuousMovement: 1
+  movementTime: 1
+  stopTime: 0.5
+  pathfindingObstacleLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleAvoidanceStrength: 20.2
+  debugDrawPathfindingRays: 0
+  hasCollisionDamage: 1
+  targetTags:
+  - Player
+  collisionDamage: 15
+  collisionDamageCooldown: 1
+  collisionDamageType: Physical
+  collisionHitLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  isFlying: 0
+  isProjectileEnemy: 0
+  projectileRange: 8
+  projectileEnemyConfig:
+    hitbox:
+      prefab: {fileID: 0}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 6
+      damage: 20
+      damageTypeName: Physical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        canRoot: 0
+        rootEffect: {fileID: 0}
+        rootDuration: 0
+        rootApplicationChance: 1
+        canSlow: 0
+        slowEffect: {fileID: 0}
+        slowDuration: 0
+        slowApplicationChance: 1
+        canStun: 0
+        stunEffect: {fileID: 0}
+        stunDuration: 0
+        stunApplicationChance: 1
+        canBleed: 0
+        bleedEffect: {fileID: 0}
+        bleedDamage: 5
+        bleedDuration: 3
+        bleedApplicationChance: 1
+        canBurn: 0
+        burnEffect: {fileID: 0}
+        burnDamage: 10
+        burnDuration: 3
+        burnApplicationChance: 1
+        canPoison: 0
+        poisonEffect: {fileID: 0}
+        poisonDamage: 3
+        poisonDuration: 5
+        poisonApplicationChance: 1
+        canApplyStatBuffs: 0
+        statBuffApplications: []
+        canTriggerAbility: 0
+        triggeredAbilityConfigs: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      positiveHealing: 0
+      onHitBuffEffects:
+        canRoot: 0
+        rootEffect: {fileID: 0}
+        rootDuration: 0
+        rootApplicationChance: 1
+        canSlow: 0
+        slowEffect: {fileID: 0}
+        slowDuration: 0
+        slowApplicationChance: 1
+        canStun: 0
+        stunEffect: {fileID: 0}
+        stunDuration: 0
+        stunApplicationChance: 1
+        canBleed: 0
+        bleedEffect: {fileID: 0}
+        bleedDamage: 5
+        bleedDuration: 3
+        bleedApplicationChance: 1
+        canBurn: 0
+        burnEffect: {fileID: 0}
+        burnDamage: 10
+        burnDuration: 3
+        burnApplicationChance: 1
+        canPoison: 0
+        poisonEffect: {fileID: 0}
+        poisonDamage: 3
+        poisonDuration: 5
+        poisonApplicationChance: 1
+        canApplyStatBuffs: 0
+        statBuffApplications: []
+        canTriggerAbility: 0
+        triggeredAbilityConfigs: []
+      effects:
+        hitEffectPrefab: {fileID: 0}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    allowOverride: 0
+    dealsDamageOverTime: 0
+    damagePerTick: 5
+    dotInterval: 0.5
+    dotDuration: 3
+    dotParticleEffectPrefab: {fileID: 0}
+    startParticlesFromFeet: 0
+    speed: 15
+    useLifetime: 1
+    lifetime: 3
+    maxRange: 0
+    behavior: 0
+    chargeDamageMultiplier: 1
+    canCancelCharge: 1
+    hasMultiShot: 0
+    projectileCount: 1
+    spreadAngle: 15
+    spreadAnglePerProjectile: 0
+    salvoSize: 1
+    salvoInterval: 0.15
+    salvoAngle: 0
+    hasPierce: 0
+    pierceCount: 0
+    hasChaining: 0
+    chainRange: 10
+    maxChains: 0
+    homingStrength: 5
+    waveAmplitude: 1
+    waveFrequency: 2
+    spiralRadius: 1
+    spiralSpeed: 2
+    lobbedArcHeight: 3
+    boomerangDistanceCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    freezeRotation: 0
+    spinSpeed: 0
+    canPierceLayers:
+      serializedVersion: 2
+      m_Bits: 0
+    destroyOnLayers:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    destroyVisualPrefab: {fileID: 0}
+    destroySound: {fileID: 0}
+    muzzleFlashPrefab: {fileID: 0}
+    muzzleFlashSound: {fileID: 0}
+    enableMuzzleLight: 0
+    muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    muzzleLightIntensity: 3
+    muzzleLightRange: 2
+    muzzleLightDuration: 0.1
+    localMuzzle: 0
+  projectileAttackCooldownMin: 2
+  projectileAttackCooldownMax: 3
+  useChargeBehavior: 0
+  chargeRange: 5
+  chargeForce: 15
+  chargeFriction: 3
+  chargeStopSpeed: 0.1
+  idleAnimationName: Idle
+  idleUpAnimationName: IdleUp
+  moveAnimationName: Run
+  moveUpAnimationName: RunUp
+  deathAnimationName: Death
+  onDeathAbility: {fileID: 0}
+  maxDrops: 3

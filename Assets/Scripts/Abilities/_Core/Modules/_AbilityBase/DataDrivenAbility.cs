@@ -1826,7 +1826,7 @@ public class DataDrivenAbility : Ability
         {
             abilityExecuted = ExecuteStandaloneProjectile() || abilityExecuted;
         }
-        
+
         if (config.isMovementAbility)
         {
             Debug.Log($"[Movement] FireAbility → ExecuteMovementAbility: ability={config.abilityName}, movementAbility={movementAbility != null}, playerControl={playerControl}");
@@ -2128,11 +2128,19 @@ public class DataDrivenAbility : Ability
 
         // Apply charge damage multiplier when called from AbilityCastSequence (isCharging == true)
         float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
-
+        if (HasConfiguredCastAnimation(config))
+        {
+            StartCoroutine(SpawnStandaloneProjectileNextFrame(damageMultiplier));
+            return true;
+        }
         PerformProjectileShoot(damageMultiplier);
         return true;
     }
-
+    private IEnumerator SpawnStandaloneProjectileNextFrame(float damageMultiplier)
+    {
+        yield return null;
+        PerformProjectileShoot(damageMultiplier);
+    }
 
     private static bool HasConfiguredCastAnimation(AbilityDataConfig abilityConfig)
     {

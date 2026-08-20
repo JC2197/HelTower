@@ -320,7 +320,7 @@ MonoBehaviour:
     meleeFXRadiusDistance: 0.5
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 0
+    flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
     meleeSound: {fileID: 0}

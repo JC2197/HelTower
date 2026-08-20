@@ -23,13 +23,6 @@ public class MovementConfig
 
     [Tooltip("If true, wait for the ability precast animation to finish before movement actually begins.")]
     public bool activateAfterPrecast = false;
-    [Tooltip("If true, deals damage to enemies passed through.")]
-    public bool passThruDamage = false;
-    [Tooltip("Amount of damage dealt when passing through enemies.")]
-    public float passthruDamageAmount = 0f;
-    [Tooltip("Type of damage dealt (e.g., Physical, Fire, etc.)")]
-    public string damageTypeName = "Physical";
-    // Add more fields as needed (e.g., direction, cooldown, etc.)
     public bool towardMouse;
     public bool awayFromMouse;
 

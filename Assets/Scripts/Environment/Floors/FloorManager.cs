@@ -1,7 +1,11 @@
 using UnityEngine;
 using FishNet;
 using FishNet.Object;
-
+using NUnit.Framework;
+using System.Linq;
+using FishNet.Component.Spawning;
+using System.Collections;
+using System.Collections.Generic;
 /// <summary>
 /// Server-authoritative source of truth for the current floor of the infinite dungeon.
 /// Spawns the starting floor when the server starts, then lets FloorPortal request a transition:
@@ -11,6 +15,7 @@ using FishNet.Object;
 /// </summary>
 public class FloorManager : NetworkBehaviour
 {
+
     public static FloorManager Instance { get; private set; }
 
     [Header("Floor Pool")]
@@ -21,12 +26,13 @@ public class FloorManager : NetworkBehaviour
 
     private GameObject currentFloorInstance;
     private Floor currentFloor;
-
+    private EnemySpawner enemySpawner;
     public Floor CurrentFloor => currentFloor;
 
     private void Awake()
     {
         Instance = this;
+        enemySpawner = GetComponent<EnemySpawner>();
     }
 
     public override void OnStartServer()
@@ -57,7 +63,8 @@ public class FloorManager : NetworkBehaviour
 
         DespawnCurrentFloor();
         SpawnFloor(nextFloor);
-        RepositionAllPlayers();
+        RepositionAllPlayers(GetSpawnPoints());
+        BeginRound();
     }
 
     private void SpawnFloor(Floor floor)
@@ -70,8 +77,17 @@ public class FloorManager : NetworkBehaviour
 
         currentFloorInstance = Instantiate(floor.floorPrefab, Vector3.zero, Quaternion.identity);
         currentFloor = floor;
-
         NetworkObject nob = currentFloorInstance.GetComponent<NetworkObject>();
+
+        Transform[] spawnPoints = GetSpawnPoints();
+        PlayerSpawner fishNetSpawner = InstanceFinder.NetworkManager.GetComponent<PlayerSpawner>();
+        if (fishNetSpawner != null)
+        {
+            fishNetSpawner.Spawns = spawnPoints;
+        } else
+        {
+            Debug.LogWarning("[FloorManager] No PlayerSpawner found — spawn points will not be assigned.");
+        }
         if (nob != null)
             InstanceFinder.ServerManager.Spawn(currentFloorInstance);
         else
@@ -81,6 +97,11 @@ public class FloorManager : NetworkBehaviour
             AudioManager.Instance.PlayMusic(floor.backgroundMusic, 0.1f, true);
 
         Debug.Log($"[FloorManager] Spawned floor '{floor.floorName}' at world origin.");
+    }
+
+    private void BeginRound()
+    {
+        enemySpawner.TryStartSpawnSequence();
     }
 
     private void DespawnCurrentFloor()
@@ -99,18 +120,24 @@ public class FloorManager : NetworkBehaviour
     /// <summary>
     /// Repositions every player to the new floor's "SpawnPoint" child if one exists, otherwise
     /// world origin. Setting transform.position directly on the server relies on the same
+    /// Transform[] spawnPositions = GetSpawnPoints();
     /// NetworkTransform replication already used elsewhere for player position.
     /// </summary>
-    private void RepositionAllPlayers()
+    private void RepositionAllPlayers(Transform[] spawnPositions)
     {
-        Vector3 spawnPosition = Vector3.zero;
-        Transform spawnPoint = currentFloorInstance != null ? currentFloorInstance.transform.Find("SpawnPoint") : null;
-        if (spawnPoint != null)
-            spawnPosition = spawnPoint.position;
-
         PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+
         foreach (PlayerController player in players)
-            player.transform.position = spawnPosition;
+            player.transform.position = spawnPositions.Length > 0 ? spawnPositions[Random.Range(0, spawnPositions.Length)].position : Vector3.zero;
+    }
+
+    private Transform[] GetSpawnPoints()
+    {
+        if (currentFloorInstance == null) return new Transform[0];
+        string searchString = "SpawnPoint";
+        return currentFloorInstance.GetComponentsInChildren<Transform>()
+            .Where(obj => obj.name.Contains(searchString))
+            .ToArray();
     }
 }
 
