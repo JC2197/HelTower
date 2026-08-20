@@ -34,7 +34,7 @@ MonoBehaviour:
   damageTypeName: Burning
   damagePerTick: 5
   tickInterval: 0.5
-  fireParticle: {fileID: 0}
+  fireParticle: {fileID: 1155269537076992192, guid: 46caed522c2c83245939fe209b93663c, type: 3}
   burningTint: {r: 1, g: 0.8, b: 0.5, a: 1}
   canSpread: 0
   spreadRadius: 1.5

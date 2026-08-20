@@ -424,7 +424,7 @@ MonoBehaviour:
         canTriggerAbility: 0
         triggeredAbilityConfigs: []
       effects:
-        hitEffectPrefab: {fileID: 0}
+        hitEffectPrefab: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0

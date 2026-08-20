@@ -294,6 +294,17 @@ public class EnemySpawner : NetworkBehaviour
 
         if (rollTraitsOnFloorComplete)
             TriggerFloorCompleteTraitRoll();
+        
+        StartCoroutine(FloorCompleteCoroutine());
+
+    }
+
+    private IEnumerator FloorCompleteCoroutine()
+    {
+        // Wait for a short duration to allow any final enemy death events to propagate
+        yield return new WaitForSeconds(30f);
+
+        FloorManager.Instance.TransitionToRandomFloor();
     }
 
     /// <summary>

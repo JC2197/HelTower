@@ -46,7 +46,7 @@ MonoBehaviour:
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: 
+  characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: Sweep
@@ -321,7 +321,7 @@ MonoBehaviour:
     meleeFXSpeed: 0
     flipMeleeFX: 0
     flipMeleeFXY: 1
-    stickToCharacter: 0
+    stickToCharacter: 1
     allowMultiHit: 0
     meleeSound: {fileID: 0}
   weaponData:
@@ -1816,10 +1816,10 @@ MonoBehaviour:
     deathEffectPrefab: {fileID: 0}
   movementConfig:
     movementType: 1
-    lerp: 0
+    lerp: 1
     speed: 10
     distance: 3
-    duration: 0.5
+    duration: 0.33
     activateAfterPrecast: 0
     passThruDamage: 0
     passthruDamageAmount: 0

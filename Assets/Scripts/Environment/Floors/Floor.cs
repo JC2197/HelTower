@@ -5,7 +5,8 @@ using System.Collections.Generic;
 /// the configuration for a floor.
 /// </summary>
 
-public class Floor : MonoBehaviour
+[CreateAssetMenu(fileName = "Floor", menuName = "Floors/Floor")]
+public class Floor : ScriptableObject
 {
     [Header("Floor Name")]
     public string floorName;

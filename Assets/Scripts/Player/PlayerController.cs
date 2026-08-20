@@ -87,7 +87,7 @@ public class PlayerController : Organism
 
         ApplyClassBaseStats(classData);
 
-        WeaponConfig defaultWeapon = GetDefaultWeaponForClass(classData);
+        WeaponConfig defaultWeapon = GetRandomWeaponForClass(classData);
         if (defaultWeapon != null)
             EquipMainHandWeapon(defaultWeapon);
 
@@ -481,12 +481,12 @@ public class PlayerController : Organism
         ApplyCharacterData(runtimeCharacter);
     }
 
-    private WeaponConfig GetDefaultWeaponForClass(ClassData classData)
+    private WeaponConfig GetRandomWeaponForClass(ClassData classData)
     {
         if (classData == null || classData.availableWeapons == null || classData.availableWeapons.Length == 0)
             return null;
 
-        return classData.availableWeapons[0];
+        return classData.availableWeapons[UnityEngine.Random.Range(0, classData.availableWeapons.Length)];
     }
 
     private bool ApplyClassAnimatorVisual(ClassData classData)

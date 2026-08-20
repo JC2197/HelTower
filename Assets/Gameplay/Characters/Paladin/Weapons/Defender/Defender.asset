@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 841f3c1aafac03148a6705f66026cea6, type: 3}
-  m_Name: Weapon_StarterSword
-  m_EditorClassIdentifier: 
+  m_Name: Defender
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
-  weaponName: Starter Sword
-  weaponType: Sword
+  weaponName: Defender
+  weaponType: Shield
   grantedTrait: {fileID: 0}
-  weaponPrefab: {fileID: 0}
-  weaponDamageMin: 2
+  weaponPrefab: {fileID: 2979637868561173973, guid: 36d1df09717e1644297ec909940e8a52, type: 3}
+  weaponDamageMin: 3
   weaponDamageMax: 4
   weaponDamageType: Physical
   offhandWeaponConfig: {fileID: 0}
-  inventorySprite: {fileID: 0}
-  worldSprite: {fileID: 0}
+  inventorySprite: {fileID: -1129631455, guid: 7e9cb21b95c3c0b4bbef5f51cb54d3b4, type: 3}
+  worldSprite: {fileID: -1129631455, guid: 7e9cb21b95c3c0b4bbef5f51cb54d3b4, type: 3}
   overridePositioning: 0
   positioningOverride:
     aimingRadius: 0.3
     isMainHand: 1
     is2Handed: 0
-    northEastOffset: {x: 0.2, y: 0.08}
-    northWestOffset: {x: -0.2, y: 0.08}
-    southEastOffset: {x: 0.2, y: -0.08}
-    southWestOffset: {x: -0.2, y: -0.08}
+    northEastOffset: {x: 0, y: 0}
+    northWestOffset: {x: 0, y: 0}
+    southEastOffset: {x: 0, y: 0}
+    southWestOffset: {x: 0, y: 0}
     weaponBehindOnNE: 0
     weaponBehindOnNW: 0
     weaponBehindOnSE: 0
@@ -46,8 +46,8 @@ MonoBehaviour:
     offhandWeaponBehindOnSE: 0
     offhandWeaponBehindOnSW: 0
     lockTo2Directions: 0
-    flipWeaponOnTurn: 1
-    flipWeaponOnYAxis: 1
+    flipWeaponOnTurn: 0
+    flipWeaponOnYAxis: 0
     flipWeaponOnXAxis: 0
     handBehindOnNE: 0
     handBehindOnNW: 0
@@ -55,17 +55,18 @@ MonoBehaviour:
     handBehindOnSW: 0
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 0}
+  grantedSecondaryAbility: {fileID: 0}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
-  usesAmmo: 0
+  usesAmmo: 1
   ammoConfig:
     dependsOnAmmo: 1
-    magazineSize: 10
-    reloadTime: 2
+    magazineSize: 1
+    reloadTime: 2.5
     ammoIcon: {fileID: 0}
   muzzleFlashOverride: {fileID: 0}
   overrideMuzzleLight: 0
-  muzzleLightColorOverride: {r: 1, g: 1, b: 0, a: 1}
+  muzzleLightColorOverride: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   muzzleLightIntensityOverride: 3
   muzzleLightRangeOverride: 2
   muzzleLightDurationOverride: 0.1

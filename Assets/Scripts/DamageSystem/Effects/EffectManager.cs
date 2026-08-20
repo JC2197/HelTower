@@ -172,51 +172,10 @@ public class EffectManager : NetworkBehaviour
         if (config.particleEffect == null || activeParticles.ContainsKey(config.effectID))
             return;
 
-        GameObject particles = Instantiate(config.particleEffect, transform);
-        particles.transform.localPosition = config.particleOffset;
-
-        // Get the target's sprite renderer and collider for sizing
-        SpriteRenderer targetRenderer = GetComponent<SpriteRenderer>();
-        Collider2D targetCollider = GetComponent<Collider2D>();
-
-        // Calculate bounds based on sprite or collider
-        Vector3 targetBounds = Vector3.one;
-        if (targetRenderer != null && targetRenderer.sprite != null)
-        {
-            // Use sprite bounds
-            Bounds spriteBounds = targetRenderer.bounds;
-            targetBounds = new Vector3(spriteBounds.size.x, spriteBounds.size.y, spriteBounds.size.z);
-        }
-        else if (targetCollider != null)
-        {
-            // Fallback to collider bounds
-            Bounds colliderBounds = targetCollider.bounds;
-            targetBounds = new Vector3(colliderBounds.size.x, colliderBounds.size.y, colliderBounds.size.z);
-        }
-
-        // Adjust shape bounds to fill the target sprite for ALL particle systems in the hierarchy
-        // (including children). Prefabs are configured to play on awake, so no need to call Play().
-        ParticleSystem[] allParticleSystems = particles.GetComponentsInChildren<ParticleSystem>(true);
-        foreach (ParticleSystem ps in allParticleSystems)
-        {
-            var shape = ps.shape;
-            if (!shape.enabled)
-                continue;
-
-            if (shape.shapeType == ParticleSystemShapeType.SingleSidedEdge)
-            {
-                shape.scale = new Vector3(targetBounds.x, targetBounds.y, 1f);
-            }
-            else
-            {
-                shape.shapeType = ParticleSystemShapeType.Sprite;
-                if (targetRenderer != null && targetRenderer.sprite != null)
-                {
-                    shape.sprite = targetRenderer.sprite;
-                }
-            }
-        }
-
+        GameObject particles = HitVisualHelper.SpawnEffect(
+            config.particleEffect, transform.position, Quaternion.identity,
+            parent: transform, localOffset: config.particleOffset,
+            sortAndSizeTarget: GetComponent<Collider2D>(), autoDestroy: false);
         activeParticles[config.effectID] = particles;
     }
 

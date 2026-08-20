@@ -1228,13 +1228,8 @@ public class DataDrivenAbility : Ability
 
         // Get base animation length
         float baseDelay = precastClip.length;
-        Debug.Log($"[GetPrecastDelay] Found animation clip '{precastClip.name}' with base length: {baseDelay}s");
-
         // Adjust by animation speed (attack speed or cast speed)
         float adjustedDelay = baseDelay / animationSpeed;
-
-        Debug.Log($"[GetPrecastDelay] Animation speed multiplier: {animationSpeed}x, Adjusted delay: {adjustedDelay}s (base: {baseDelay}s)");
-
         return Mathf.Max(characterDelay, adjustedDelay);
     }
 
@@ -1789,15 +1784,8 @@ public class DataDrivenAbility : Ability
         // Route through AbilityCastSequence for release-to-cast flow and any configured precast.
         // This keeps the full queue ordering intact on every shot: precast -> (optional hold) -> fire.
         bool movementHasDelayedPrecast = GetMovementPrecastDelay(config) > 0f;
-        bool isPrecastAbilityType =
-            config.isProjectileAbility || config.isAreaAbility || config.isMeleeAbility || movementHasDelayedPrecast;
-        bool hasPrecastSequence =
-            config.hasPrecast && HasConfiguredPrecastAnimation(config) && isPrecastAbilityType;
-        bool needsCastSequence =
-            config.activateOnButtonRelease ||
-            hasPrecastSequence;
 
-        if (needsCastSequence)
+        if (!string.IsNullOrEmpty(config.mainhandAnimationName))
         {
             chargingCoroutine = StartCoroutine(AbilityCastSequence());
             return true;
@@ -1833,7 +1821,12 @@ public class DataDrivenAbility : Ability
     {
         bool abilityExecuted = false;
         Debug.Log($"{AbilityPipelineTag} FireAbility: ability={config?.abilityName}, movement={config?.isMovementAbility}, channel={config?.isChanneled}, beam={config?.isBeamAbility}, area={config?.isAreaAbility}, construct={config?.isConstructAbility}, trap={config?.isTrapAbility}, projectile={config?.isProjectileAbility}, explosion={config?.isExplosionAbility}, melee={config?.isMeleeAbility}, summon={config?.isSummonAbility}");
-
+        // 8. Standalone Projectile (no weapon)
+        if (config.isProjectileAbility)
+        {
+            abilityExecuted = ExecuteStandaloneProjectile() || abilityExecuted;
+        }
+        
         if (config.isMovementAbility)
         {
             Debug.Log($"[Movement] FireAbility → ExecuteMovementAbility: ability={config.abilityName}, movementAbility={movementAbility != null}, playerControl={playerControl}");
@@ -1872,11 +1865,7 @@ public class DataDrivenAbility : Ability
             abilityExecuted = ExecuteTrapAbility() || abilityExecuted;
         }
 
-        // 8. Standalone Projectile (no weapon)
-        if (config.isProjectileAbility)
-        {
-            abilityExecuted = ExecuteStandaloneProjectile() || abilityExecuted;
-        }
+
 
         // 9. Explosion Ability
         if (config.isExplosionAbility)
@@ -2140,23 +2129,10 @@ public class DataDrivenAbility : Ability
         // Apply charge damage multiplier when called from AbilityCastSequence (isCharging == true)
         float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
 
-        // Fire animation is triggered by OnAbilityActivated() earlier in the cast flow.
-        // Delay one frame so Animator state is applied before projectile spawn.
-        if (HasConfiguredCastAnimation(config))
-        {
-            StartCoroutine(SpawnStandaloneProjectileNextFrame(damageMultiplier));
-            return true;
-        }
-
         PerformProjectileShoot(damageMultiplier);
         return true;
     }
 
-    private IEnumerator SpawnStandaloneProjectileNextFrame(float damageMultiplier)
-    {
-        yield return null;
-        PerformProjectileShoot(damageMultiplier);
-    }
 
     private static bool HasConfiguredCastAnimation(AbilityDataConfig abilityConfig)
     {

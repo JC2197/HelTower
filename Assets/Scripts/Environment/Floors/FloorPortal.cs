@@ -8,7 +8,7 @@
 // /// <summary>
 // /// Teleporter that triggers floor transitions when the player interacts with it.
 // /// Plays an activation animation and hides the player at the correct frame.
-// /// In multiplayer mode, only the server can trigger transitions and they affect all players.
+// // In multiplayer mode, only the server can trigger transitions and they affect all players.
 // /// SERVER-AUTHORITATIVE: Only server triggers floor loading, all clients show loading screen via RPC.
 // /// </summary>
 // [RequireComponent(typeof(Animator))]
@@ -597,60 +597,53 @@
 //     /// <summary>
 //     /// RPC to hide all player visuals on all clients at the correct animation frame
 //     /// </summary>
-//     [ObserversRpc]
-//     private void HideAllPlayersRpc()
-//     {
-//         // Find all player controllers and hide them
-//         PlayerController[] allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+//     // [ObserversRpc]
+//     // private void HideAllPlayersRpc()
+//     // {
+//     //     // Find all player controllers and hide them
+//     //     PlayerController[] allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
-//         foreach (PlayerController playerController in allPlayers)
-//         {
-//             if (playerController != null)
-//             {
-//                 GameObject player = playerController.gameObject;
+//     //     foreach (PlayerController playerController in allPlayers)
+//     //     {
+//     //         if (playerController != null)
+//     //         {
+//     //             GameObject player = playerController.gameObject;
 
-//                 // Disable player visuals
-//                 SpriteRenderer playerSprite = player.GetComponent<SpriteRenderer>();
-//                 if (playerSprite != null)
-//                 {
-//                     playerSprite.enabled = false;
-//                 }
+//     //             // Disable player visuals
+//     //             SpriteRenderer playerSprite = player.GetComponent<SpriteRenderer>();
+//     //             if (playerSprite != null)
+//     //             {
+//     //                 playerSprite.enabled = false;
+//     //             }
 
-//                 // Disable player glow
-//                 CharacterGlow glow = player.GetComponent<CharacterGlow>();
-//                 if (glow != null)
-//                 {
-//                     glow.enabled = false;
-//                 }
+//     //             // Disable weapon holder (hides equipped weapon)
+//     //             WeaponHolder weaponHolder = player.GetComponent<WeaponHolder>();
+//     //             if (weaponHolder != null)
+//     //             {
+//     //                 weaponHolder.enabled = false;
+//     //             }
 
-//                 // Disable weapon holder (hides equipped weapon)
-//                 WeaponHolder weaponHolder = player.GetComponent<WeaponHolder>();
-//                 if (weaponHolder != null)
-//                 {
-//                     weaponHolder.enabled = false;
-//                 }
+//     //             // Disable off-hand weapon holder (dual-wield)
+//     //             OffHandWeaponHolder offHandHolder = player.GetComponent<OffHandWeaponHolder>();
+//     //             if (offHandHolder != null)
+//     //             {
+//     //                 offHandHolder.enabled = false;
+//     //             }
 
-//                 // Disable off-hand weapon holder (dual-wield)
-//                 OffHandWeaponHolder offHandHolder = player.GetComponent<OffHandWeaponHolder>();
-//                 if (offHandHolder != null)
-//                 {
-//                     offHandHolder.enabled = false;
-//                 }
+//     //             // Also hide all child sprite renderers (weapon sprites)
+//     //             SpriteRenderer[] childSprites = player.GetComponentsInChildren<SpriteRenderer>();
+//     //             foreach (var sprite in childSprites)
+//     //             {
+//     //                 sprite.enabled = false;
+//     //             }
 
-//                 // Also hide all child sprite renderers (weapon sprites)
-//                 SpriteRenderer[] childSprites = player.GetComponentsInChildren<SpriteRenderer>();
-//                 foreach (var sprite in childSprites)
-//                 {
-//                     sprite.enabled = false;
-//                 }
+//     //             // Disable movement
+//     //             playerController.enabled = false;
+//     //         }
+//     //     }
 
-//                 // Disable movement
-//                 playerController.enabled = false;
-//             }
-//         }
-
-//         Debug.Log($"[floorTeleporter] Client: All players hidden");
-//     }
+//     //     Debug.Log($"[floorTeleporter] Client: All players hidden");
+//     // }
 
 //     #endregion
 // }

@@ -1277,15 +1277,17 @@ public abstract class Projectile : NetworkBehaviour
     [ObserversRpc]
     private void RpcCreateHitEffect(Vector3 position, NetworkObject ownerNob, string abilityName)
     {
-        SpawnLocalEffect(hitVisualPrefab, position, transform.rotation);
         if (hitSound != null)
             AudioManager.Instance?.PlaySpatialSound(hitSound, position, 1f, Random.Range(0.9f, 1.1f));
+        GameObject hitPrefab = hitVisualPrefab;
+        if (hitPrefab == null && ownerNob != null)
+        {
+            AbilityDataConfig abilityConfig = NetworkVisualEffects.ResolveAbilityConfig(ownerNob, abilityName);
+            hitPrefab = abilityConfig?.projectileConfig?.hitbox.effects.hitEffectPrefab;
+        }
 
-        AbilityDataConfig abilityConfig = ownerNob != null
-            ? ownerNob.GetComponent<Organism>()?.FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig
-            : null;
-        if (abilityConfig != null)
-            HitVisualHelper.SpawnHitVisual(abilityConfig, position);
+        if (hitPrefab != null)
+            SpawnLocalEffect(hitPrefab, position, transform.rotation);
     }
 
     /// <summary>
@@ -1309,7 +1311,7 @@ public abstract class Projectile : NetworkBehaviour
         GameObject destroyPrefab = destroyVisualPrefab;
         if (destroyPrefab == null && ownerNob != null)
         {
-            AbilityDataConfig abilityConfig = ownerNob.GetComponent<Organism>()?.FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig;
+            AbilityDataConfig abilityConfig = NetworkVisualEffects.ResolveAbilityConfig(ownerNob, abilityName);
             destroyPrefab = abilityConfig?.projectileConfig?.destroyVisualPrefab;
         }
 
@@ -1326,10 +1328,7 @@ public abstract class Projectile : NetworkBehaviour
     /// </summary>
     private void SpawnLocalEffect(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        if (prefab == null) return;
-
-        GameObject effect = Instantiate(prefab, position, rotation);
-        AutoDestroyEffect.SetupAutoDestroy(effect);
+        HitVisualHelper.SpawnEffect(prefab, position, rotation);
     }
 
     // Public setters

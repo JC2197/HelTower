@@ -396,11 +396,11 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.Space(5);
             EditorGUILayout.LabelField("Autocast", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(autocast, new GUIContent("Autocast", "Automatically cast on valid enemies in range — no keybind assigned"));
+            EditorGUILayout.PropertyField(castAtFeet, new GUIContent("Cast At Feet", "Cast at player position instead of enemy position"));
             if (autocast.boolValue)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.HelpBox("Autocast abilities have no keybind. They fire automatically at nearest valid target.", MessageType.Info);
-                EditorGUILayout.PropertyField(castAtFeet, new GUIContent("Cast At Feet", "Cast at player position instead of enemy position"));
                 EditorGUILayout.PropertyField(autocastRange, new GUIContent("Autocast Range", "Range to search for enemies. Uses projectile maxRange if 0."));
                 EditorGUILayout.PropertyField(autocastTargets, new GUIContent("Autocast Targets", "How many unique enemies to target per autocast cycle. Each gets one cast."));
                 EditorGUI.indentLevel--;

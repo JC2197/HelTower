@@ -35,9 +35,9 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
-  movementBlockDuration: 0.5
-  movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringCast: 1
+  movementBlockDuration: 0.25
+  movementSpeedMultiplierDuringCast: 0.303
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
   m_Name: SunStaffAttack
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Sun Staff
+  abilityName: Guiding Bolt
   abilityIcon: {fileID: -1929713242, guid: 87e3ac4f9e65b824ca5b2161431d5e18, type: 3}
   abilityDescription: 'Fire a basic magic bolt at the Target for {hitbox.percentWeaponDamage}%
     weapon damage. '
@@ -67,7 +67,7 @@ MonoBehaviour:
     maxBars: 1
     modifiers: []
   weaponIdleAnimationName: Idle
-  unlockWeaponDirections: 1
+  unlockWeaponDirections: 0
   rotationLockDuration: 0.5
   continueRotatingDuringUnlock: 1
   flipYOnLeftFacing: 1
@@ -506,7 +506,7 @@ MonoBehaviour:
       m_Bits: 64
     destroyOnLayers:
       serializedVersion: 2
-      m_Bits: 640
+      m_Bits: 128
     destroyVisualPrefab: {fileID: 3240179893309576959, guid: 50e7683b096d0504ab7d93d18561638a, type: 3}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 3240179893309576959, guid: 2fcb4f5058b64bf4386160bf184963fa, type: 3}

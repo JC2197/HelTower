@@ -153,6 +153,8 @@ MonoBehaviour:
   - {fileID: 4508597477009818231}
   - {fileID: 8323597340559663755}
   - {fileID: 148741671738639852}
+  - {fileID: 3216235351980726569}
+  - {fileID: 1807169095051615954}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -163,7 +165,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584146087776890134
+  _initializedTimestamp: -8584144386707621269
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -284,6 +286,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c8c1f33750702940b2a73f657fe2fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectManager
+  _componentIndexCache: 3
+  _addedNetworkObject: {fileID: 7927516768008239007}
+  _networkObjectCache: {fileID: 7927516768008239007}
   activeEffects: []
 --- !u!1 &2216152533039095121
 GameObject:
@@ -391,6 +396,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c8c1f33750702940b2a73f657fe2fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectManager
+  _componentIndexCache: 4
+  _addedNetworkObject: {fileID: 7927516768008239007}
+  _networkObjectCache: {fileID: 7927516768008239007}
   activeEffects: []
 --- !u!61 &3245089853418409647
 BoxCollider2D:

@@ -848,9 +848,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         if (InstanceFinder.IsServerStarted) return; // host already showed it locally
         if (IsOwner) return; // owner already showed it locally
 
-        MeleeConfig meleeConfig = FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig?.meleeConfig;
-        if (meleeConfig == null || meleeConfig.hitbox.prefab == null) return;
+        MeleeConfig meleeConfig = NetworkVisualEffects.ResolveAbilityConfig(this, abilityName)?.meleeConfig;
 
+        if (meleeConfig == null || meleeConfig.hitbox.prefab == null) return;
         MeleeAbility.SpawnVisualOnly(meleeConfig, spawnPos, Quaternion.Euler(0f, 0f, angle));
     }
 
@@ -865,7 +865,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     {
         if (InstanceFinder.IsServerStarted) return; // host already showed it locally
 
-        AbilityDataConfig abilityConfig = FindDataDrivenAbilityByName(abilityName)?.EffectiveAbilityConfig;
+        AbilityDataConfig abilityConfig = NetworkVisualEffects.ResolveAbilityConfig(this, abilityName);
         if (abilityConfig == null) return;
 
         HitVisualHelper.SpawnHitVisual(abilityConfig, position);

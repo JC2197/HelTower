@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[CreateAssetMenu(fileName = "FloorListConfig", menuName = "Floors/FloorListConfig")]
 public class FloorListConfig : ScriptableObject
 {
     public Floor[] floors;

@@ -43,8 +43,20 @@ public class ExplosionAbility : MonoBehaviour, ISubAbility
         // Otherwise, use the pre-set position (e.g., for traps)
         if (transform.position == Vector3.zero)
         {
-            Vector3 explosionPosition = InputUtility.GetMouseWorldPosition();
-            transform.position = explosionPosition;
+            if (parentConfig.castAtFeet)
+            {
+                transform.position = owner.transform.position;
+            }
+            else
+            {
+                Vector3 explosionPosition = InputUtility.GetMouseWorldPosition();
+                transform.position = explosionPosition;
+            }
+
+        }
+        if (parentConfig.castAtFeet)
+        {
+            transform.position = owner.transform.position;
         }
 
         // Resolve the single target NOW (at cast time) rather than after any delay, so it

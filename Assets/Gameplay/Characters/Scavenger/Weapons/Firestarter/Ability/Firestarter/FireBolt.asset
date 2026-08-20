@@ -59,7 +59,7 @@ MonoBehaviour:
   mainhandAnimationName: ComboCast1
   offhandAnimationName: 
   hasPrecast: 0
-  preAnimationName: ComboPrecast1
+  preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: Hold
   holdChargeConfig:
@@ -383,7 +383,7 @@ MonoBehaviour:
         burnEffect: {fileID: 11400000, guid: eb9cc8e13c05724499f61b108d6aad58, type: 2}
         burnDamage: 5
         burnDuration: 3
-        burnApplicationChance: 1
+        burnApplicationChance: 0.338
         canPoison: 0
         poisonEffect: {fileID: 0}
         poisonDamage: 3

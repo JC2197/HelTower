@@ -155,17 +155,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     /// </summary>
     public static void SpawnVisualOnly(MeleeConfig config, Vector3 spawnPos, Quaternion spawnRotation)
     {
-        GameObject visual = Object.Instantiate(config.hitbox.prefab, spawnPos, spawnRotation);
-        foreach (Collider2D col in visual.GetComponentsInChildren<Collider2D>(true))
-            col.enabled = false; // visual-only: no hit detection on observer copies
-
-        ApplyFlipAndScale(visual, config, spawnRotation.eulerAngles.z);
-
-        Animator anim = visual.GetComponentInChildren<Animator>();
-        float lifetime = anim != null && anim.runtimeAnimatorController != null
-            ? anim.GetCurrentAnimatorStateInfo(0).length + 0.1f
-            : 1f;
-        Object.Destroy(visual, Mathf.Max(0.5f, lifetime));
+        HitVisualHelper.SpawnEffect(config.hitbox.prefab, spawnPos, spawnRotation);
     }
 
     private Transform ResolveMeleeSpawnOrigin()
