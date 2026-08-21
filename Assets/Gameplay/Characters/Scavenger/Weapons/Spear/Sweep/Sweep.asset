@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: Stab
+  m_Name: Sweep
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Scavenger Spear
+  abilityName: Sweep
   abilityIcon: {fileID: 0}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
@@ -23,7 +23,7 @@ MonoBehaviour:
   isAttack: 1
   requiredWeaponTypes: []
   attackSpeed: 1
-  cooldownTime: 0
+  cooldownTime: 3
   energyCost: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
@@ -36,8 +36,8 @@ MonoBehaviour:
   autocastTargets: 1
   canMulticast: 0
   disablesMovementDuringCast: 1
-  movementBlockDuration: 0.25
-  movementSpeedMultiplierDuringCast: 0.173
+  movementBlockDuration: 0.3
+  movementSpeedMultiplierDuringCast: 0
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -49,10 +49,10 @@ MonoBehaviour:
   characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: Stab
+  mainhandAnimationName: Sweep
   offhandAnimationName: 
-  hasPrecast: 0
-  preAnimationName: 
+  hasPrecast: 1
+  preAnimationName: PreSweep
   activateOnButtonRelease: 0
   holdAnimationName: 
   holdChargeConfig:
@@ -222,13 +222,13 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 6284264067008683432, guid: 80ae64967f520464c9d2310bf2f1e99e, type: 3}
+      prefab: {fileID: 6284264067008683432, guid: 0e5c7ca7c27b4ce498f097c3c844dc73, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 3
+      damage: 20
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -237,8 +237,8 @@ MonoBehaviour:
         type: 1
         amount: 5
       knockback:
-        enabled: 1
-        force: 1
+        enabled: 0
+        force: 3
         directionality: 0
       pull:
         enabled: 0
@@ -249,9 +249,9 @@ MonoBehaviour:
         rootEffect: {fileID: 0}
         rootDuration: 0
         rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
+        canSlow: 1
+        slowEffect: {fileID: 11400000, guid: 791d8c0a7cb4d014e81fed886ec3fb2f, type: 2}
+        slowDuration: 1
         slowApplicationChance: 1
         canStun: 0
         stunEffect: {fileID: 0}
@@ -317,10 +317,10 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 1
+    meleeFXRadiusDistance: 0
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 0
+    flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
     meleeSound: {fileID: 0}
@@ -1819,12 +1819,9 @@ MonoBehaviour:
     lerp: 0
     speed: 10
     distance: 5
-    duration: 0.15
+    duration: 0.5
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
-    towardMouse: 1
+    towardMouse: 0
     awayFromMouse: 0
     isDashing: 0
     teleportAnimationPrefab: {fileID: 0}
@@ -1837,7 +1834,7 @@ MonoBehaviour:
     healthCost: 0
     appliesSelfDebuff: 0
     customDebuffScript: {fileID: 0}
-  hitVisualPrefab: {fileID: 0}
+  hitVisualPrefab: {fileID: 3240179893309576959, guid: 0227922c6bcce51409415de237b1bbdd, type: 3}
   hitVisualSound: {fileID: 0}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   isTriggeredOnly: 0

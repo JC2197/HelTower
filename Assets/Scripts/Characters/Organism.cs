@@ -32,11 +32,11 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     protected Coroutine damageFlashCoroutine;
     private List<Material> originalMaterials = new List<Material>();
     private Material damageFlashMaterial;
-    private Vector3 _baselineScale = new Vector3(0.9f,0.9f,1f); // Stored once to prevent squash/stretch stacking
-    
+    private Vector3 _baselineScale = new Vector3(0.9f, 0.9f, 1f); // Stored once to prevent squash/stretch stacking
+
     // Cached network manager reference to avoid repeated lookups
     protected FishNet.Managing.NetworkManager _cachedNetworkManager;
-    
+
     // Helper property to check if networking is active
     protected bool IsNetworkActive => _cachedNetworkManager != null &&
         (_cachedNetworkManager.IsServerStarted || _cachedNetworkManager.IsClientStarted) &&
@@ -54,11 +54,11 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     public static event Action<Organism, float> OnEnergyChanged;
     public static event Action<Organism, float> OnEnergySpent;
     public static event Action<Organism, float> OnForceFieldChanged;
-    
+
     // Event invoked when this organism takes damage (for reactive effects like Thorns)
     // Parameters: (victim, damage, damageTypeName, attackerPosition, attackerObject)
     public event Action<Organism, float, string, Vector3, GameObject> OnDamageTaken;
-     // Evade/Block system - invulnerability during dash/dodge
+    // Evade/Block system - invulnerability during dash/dodge
     protected bool _isEvading = false;
     public event Action<IDamageable, float, string, Vector3, GameObject> OnEvade;
     public event Action<IDamageable, float, string, Vector3, GameObject> OnBlock;
@@ -66,10 +66,6 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     // Static event fired from the attacker's perspective after damage lands.
     // Parameters: (attacker, finalDamage, damageTypeName, victim)
     public static event Action<GameObject, float, string, GameObject> OnDamageDealt;
-    
-    
-   
-    
 
     public float MoveSpeed => (statContainer != null && statContainer.HasStat("MoveSpeed"))
         ? statContainer.GetStat("MoveSpeed")
@@ -78,7 +74,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     public StatContainer AllStats => statContainer;
     public virtual bool IsAlive => isAlive;
     public bool IsEvading => _isEvading;
-    
+
     public void SetEvading(bool evading)
     {
         //get collider2d and use mask to ignore enemy layer
@@ -115,25 +111,25 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
         _baselineScale = transform.localScale; // Store once to prevent squash/stretch stacking
-        
+
         // Find all sprite renderers (exclude shadows or include based on name)
         SpriteRenderer[] foundRenderers = GetComponentsInChildren<SpriteRenderer>();
         foreach (var sr in foundRenderers)
         {
             // Skip shadow renderers from damage flash (they shouldn't flash)
             if (sr.gameObject.name.ToLower().Contains("shadow")) continue;
-            
+
             spriteRenderers.Add(sr);
             originalColors.Add(sr.color);
             originalMaterials.Add(sr.material);
             Debug.Log($"[Organism] Found SpriteRenderer on {gameObject.name}: {sr.gameObject.name}");
         }
-        
+
         if (spriteRenderers.Count > 0)
         {
             Debug.Log($"[Organism] Registered {spriteRenderers.Count} sprite renderers for damage flash on {gameObject.name}");
         }
-        
+
         // Load DamageFlash material from Resources (do this regardless of initial sprite count)
         damageFlashMaterial = Resources.Load<Material>("Materials/DamageFlash");
         if (damageFlashMaterial == null)
@@ -177,29 +173,29 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         spriteRenderers.Clear();
         originalColors.Clear();
         originalMaterials.Clear();
-        
+
         // Find all sprite renderers in children
         SpriteRenderer[] foundRenderers = GetComponentsInChildren<SpriteRenderer>();
         foreach (var sr in foundRenderers)
         {
             // Skip shadow renderers from damage flash (they shouldn't flash)
             if (sr.gameObject.name.ToLower().Contains("shadow")) continue;
-            
+
             spriteRenderers.Add(sr);
             originalColors.Add(sr.color);
             originalMaterials.Add(sr.material);
         }
-        
+
         Debug.Log($"[Organism] RefreshSpriteRenderers on {gameObject.name}: found {spriteRenderers.Count} renderers (excluding shadows)");
     }
 
     public override void OnStartNetwork()
     {
         base.OnStartNetwork();
-        
+
         // Cache NetworkManager reference
         _cachedNetworkManager = InstanceFinder.NetworkManager;
-        
+
         // Subscribe to SyncVar changes
         _syncCurrentHealth.OnChange += OnHealthSync;
         _syncCurrentEnergy.OnChange += OnEnergySync;
@@ -213,7 +209,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         {
             _cachedNetworkManager = InstanceFinder.NetworkManager;
         }
-        
+
         SetupPhysics();
     }
 
@@ -358,13 +354,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             DamageFloaterManager.Instance.ShowHealing(transform.position, healed, transform);
         }
     }
-    
+
     public virtual void ModifyHealth(float amount)
     {
         // Only server can modify health in networked games
         // In single-player (no network), allow modification
         if (IsNetworkActive && (!IsServerInitialized || !IsSpawned)) return;
-        
+
         float oldHealth = _syncCurrentHealth.Value;
         _syncCurrentHealth.Value = Mathf.Clamp(_syncCurrentHealth.Value + amount, 0f, MaxHealth);
 
@@ -386,7 +382,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     {
         // Only server can modify in networked games; allow in single-player
         if (IsNetworkActive && (!IsServerInitialized || !IsSpawned)) return;
-        
+
         _syncCurrentForceField.Value = Mathf.Clamp(_syncCurrentForceField.Value + amount, 0f, MaxForceField);
         OnForceFieldChanged?.Invoke(this, _syncCurrentForceField.Value);
     }
@@ -410,7 +406,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     {
         // Only server can modify in networked games; allow in single-player
         if (IsNetworkActive && !IsServerInitialized) return;
-        
+
         _syncCurrentEnergy.Value = Mathf.Clamp(_syncCurrentEnergy.Value + amount, 0f, MaxEnergy);
         OnEnergyChanged?.Invoke(this, _syncCurrentEnergy.Value);
 
@@ -421,7 +417,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     }
 
     #region IDamageable Implementation
-    
+
     // Interface methods that intelligently route to networked or local damage
     public void TakeDamage(float damage, float critMultiplier = 1f)
     {
@@ -532,9 +528,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             DamageFloaterManager.Instance.ShowDamage(transform.position, damage, damageTypeName, false, null, transform);
         }
     }
-    
+
     #endregion
-                                                            
+
     // Client calls this to request damage
     [ServerRpc(RequireOwnership = false)] // Anyone can call this
     public void TakeDamageServerRpc(float damage, string damageTypeName, float critMultiplier = 1f)
@@ -567,7 +563,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
         // Run is ending — don't apply damage (or its floater/flash/SyncVar network traffic)
         // while the server is tearing down the GameScene and loading CommandScene.
-        
+
         // Evade check — if evading (dashing with i-frames), negate all damage
         if (_isEvading)
         {
@@ -588,13 +584,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
         // Apply armor flat reduction before force field
         finalDamage = ApplyArmorReduction(finalDamage);
-        
+
         // If armor blocked all damage, still invoke event for thorns, then show "Block" and return
         if (finalDamage <= 0f)
         {
             // Invoke OnDamageTaken even when blocked - thorns should still trigger
             OnDamageTaken?.Invoke(this, damage, damageTypeName, transform.position, null);
-            
+
             if (!suppressFloater)
             {
                 ShowBlockFloater();
@@ -608,10 +604,10 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         {
             ModifyHealth(-damageToHealth);
         }
-        
+
         // Invoke OnDamageTaken event for reactive effects (e.g., Thorns)
         OnDamageTaken?.Invoke(this, finalDamage, damageTypeName, transform.position, null);
-        
+
         // Show floater and flash - use RPC in networked mode, local in single-player
         // Only show if not suppressed (for smooth DoT damage application)
         if (!suppressFloater)
@@ -634,7 +630,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
                 }
             }
         }
-        
+
         Debug.Log($"{gameObject.name} took {finalDamage:F1} {damageTypeName} damage! Health: {_syncCurrentHealth.Value}/{MaxHealth}");
     }
 
@@ -668,13 +664,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
         // Apply armor flat reduction before force field
         finalDamage = ApplyArmorReduction(finalDamage);
-        
+
         // If armor blocked all damage, still invoke event for thorns, then show "Block" and return
         if (finalDamage <= 0f)
         {
             // Invoke OnDamageTaken even when blocked - thorns should still trigger
             OnDamageTaken?.Invoke(this, damage, damageTypeName, attackerPosition, null);
-            
+
             if (!suppressFloater)
             {
                 ShowBlockFloater();
@@ -687,10 +683,10 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         {
             ModifyHealth(-damageToHealth);
         }
-        
+
         // Invoke OnDamageTaken event for reactive effects (e.g., Thorns)
         OnDamageTaken?.Invoke(this, finalDamage, damageTypeName, attackerPosition, null);
-        
+
         // Show floater and flash - use RPC in networked mode, local in single-player
         // Only show if not suppressed (for smooth DoT damage application)
         if (!suppressFloater)
@@ -753,13 +749,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
         // Apply armor flat reduction before force field
         finalDamage = ApplyArmorReduction(finalDamage);
-        
+
         // If armor blocked all damage, still invoke event for thorns, then show "Block" and return
         if (finalDamage <= 0f)
         {
             // Invoke OnDamageTaken even when blocked - thorns should still trigger
             OnDamageTaken?.Invoke(this, damage, damageTypeName, attackerPosition, attacker);
-            
+
             if (!suppressFloater)
             {
                 ShowBlockFloater();
@@ -772,7 +768,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         {
             ModifyHealth(-damageToHealth);
         }
-        
+
         // Invoke OnDamageTaken event for reactive effects (e.g., Thorns)
         // Pass attacker reference directly so thorns can reflect damage without searching
         OnDamageTaken?.Invoke(this, finalDamage, damageTypeName, attackerPosition, attacker);
@@ -780,7 +776,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         // Notify attacker-side listeners (passive on-hit abilities)
         if (attacker != null)
             OnDamageDealt?.Invoke(attacker, finalDamage, damageTypeName, gameObject);
-        
+
         // Show floater and flash - use RPC in networked mode, local in single-player
         // Only show if not suppressed (for smooth DoT damage application)
         if (!suppressFloater)
@@ -913,7 +909,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         if (statContainer == null || !statContainer.HasStat("Armor")) return damage;
         float armor = statContainer.GetStat("Armor");
         if (armor <= 0f) return damage;
-        
+
         float reducedDamage = damage - armor;
         Debug.Log($"[Organism] Armor reduced damage: {damage:F1} - {armor:F1} armor = {reducedDamage:F1}");
         return Mathf.Max(0f, reducedDamage);
@@ -963,7 +959,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             ShowDodgeTextLocal();
         }
     }
-    
+
     /// <summary>
     /// Show an "Evade!" floater when damage is negated by dashing i-frames.
     /// </summary>
@@ -978,13 +974,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             ShowEvadeTextLocal();
         }
     }
-    
+
     [ObserversRpc]
     private void ShowEvadeTextObserversRpc()
     {
         ShowEvadeTextLocal();
     }
-    
+
     private void ShowEvadeTextLocal()
     {
         if (DamageFloaterManager.Instance != null)
@@ -1006,12 +1002,12 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             DamageFloaterManager.Instance.ShowText(transform.position, "Dodged!", Color.white, Vector2.up, transform);
         }
     }
-    
+
     // Local version for both networked and single-player
     private void TriggerDamageFlash(Color flashColor)
     {
         Debug.Log($"[TriggerDamageFlash] Called on {gameObject.name}: enableDamageFlash={enableDamageFlash}, spriteRendererCount={spriteRenderers.Count}, flashColor={flashColor}");
-        
+
         if (enableDamageFlash && spriteRenderers.Count > 0)
         {
             if (damageFlashCoroutine != null)
@@ -1034,241 +1030,241 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     /// Apply damage to force field first, return overflow damage that should be applied to health
     /// </summary>
     private float ApplyDamageToForceField(float damage)
-{
-    // Reset force field regeneration timer when taking damage
-    timeSinceLastForceFieldDamage = 0f;
-    isRegeneratingForceField = false;
-
-    if (_syncCurrentForceField.Value <= 0f)
     {
-        return damage; // No force field, all damage goes to health
-    }
+        // Reset force field regeneration timer when taking damage
+        timeSinceLastForceFieldDamage = 0f;
+        isRegeneratingForceField = false;
 
-    if (_syncCurrentForceField.Value >= damage)
-    {
-        // Force field absorbs all damage
-        ModifyForceField(-damage);
-        return 0f;
-    }
-    else
-    {
-        // Force field absorbs partial damage, remainder goes to health
-        float overflow = damage - _syncCurrentForceField.Value;
-        ModifyForceField(-_syncCurrentForceField.Value); // Reduces to 0
-        return overflow;
-    }
-}
-
-protected virtual float CalculateDamage(float baseDamage, string damageTypeName, float critMultiplier = 1f)
-{
-    DamageTypeData damageType = damageTypeRegistry.Find(dt => dt.damageTypeName == damageTypeName);
-
-    // NOTE: critMultiplier has already been applied by DamageCalculator before TakeDamage is called.
-    // Applying it here again would double-multiply crit damage.  The parameter is kept in the
-    // signature only so call-sites that pass it for the isCritical floater flag still compile.
-    // Organism is responsible only for resistance and armor (handled by ApplyArmorReduction).
-    float finalDamage = baseDamage;
-
-    // Apply resistance based on damage type using StatContainer
-    if (statContainer != null)
-    {
-        float resistance = 0f;
-
-        // Check for specific resistance stat based on damage type name
-        string resistanceStatName = $"{damageTypeName}Resistance";
-        if (statContainer.HasStat(resistanceStatName))
+        if (_syncCurrentForceField.Value <= 0f)
         {
-            resistance = statContainer.GetStat(resistanceStatName);
+            return damage; // No force field, all damage goes to health
         }
 
-        // Apply resistance (percentage reduction)
-        // Resistance is stored as percentage (0.15 = 15% reduction)
-        finalDamage *= (1f - resistance);
+        if (_syncCurrentForceField.Value >= damage)
+        {
+            // Force field absorbs all damage
+            ModifyForceField(-damage);
+            return 0f;
+        }
+        else
+        {
+            // Force field absorbs partial damage, remainder goes to health
+            float overflow = damage - _syncCurrentForceField.Value;
+            ModifyForceField(-_syncCurrentForceField.Value); // Reduces to 0
+            return overflow;
+        }
     }
 
-    return Mathf.Max(0, finalDamage);
-}
-
-public virtual float GetCurrentHealth() => _syncCurrentHealth.Value;
-public virtual float GetMaxHealth() => MaxHealth;
-
-/// <summary>
-/// Revive a dead organism: restore isAlive, reset health/energy to max.
-/// Call before transitioning to CommandScene after death.
-/// </summary>
-public virtual void Revive()
-{
-    Debug.Log($"[DEATH-DIAG] [Organism.Revive] START for {gameObject.name} — isAlive={isAlive}, health={_syncCurrentHealth.Value}/{MaxHealth}");
-    isAlive = true;
-    _syncCurrentHealth.Value = MaxHealth > 0 ? MaxHealth : 100f;
-    _syncCurrentEnergy.Value = MaxEnergy > 0 ? MaxEnergy : 100f;
-    _syncCurrentForceField.Value = MaxForceField;
-    Debug.Log($"[DEATH-DIAG] [Organism.Revive] COMPLETE for {gameObject.name} — isAlive={isAlive}, health={_syncCurrentHealth.Value}/{MaxHealth}");
-}
-
-protected virtual void Die()
-{
-    // In networked mode, only server handles death; in single-player, allow death
-    if (IsNetworkActive && !IsServerInitialized) return;
-    
-    Debug.Log($"[DEATH-DIAG] [Organism.Die] {gameObject.name} died — health={_syncCurrentHealth.Value}, IsNetworkActive={IsNetworkActive}, IsServerInitialized={IsServerInitialized}");
-    isAlive = false;
-    
-    // Notify clients of death - use RPC in networked mode, local in single-player
-    if (IsNetworkActive)
+    protected virtual float CalculateDamage(float baseDamage, string damageTypeName, float critMultiplier = 1f)
     {
-        Debug.Log($"[DEATH-DIAG] [Organism.Die] Calling OnDeathObserversRpc for {gameObject.name}");
-        OnDeathObserversRpc();
+        DamageTypeData damageType = damageTypeRegistry.Find(dt => dt.damageTypeName == damageTypeName);
+
+        // NOTE: critMultiplier has already been applied by DamageCalculator before TakeDamage is called.
+        // Applying it here again would double-multiply crit damage.  The parameter is kept in the
+        // signature only so call-sites that pass it for the isCritical floater flag still compile.
+        // Organism is responsible only for resistance and armor (handled by ApplyArmorReduction).
+        float finalDamage = baseDamage;
+
+        // Apply resistance based on damage type using StatContainer
+        if (statContainer != null)
+        {
+            float resistance = 0f;
+
+            // Check for specific resistance stat based on damage type name
+            string resistanceStatName = $"{damageTypeName}Resistance";
+            if (statContainer.HasStat(resistanceStatName))
+            {
+                resistance = statContainer.GetStat(resistanceStatName);
+            }
+
+            // Apply resistance (percentage reduction)
+            // Resistance is stored as percentage (0.15 = 15% reduction)
+            finalDamage *= (1f - resistance);
+        }
+
+        return Mathf.Max(0, finalDamage);
     }
-    else
+
+    public virtual float GetCurrentHealth() => _syncCurrentHealth.Value;
+    public virtual float GetMaxHealth() => MaxHealth;
+
+    /// <summary>
+    /// Revive a dead organism: restore isAlive, reset health/energy to max.
+    /// Call before transitioning to CommandScene after death.
+    /// </summary>
+    public virtual void Revive()
     {
-        // Single-player: execute locally
-        Debug.Log($"[DEATH-DIAG] [Organism.Die] Single-player death, calling HandleDeath locally for {gameObject.name}");
+        Debug.Log($"[DEATH-DIAG] [Organism.Revive] START for {gameObject.name} — isAlive={isAlive}, health={_syncCurrentHealth.Value}/{MaxHealth}");
+        isAlive = true;
+        _syncCurrentHealth.Value = MaxHealth > 0 ? MaxHealth : 100f;
+        _syncCurrentEnergy.Value = MaxEnergy > 0 ? MaxEnergy : 100f;
+        _syncCurrentForceField.Value = MaxForceField;
+        Debug.Log($"[DEATH-DIAG] [Organism.Revive] COMPLETE for {gameObject.name} — isAlive={isAlive}, health={_syncCurrentHealth.Value}/{MaxHealth}");
+    }
+
+    protected virtual void Die()
+    {
+        // In networked mode, only server handles death; in single-player, allow death
+        if (IsNetworkActive && !IsServerInitialized) return;
+
+        Debug.Log($"[DEATH-DIAG] [Organism.Die] {gameObject.name} died — health={_syncCurrentHealth.Value}, IsNetworkActive={IsNetworkActive}, IsServerInitialized={IsServerInitialized}");
+        isAlive = false;
+
+        // Notify clients of death - use RPC in networked mode, local in single-player
+        if (IsNetworkActive)
+        {
+            Debug.Log($"[DEATH-DIAG] [Organism.Die] Calling OnDeathObserversRpc for {gameObject.name}");
+            OnDeathObserversRpc();
+        }
+        else
+        {
+            // Single-player: execute locally
+            Debug.Log($"[DEATH-DIAG] [Organism.Die] Single-player death, calling HandleDeath locally for {gameObject.name}");
+            OnOrganismDeath?.Invoke(this);
+            HandleDeath();
+        }
+    }
+
+    [ObserversRpc]
+    private void OnDeathObserversRpc()
+    {
+        Debug.Log($"[MeleeAbility][KillTrace] OnDeathObserversRpc executing on {gameObject.name} — isServerStarted={IsServerStarted}, isOwner={IsOwner}");
         OnOrganismDeath?.Invoke(this);
         HandleDeath();
     }
-}
 
-[ObserversRpc]
-private void OnDeathObserversRpc()
-{
-    Debug.Log($"[MeleeAbility][KillTrace] OnDeathObserversRpc executing on {gameObject.name} — isServerStarted={IsServerStarted}, isOwner={IsOwner}");
-    OnOrganismDeath?.Invoke(this);
-    HandleDeath();
-}
+    protected abstract void HandleDeath();
 
-protected abstract void HandleDeath();
-
-public void SetTangible(bool tangible)
-{
-    isTangible = tangible;
-    if (col != null)
+    public void SetTangible(bool tangible)
     {
-        col.isTrigger = !tangible;
-    }
-}
-
-public float GetHealthPercentage()
-{
-    return MaxHealth > 0 ? _syncCurrentHealth.Value / MaxHealth : 0f;
-}
-
-public float GetEnergyPercentage()
-{
-    return MaxEnergy > 0 ? _syncCurrentEnergy.Value / MaxEnergy : 0f;
-}
-
-public float GetForceFieldPercentage()
-{
-    return MaxForceField > 0 ? _syncCurrentForceField.Value / MaxForceField : 0f;
-}
-
-protected virtual IEnumerator DamageFlashCoroutine(Color flashColor)
-{
-    Debug.Log($"[DamageFlashCoroutine] Started on {gameObject.name} with color {flashColor}, flashing {spriteRenderers.Count} renderers");
-    
-    if (spriteRenderers.Count == 0)
-    {
-        Debug.LogWarning($"[DamageFlashCoroutine] No sprite renderers, aborting");
-        yield break;
-    }
-
-    // Use baseline scale for squash effect (prevents stacking if coroutine is interrupted)
-    Vector3 squashScale = new Vector3(_baselineScale.x , _baselineScale.y , _baselineScale.z);
-
-    // Use DamageFlash material if available
-    if (damageFlashMaterial != null)
-    {
-        Debug.Log($"[DamageFlashCoroutine] Using DamageFlash material, flashing {damageFlashCount} times");
-        // Set flash color on the material
-        Material flashInstance = new Material(damageFlashMaterial);
-        flashInstance.SetColor("_Color", flashColor);
-
-        for (int i = 0; i < damageFlashCount; i++)
+        isTangible = tangible;
+        if (col != null)
         {
-            // Apply squash scale as an animation effect to enhance feedback (optional)
-            //over time
-            
-            transform.localScale = squashScale;
-            
-            // Flash all sprite renderers
-            foreach (var sr in spriteRenderers)
-            {
-                if (sr != null) sr.material = flashInstance;
-            }
-            yield return new WaitForSeconds(damageFlashDuration / 2f);
+            col.isTrigger = !tangible;
+        }
+    }
 
-            // Restore baseline scale
-            transform.localScale = _baselineScale;
-            
-            // Restore original materials
-            for (int j = 0; j < spriteRenderers.Count; j++)
-            {
-                if (spriteRenderers[j] != null && j < originalMaterials.Count)
-                    spriteRenderers[j].material = originalMaterials[j];
-            }
-            yield return new WaitForSeconds(damageFlashDuration / 2f);
+    public float GetHealthPercentage()
+    {
+        return MaxHealth > 0 ? _syncCurrentHealth.Value / MaxHealth : 0f;
+    }
+
+    public float GetEnergyPercentage()
+    {
+        return MaxEnergy > 0 ? _syncCurrentEnergy.Value / MaxEnergy : 0f;
+    }
+
+    public float GetForceFieldPercentage()
+    {
+        return MaxForceField > 0 ? _syncCurrentForceField.Value / MaxForceField : 0f;
+    }
+
+    protected virtual IEnumerator DamageFlashCoroutine(Color flashColor)
+    {
+        Debug.Log($"[DamageFlashCoroutine] Started on {gameObject.name} with color {flashColor}, flashing {spriteRenderers.Count} renderers");
+
+        if (spriteRenderers.Count == 0)
+        {
+            Debug.LogWarning($"[DamageFlashCoroutine] No sprite renderers, aborting");
+            yield break;
         }
 
-        Destroy(flashInstance); // Clean up material instance
-    }
-    else
-    {
-        Debug.Log($"[DamageFlashCoroutine] No DamageFlash material, using color-based flash fallback");
-        // Fallback: color-based flash
-        for (int i = 0; i < damageFlashCount; i++)
-        {
-            // Apply squash scale
-            transform.localScale = squashScale;
-            
-            // Flash all sprite renderers
-            foreach (var sr in spriteRenderers)
-            {
-                if (sr != null) sr.color = flashColor;
-            }
-            yield return new WaitForSeconds(damageFlashDuration / 2f);
+        // Use baseline scale for squash effect (prevents stacking if coroutine is interrupted)
+        Vector3 squashScale = new Vector3(_baselineScale.x, _baselineScale.y, _baselineScale.z);
 
-            // Restore baseline scale
-            transform.localScale = _baselineScale;
-            
-            // Restore original colors
+        // Use DamageFlash material if available
+        if (damageFlashMaterial != null)
+        {
+            Debug.Log($"[DamageFlashCoroutine] Using DamageFlash material, flashing {damageFlashCount} times");
+            // Set flash color on the material
+            Material flashInstance = new Material(damageFlashMaterial);
+            flashInstance.SetColor("_Color", flashColor);
+
+            for (int i = 0; i < damageFlashCount; i++)
+            {
+                // Apply squash scale as an animation effect to enhance feedback (optional)
+                //over time
+
+                transform.localScale = squashScale;
+
+                // Flash all sprite renderers
+                foreach (var sr in spriteRenderers)
+                {
+                    if (sr != null) sr.material = flashInstance;
+                }
+                yield return new WaitForSeconds(damageFlashDuration / 2f);
+
+                // Restore baseline scale
+                transform.localScale = _baselineScale;
+
+                // Restore original materials
+                for (int j = 0; j < spriteRenderers.Count; j++)
+                {
+                    if (spriteRenderers[j] != null && j < originalMaterials.Count)
+                        spriteRenderers[j].material = originalMaterials[j];
+                }
+                yield return new WaitForSeconds(damageFlashDuration / 2f);
+            }
+
+            Destroy(flashInstance); // Clean up material instance
+        }
+        else
+        {
+            Debug.Log($"[DamageFlashCoroutine] No DamageFlash material, using color-based flash fallback");
+            // Fallback: color-based flash
+            for (int i = 0; i < damageFlashCount; i++)
+            {
+                // Apply squash scale
+                transform.localScale = squashScale;
+
+                // Flash all sprite renderers
+                foreach (var sr in spriteRenderers)
+                {
+                    if (sr != null) sr.color = flashColor;
+                }
+                yield return new WaitForSeconds(damageFlashDuration / 2f);
+
+                // Restore baseline scale
+                transform.localScale = _baselineScale;
+
+                // Restore original colors
+                for (int j = 0; j < spriteRenderers.Count; j++)
+                {
+                    if (spriteRenderers[j] != null && j < originalColors.Count)
+                        spriteRenderers[j].color = originalColors[j];
+                }
+                yield return new WaitForSeconds(damageFlashDuration / 2f);
+            }
+
+            // Final restore
             for (int j = 0; j < spriteRenderers.Count; j++)
             {
                 if (spriteRenderers[j] != null && j < originalColors.Count)
                     spriteRenderers[j].color = originalColors[j];
             }
-            yield return new WaitForSeconds(damageFlashDuration / 2f);
         }
 
-        // Final restore
-        for (int j = 0; j < spriteRenderers.Count; j++)
-        {
-            if (spriteRenderers[j] != null && j < originalColors.Count)
-                spriteRenderers[j].color = originalColors[j];
-        }
+        // Ensure scale is restored
+        transform.localScale = _baselineScale;
+
+        Debug.Log($"[DamageFlashCoroutine] Completed on {gameObject.name}");
+        damageFlashCoroutine = null;
     }
 
-    // Ensure scale is restored
-    transform.localScale = _baselineScale;
-
-    Debug.Log($"[DamageFlashCoroutine] Completed on {gameObject.name}");
-    damageFlashCoroutine = null;
-}
-
-public void UpdateOriginalColor(Color newColor)
-{
-    // Update all original colors and apply if not currently flashing
-    for (int i = 0; i < originalColors.Count; i++)
+    public void UpdateOriginalColor(Color newColor)
     {
-        originalColors[i] = newColor;
-    }
-    
-    if (damageFlashCoroutine == null)
-    {
-        foreach (var sr in spriteRenderers)
+        // Update all original colors and apply if not currently flashing
+        for (int i = 0; i < originalColors.Count; i++)
         {
-            if (sr != null) sr.color = newColor;
+            originalColors[i] = newColor;
+        }
+
+        if (damageFlashCoroutine == null)
+        {
+            foreach (var sr in spriteRenderers)
+            {
+                if (sr != null) sr.color = newColor;
+            }
         }
     }
-}
 }

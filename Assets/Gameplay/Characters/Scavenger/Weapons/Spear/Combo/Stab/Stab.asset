@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: ScavSpearSwipe
+  m_Name: Stab
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Swipe
+  abilityName: Scavenger Spear
   abilityIcon: {fileID: 0}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
@@ -23,7 +23,7 @@ MonoBehaviour:
   isAttack: 1
   requiredWeaponTypes: []
   attackSpeed: 1
-  cooldownTime: 5
+  cooldownTime: 0
   energyCost: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
@@ -35,9 +35,9 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
-  movementBlockDuration: 0.5
-  movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringCast: 1
+  movementBlockDuration: 0.25
+  movementSpeedMultiplierDuringCast: 0.173
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -49,10 +49,10 @@ MonoBehaviour:
   characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: Swipe
+  mainhandAnimationName: Stab
   offhandAnimationName: 
   hasPrecast: 0
-  preAnimationName: PreSwipe
+  preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: 
   holdChargeConfig:
@@ -222,13 +222,13 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 6284264067008683432, guid: cd24ef82fb9100c45a1c9f92bce41b73, type: 3}
+      prefab: {fileID: 6284264067008683432, guid: 80ae64967f520464c9d2310bf2f1e99e, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 20
+      damage: 3
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -237,8 +237,8 @@ MonoBehaviour:
         type: 1
         amount: 5
       knockback:
-        enabled: 0
-        force: 3
+        enabled: 1
+        force: 1
         directionality: 0
       pull:
         enabled: 0
@@ -249,9 +249,9 @@ MonoBehaviour:
         rootEffect: {fileID: 0}
         rootDuration: 0
         rootApplicationChance: 1
-        canSlow: 1
-        slowEffect: {fileID: 11400000, guid: 791d8c0a7cb4d014e81fed886ec3fb2f, type: 2}
-        slowDuration: 1
+        canSlow: 0
+        slowEffect: {fileID: 0}
+        slowDuration: 0
         slowApplicationChance: 1
         canStun: 0
         stunEffect: {fileID: 0}
@@ -314,13 +314,13 @@ MonoBehaviour:
         canTriggerAbility: 0
         triggeredAbilityConfigs: []
       effects:
-        hitEffectPrefab: {fileID: 0}
+        hitEffectPrefab: {fileID: 3240179893309576959, guid: 0227922c6bcce51409415de237b1bbdd, type: 3}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 0.5
+    meleeFXRadiusDistance: 1
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 1
+    flipMeleeFXY: 0
     stickToCharacter: 0
     allowMultiHit: 0
     meleeSound: {fileID: 0}
@@ -1819,12 +1819,9 @@ MonoBehaviour:
     lerp: 0
     speed: 10
     distance: 5
-    duration: 0.5
+    duration: 0.15
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
-    towardMouse: 0
+    towardMouse: 1
     awayFromMouse: 0
     isDashing: 0
     teleportAnimationPrefab: {fileID: 0}

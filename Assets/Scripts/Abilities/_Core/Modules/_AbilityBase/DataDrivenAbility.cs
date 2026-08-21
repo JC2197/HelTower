@@ -144,6 +144,15 @@ public class DataDrivenAbility : Ability
     // check in CanUseAbility is skipped for the 2nd+ cast in the same burst.
     private bool _autocastBurstActive = false;
 
+    public enum AbilityState
+    {
+        Idle,
+        Precast,
+        Holding,
+        Executing,
+    }
+
+    public AbilityState CurrentAbilityState { get; private set; } = AbilityState.Idle;
     /// <summary>
     /// Casts once using an explicit world-space target, then clears the override.
     /// </summary>
@@ -524,54 +533,12 @@ public class DataDrivenAbility : Ability
         passiveAbility.Initialize(config, this, runtimePassiveConfig, passiveAsset);
 
     }
-
-    // Mechanical ability methods (moved from base Ability class)
-    private bool CanUseAbility()
-    {
-        if (config == null) return false;
-
-        // Check weapon requirements
-        if (config.requiredWeaponTypes != null && config.requiredWeaponTypes.Count > 0)
-        {
-            if (!HasRequiredWeapons())
-            {
-                Debug.Log($"{config.abilityName} requires weapon types: {string.Join(", ", config.requiredWeaponTypes)}");
-                return false;
-            }
-        }
-
-        if (config.hasCharges && currentCharges <= 0)
-        {
-            Debug.Log($"{config.abilityName} has no charges remaining");
-            return false;
-        }
-
-        // Both charge and non-charge abilities should respect cooldown between uses
-        if (isOnCooldown)
-        {
-            // Silent return - don't spam warnings while player holds button during cooldown
-            return false;
-        }
-
-        // Energy check only applies to player abilities
-        // Check energy cost (only if owner has energy system)
-        float effectiveEnergyCost = GetEffectiveEnergyCost();
-        if (ownerOrganism != null && effectiveEnergyCost > 0 && ownerOrganism.CurrentEnergy < effectiveEnergyCost)
-        {
-            Debug.Log($"Not enough energy for {config.abilityName}. Need {effectiveEnergyCost}, have {ownerOrganism.CurrentEnergy}");
-            return false;
-        }
-
-        return true;
-    }
-
     /// <summary>
     /// Called when ability is activated - plays animations
     /// </summary>
     private void OnAbilityActivated()
     {
-        Debug.Log($"[DataDrivenAbility] OnAbilityActivated: ability={config?.abilityName}, disablesMovementDuringCast={config?.disablesMovementDuringCast}, movementSpeedMultiplierDuringCast={config?.movementSpeedMultiplierDuringCast:F3}, movementBlockDuration={config?.movementBlockDuration:F3}");
-
+        CurrentAbilityState = AbilityState.Executing;
         // Take control if ability disables movement
         if (config != null && config.disablesMovementDuringCast)
         {
@@ -769,8 +736,6 @@ public class DataDrivenAbility : Ability
             }
         }
 
-        Debug.Log($"[DataDrivenAbility] Animation decision - useAlternating: {useAlternating}, lastWasMainhand: {lastAnimationWasMainhand}, playOnMainhand: {playOnMainhand}, playOnOffhand: {playOnOffhand}, animationToPlay: {animationNameToPlay}");
-
         if (playOnMainhand)
         {
             Debug.Log($"[DataDrivenAbility] Playing on MAINHAND weapon: {animationNameToPlay}");
@@ -892,6 +857,8 @@ public class DataDrivenAbility : Ability
                 }
             }
         }
+        CurrentAbilityState = AbilityState.Idle;
+        Debug.Log($"[AbilityState] Ability returned to idle state.");
     }
 
     /// <summary>
@@ -1617,27 +1584,6 @@ public class DataDrivenAbility : Ability
         }
     }
 
-    /* TODO: Implement when MeleeWeapon class exists
-    private IEnumerator InitializeMeleeWeaponWhenReady()
-    {
-        Transform weaponTransform = null;
-        while (weaponTransform == null)
-        {
-            weaponTransform = transform.Find("WeaponHolder/Weapon");
-            if (weaponTransform == null)
-            {
-                yield return null;
-            }
-        }
-        
-        meleeWeapon = weaponTransform.GetComponentInChildren<MeleeWeapon>();
-        if (meleeWeapon != null)
-        {
-            meleeWeapon.InitializeFromConfig(config.weaponData.meleeConfig);
-            Debug.Log("[DataDrivenAbility] Melee weapon initialized");
-        }
-    }
-    */
 
     #endregion
 
@@ -1645,6 +1591,7 @@ public class DataDrivenAbility : Ability
 
     private bool CanUseAbility(out string reason)
     {
+        Debug.Log($"[CurrentAbilityState] {CurrentAbilityState}");
         reason = null;
 
         if (config == null)
@@ -1652,13 +1599,16 @@ public class DataDrivenAbility : Ability
             reason = "config is null";
             return false;
         }
-
+        if (ownerOrganism != null && (CurrentAbilityState == AbilityState.Executing || CurrentAbilityState == AbilityState.Holding || CurrentAbilityState == AbilityState.Precast))
+        {
+            reason = "owner is already acting";
+            return false;
+        }
         if (config.requiredWeaponTypes != null && config.requiredWeaponTypes.Count > 0)
         {
             if (!HasRequiredWeapons())
             {
                 reason = $"missing required weapon types [{string.Join(", ", config.requiredWeaponTypes)}]";
-                Debug.Log($"{config.abilityName} requires weapon types: {string.Join(", ", config.requiredWeaponTypes)}");
                 return false;
             }
         }
@@ -1714,46 +1664,35 @@ public class DataDrivenAbility : Ability
     public override bool TryUseAbility()
     {
         string abilityName = config != null ? config.abilityName : "<null config>";
-        Debug.Log($"{AbilityPipelineTag} TryUseAbility start: ability={abilityName}, slot={abilitySlotIndex}, owner={gameObject.name}, autocast={config?.autocast}, projectile={config?.isProjectileAbility}, construct={config?.isConstructAbility}");
-
         if (!CanUseAbility(out string blockedReason) || config == null)
         {
-            Debug.Log($"{AbilityPipelineTag} TryUseAbility blocked: ability={abilityName}, slot={abilitySlotIndex}, reason={blockedReason ?? "unknown"}, charges={currentCharges}, ammo={currentAmmo}, isOnCooldown={isOnCooldown}, cooldownRemaining={GetRemainingCooldown():F2}, energy={(ownerOrganism != null ? ownerOrganism.CurrentEnergy.ToString() : "n/a")}, playerControl={playerControl}, movementExecuting={(movementAbility != null && movementAbility.IsExecuting)}, channeling={(channelAbility != null && channelAbility.IsChanneling)}, weaponLocked={isWeaponDirectionLocked}, activatingWeapon={isActivatingWeapon}");
+            Debug.Log($"Cannot use ability {abilityName}: {blockedReason}");
             return false;
         }
 
-        // A hold-to-place placement coroutine is already running — the coroutine
-        // owns the button loop and will confirm placement on release. Silently
-        // ignore any re-trigger so isHoldingFire is never re-armed.
         if (isPlacingConstruct)
         {
             PlacementLog($"TryUseAbility early-exit: isPlacingConstruct=true, ability={abilityName}");
             return false;
         }
 
-        Debug.Log($"[DataDrivenAbility] TryUseAbility called for {config.abilityName}, isMovementAbility={config.isMovementAbility}, scene={UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
-
-        // Check for combo system
         if (config.isCombo)
         {
             if (isExecutingCombo || comboSteps == null || comboSteps.Length == 0)
+            {
                 return false;
+            }
 
-            // Reset combo if the follow-up input window expired.
             if (Time.time > comboWindowExpiresAt || currentComboIndex >= comboSteps.Length)
                 ResetComboChain();
 
             int stepIndex = Mathf.Clamp(currentComboIndex, 0, comboSteps.Length - 1);
-
             if (comboIdleWatcher != null)
             {
                 StopCoroutine(comboIdleWatcher);
                 comboIdleWatcher = null;
             }
 
-            // Charge the shell's cost/cooldown on the opening step. Follow-up steps are let
-            // through the cooldown gate by CanUseAbility while the input window is open, so an
-            // abandoned chain still leaves the ability on cooldown instead of being free to spam.
             if (stepIndex == 0)
             {
                 StartCooldown();
@@ -1765,41 +1704,34 @@ public class DataDrivenAbility : Ability
             return true;
         }
 
-        // Check ammo dependency
+        // Check ammo dependency 
         if (config.usesAmmo && (GetActiveAmmoConfig()?.dependsOnAmmo ?? true))
         {
             if (isReloading)
             {
                 return false;
             }
-
             if (currentAmmo <= 0)
             {
-                // Trigger auto-reload when trying to use ability with no ammo
                 StartReload();
                 return false;
             }
         }
 
-        // Route through AbilityCastSequence for release-to-cast flow and any configured precast.
-        // This keeps the full queue ordering intact on every shot: precast -> (optional hold) -> fire.
         bool movementHasDelayedPrecast = GetMovementPrecastDelay(config) > 0f;
 
+        // Immediate/Delayed Sequence path
         if (!string.IsNullOrEmpty(config.mainhandAnimationName))
         {
             chargingCoroutine = StartCoroutine(AbilityCastSequence());
+
             return true;
         }
 
-        // Immediate path: no precast, no hold charge — fire now.
         OnAbilityActivated();
-
         if (!isComboStep && !config.activateOnButtonRelease)
             isHoldingFire = true;
-
         bool abilityExecuted = FireAbility();
-
-        Debug.Log($"{AbilityPipelineTag} TryUseAbility result: ability={config.abilityName}, slot={abilitySlotIndex}, executed={abilityExecuted}");
 
         if (abilityExecuted)
         {
@@ -1813,27 +1745,28 @@ public class DataDrivenAbility : Ability
         }
 
         return abilityExecuted;
+
     }
+
+
+
+
     /// <summary>
     /// Execute all enabled ability types based on config flags
     /// </summary>
     private bool FireAbility()
     {
         bool abilityExecuted = false;
-        Debug.Log($"{AbilityPipelineTag} FireAbility: ability={config?.abilityName}, movement={config?.isMovementAbility}, channel={config?.isChanneled}, beam={config?.isBeamAbility}, area={config?.isAreaAbility}, construct={config?.isConstructAbility}, trap={config?.isTrapAbility}, projectile={config?.isProjectileAbility}, explosion={config?.isExplosionAbility}, melee={config?.isMeleeAbility}, summon={config?.isSummonAbility}");
         // 8. Standalone Projectile (no weapon)
+
         if (config.isProjectileAbility)
         {
             abilityExecuted = ExecuteStandaloneProjectile() || abilityExecuted;
         }
-
         if (config.isMovementAbility)
         {
-            Debug.Log($"[Movement] FireAbility → ExecuteMovementAbility: ability={config.abilityName}, movementAbility={movementAbility != null}, playerControl={playerControl}");
             abilityExecuted = ExecuteMovementAbility() || abilityExecuted;
-            Debug.Log($"[Movement] After ExecuteMovementAbility: executed={abilityExecuted}, playerControl={playerControl}, isExecuting={movementAbility?.IsExecuting}");
         }
-
         // 3. Channeling Ability
         if (config.isChanneled)
         {
@@ -1843,7 +1776,6 @@ public class DataDrivenAbility : Ability
         // 4. Beam Ability
         if (config.isBeamAbility)
         {
-            Debug.Log($"[DataDrivenAbility] Executing beam ability: {config.abilityName}, beamAbility component exists={beamAbility != null}");
             abilityExecuted = ExecuteBeamAbility() || abilityExecuted;
         }
 
@@ -1858,29 +1790,21 @@ public class DataDrivenAbility : Ability
         {
             abilityExecuted = ExecuteConstructAbility() || abilityExecuted;
         }
-
         // 7. Trap Ability
         if (config.isTrapAbility)
         {
             abilityExecuted = ExecuteTrapAbility() || abilityExecuted;
         }
-
-
-
         // 9. Explosion Ability
         if (config.isExplosionAbility)
         {
             abilityExecuted = ExecuteExplosionAbility() || abilityExecuted;
         }
-
         // 10. Melee Ability
         if (config.isMeleeAbility)
         {
-            Debug.Log($"[Melee] FireAbility → ExecuteMeleeAbility: ability={config.abilityName}, playerControl={playerControl}, directionLocked={isWeaponDirectionLocked}");
             abilityExecuted = ExecuteMeleeAbility() || abilityExecuted;
-            Debug.Log($"[Melee] After ExecuteMeleeAbility: executed={abilityExecuted}, directionLocked={isWeaponDirectionLocked}");
         }
-
         // 11. Summon Ability
         if (config.isSummonAbility)
         {
@@ -2126,7 +2050,6 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        // Apply charge damage multiplier when called from AbilityCastSequence (isCharging == true)
         float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
         if (HasConfiguredCastAnimation(config))
         {
@@ -2162,7 +2085,7 @@ public class DataDrivenAbility : Ability
         isCharging = true;
         chargeStartTime = Time.time;
         lastChargeValue = 0f;
-
+        CurrentAbilityState = AbilityState.Precast;
         var hcc = GetEffectiveHoldChargeConfig();
         int maxBars = hcc != null ? Mathf.Max(1, hcc.maxBars) : 1;
 
@@ -2189,10 +2112,14 @@ public class DataDrivenAbility : Ability
                 {
                     // Continue from wherever precast left the bar
                     float startChargeLevel = precastDuration / hcc.barDuration;
+                    CurrentAbilityState = AbilityState.Holding;
                     yield return WaitForChargeRelease(hcc.barDuration, maxBars, startChargeLevel);
                 }
                 else
+                {
+                    CurrentAbilityState = AbilityState.Holding;
                     yield return WaitForButtonRelease();
+                }
             }
             else
             {
@@ -2207,6 +2134,7 @@ public class DataDrivenAbility : Ability
         if (!isCharging) yield break; // Cancelled externally
 
         chargeBar?.CompleteCharge();
+
 
         // 4. Patch effective sub-configs with scaled charge modifiers before firing
         var savedProjectile = _effectiveProjectileConfig;
@@ -2227,8 +2155,10 @@ public class DataDrivenAbility : Ability
         }
 
         // 5. Fire all enabled ability types
+        CurrentAbilityState = AbilityState.Executing;
         OnAbilityActivated();
         bool abilityExecuted = FireAbility();
+
         _lastCastSequenceSucceeded = abilityExecuted;
 
         if (abilityExecuted && !isComboStep && !config.activateOnButtonRelease)
@@ -2245,7 +2175,7 @@ public class DataDrivenAbility : Ability
             StartCooldown();
             lastFireTime = Time.time;
         }
-
+        CurrentAbilityState = AbilityState.Idle;
         isCharging = false;
         chargeBar?.StopCharge();
         chargingCoroutine = null;
@@ -2259,7 +2189,6 @@ public class DataDrivenAbility : Ability
     {
         isHoldingForRelease = true;
         PlayHoldAnimation();
-
         float holdStart = Time.time;
 
         while (IsAbilityButtonHeld())
@@ -4404,17 +4333,7 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        // NOTE: Do NOT skip when a MeleeAbility is already active on this GameObject.
-        // Each call adds its own MeleeAbility instance with independent state (hitboxInstance,
-        // hitTargets, etc.), so concurrent instances are safe. Skipping here caused attacks to
-        // silently no-op (no meleeFX/hitbox spawned, though the attack still "succeeded" for
-        // cooldown/combo purposes) whenever attack speed was fast enough that the previous
-        // swing's meleeFX animation hadn't finished yet — see MeleeAbility.Update's
-        // auto-destroy-on-animation-complete logic.
-
-        // Sample aim direction at fire time — AbilityCastSequence ensures precast/hold is already complete
         Vector2 attackDirection = GetAimDirection();
-        Debug.Log($"[Melee] Attack direction: {attackDirection} (angle={Mathf.Atan2(attackDirection.y, attackDirection.x) * Mathf.Rad2Deg:F1}°)");
 
         bool firedFromOffhand = IsCurrentShotFromOffhand();
         PlayerController ownerPlayer = GetComponent<PlayerController>();
@@ -4431,7 +4350,6 @@ public class DataDrivenAbility : Ability
             SpawnMeleeAttack(attackDirection, GetEffectiveMeleeConfig(), firedFromOffhand);
         }
 
-        Debug.Log($"[Melee] Attack initiated — direction={attackDirection}, isWeaponDirectionLocked={isWeaponDirectionLocked}, playerControl={playerControl}");
         return true;
     }
 

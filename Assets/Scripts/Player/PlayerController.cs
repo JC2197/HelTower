@@ -29,7 +29,7 @@ public class PlayerController : Organism
     [SerializeField] private string _moveActionName = "Movement";
     [SerializeField] private string _aimActionName = "Aim";
     [SerializeField] private string[] _abilityActionNames = { "Ability1", "Ability2", "Ability3", "Ability4", "Ability5", "Ability6" };
-
+    
     public static bool InputEnabled { get; set; } = true;
     public static PlayerController LocalPlayer { get; private set; }
 
@@ -49,7 +49,6 @@ public class PlayerController : Organism
     /// <summary>Fired when an attack ability executes.</summary>
     public event Action<AbilityDataConfig> OnAttack;
     public event Action<AbilityDataConfig, GameObject, float, string> OnAttackDamage;
-
 
     /// <summary>Fired when a stats recalculation is requested (e.g. after trait changes).</summary>
     public event Action OnStatsRecalculationRequested;
@@ -195,6 +194,7 @@ public class PlayerController : Organism
         GetComponent<CharacterTraitManager>()?.SetCharacterData(characterData);
 
         Debug.Log($"[PlayerController] Applied character '{characterData.displayName}'.");
+
     }
 
     public void RequestStatsRecalculation()

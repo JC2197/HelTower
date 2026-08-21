@@ -19,7 +19,7 @@ MonoBehaviour:
   canTargetEnemies: 1
   canTargetSelf: 0
   duration: 5
-  stackingBehavior: 1
+  stackingBehavior: 2
   maxStacks: 1
   refreshDurationOnStack: 1
   maxDuration: 15
