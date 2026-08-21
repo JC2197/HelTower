@@ -49,7 +49,7 @@ MonoBehaviour:
     - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 3
+      currentValue: 2.5
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active

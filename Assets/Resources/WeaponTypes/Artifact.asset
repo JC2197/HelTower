@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponTypeConfig
   typeName: Artifact
   defaultPositioning:
-    aimingRadius: 0.45
+    aimingRadius: 0.6
     isMainHand: 1
     is2Handed: 0
     northEastOffset: {x: 0, y: 0}

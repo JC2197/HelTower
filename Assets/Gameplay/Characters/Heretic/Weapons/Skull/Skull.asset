@@ -19,7 +19,7 @@ MonoBehaviour:
   weaponPrefab: {fileID: 8429087599578245442, guid: 3f90c0fb2ab59a7409d0b3f3eeea0d13, type: 3}
   weaponDamageMin: 3
   weaponDamageMax: 4
-  weaponDamageType: Physical
+  weaponDamageType: Magical
   offhandWeaponConfig: {fileID: 0}
   inventorySprite: {fileID: -2138667678, guid: 1a9aeb7b7e2ba794aa7a3e727ea37818, type: 3}
   worldSprite: {fileID: -2138667678, guid: 1a9aeb7b7e2ba794aa7a3e727ea37818, type: 3}
@@ -54,7 +54,7 @@ MonoBehaviour:
     handBehindOnSE: 0
     handBehindOnSW: 0
     handRotationOffset: 0
-  grantedPrimaryAbility: {fileID: 0}
+  grantedPrimaryAbility: {fileID: 11400000, guid: f474720aca1cc9243826e443c82771ae, type: 2}
   grantedSecondaryAbility: {fileID: 0}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}

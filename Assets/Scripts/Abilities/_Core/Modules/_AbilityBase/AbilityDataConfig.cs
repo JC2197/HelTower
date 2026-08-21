@@ -54,7 +54,7 @@ public class AbilityDataConfig : AbilityConfig
     public bool disableCast = false;
     [Tooltip("Is this an attack (affected by attack speed) or a spell (cooldown only)?")]
     public bool isAttack = false;
-    
+    public bool isInstant = false;
     [Header("Weapon Requirements")]
     [Tooltip("Weapon types required to use this ability. Empty list = can use with any weapon or no weapon. Use 'Any' to require any weapon type.")]
     [NonReorderable]

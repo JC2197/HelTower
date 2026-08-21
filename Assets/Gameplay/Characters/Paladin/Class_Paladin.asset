@@ -17,6 +17,7 @@ MonoBehaviour:
   animatorController: {fileID: 22100000, guid: e299a71dc8733e240a87a80d32f947e6, type: 2}
   availableWeapons:
   - {fileID: 11400000, guid: 397872368eb0c764ca874159ab400af9, type: 2}
+  - {fileID: 11400000, guid: c04ec44a547f9e04b88bf412f08c0037, type: 2}
   availableAccessories: []
   abilities: []
   baseStatContainer:
@@ -48,7 +49,7 @@ MonoBehaviour:
     - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 2
+      currentValue: 2.5
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active

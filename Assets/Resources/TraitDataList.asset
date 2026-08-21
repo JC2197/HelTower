@@ -14,3 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitDataList
   traitGroups:
   - {fileID: 11400000, guid: 4a503748d81963c44a4979e84672ccc8, type: 2}
+  - {fileID: 11400000, guid: 9cba7ded802a804418d8b06d8f6e8da2, type: 2}
+  - {fileID: 11400000, guid: eea0342fde4d0e045b481a99e1d7de8c, type: 2}
+  - {fileID: 11400000, guid: 341f6fdc02fbece4794dcfaac48b48aa, type: 2}
+  - {fileID: 11400000, guid: 60685dd6951ed254c8a6f50344a331bf, type: 2}

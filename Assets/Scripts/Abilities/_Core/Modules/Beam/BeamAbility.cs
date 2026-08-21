@@ -45,7 +45,6 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
-        launchZone = transform.Find("Weapon/LaunchZone");
     }
 
     public void SetContext(SubAbilityContext context)
@@ -157,7 +156,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     private void StartBeam()
     {
         if (launchZone == null)
-            launchZone = transform.Find("Weapon/LaunchZone");
+            launchZone = WeaponLaunchPoint.FindLaunchZone(transform);
 
         isBeamActive = true;
         energyConsumptionTimer = 0f;
@@ -905,6 +904,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private Vector3 GetBeamStartPosition()
     {
+        Debug.Log($"[BeamAbility] GetBeamStartPosition called. launchZone={(launchZone != null ? launchZone.name : "<null>")}, transform.position={transform.position}");
         return launchZone != null ? launchZone.position : transform.position;
     }
 

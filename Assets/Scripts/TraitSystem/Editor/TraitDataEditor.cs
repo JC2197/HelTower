@@ -17,8 +17,6 @@ public class TraitDataEditor : Editor
     private SerializedProperty effectScriptProp;
     private SerializedProperty abilityReplacementProp;
     private SerializedProperty unlockedAbilitiesProp;
-    private SerializedProperty tierLevelProp;
-    private SerializedProperty tierConfigProp;
     private SerializedProperty weaponAmmoModifierProp;
     private SerializedProperty requiredAbilityProp;
     private SerializedProperty requiredAbilityLevelProp;
@@ -38,8 +36,6 @@ public class TraitDataEditor : Editor
         effectScriptProp = serializedObject.FindProperty("effectScript");
         abilityReplacementProp = serializedObject.FindProperty("abilityReplacement");
         unlockedAbilitiesProp = serializedObject.FindProperty("unlockedAbilities");
-        tierLevelProp = serializedObject.FindProperty("tierLevel");
-        tierConfigProp = serializedObject.FindProperty("tierConfig");
         weaponAmmoModifierProp = serializedObject.FindProperty("weaponAmmoModifier");
         requiredAbilityProp = serializedObject.FindProperty("requiredAbility");
         requiredAbilityLevelProp = serializedObject.FindProperty("requiredAbilityLevel");
@@ -58,7 +54,6 @@ public class TraitDataEditor : Editor
         DrawTagSection();
         DrawTypeSection();
         DrawTypeSpecificSection();
-        DrawTierSection();
         DrawMutualExclusionSection();
         serializedObject.ApplyModifiedProperties();
 
@@ -213,19 +208,6 @@ public class TraitDataEditor : Editor
         EditorGUILayout.Space(8f);
     }
 
-    private void DrawTierSection()
-    {
-        TraitType traitType = GetSelectedTraitType();
-        bool usesTierScaling = traitType == TraitType.General;
-
-        if (!usesTierScaling)
-            return;
-
-        EditorGUILayout.LabelField("Tier Scaling", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(tierLevelProp);
-        EditorGUILayout.PropertyField(tierConfigProp);
-        EditorGUILayout.Space(8f);
-    }
 
     private TraitType GetSelectedTraitType()
     {

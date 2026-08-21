@@ -113,11 +113,11 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: -5593765858030677724}
   _networkObjectCache: {fileID: -5593765858030677724}
   overrideHitEffects: 0
-  hitVisualPrefabOverride: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
+  hitVisualPrefabOverride: {fileID: 0}
   hitSoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
   hitFlashColorOverride: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 1}
   overrideDestroyEffects: 0
-  destroyVisualPrefabOverride: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
+  destroyVisualPrefabOverride: {fileID: 0}
   destroySoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
   overrideMuzzleFlash: 0
   muzzleFlashPrefabOverride: {fileID: 0}
@@ -202,12 +202,12 @@ MonoBehaviour:
   m_ComponentVersion: 2
   m_LightType: 3
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 1
-  m_Color: {r: 0.98915756, g: 0.9037736, b: 1, a: 0.40392157}
-  m_Intensity: 0.1
+  m_FalloffIntensity: 0.506
+  m_Color: {r: 0, g: 1, b: 0.035523176, a: 1}
+  m_Intensity: 2
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 41e06b44d1a50a24b15aacfe4957f50f0000000073a87a1fd7da35a26dbad2378fc42995
+  m_ApplyToSortingLayers: 17fd95e31bb5cb30000000009731166f
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 5
+  m_PointLightOuterRadius: 3
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -265,7 +265,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584144386707621269
+  _initializedTimestamp: -8584142804586380229
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -284,7 +284,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 19
+  <PrefabId>k__BackingField: 32
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 15347322418347820656
   SceneId: 0
@@ -455,7 +455,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.15
+      scalar: 0.5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -508,7 +508,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 0.6
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -562,7 +562,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      maxColor: {r: 0, g: 1, b: 0.07837272, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -1010,7 +1010,7 @@ ParticleSystem:
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 0, y: 0, z: 135}
+    m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
@@ -1090,7 +1090,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.0001
+      value: 0.23558092
       mode: 0
       spread: 0
       speed:
@@ -1147,7 +1147,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 90
+      value: 360
       mode: 0
       spread: 0
       speed:
@@ -1647,8 +1647,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 0.49803922}
-        key1: {r: 0.654902, g: 0.7019608, b: 0.74509805, a: 0}
+        key0: {r: 1, g: 1, b: 1, a: 1}
+        key1: {r: 0.654902, g: 0.7019608, b: 0.74509805, a: 0.1254902}
         key2: {r: 1, g: 1, b: 1, a: 0}
         key3: {r: 1, g: 1, b: 1, a: 0}
         key4: {r: 1, g: 1, b: 1, a: 0}
@@ -1826,7 +1826,10 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: -1929713242, guid: 1e5496d88b025d643ac4e90182989b77, type: 3}
+    - sprite: {fileID: 8733119036435184839, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -7267329379040741972, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -6646820325249897699, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -1227417338347808894, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -5140,8 +5143,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1863725463
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_RenderMode: 0

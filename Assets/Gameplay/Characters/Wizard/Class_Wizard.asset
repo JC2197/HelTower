@@ -16,6 +16,7 @@ MonoBehaviour:
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: 5a20f2ef85afb3a408a097c511b1c2c2, type: 2}
   availableWeapons:
+  - {fileID: 11400000, guid: 9d15fdff62ec88041828310c8adcff17, type: 2}
   - {fileID: 11400000, guid: 0137e9495b97ad649bf6f9a6c413cac8, type: 2}
   availableAccessories: []
   abilities: []

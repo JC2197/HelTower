@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 0
+  isInstant: 1
   requiredWeaponTypes: []
   attackSpeed: 1
   cooldownTime: 5
@@ -46,20 +47,20 @@ MonoBehaviour:
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: Attack
+  characterAnimationName: 
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: SlamCast
+  mainhandAnimationName: 
   offhandAnimationName: 
   hasPrecast: 1
-  preAnimationName: SlamPrecast
+  preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
     modifiers: []
-  weaponIdleAnimationName: Idle
+  weaponIdleAnimationName: 
   unlockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
@@ -1821,9 +1822,6 @@ MonoBehaviour:
     distance: 5
     duration: 0.5
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 0
     awayFromMouse: 0
     isDashing: 0

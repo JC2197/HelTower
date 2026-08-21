@@ -14,15 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissilesCooldown
   displayName: Quick Missiles
-  description: +{v1}% Cooldown Reduction Rate for Magic Missiles.
+  description: +{v1}% Attack Speed for Magic Missiles.
   traitIcon: {fileID: -6422787935662352192, guid: 4194242c6b4aec3408c072f5296f6daf, type: 3}
-  colorTheme: Magic
-  specializedTraitTag1: Magic
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
-  requiredTag: 
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
@@ -39,12 +34,17 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
-    - propertyPath: cooldownTime
+    - propertyPath: attackSpeed
       overrideMode: 1
-      numericValue: 20
+      numericValue: 100
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

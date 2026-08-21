@@ -19,6 +19,7 @@ public class AbilityDataConfigEditor : Editor
     // Mechanical properties
     private SerializedProperty disableCast;
     private SerializedProperty isAttack;
+    private SerializedProperty isInstant;
     private SerializedProperty attackSpeed;
     private SerializedProperty cooldownTime;
     private SerializedProperty energyCost;
@@ -127,6 +128,7 @@ public class AbilityDataConfigEditor : Editor
         // Mechanical properties (from AbilityDataConfig)
         disableCast = serializedObject.FindProperty("disableCast");
         isAttack = serializedObject.FindProperty("isAttack");
+        isInstant = serializedObject.FindProperty("isInstant");
         attackSpeed = serializedObject.FindProperty("attackSpeed");
         cooldownTime = serializedObject.FindProperty("cooldownTime");
         energyCost = serializedObject.FindProperty("energyCost");
@@ -379,6 +381,7 @@ public class AbilityDataConfigEditor : Editor
             // Mechanical Properties (from AbilityDataConfig)
             EditorGUILayout.PropertyField(disableCast, new GUIContent("Disable Cast", "Prevents manual casting. Permanent auras and other system-driven behavior can still initialize."));
             EditorGUILayout.PropertyField(isAttack, new GUIContent("Is Attack (vs Spell)"));
+            EditorGUILayout.PropertyField(isInstant, new GUIContent("Is Instant", "Ability is instant and does not require a keybind."));
             if (isAttack.boolValue)
             {
                 EditorGUI.indentLevel++;
@@ -641,7 +644,7 @@ public class AbilityDataConfigEditor : Editor
                     break;
             }
 
-           
+
 
             EditorGUI.indentLevel--;
         }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: CrystalBall
-  weaponType: Shield
+  weaponType: Artifact
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 4321430192779019678, guid: ba25609a1a1ee6f41b68c0e7aed3b466, type: 3}
   weaponDamageMin: 3
@@ -54,7 +54,7 @@ MonoBehaviour:
     handBehindOnSE: 0
     handBehindOnSW: 0
     handRotationOffset: 0
-  grantedPrimaryAbility: {fileID: 0}
+  grantedPrimaryAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
   grantedSecondaryAbility: {fileID: 0}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}

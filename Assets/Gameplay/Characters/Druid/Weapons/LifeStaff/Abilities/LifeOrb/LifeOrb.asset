@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 0.8
   cooldownTime: 0
@@ -35,9 +36,9 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
-  movementBlockDuration: 0.5
-  movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringCast: 1
+  movementBlockDuration: 0.25
+  movementSpeedMultiplierDuringCast: 0.2
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -46,7 +47,7 @@ MonoBehaviour:
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: 
+  characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: Cast1
@@ -502,7 +503,7 @@ MonoBehaviour:
       m_Bits: 128
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
-    muzzleFlashPrefab: {fileID: 0}
+    muzzleFlashPrefab: {fileID: 3240179893309576959, guid: ca483e1631755cf4a97cede8295bfefc, type: 3}
     muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -1821,9 +1822,6 @@ MonoBehaviour:
     distance: 5
     duration: 0.5
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 0
     awayFromMouse: 0
     isDashing: 0

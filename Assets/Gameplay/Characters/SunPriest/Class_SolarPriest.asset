@@ -56,7 +56,7 @@ MonoBehaviour:
     - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 0
+      currentValue: 100
     - statId: PHYSICAL
       displayName: Physical Damage Bonus
       categoryId: Active

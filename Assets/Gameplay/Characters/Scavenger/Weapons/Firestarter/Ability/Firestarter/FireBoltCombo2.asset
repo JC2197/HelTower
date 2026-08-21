@@ -28,6 +28,7 @@ MonoBehaviour:
     - {fileID: 0}
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
   cooldownTime: 0
@@ -81,7 +82,7 @@ MonoBehaviour:
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
-  isMeleeAbility: 0
+  isMeleeAbility: 1
   isExplosionAbility: 0
   isSummonAbility: 0
   isPassiveAbility: 0
@@ -229,13 +230,13 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 0}
+      prefab: {fileID: 3240179893309576959, guid: 9c29ab21d16015b47828e8363417ca3b, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
         m_Bits: 4294967295
-      damage: 20
+      damage: 5
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -244,9 +245,9 @@ MonoBehaviour:
         type: 1
         amount: 5
       knockback:
-        enabled: 0
-        force: 5
-        directionality: 1
+        enabled: 1
+        force: 3
+        directionality: 0
       pull:
         enabled: 0
         force: 5
@@ -270,8 +271,8 @@ MonoBehaviour:
         bleedDuration: 3
         bleedApplicationChance: 1
         canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
+        burnEffect: {fileID: 11400000, guid: eb9cc8e13c05724499f61b108d6aad58, type: 2}
+        burnDamage: 5
         burnDuration: 3
         burnApplicationChance: 1
         canPoison: 0
@@ -327,7 +328,7 @@ MonoBehaviour:
     meleeFXRadiusDistance: 0.5
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 0
+    flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
     meleeSound: {fileID: 0}
@@ -444,7 +445,7 @@ MonoBehaviour:
     speed: 15
     useLifetime: 0
     lifetime: 3
-    maxRange: 5
+    maxRange: 3
     behavior: 0
     chargeDamageMultiplier: 1
     canCancelCharge: 0
@@ -509,7 +510,7 @@ MonoBehaviour:
       m_Bits: 640
     destroyVisualPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
     destroySound: {fileID: 0}
-    muzzleFlashPrefab: {fileID: 3240179893309576959, guid: 9c29ab21d16015b47828e8363417ca3b, type: 3}
+    muzzleFlashPrefab: {fileID: 0}
     muzzleFlashSound: {fileID: 8300000, guid: 3a0940eaa8c213e44924c264e8203df2, type: 3}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -1828,9 +1829,6 @@ MonoBehaviour:
     distance: 0.4
     duration: 0.2
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 1
     awayFromMouse: 0
     isDashing: 0

@@ -420,10 +420,6 @@ public class Enemy : Organism
             offHandHolder.SetupNetworkWeapon(offHandWeaponNOB.gameObject);
         }
 
-        // Apply hand sprites on all clients
-        AddHandSpritesToWeapons();
-
-        Debug.Log($"[Enemy] {gameObject.name} weapon visuals set up on {(IsServerStarted ? "server" : "client")}");
     }
 
     /// <summary>
@@ -476,61 +472,6 @@ public class Enemy : Organism
         }
     }
 
-
-    /// <summary>
-    /// Main Driver for adding hand sprites to Weapons
-    /// </summary>
-    private void AddHandSpritesToWeapons()
-    {
-        if (config == null || config.handSprite == null) return;
-        WeaponHolder weaponHolder = GetComponent<WeaponHolder>();
-        if (weaponHolder != null && weaponHolder.HasWeapon())
-        {
-            GameObject mainWeapon = weaponHolder.GetCurrentWeapon();
-            ApplyHandSpriteToWeapon(mainWeapon, config.handSprite);
-        }
-
-        OffHandWeaponHolder offhandHolder = GetComponent<OffHandWeaponHolder>();
-
-        if (offhandHolder != null && offhandHolder.HasWeapon())
-        {
-            GameObject offhandWeapon = offhandHolder.GetCurrentWeapon();
-            ApplyHandSpriteToWeapon(offhandWeapon, config.handSprite);
-        }
-    }
-
-    /// <summary>
-    /// method that actually applies the hand sprite to the weapon prefab
-    /// </summary>
-    private void ApplyHandSpriteToWeapon(GameObject weapon, Sprite handSprite)
-    {
-        if (weapon == null) return;
-        SpriteRenderer weaponRenderer = weapon.GetComponentInChildren<SpriteRenderer>();
-        string sortingLayer = weaponRenderer != null ? weaponRenderer.sortingLayerName : "Default";
-        int baseSortingOrder = weaponRenderer != null ? weaponRenderer.sortingOrder : 0;
-        int handHolderCount = 0;
-        foreach (Transform child in weapon.GetComponentsInChildren<Transform>())
-        {
-            if (child.name.Contains("HandHolder"))
-            {
-                handHolderCount++;
-                SpriteRenderer handRenderer = child.gameObject.AddComponent<SpriteRenderer>();
-                if (handRenderer == null)
-                {
-                    handRenderer = child.gameObject.GetComponent<SpriteRenderer>();
-                }
-                handRenderer.sprite = handSprite;
-                handRenderer.sortingLayerName = sortingLayer;
-                handRenderer.sortingOrder = baseSortingOrder + 1;
-
-            }
-        }
-        if (handHolderCount == 0)
-        {
-            Debug.LogWarning($"[Enemy] {gameObject.name} weapon prefab {weapon.name} has no child named 'HandHolder' to attach hand sprite to!");
-        }
-
-    }
     /// <summary>
     /// Try to use the primary attack ability
     /// </summary>

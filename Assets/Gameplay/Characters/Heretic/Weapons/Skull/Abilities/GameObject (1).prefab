@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5637467051222718428
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5595942386223432065}
+  - component: {fileID: 1010218885530846482}
+  - component: {fileID: 957871217220112672}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5595942386223432065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5637467051222718428}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.10976, y: -1.59499, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1010218885530846482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5637467051222718428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07225bfe02bb9ac45b4f61c14d621889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: JoeConticello.VisualEffects::JoeConticello.VisualEffects.BeamRenderer
+  frames:
+  - {fileID: -1407663815, guid: 0e6f2a722b8dd6143bdf9cbd82c1666a, type: 3}
+  startFrames: []
+  loopFrames: []
+  endFrames: []
+  startOffset: {x: 0, y: 0}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  vertexSpriteFrames:
+  - {fileID: -1569329479, guid: 30d2f78468227924db51baa3f422a888, type: 3}
+  targetVertexSpriteFrames:
+  - {fileID: 808186758, guid: 30d2f78468227924db51baa3f422a888, type: 3}
+  vertexMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
+  spriteMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
+  sortingLayerName: Default
+  sortingOrder: 10
+  tintPropertyName: _Color
+  fps: 10
+  fadeFrames: 0
+  loopBeam: 0
+  usePoints: 0
+  point1Name: boltPoint1
+  point2Name: boltPoint2
+  alphaMultiplier: 1
+--- !u!114 &957871217220112672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5637467051222718428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39e919b69488064ebb8a8d5d893146d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: JoeConticello.VisualEffects::JoeConticello.VisualEffects.AutoDestroyEffect
+  destroyOnAnimationComplete: 1
+  destroyOnParticleComplete: 0
+  additionalDelay: 0
+  useManualLifetime: 1
+  manualLifetime: 1.5
+  showDebugLogs: 0

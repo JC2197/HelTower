@@ -1579,17 +1579,14 @@ public class DataDrivenAbility : Ability
 
     private bool CanUseAbility(out string reason)
     {
-        Debug.Log($"[CurrentAbilityState] {ownerAsPlayer.CurrentAbilityState}");
         reason = null;
-
         if (config == null)
         {
             reason = "config is null";
             return false;
         }
-        if (ownerOrganism != null && (ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Executing || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Holding || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Precast))
+        if (!config.isInstant && ownerOrganism != null && (ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Executing || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Precast))
         {
-            Debug.Log($"[CurrentAbilityState] {ownerAsPlayer.CurrentAbilityState} - Owner is already acting");            
             return false;
         }
         if (config.requiredWeaponTypes != null && config.requiredWeaponTypes.Count > 0)
@@ -3359,7 +3356,7 @@ public class DataDrivenAbility : Ability
             Debug.LogWarning("[DataDrivenAbility] BeamAbility is null!");
             return false;
         }
-
+        WeaponLaunchPoint.FindLaunchZone(transform);
         // Refresh BeamAbility with latest effective config so trait overrides apply immediately.
         beamAbility.SetContext(CreateSubAbilityContext());
         beamAbility.Initialize(EffectiveAbilityConfig);

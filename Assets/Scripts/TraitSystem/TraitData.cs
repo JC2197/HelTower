@@ -102,8 +102,6 @@ public class TraitData : ScriptableObject
     [Tooltip("This trait will not roll if any trait in this list has already been taken.")]
     public List<TraitData> mutuallyExclusiveWith = new List<TraitData>();
 
-
-    public bool UsesTierScaling => traitType != TraitType.Ability && traitType != TraitType.AbilityUpgrade;
     public bool IsAbilityTraitType => traitType == TraitType.Ability || traitType == TraitType.AbilityUpgrade;
 
     public bool IsUpgradeTraitType => traitType == TraitType.AbilityUpgrade;

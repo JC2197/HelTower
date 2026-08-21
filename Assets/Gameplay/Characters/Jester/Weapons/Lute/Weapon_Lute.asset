@@ -55,6 +55,7 @@ MonoBehaviour:
     handBehindOnSW: 0
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 11400000, guid: 28a8d490701b1cb4fb9a3ee4cc82c9ab, type: 2}
+  grantedSecondaryAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0

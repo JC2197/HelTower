@@ -21,9 +21,10 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 0
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
-  cooldownTime: 0
+  cooldownTime: 3
   energyCost: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
@@ -74,7 +75,7 @@ MonoBehaviour:
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
-  isMeleeAbility: 0
+  isMeleeAbility: 1
   isExplosionAbility: 0
   isSummonAbility: 0
   isPassiveAbility: 0
@@ -222,20 +223,20 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 0}
+      prefab: {fileID: 6284264067008683432, guid: 3f4f52509db1dcc4a94de74214faa4a3, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 6
-      damage: 20
+        m_Bits: 64
+      damage: 10
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
       lifeSteal:
-        enabled: 0
+        enabled: 1
         type: 1
-        amount: 5
+        amount: 15
       knockback:
         enabled: 0
         force: 5
@@ -314,14 +315,14 @@ MonoBehaviour:
         canTriggerAbility: 0
         triggeredAbilityConfigs: []
       effects:
-        hitEffectPrefab: {fileID: 0}
+        hitEffectPrefab: {fileID: 6059162344837109257, guid: 38e76b5679e07ac4fa107ac5b931193d, type: 3}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     meleeFXRadiusDistance: 0.5
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 0
-    stickToCharacter: 0
+    flipMeleeFXY: 1
+    stickToCharacter: 1
     allowMultiHit: 0
     meleeSound: {fileID: 0}
   weaponData:
@@ -1821,9 +1822,6 @@ MonoBehaviour:
     distance: 4
     duration: 0.2
     activateAfterPrecast: 0
-    passThruDamage: 1
-    passthruDamageAmount: 5
-    damageTypeName: Physical
     towardMouse: 1
     awayFromMouse: 0
     isDashing: 1

@@ -16,13 +16,8 @@ MonoBehaviour:
   displayName: More Missiles
   description: Magic Missiles fires +{v1} projectiles.
   traitIcon: {fileID: 1786895532929179333, guid: 7f3e5fb7478931b439ecba25e5968c8a, type: 3}
-  colorTheme: Magic
-  specializedTraitTag1: Magic
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
-  requiredTag: 
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
@@ -39,12 +34,17 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
-    - propertyPath: projectileConfig.projectileCount
+    - propertyPath: projectileConfig.salvoSize
       overrideMode: 0
-      numericValue: 2
+      numericValue: 1
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 47cc0d13885a34b40a7163b89c9e99dd, type: 2}
