@@ -29,7 +29,7 @@ public class PlayerController : Organism
     [SerializeField] private string _moveActionName = "Movement";
     [SerializeField] private string _aimActionName = "Aim";
     [SerializeField] private string[] _abilityActionNames = { "Ability1", "Ability2", "Ability3", "Ability4", "Ability5", "Ability6" };
-    
+
     public static bool InputEnabled { get; set; } = true;
     public static PlayerController LocalPlayer { get; private set; }
 
@@ -56,7 +56,14 @@ public class PlayerController : Organism
     public CharacterData GetCurrentCharacterData() => _currentCharacterData;
     public void SetCurrentCharacterData(CharacterData characterData) => _currentCharacterData = characterData;
     public WeaponConfig GetEquippedMainWeaponConfig() => _equippedMainWeaponConfig;
-
+    public enum AbilityState
+    {
+        Idle,
+        Precast,
+        Holding,
+        Executing,
+    }
+    public AbilityState CurrentAbilityState { get; set; } = AbilityState.Idle;
     public Transform GetEquippedMainWeaponTransform()
     {
         WeaponHolder weaponHolder = GetExistingMainWeaponHolder();

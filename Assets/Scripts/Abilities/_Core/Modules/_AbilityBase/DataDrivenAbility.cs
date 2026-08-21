@@ -144,15 +144,7 @@ public class DataDrivenAbility : Ability
     // check in CanUseAbility is skipped for the 2nd+ cast in the same burst.
     private bool _autocastBurstActive = false;
 
-    public enum AbilityState
-    {
-        Idle,
-        Precast,
-        Holding,
-        Executing,
-    }
-
-    public AbilityState CurrentAbilityState { get; private set; } = AbilityState.Idle;
+  
     /// <summary>
     /// Casts once using an explicit world-space target, then clears the override.
     /// </summary>
@@ -538,7 +530,6 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private void OnAbilityActivated()
     {
-        CurrentAbilityState = AbilityState.Executing;
         // Take control if ability disables movement
         if (config != null && config.disablesMovementDuringCast)
         {
@@ -857,8 +848,7 @@ public class DataDrivenAbility : Ability
                 }
             }
         }
-        CurrentAbilityState = AbilityState.Idle;
-        Debug.Log($"[AbilityState] Ability returned to idle state.");
+        ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
     }
 
     /// <summary>
@@ -971,7 +961,6 @@ public class DataDrivenAbility : Ability
 
             }
         }
-
         if (string.IsNullOrEmpty(config.preAnimationName)) return;
 
         bool useAlternating = ShouldUseAlternatingAnimations(out _);
@@ -997,16 +986,14 @@ public class DataDrivenAbility : Ability
                 isMainhandLocked = !playOnOffhand;
                 isOffhandLocked = playOnOffhand;
 
-                Debug.Log($"<color=cyan>[DataDrivenAbility] {config.abilityName} (pre-anim) - Unlocking weapon directions on {(playOnOffhand ? "offhand" : "mainhand")}, locked to RAW mouse angle: {lockedWeaponAngle:F1}°</color>");
-
                 // Force PlayerController to update weapon position immediately with the unlocked angle
                 PlayerController player = GetComponent<PlayerController>();
                 if (player != null)
-                {
+                {       
                     player.ForceAnimationUpdate();
                 }
             }
-
+            ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Precast;
             // NOW play the pre-animation with the weapon at the correct angle
             PlayWeaponAnimationState(weaponTransform, config.preAnimationName, animationSpeed);
         }
@@ -1035,6 +1022,7 @@ public class DataDrivenAbility : Ability
         Transform weaponTransform = transform.Find("WeaponHolder/Weapon");
         if (weaponTransform != null)
         {
+            ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Holding;
             PlayWeaponAnimationState(weaponTransform, config.holdAnimationName, 1);
             Debug.Log($"<color=cyan>[DataDrivenAbility] {config.abilityName} - Playing hold animation: '{config.holdAnimationName}'</color>");
         }
@@ -1591,7 +1579,7 @@ public class DataDrivenAbility : Ability
 
     private bool CanUseAbility(out string reason)
     {
-        Debug.Log($"[CurrentAbilityState] {CurrentAbilityState}");
+        Debug.Log($"[CurrentAbilityState] {ownerAsPlayer.CurrentAbilityState}");
         reason = null;
 
         if (config == null)
@@ -1599,9 +1587,9 @@ public class DataDrivenAbility : Ability
             reason = "config is null";
             return false;
         }
-        if (ownerOrganism != null && (CurrentAbilityState == AbilityState.Executing || CurrentAbilityState == AbilityState.Holding || CurrentAbilityState == AbilityState.Precast))
+        if (ownerOrganism != null && (ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Executing || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Holding || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Precast))
         {
-            reason = "owner is already acting";
+            Debug.Log($"[CurrentAbilityState] {ownerAsPlayer.CurrentAbilityState} - Owner is already acting");            
             return false;
         }
         if (config.requiredWeaponTypes != null && config.requiredWeaponTypes.Count > 0)
@@ -2085,7 +2073,7 @@ public class DataDrivenAbility : Ability
         isCharging = true;
         chargeStartTime = Time.time;
         lastChargeValue = 0f;
-        CurrentAbilityState = AbilityState.Precast;
+        ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Precast;
         var hcc = GetEffectiveHoldChargeConfig();
         int maxBars = hcc != null ? Mathf.Max(1, hcc.maxBars) : 1;
 
@@ -2112,12 +2100,12 @@ public class DataDrivenAbility : Ability
                 {
                     // Continue from wherever precast left the bar
                     float startChargeLevel = precastDuration / hcc.barDuration;
-                    CurrentAbilityState = AbilityState.Holding;
+                    ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Holding;
                     yield return WaitForChargeRelease(hcc.barDuration, maxBars, startChargeLevel);
                 }
                 else
                 {
-                    CurrentAbilityState = AbilityState.Holding;
+                    ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Holding;
                     yield return WaitForButtonRelease();
                 }
             }
@@ -2155,7 +2143,7 @@ public class DataDrivenAbility : Ability
         }
 
         // 5. Fire all enabled ability types
-        CurrentAbilityState = AbilityState.Executing;
+        ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Executing;
         OnAbilityActivated();
         bool abilityExecuted = FireAbility();
 
@@ -2175,7 +2163,7 @@ public class DataDrivenAbility : Ability
             StartCooldown();
             lastFireTime = Time.time;
         }
-        CurrentAbilityState = AbilityState.Idle;
+        ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
         isCharging = false;
         chargeBar?.StopCharge();
         chargingCoroutine = null;
