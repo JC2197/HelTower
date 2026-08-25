@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
+  m_Name: Scav_FirestarterTree
+  m_EditorClassIdentifier: Assembly-CSharp::TraitTree
+  treeName: 
+  description: 
+  nodeSpacing: 100
+  nodeIconSize: 17
+  nodeIconFrame: {fileID: 0}
+  canvasWidth: 400
+  nodes:
+  - nodeID: FirestarterSwipeSize5_ee15
+    traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
+    position: {x: 32, y: 0}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterSwipeSize5_286f
+  - nodeID: FirestarterSwipeSize5_286f
+    traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
+    position: {x: 56, y: -0}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterSwipeSize5_7cf3
+  - nodeID: FirestarterSwipeSize5_7cf3
+    traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
+    position: {x: 80, y: -0}
+    goldCost: 0
+    connectedNodeIDs: []
+  - nodeID: FireStarterBurnChance5_813b
+    traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
+    position: {x: -64, y: -48}
+    goldCost: 0
+    connectedNodeIDs:
+    - FireStarterBurnChance5_a6b9
+  - nodeID: FireStarterBurnChance5_a6b9
+    traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
+    position: {x: -64, y: -80}
+    goldCost: 0
+    connectedNodeIDs:
+    - FireStarterBurnChance5_0cc0
+  - nodeID: FireStarterBurnChance5_0cc0
+    traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
+    position: {x: -64, y: -112}
+    goldCost: 0
+    connectedNodeIDs: []
+  - nodeID: FirestarterProjSpeed5_8178
+    traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
+    position: {x: -40, y: 0}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterProjSpeed5_c0e8
+  - nodeID: FirestarterProjSpeed5_c0e8
+    traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
+    position: {x: -64, y: 0}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterProjSpeed5_22ac
+  - nodeID: FirestarterProjSpeed5_22ac
+    traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
+    position: {x: -88, y: 0}
+    goldCost: 0
+    connectedNodeIDs: []
+  - nodeID: FirestarterDamage5_8c43
+    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
+    position: {x: 0, y: -24}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterDamage5_9322
+  - nodeID: FirestarterDamage5_9322
+    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
+    position: {x: 0, y: -48}
+    goldCost: 0
+    connectedNodeIDs:
+    - FirestarterDamage5_304d
+  - nodeID: FirestarterDamage5_304d
+    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
+    position: {x: 0, y: -72}
+    goldCost: 0
+    connectedNodeIDs: []
+  canvasHeight: 401
+  minCanvasWidth: 400
+  minCanvasHeight: 225
+  autoCanvasSize: 1
+  autoCanvasPadding: 80
+  connections:
+  - connectionID: conn_249145bd
+    scale: 1
+    fromNodeIDs:
+    - FirestarterSwipeSize5_ee15
+    toNodeIDs:
+    - FirestarterSwipeSize5_286f
+    fromBubbleDir: 2
+    toBubbleDir: 3
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_44b7dd1f
+    scale: 1
+    fromNodeIDs:
+    - FirestarterSwipeSize5_286f
+    toNodeIDs:
+    - FirestarterSwipeSize5_7cf3
+    fromBubbleDir: 2
+    toBubbleDir: 3
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_8f395785
+    scale: 1
+    fromNodeIDs:
+    - FireStarterBurnChance5_813b
+    toNodeIDs:
+    - FireStarterBurnChance5_a6b9
+    fromBubbleDir: 1
+    toBubbleDir: 0
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_76a50fb2
+    scale: 1
+    fromNodeIDs:
+    - FireStarterBurnChance5_a6b9
+    toNodeIDs:
+    - FireStarterBurnChance5_0cc0
+    fromBubbleDir: 1
+    toBubbleDir: 0
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_0f806bea
+    scale: 1
+    fromNodeIDs:
+    - FirestarterProjSpeed5_8178
+    toNodeIDs:
+    - FirestarterProjSpeed5_c0e8
+    fromBubbleDir: 3
+    toBubbleDir: 2
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_bc0ed203
+    scale: 1
+    fromNodeIDs:
+    - FirestarterProjSpeed5_c0e8
+    toNodeIDs:
+    - FirestarterProjSpeed5_22ac
+    fromBubbleDir: 3
+    toBubbleDir: 2
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_1bd21d2a
+    scale: 1
+    fromNodeIDs:
+    - FirestarterDamage5_8c43
+    toNodeIDs:
+    - FirestarterDamage5_9322
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_c6cfe1c6
+    scale: 1
+    fromNodeIDs:
+    - FirestarterDamage5_9322
+    toNodeIDs:
+    - FirestarterDamage5_304d
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

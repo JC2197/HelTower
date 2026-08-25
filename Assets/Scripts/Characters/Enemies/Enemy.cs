@@ -35,7 +35,6 @@ public class Enemy : Organism
     protected float detectionRange;
     protected bool canMove;
     protected float knockbackDuration;
-
     // Data-driven ability system
     protected List<EnemyAbilityInstance> abilityInstances = new List<EnemyAbilityInstance>();
 
@@ -55,7 +54,8 @@ public class Enemy : Organism
 
     private AIPathfinding _pathfinding;
     private EffectManager effectManager;
-
+    private float ABILITY_ATTEMPT_INTERVAL = 1f; // Interval between ability attempts
+    private float nextAbilityAttemptTime = 0f; // Next time an ability can be attempted
     // Fake mouse for player-like aiming system
     private GameObject fakeMouse;
     private WeaponSortingManager weaponSortingManager;
@@ -68,7 +68,6 @@ public class Enemy : Organism
     // State Machine System
     private EnemyState currentState = EnemyState.Patrol;
     private float stateTimer = 0f;
-    private float attackCooldownTimer = 0f;
     private float stateReassessmentTimer = 0f;
     private Vector3 spawnPosition;
     private Vector3 patrolTarget;
@@ -80,15 +79,10 @@ public class Enemy : Organism
 
     // Collision damage tracking
     private float collisionDamageTimer = 0f;
-    private HashSet<Collider2D> ignoredPlayerColliders = new HashSet<Collider2D>();
 
     // Runtime scaling set by MobSpawner
     private float runtimeDamageMultiplier = 1f;
 
-    // Charge behavior state
-    private bool isCharging = false;
-    private Vector2 chargeDirection;
-    private float chargeCooldownTimer = 0f;
     protected override void Awake()
     {
         base.Awake();
@@ -112,6 +106,7 @@ public class Enemy : Organism
         {
             ModifyHealth(maxHealth - CurrentHealth); // Set to full health
         }
+        
 
         // Initialize basic values from config
         detectionRange = config.detectionRange;
@@ -473,15 +468,71 @@ public class Enemy : Organism
     }
 
     /// <summary>
-    /// Try to use the primary attack ability
+    /// Cast the highest-priority ability that is in range, aimed at the current target.
+    /// Cooldowns and costs are owned by each AbilityDataConfig; this only schedules when the
+    /// next cast is attempted so the state machine is not hammering TryUseAbility every frame.
     /// </summary>
-    private bool TryUseAttack()
+    private bool TryUseAbilities(float distanceToTarget)
     {
-        if (abilityInstances.Count == 0) return false;
+        if (Time.time < nextAbilityAttemptTime)
+            return false;
 
-        // Use highest priority ability (weapon ability is priority 100)
-        var primaryAbility = abilityInstances[0];
-        return primaryAbility.ability.TryUseAbility();
+        Vector3 targetPosition = targetTransform != null
+            ? targetTransform.position
+            : transform.position + transform.right;
+
+        foreach (var instance in abilityInstances)
+        {
+            if (instance.ability == null || distanceToTarget > instance.range)
+                continue;
+
+            if (instance.ability.GetRemainingCooldown() > 0f)
+                continue;
+
+            // Passing the target as the cast position is the enemy equivalent of the player's cursor.
+            if (instance.ability.TryUseAbilityAt(targetPosition))
+            {
+                nextAbilityAttemptTime = Time.time + Mathf.Max(ABILITY_ATTEMPT_INTERVAL, instance.ability.GetRemainingCooldown());
+                return true;
+            }
+        }
+
+        // Nothing fired — wait for the soonest cooldown instead of retrying next frame.
+        nextAbilityAttemptTime = Time.time + Mathf.Max(ABILITY_ATTEMPT_INTERVAL, GetShortestRemainingCooldown(distanceToTarget));
+        return false;
+    }
+
+    /// <summary>
+    /// Shortest remaining cooldown across in-range abilities, or 0 when one is already ready.
+    /// </summary>
+    private float GetShortestRemainingCooldown(float distanceToTarget)
+    {
+        float shortest = float.MaxValue;
+        foreach (var instance in abilityInstances)
+        {
+            if (instance.ability == null || distanceToTarget > instance.range)
+                continue;
+
+            shortest = Mathf.Min(shortest, instance.ability.GetRemainingCooldown());
+        }
+
+        return shortest == float.MaxValue ? 0f : Mathf.Max(0f, shortest);
+    }
+
+    /// <summary>
+    /// True when at least one ability is in range and off cooldown.
+    /// </summary>
+    private bool HasAbilityReady(float distanceToTarget)
+    {
+        foreach (var instance in abilityInstances)
+        {
+            if (instance.ability != null
+                && distanceToTarget <= instance.range
+                && instance.ability.GetRemainingCooldown() <= 0f)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -687,6 +738,22 @@ public class Enemy : Organism
     }
 
     /// <summary>
+    /// Furthest range the enemy can currently attack from. Weapon-granted abilities are
+    /// registered with EnemyConfig.weaponAbilityRange, so they are covered here too.
+    /// </summary>
+    private float GetAttackRange()
+    {
+        float maxRange = 0f;
+        foreach (var instance in abilityInstances)
+        {
+            if (instance.ability != null && instance.range > maxRange)
+                maxRange = instance.range;
+        }
+
+        return maxRange;
+    }
+
+    /// <summary>
     /// Determine next state based on current conditions
     /// </summary>
     private EnemyState DetermineNextState(float distanceToTarget, bool hasTarget, EnemyState currentState)
@@ -695,15 +762,21 @@ public class Enemy : Organism
             return EnemyState.Patrol;
 
         float healthPercent = (CurrentHealth / MaxHealth) * 100f;
+        EnemyActionConfig retreatAction = GetAction(EnemyActionType.Retreat);
 
-        // Priority 1: Retreat if has Retreat action and health < 15%
-        if (HasAction(EnemyActionType.Retreat) && healthPercent <= RETREAT_HEALTH_PERCENT)
+        // Priority 1: Retreat when health drops below the action's threshold
+        if (retreatAction != null)
         {
-            return EnemyState.Retreat;
+            float retreatThreshold = retreatAction.healthPercentThreshold >= 0f
+                ? retreatAction.healthPercentThreshold
+                : RETREAT_HEALTH_PERCENT;
+
+            if (healthPercent <= retreatThreshold)
+                return EnemyState.Retreat;
         }
 
         // Priority 2: Kite if has Retreat action and player within kite distance
-        if (HasAction(EnemyActionType.Retreat) && hasTarget && distanceToTarget <= KITE_DISTANCE)
+        if (retreatAction != null && hasTarget && distanceToTarget <= KITE_DISTANCE)
         {
             return EnemyState.Kite;
         }
@@ -716,21 +789,21 @@ public class Enemy : Organism
             return EnemyState.Patrol; // Default fallback
         }
 
-        // Target in weapon range: Attack or Strafe
-        if (distanceToTarget <= config.weaponAbilityRange)
+        // Target within reach of at least one ability: Attack or Strafe
+        if (distanceToTarget <= GetAttackRange())
         {
-            // If attack is ready, always attack
-            if (attackCooldownTimer <= 0f)
+            // If an ability is ready, always attack
+            if (HasAbilityReady(distanceToTarget))
             {
                 return EnemyState.Attack;
             }
 
-            // Attack on cooldown - stay in Strafe if already strafing
+            // Everything on cooldown - stay in Strafe if already strafing
             if (HasAction(EnemyActionType.Strafe))
             {
                 if (currentState == EnemyState.Strafe)
                 {
-                    // Stay in Strafe until cooldown expires
+                    // Stay in Strafe until an ability comes off cooldown
                     return EnemyState.Strafe;
                 }
                 else if (currentState == EnemyState.Attack)
@@ -747,7 +820,7 @@ public class Enemy : Organism
             return EnemyState.Attack;
         }
 
-        // Target outside weapon range: Chase if has Chase action
+        // Target outside every ability's range: Chase if has Chase action
         if (HasAction(EnemyActionType.Chase))
         {
             return EnemyState.Chase;
@@ -789,11 +862,11 @@ public class Enemy : Organism
                 break;
 
             case EnemyState.Attack:
-                ExecuteAttack();
+                ExecuteAttack(distanceToTarget);
                 break;
 
             case EnemyState.Kite:
-                ExecuteKite();
+                ExecuteKite(distanceToTarget);
                 break;
         }
     }
@@ -801,13 +874,6 @@ public class Enemy : Organism
     private void ExecuteChase(float distanceToTarget)
     {
         if (targetTransform == null || rb == null || config == null) return;
-
-        // Check if this enemy uses charge behavior
-        if (config.useChargeBehavior)
-        {
-            ExecuteChargeBehavior(distanceToTarget);
-            return;
-        }
 
         EnemyActionConfig chaseAction = GetAction(EnemyActionType.Chase);
         float speedMultiplier = chaseAction != null ? chaseAction.movementSpeedMultiplier : 1f;
@@ -818,72 +884,6 @@ public class Enemy : Organism
         Vector2 bestDirection = CalculateBestMovementDirection(directionToTarget);
         rb.linearVelocity = bestDirection * moveSpeed;
 
-        PlayMovementAnimation(bestDirection);
-    }
-
-    /// <summary>
-    /// Charge behavior: When within charge range, applies an impulse force toward the player.
-    /// The enemy travels through/past the player and slows to a stop before charging again.
-    /// Uses attack speed for cooldown between charges.
-    /// </summary>
-    private void ExecuteChargeBehavior(float distanceToTarget)
-    {
-        if (targetTransform == null || rb == null || config == null) return;
-
-        // Update charge cooldown
-        if (chargeCooldownTimer > 0f)
-        {
-            chargeCooldownTimer -= Time.deltaTime;
-        }
-
-        // If currently charging, apply friction and check for stop
-        if (isCharging)
-        {
-            // Apply friction by reducing velocity
-            rb.linearVelocity *= Mathf.Max(0f, 1f - config.chargeFriction * Time.deltaTime);
-
-            // Check if slowed to a stop
-            if (rb.linearVelocity.magnitude < config.chargeStopSpeed)
-            {
-                isCharging = false;
-                rb.linearVelocity = Vector2.zero;
-
-                // Start cooldown based on attack speed stat (attacks per second)
-                float attackSpeed = statContainer.GetStat("AttackSpeed");
-                if (attackSpeed > 0f)
-                {
-                    chargeCooldownTimer = 1f / attackSpeed;
-                }
-                else
-                {
-                    chargeCooldownTimer = 1f; // Default 1 second cooldown
-                }
-            }
-            else
-            {
-                PlayMovementAnimation(rb.linearVelocity.normalized);
-            }
-            return;
-        }
-
-        // Not charging - check if we can initiate a charge
-        if (chargeCooldownTimer <= 0f && distanceToTarget <= config.chargeRange)
-        {
-            // Initiate charge! Apply impulse force toward player
-            chargeDirection = (targetTransform.position - transform.position).normalized;
-            rb.AddForce(chargeDirection * config.chargeForce, ForceMode2D.Impulse);
-            isCharging = true;
-            PlayMovementAnimation(chargeDirection);
-            return;
-        }
-
-        // Not in charge range or on cooldown - move toward player normally
-        EnemyActionConfig chaseAction = GetAction(EnemyActionType.Chase);
-        float speedMultiplier = chaseAction != null ? chaseAction.movementSpeedMultiplier : 1f;
-        float moveSpeed = statContainer.GetStat("MoveSpeed") * speedMultiplier;
-        Vector2 directionToTarget = (targetTransform.position - transform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionToTarget);
-        rb.linearVelocity = bestDirection * moveSpeed;
         PlayMovementAnimation(bestDirection);
     }
 
@@ -974,7 +974,7 @@ public class Enemy : Organism
         PlayMovementAnimation(bestDirection);
     }
 
-    private void ExecuteAttack()
+    private void ExecuteAttack(float distanceToTarget)
     {
         // Stop moving when attacking
         if (rb != null)
@@ -983,88 +983,12 @@ public class Enemy : Organism
         }
 
         PlayIdleAnimation();
-
-        // Check attack cooldown
-        if (attackCooldownTimer > 0f)
-        {
-            return;
-        }
-
-        EnemyActionConfig attackAction = GetAction(EnemyActionType.Attack);
-        if (attackAction == null)
-        {
-            // No attack action configured, use primary weapon ability
-            if (TryUseAttack())
-            {
-                attackCooldownTimer = 2f; // Default cooldown
-            }
-            return;
-        }
-
-        // Try to use the specified ability
-        if (attackAction.abilityIndex >= 0 && attackAction.abilityIndex < abilityInstances.Count)
-        {
-            var abilityInstance = abilityInstances[attackAction.abilityIndex];
-            if (abilityInstance.ability.TryUseAbility())
-            {
-                attackCooldownTimer = attackAction.GetRandomAttackCooldown();
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[Enemy] {gameObject.name} ExecuteAttack - invalid abilityIndex: {attackAction.abilityIndex} (total: {abilityInstances.Count})");
-        }
+        TryUseAbilities(distanceToTarget);
     }
 
-    private void ExecuteProjectileEnemy(float distanceToTarget, bool hasTarget)
+    private void ExecuteKite(float distanceToTarget)
     {
-        if (rb == null || config == null) return;
-
-        if (!hasTarget)
-        {
-            rb.linearVelocity = Vector2.zero;
-            PlayIdleAnimation();
-            return;
-        }
-
-        isChasing = true;
-
-        if (distanceToTarget <= config.projectileRange)
-        {
-            // In range: stop and fire on cooldown
-            rb.linearVelocity = Vector2.zero;
-            PlayIdleAnimation();
-
-            if (attackCooldownTimer <= 0f && config.projectileEnemyConfig != null)
-            {
-                Vector3 direction = (targetTransform.position - transform.position).normalized;
-                ProjectileSpawner.SpawnProjectiles(
-                    config.projectileEnemyConfig,
-                    transform.position,
-                    direction,
-                    gameObject,
-                    1f,
-                    config.enemyName + "_Projectile",
-                    null
-                );
-                attackCooldownTimer = UnityEngine.Random.Range(config.projectileAttackCooldownMin, config.projectileAttackCooldownMax);
-            }
-        }
-        else
-        {
-            // Outside range: chase toward player
-            float moveSpeed = statContainer.GetStat("MoveSpeed");
-            Vector2 directionToTarget = (targetTransform.position - transform.position).normalized;
-            Vector2 bestDirection = CalculateBestMovementDirection(directionToTarget);
-            rb.linearVelocity = bestDirection * moveSpeed;
-            PlayMovementAnimation(bestDirection);
-        }
-    }
-
-    private void ExecuteKite()
-    {
-
-        // Kite behavior: move away from player and attack on cooldown
+        // Kite behavior: move away from the target while still casting whatever is off cooldown
         EnemyActionConfig retreatAction = GetAction(EnemyActionType.Retreat);
         float speedMultiplier = retreatAction != null ? retreatAction.movementSpeedMultiplier : 1.2f;
 
@@ -1076,14 +1000,7 @@ public class Enemy : Organism
 
         PlayMovementAnimation(bestDirection);
 
-        // Attack on cooldown
-        if (attackCooldownTimer <= 0f)
-        {
-            if (TryUseAttack())
-            {
-                attackCooldownTimer = 1.5f; // Kite attack cooldown
-            }
-        }
+        TryUseAbilities(distanceToTarget);
     }
 
     /// <summary>
@@ -1158,12 +1075,6 @@ public class Enemy : Organism
             return; // Don't move while knocked back
         }
 
-        // Update timers
-        if (attackCooldownTimer > 0f)
-        {
-            attackCooldownTimer -= Time.deltaTime;
-        }
-
         stateTimer += Time.deltaTime;
 
         // Find nearest valid target
@@ -1171,13 +1082,8 @@ public class Enemy : Organism
         float distanceToTarget = targetTransform != null ? Vector3.Distance(transform.position, targetTransform.position) : float.MaxValue;
         bool hasTarget = targetTransform != null && distanceToTarget <= detectionRange;
 
-        // Projectile Enemy: simple ranged type that bypasses the action/ability system
-        if (config != null && config.isProjectileEnemy)
-        {
-            ExecuteProjectileEnemy(distanceToTarget, hasTarget);
-        }
         // State Machine System
-        else if (config != null && config.actions != null && config.actions.Count > 0)
+        if (config != null && config.actions != null && config.actions.Count > 0)
         {
             // Decrement reassessment timer
             stateReassessmentTimer -= Time.deltaTime;
@@ -1190,7 +1096,7 @@ public class Enemy : Organism
                 // Transition to new state if changed
                 if (nextState != currentState)
                 {
-                    Debug.Log($"[Enemy] {gameObject.name} state transition: {currentState} -> {nextState} (distance: {distanceToTarget:F2}, health: {(CurrentHealth / MaxHealth * 100f):F1}%, attackCD: {attackCooldownTimer:F2})");
+                    Debug.Log($"[Enemy] {gameObject.name} state transition: {currentState} -> {nextState} (distance: {distanceToTarget:F2}, attackRange: {GetAttackRange():F2}, health: {(CurrentHealth / MaxHealth * 100f):F1}%)");
                     currentState = nextState;
                     stateTimer = 0f;
                 }
@@ -1250,21 +1156,7 @@ public class Enemy : Organism
                     rb.linearVelocity = Vector2.zero;
                 }
 
-                // Try to use abilities in priority order
-                bool abilityUsed = false;
-                foreach (var abilityInstance in abilityInstances)
-                {
-                    if (distanceToTarget <= abilityInstance.range)
-                    {
-                        bool success = abilityInstance.ability.TryUseAbility();
-                        if (success)
-                        {
-                            abilityUsed = true;
-                            break;
-                        }
-                    }
-                }
-
+                TryUseAbilities(distanceToTarget);
                 PlayIdleAnimation();
             }
             // Out of ability range, chase the target
@@ -1484,7 +1376,20 @@ public class Enemy : Organism
         {
             collider.enabled = false;
         }
-
+        Debug.Log($"[Gold] {gameObject.name} died and trying to drop {config.goldDropped} gold.");
+        if (player != null)
+        {
+            Debug.Log($"[Gold] {gameObject.name} is granting gold to player {player.gameObject.name}.");
+            SaveFileData saveFileData = player.GetCurrentSaveFileData();
+            if (saveFileData != null)
+            {
+                Debug.Log($"[Gold] Adding {config.goldDropped} gold to player {player.gameObject.name}'s save file.");
+                saveFileData.AddGold(config.goldDropped);
+            } else
+            {
+                Debug.LogWarning($"[Gold] Failed to add gold to player {player.gameObject.name}'s save file. SaveFileData is null.");
+            }
+        }
         //Death Animation
         if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))
         {
@@ -1564,38 +1469,6 @@ public class Enemy : Organism
         deathAbility.SetAbilityReference(new AbilityReference(config.onDeathAbility));
         deathAbility.InitializeAbility();
         deathAbility.TryUseAbilityAt(transform.position);
-    }
-
-    /// <summary>
-    /// When the enemy physically collides with a player, handle based on flying status.
-    /// Flying enemies pass through, non-flying enemies can be pushed.
-    /// </summary>
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Flying enemies ignore collision with players
-            if (config != null && config.isFlying)
-            {
-                Collider2D playerCollider = collision.collider;
-                if (playerCollider != null && combatCollider != null && !ignoredPlayerColliders.Contains(playerCollider))
-                {
-                    Physics2D.IgnoreCollision(combatCollider, playerCollider, true);
-                    ignoredPlayerColliders.Add(playerCollider);
-                }
-            }
-            // Non-flying enemies allow physical collision (can be pushed by player)
-        }
-
-        // Flying enemies ignore collision with other enemies
-        if (config != null && config.isFlying && collision.gameObject.GetComponent<Enemy>() != null)
-        {
-            Collider2D enemyCollider = collision.collider;
-            if (enemyCollider != null && combatCollider != null)
-            {
-                Physics2D.IgnoreCollision(combatCollider, enemyCollider, true);
-            }
-        }
     }
 
     /// <summary>
@@ -1788,7 +1661,7 @@ public class Enemy : Organism
 [System.Serializable]
 public class EnemyAbilityInstance
 {
-    public Ability ability;
+    public DataDrivenAbility ability;
     public AbilityDataConfig config;
     public float range;
     public int priority;

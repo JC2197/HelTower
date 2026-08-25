@@ -47,13 +47,13 @@ MonoBehaviour:
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: 
+  characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: 
+  mainhandAnimationName: SlamCast
   offhandAnimationName: 
   hasPrecast: 1
-  preAnimationName: 
+  preAnimationName: SlamPrecast
   activateOnButtonRelease: 0
   holdAnimationName: 
   holdChargeConfig:

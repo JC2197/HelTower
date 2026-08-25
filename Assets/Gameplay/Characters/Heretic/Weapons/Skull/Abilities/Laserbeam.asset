@@ -143,8 +143,8 @@ MonoBehaviour:
       enabled: 0
       type: 1
       amount: 5
-    canHoldToFire: 1
-    channelCostPerSecond: 5
+    canHoldToFire: 0
+    channelCostPerSecond: 0
     trackingRadius: 3
     muzzleFlashPrefab: {fileID: 0}
     enableMuzzleLight: 0

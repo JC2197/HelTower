@@ -70,8 +70,6 @@ public class CharacterSelectionConfig : ScriptableObject
         if (chosenWeapon != null && chosenWeapon.grantedSecondaryAbility != null)
             newCharacter.abilityLoadout.SetSecondaryWeaponAbility(chosenWeapon.grantedSecondaryAbility);
 
-        newCharacter.ResetRunRewardProgression();
-
         // Register this runtime character for cleanup tracking
         CharacterSelectionManager.RegisterRuntimeCharacter(newCharacter);
 

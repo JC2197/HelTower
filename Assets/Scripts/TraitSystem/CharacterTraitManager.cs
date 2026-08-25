@@ -12,6 +12,10 @@ public class CharacterTraitManager : MonoBehaviour
     [Tooltip("Reference to the character's data (auto-assigned from PlayerController if not set)")]
     [SerializeField] private CharacterData characterData;
 
+    [Header("Save File Reference")]
+    [Tooltip("Meta progression save file that owns the persisted trait tree nodes.")]
+    [SerializeField] private SaveFileData saveFileData;
+
     [Header("Active Traits")]
     [SerializeField] private List<TraitData> startingTraits = new List<TraitData>();
 
@@ -100,20 +104,33 @@ public class CharacterTraitManager : MonoBehaviour
         Debug.Log($"[CharacterTraitManager] shouldLoadTraits = {shouldLoadTraits}");
         
         characterData = data;
-        
-        // Load traits for this character
+
+        // Trait nodes are meta progression, so they are restored from the save file, not CharacterData.
         if (data != null && shouldLoadTraits)
-        {
-            Debug.Log($"[CharacterTraitManager] Loading traits from CharacterData for {data.characterName}");
-            LoadTraitsFromCharacterData();
-        }
-        else
-        {
-            Debug.Log($"[CharacterTraitManager] Skipping trait load (shouldLoadTraits={shouldLoadTraits}, data={data != null})");
-        }
-        
+            LoadTraitsFromSaveFile();
+
         Debug.Log($"[CharacterTraitManager] ========================================");
     }
+
+    /// <summary>
+    /// Assign the meta progression save file and restore its unlocked trait tree nodes.
+    /// Called by PlayerController when a save file is loaded/selected.
+    /// </summary>
+    public void SetSaveFileData(SaveFileData data)
+    {
+        if (saveFileData == data)
+            return;
+
+        // Switching save files must not carry trait unlocks across.
+        if (saveFileData != null)
+            ResetAllTraits();
+
+        saveFileData = data;
+        LoadTraitsFromSaveFile();
+    }
+
+    /// <summary>Expose the save file this manager persists trait nodes into.</summary>
+    public SaveFileData GetSaveFileData() => saveFileData;
 
     private void Awake()
     {
@@ -155,7 +172,7 @@ public class CharacterTraitManager : MonoBehaviour
 
         // Gear-granted nodes (prefix "gear_") are tracked separately from tree nodes
         // so they are never serialised into characterData.unlockedNodeIDs.
-        bool isGearNode = nodeID.StartsWith("gear_");
+        bool isGearNode = SaveFileData.IsGearNode(nodeID);
         HashSet<string> nodeSet = isGearNode ? _gearNodeIDs : unlockedNodeIDs;
 
         // Check if this specific node is already unlocked
@@ -176,8 +193,7 @@ public class CharacterTraitManager : MonoBehaviour
         // Apply trait-unlocked abilities (auto-routed based on ability type)
         // Skip for AbilityUpgrade traits - the ability already exists (it's the prerequisite)
         // AbilityUpgrade traits only apply modifiers to the existing ability, not add new instances
-        if (traitData.traitType != TraitType.AbilityUpgrade 
-            && traitData.unlockedAbilities != null && traitData.unlockedAbilities.Count > 0)
+        if (traitData.unlockedAbilities != null && traitData.unlockedAbilities.Count > 0)
         {
             CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
             if (abilityManager != null)
@@ -199,26 +215,14 @@ public class CharacterTraitManager : MonoBehaviour
         
         // Count how many instances of this trait exist now
         int instanceCount = GetTraitInstanceCount(traitData);
-
-        Debug.Log($"[CharacterTraitManager] ========================================");
-        Debug.Log($"[CharacterTraitManager] ACTIVATING TRAIT: {traitData.displayName} (Node: {nodeID})");
-        Debug.Log($"[CharacterTraitManager] This is instance #{instanceCount} of this trait");
-        Debug.Log($"[CharacterTraitManager] Trait has {traitData.statModifiers.Count} stat modifiers");
         foreach (var mod in traitData.statModifiers)
         {
             Debug.Log($"[CharacterTraitManager]   - {mod.statID}: +{mod.value} ({mod.modifierType})");
         }
-        Debug.Log($"[CharacterTraitManager] Total active traits: {activeTraits.Count}");
-        Debug.Log($"[CharacterTraitManager] Total unlocked nodes: {unlockedNodeIDs.Count}");
 
         // Recalculate cached stats
         RecalculateModifiers();
-
-        Debug.Log($"[CharacterTraitManager] Unlocked node: {nodeID}. Total unlocked nodes: {unlockedNodeIDs.Count}");
-        Debug.Log($"[CharacterTraitManager] Invoking OnTraitUnlocked event. Subscribers: {OnTraitUnlocked?.GetInvocationList()?.Length ?? 0}");
         OnTraitUnlocked?.Invoke(nodeID, traitData);
-        
-        Debug.Log($"[CharacterTraitManager] Invoking OnTraitsChanged event. Subscribers: {OnTraitsChanged?.GetInvocationList()?.Length ?? 0}");
         OnTraitsChanged?.Invoke();
 
         // Belt-and-suspenders: directly tell PlayerController to recalculate stats.
@@ -237,8 +241,8 @@ public class CharacterTraitManager : MonoBehaviour
         Debug.Log($"[CharacterTraitManager] Trait unlock complete!");
         Debug.Log($"[CharacterTraitManager] ========================================");
         
-        // Update CharacterData in-memory — caller handles save + network broadcast
-        UpdateCharacterDataTraitList();
+        // Update the save file in-memory — caller handles save + network broadcast
+        UpdateSaveFileTraitList();
 
         return true;
     }
@@ -275,8 +279,8 @@ public class CharacterTraitManager : MonoBehaviour
         // Belt-and-suspenders: directly tell PlayerController to recalculate
         playerController?.RequestStatsRecalculation();
 
-        // Update CharacterData in-memory — caller handles save + network broadcast
-        UpdateCharacterDataTraitList();
+        // Update the save file in-memory — caller handles save + network broadcast
+        UpdateSaveFileTraitList();
 
         return true;
     }
@@ -290,10 +294,21 @@ public class CharacterTraitManager : MonoBehaviour
     }
 
     /// <summary>
+    /// True when the save file holds enough gold to unlock this node. Free nodes always pass.
+    /// </summary>
+    public bool CanAffordNode(TraitNode node)
+    {
+        if (node == null)
+            return false;
+
+        if (node.goldCost <= 0)
+            return true;
+
+        return saveFileData != null && saveFileData.totalGold >= node.goldCost;
+    }
+
+    /// <summary>
     /// Expose the authoritative CharacterData reference held by this manager.
-    /// TraitSystemManager uses this in OpenTraitTree so that TSM.currentCharacterData
-    /// and CTM.characterData are always the SAME object — preventing the divergence
-    /// where SpendTraitPoint saves empty unlockedNodeIDs.
     /// </summary>
     public CharacterData GetCharacterData() => characterData;
 
@@ -367,54 +382,108 @@ public class CharacterTraitManager : MonoBehaviour
             if (trait.data == null) continue;
             
             // Get all tags from this trait
-            List<string> tags = trait.data.GetAllTags();
+            // List<string> tags = trait.data.GetAllTags();
             
-            foreach (string tag in tags)
-            {
-                if (string.IsNullOrEmpty(tag)) continue;
+            // foreach (string tag in tags)
+            // {
+            //     if (string.IsNullOrEmpty(tag)) continue;
                 
-                if (tagCounts.ContainsKey(tag))
-                {
-                    tagCounts[tag]++;
-                }
-                else
-                {
-                    tagCounts[tag] = 1;
-                }
-            }
+            //     if (tagCounts.ContainsKey(tag))
+            //     {
+            //         tagCounts[tag]++;
+            //     }
+            //     else
+            //     {
+            //         tagCounts[tag] = 1;
+            //     }
+            // }
         }
         
         return tagCounts;
     }
     
     /// <summary>
-    /// Update CharacterData's node ID list (nodeID-only system).
-    /// Also propagates to PC.currentCharacterData when it is a different object
-    /// (can happen if SetupCharacter re-ran after the trait tree was opened),
-    /// preventing any later SaveCharacter call on PC's copy from wiping the nodes.
+    /// Mirror the runtime unlocked node set into the save file (meta progression).
+    /// In-memory only — the caller is responsible for persisting and broadcasting.
     /// </summary>
-    private void UpdateCharacterDataTraitList()
+    private void UpdateSaveFileTraitList()
     {
-        if (characterData == null)
-        {
+        if (saveFileData == null)
             return;
-        }
 
-        // Trait tree/persistence removed — traits live only at runtime, nothing to write to CharacterData.
-        Debug.Log($"[CharacterTraitManager] Trait list updated: {activeTraits.Count} traits, {unlockedNodeIDs.Count} nodes");
+        saveFileData.SetUnlockedNodes(unlockedNodeIDs);
+        Debug.Log($"[CharacterTraitManager] Trait list updated: {activeTraits.Count} traits, {unlockedNodeIDs.Count} nodes persisted to '{saveFileData.saveFileName}'.");
     }
     
     /// <summary>
-    /// Load traits from CharacterData using saved nodeIDs.
-    /// Traits are looked up directly in TraitDataList — no trait tree required.
-    /// Node IDs from the trait roller are the traitID, optionally with a "_N" stack suffix.
-    /// Gear-granted node IDs (prefix "gear_") are skipped here; they are always
-    /// re-derived by CharacterGearManager.LoadEquippedGear().
+    /// Restore the save file's persisted trait tree nodes. Each node is resolved via the
+    /// save file's trait tree, falling back to TraitDataList by traitID (with any "_N" stack
+    /// suffix stripped). Gear-granted node IDs are skipped — they are always re-derived from gear.
     /// </summary>
-    private void LoadTraitsFromCharacterData()
+    private void LoadTraitsFromSaveFile()
     {
-        // Trait tree and persistence were removed — there are no saved node IDs to restore.
-        // Traits are granted at runtime (trait rolls / starting traits) instead.
+        if (saveFileData == null || saveFileData.unlockedNodeIDs == null || saveFileData.unlockedNodeIDs.Count == 0)
+            return;
+
+        // Copy first: UnlockTrait writes back into the save file via UpdateSaveFileTraitList.
+        List<string> savedNodeIDs = new List<string>(saveFileData.unlockedNodeIDs);
+        int restored = 0;
+
+        foreach (string nodeID in savedNodeIDs)
+        {
+            // Gear nodes are re-derived from equipped gear, never restored from the save file.
+            if (string.IsNullOrEmpty(nodeID) || SaveFileData.IsGearNode(nodeID) || unlockedNodeIDs.Contains(nodeID))
+                continue;
+
+            TraitData traitData = ResolveTraitForNode(nodeID);
+            if (traitData == null)
+            {
+                Debug.LogWarning($"[CharacterTraitManager] Saved node '{nodeID}' has no matching TraitData — skipping.");
+                continue;
+            }
+
+            if (UnlockTrait(nodeID, traitData, isRestoring: true))
+                restored++;
+        }
+
+        Debug.Log($"[CharacterTraitManager] Restored {restored}/{savedNodeIDs.Count} trait nodes from save file '{saveFileData.saveFileName}'.");
+    }
+
+    /// <summary>
+    /// Resolve the TraitData for a saved node ID: search every trait tree the equipped class
+    /// exposes first, then fall back to the global TraitDataList by traitID (stripping any
+    /// "_N" stack suffix left by the trait roller).
+    /// </summary>
+    private TraitData ResolveTraitForNode(string nodeID)
+    {
+        ClassData classData = characterData != null ? characterData.GetClassData() : null;
+        if (classData?.availableTraitTrees != null)
+        {
+            foreach (TraitTree tree in classData.availableTraitTrees)
+            {
+                TraitNode node = tree?.nodes?.FirstOrDefault(n => n != null && n.nodeID == nodeID);
+                if (node?.traitData != null)
+                    return node.traitData;
+            }
+        }
+
+        if (traitDataList == null)
+            traitDataList = Resources.Load<TraitDataList>("TraitDataList");
+        if (traitDataList == null)
+            return null;
+
+        string traitID = StripStackSuffix(nodeID);
+        return traitDataList.AllTraits.FirstOrDefault(t => t != null && t.traitID == traitID);
+    }
+
+    /// <summary>Strip the trailing "_N" the trait roller appends when stacking a trait.</summary>
+    private static string StripStackSuffix(string nodeID)
+    {
+        int separator = nodeID.LastIndexOf('_');
+        if (separator <= 0 || separator == nodeID.Length - 1)
+            return nodeID;
+
+        return int.TryParse(nodeID.Substring(separator + 1), out _) ? nodeID.Substring(0, separator) : nodeID;
     }
     
     /// <summary>
@@ -680,5 +749,17 @@ public class CharacterTraitManager : MonoBehaviour
         _gearNodeIDs.Clear();
     }
     
+    public int GetTraitLevel(string nodeID)
+    {
+        if (string.IsNullOrEmpty(nodeID))
+            return 0;
+
+        foreach (var trait in activeTraits)
+        {
+            if (trait.data != null)
+                return trait.level;
+        }
+        return 0;
+    }
 
 }

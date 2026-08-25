@@ -36,6 +36,10 @@ public class ClassData : ScriptableObject
     [Tooltip("Starting stat values for this class. Use the context menu 'Initialize Base Stats from Database' if empty.")]
     public StatContainer baseStatContainer = new StatContainer();
 
+    [Header("Trait Trees")]
+    [Tooltip("Trait trees this class can open. Tab selection isn't implemented yet, so the first entry is used.")]
+    public List<TraitTree> availableTraitTrees = new List<TraitTree>();
+
     private void OnValidate()
     {
         if (baseStatContainer == null)

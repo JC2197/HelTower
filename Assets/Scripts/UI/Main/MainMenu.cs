@@ -16,6 +16,7 @@ public class MainMenu : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject saveFilesPanel;
 
     // ── Main Menu Panel ───────────────────────────────────────────────────────
 
@@ -23,6 +24,11 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button playButton;
     [SerializeField] private Button optionsButton;
     [SerializeField] private Button quitButton;
+
+    // ── Save Files Panel ──────────────────────────────────────────────────────
+
+    [Header("Save Files Panel")]
+    [SerializeField] private Button saveFilesBackButton;
 
     // ── Settings Panel ────────────────────────────────────────────────────────
 
@@ -55,6 +61,8 @@ public class MainMenu : MonoBehaviour
         playButton?.onClick.AddListener(OnPlay);
         optionsButton?.onClick.AddListener(OnOptions);
         quitButton?.onClick.AddListener(QuitGame);
+        // Save files
+        saveFilesBackButton?.onClick.AddListener(BackToMainMenu);
         // Settings
         settingsBackButton?.onClick.AddListener(BackToMainMenu);
     }
@@ -75,13 +83,14 @@ public class MainMenu : MonoBehaviour
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(mainMenuPanel == target);
         if (settingsPanel != null) settingsPanel.SetActive(settingsPanel == target);
+        if (saveFilesPanel != null) saveFilesPanel.SetActive(saveFilesPanel == target);
 
     }
 
-    // Main menu → Play options
+    // Main menu → Save file selection
     public void OnPlay()
     {
-        // start game
+        ShowPanel(saveFilesPanel);
     }
 
     // Main menu → Settings

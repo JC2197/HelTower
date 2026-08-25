@@ -57,13 +57,20 @@ public class CharacterSelectionManager : MonoBehaviour
             return;
         }
 
+        SetSelectedCharacter(characterData);
+    }
+
+    /// <summary>
+    /// Set the character the next run will use. Static so the main menu can select a
+    /// character before any CharacterSelectionManager instance exists in the scene.
+    /// </summary>
+    public static void SetSelectedCharacter(CharacterData characterData)
+    {
+        if (characterData == null)
+            return;
+
         SelectedCharacter = characterData;
-        
-        // Save the character name so we can reload it later
-        PlayerPrefs.Save();
-        
-        // Note: Character should already be saved before calling this method
-        // This just sets the active character for the game session
+        RegisterRuntimeCharacter(characterData);
     }
 
     public ClassData GetClassByIndex(int index)

@@ -9,11 +9,12 @@ public class Trait
     public TraitData data { get; private set; }
     public bool isActive { get; private set; }
     private TraitEffect effectInstance;
-    
+    public int level;
     public Trait(TraitData traitData)
     {
         data = traitData;
         isActive = false;
+        level = 1;
     }
     
     /// <summary>

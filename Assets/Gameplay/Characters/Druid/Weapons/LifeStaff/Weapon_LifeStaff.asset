@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: Lifebloom Staff
-  weaponType: Staff
+  weaponType: LifeStaff
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 8236306081892218492, guid: 5ade059a38f514741af729ee25f65d05, type: 3}
   weaponDamageMin: 0

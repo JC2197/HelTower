@@ -13,22 +13,24 @@ MonoBehaviour:
   m_Name: WeaponTypeList
   m_EditorClassIdentifier: 
   weaponTypes:
-  - Sword
-  - Axe
+  - Greatsword
+  - Hammer
+  - Defender
+  - SandSpear
+  - Firestarter
+  - Shotgun
   - Dagger
-  - Spear
   - Bow
   - Crossbow
   - Pistol
-  - Rifle
-  - Automatic
-  - Shotgun
-  - Staff
   - Wand
-  - Shield
-  - Fist Weapon
-  - Hammer
-  - Mace
-  - Any
+  - Claws
   - Lute
+  - Curse Staff
+  - Scythe
+  - Lightning Rod
   - Artifact
+  - Mace
+  - Skull
+  - Orb
+  - LifeStaff

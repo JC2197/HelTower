@@ -62,7 +62,7 @@ public class TraitData : ScriptableObject
     [Header("Trait Type")]
     [Tooltip("Is this a minor trait or a major/keystone trait?")]
     public TraitType traitType = TraitType.General;
-
+    public int maxLevel = 1;
     [Header("Stat Modifiers")]
     [Tooltip("Direct stat modifications this trait provides")]
     public List<TraitStatModifier> statModifiers = new List<TraitStatModifier>();

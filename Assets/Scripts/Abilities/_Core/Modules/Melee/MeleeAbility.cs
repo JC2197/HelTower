@@ -143,7 +143,7 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
                 }
             }
         }
-        else if (config.hitbox.scaleX > 0f && config.hitbox.scaleX != 1f || config.hitbox.scaleY > 0f && config.hitbox.scaleY != 1f)
+        if (config.hitbox.scaleX > 0f && config.hitbox.scaleX != 1f || config.hitbox.scaleY > 0f && config.hitbox.scaleY != 1f)
         {
             instance.transform.localScale = new Vector3(config.hitbox.scaleX, config.hitbox.scaleY, 1f);
         }

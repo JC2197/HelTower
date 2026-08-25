@@ -556,11 +556,12 @@ public class WeaponSortingManager : MonoBehaviour
             Vector3 aimOrigin = playerTransform.position + new Vector3(weaponOffset.x, weaponOffset.y, 0f);
             Vector2 offsetOriginToMouse = (Vector2)(ownerMouseWorldPos - aimOrigin);
 
-            if (offsetOriginToMouse.sqrMagnitude > 0.000001f)
+            if (offsetOriginToMouse.sqrMagnitude > 0.000001f){
                 targetAngle = Mathf.Atan2(offsetOriginToMouse.y, offsetOriginToMouse.x) * Mathf.Rad2Deg;
-
-            if (weaponSettings.lockTo2Directions)
+            }
+            if (weaponSettings.lockTo2Directions){
                 targetAngle = SnapToCardinalDirection(targetAngle);
+            }
         }
 
         // Apply hands position and sorting
@@ -597,8 +598,10 @@ public class WeaponSortingManager : MonoBehaviour
         {
             // Lock to 2 directions: don't rotate, use sprite flips.
             // (targetAngle is already snapped to 0° or 180° from STEP 2)
-            weapon.rotation = Quaternion.identity;
+            weapon.rotation = Quaternion.Euler(0, 0, SnapToCardinalDirection(targetAngle));
+            Debug.Log($"[WeaponSortingManager] 2-direction lock target angle: {targetAngle}");
             weapon.localPosition = weaponOffset;
+
         }
         else
         {
@@ -617,12 +620,6 @@ public class WeaponSortingManager : MonoBehaviour
             weapon.localPosition = weaponPosition;
         }
 
-        // Handle weapon flipping (applies to both aiming modes)
-        // Flip the parent Weapon GameObject so all children and animation offsets flip together.
-        // IMPORTANT: Always write explicit ±1f scale values instead of reading the current
-        // localScale and using Mathf.Abs(). Reading back the current scale each frame caused
-        // Y-scale drift to tiny values because external systems (weapon Animator, FishNet sync,
-        // Unity TRS decomposition after world-rotation set) can modify scale between frames.
         float scaleX = 1f;
         float scaleY = 1f;
         bool isFlipped = false;
@@ -763,16 +760,11 @@ public class WeaponSortingManager : MonoBehaviour
 
     private float SnapToCardinalDirection(float angle)
     {
-        // Normalize to 0-360
-        if (angle < 0) angle += 360;
+        angle = Mathf.Abs(angle);
 
-        // Snap to East or West only
-        // 0° = East (right), 180° = West (left)
-        // Split at 90° (top) and 270° (bottom)
-
-        if ((angle >= 270f && angle <= 360f) || (angle >= 0f && angle < 90f))
+        if ((angle >= 0f && angle <= 90f))
             return 0f; // East (right) - right half of circle
         else
-            return 180f; // West (left) - left half of circle
+            return -180f; // West (left) - left half of circle
     }
 }

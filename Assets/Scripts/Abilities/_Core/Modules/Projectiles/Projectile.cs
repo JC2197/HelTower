@@ -973,8 +973,6 @@ public abstract class Projectile : NetworkBehaviour
         // Search all colliders in range — use no layer mask so tag-based filtering is the authority.
         // hitLayers may not include every enemy sub-collider layer, causing missed targets.
         Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, chainRange);
-        Debug.Log($"[Projectile.FindNextChainTarget] Searching from pos={transform.position} range={chainRange} — found {nearbyColliders.Length} total colliders");
-
         // Separate candidates into unique (not yet hit) and already-hit, to prefer unique targets
         Collider2D uniqueClosest = null;
         float uniqueClosestDist = float.MaxValue;
@@ -986,7 +984,6 @@ public abstract class Projectile : NetworkBehaviour
             // Skip the exact collider we just hit
             if (col == currentTarget)
             {
-                Debug.Log($"[Projectile.FindNextChainTarget] Skip {col.name} — is current target");
                 continue;
             }
 
@@ -994,14 +991,12 @@ public abstract class Projectile : NetworkBehaviour
             Enemy enemyComponent = col.GetComponentInParent<Enemy>();
             if (enemyComponent == null)
             {
-                Debug.Log($"[Projectile.FindNextChainTarget] Skip {col.name} — no Enemy component");
                 continue;
             }
 
             // Skip dead enemies
             if (!enemyComponent.IsAlive)
             {
-                Debug.Log($"[Projectile.FindNextChainTarget] Skip {col.name} — enemy is dead");
                 continue;
             }
 
@@ -1031,12 +1026,6 @@ public abstract class Projectile : NetworkBehaviour
         // Prefer a unique (not-yet-hit) target; fall back to already-hit if none available
         Collider2D closestTarget = uniqueClosest ?? fallbackClosest;
         float closestDistance = uniqueClosest != null ? uniqueClosestDist : fallbackClosestDist;
-
-        if (closestTarget != null)
-            Debug.Log($"[Projectile.FindNextChainTarget] Chosen target: {closestTarget.name} @ dist={closestDistance:F2} (unique={uniqueClosest != null})");
-        else
-            Debug.Log($"[Projectile.FindNextChainTarget] No valid Enemy chain target found");
-
         return closestTarget;
     }
 

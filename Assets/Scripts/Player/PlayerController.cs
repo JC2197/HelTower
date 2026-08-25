@@ -34,6 +34,7 @@ public class PlayerController : Organism
     public static PlayerController LocalPlayer { get; private set; }
 
     private CharacterData _currentCharacterData;
+    private SaveFileData _currentSaveFileData;
     private NetworkObject _currentMainWeaponNob;
     private WeaponConfig _equippedMainWeaponConfig;
     private WeaponSettings _currentMainWeaponSettings;
@@ -54,7 +55,18 @@ public class PlayerController : Organism
     public event Action OnStatsRecalculationRequested;
 
     public CharacterData GetCurrentCharacterData() => _currentCharacterData;
+    public SaveFileData GetCurrentSaveFileData() => _currentSaveFileData;
     public void SetCurrentCharacterData(CharacterData characterData) => _currentCharacterData = characterData;
+
+    /// <summary>
+    /// Assign the meta progression save file for this player and push it to the trait manager
+    /// so persisted trait tree nodes are restored.
+    /// </summary>
+    public void SetCurrentSaveFileData(SaveFileData saveFileData)
+    {
+        _currentSaveFileData = saveFileData;
+        GetComponent<CharacterTraitManager>()?.SetSaveFileData(saveFileData);
+    }
     public WeaponConfig GetEquippedMainWeaponConfig() => _equippedMainWeaponConfig;
     public enum AbilityState
     {
@@ -198,7 +210,13 @@ public class PlayerController : Organism
 
         // Notify observers so dependent systems refresh.
         GetComponent<CharacterDataObserver>()?.SetCharacterData(characterData);
-        GetComponent<CharacterTraitManager>()?.SetCharacterData(characterData);
+
+        CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
+        if (traitManager != null)
+        {
+            traitManager.SetCharacterData(characterData);
+            traitManager.SetSaveFileData(_currentSaveFileData);
+        }
 
         Debug.Log($"[PlayerController] Applied character '{characterData.displayName}'.");
 
@@ -461,6 +479,10 @@ public class PlayerController : Organism
 
     private void EnsureCharacterAssigned()
     {
+        // The save file is chosen in the main menu, before this player exists.
+        if (_currentSaveFileData == null && SaveFileSelectionManager.ActiveSaveFile != null)
+            SetCurrentSaveFileData(SaveFileSelectionManager.ActiveSaveFile);
+
         if (_currentCharacterData != null)
             return;
 
@@ -1123,8 +1145,10 @@ public class PlayerController : Organism
 
     protected override void HandleDeath()
     {
-        if (_rigidbody != null)
-            _rigidbody.linearVelocity = Vector2.zero;
+        if (_bodyAnimator != null)
+            _bodyAnimator.Play("Death");
+        DisableInputActions();
+        EndScreenUI.Instance.ShowEndScreen(10);
     }
 
     private void InitializeInputActions()
@@ -1231,4 +1255,6 @@ public class PlayerController : Organism
             }
         }
     }
+
+    
 }

@@ -52,11 +52,15 @@ MonoBehaviour:
       displayName: Maximum HP
       categoryId: Active
       currentValue: 45
-    - statId: PHYSICAL
+    - statId: Physical
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
-    - statId: MAGICAL
+    - statId: Magical
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxMana
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
@@ -66,6 +70,7 @@ MonoBehaviour:
   abilities: []
   mainHandWeaponConfig: {fileID: 0}
   offhandWeaponConfig: {fileID: 0}
+  goldDropped: 3
   handSprite: {fileID: 0}
   useWeaponGrantedAbilities: 0
   weaponAbilityRange: 0.2
@@ -115,196 +120,6 @@ MonoBehaviour:
   collisionHitLayers:
     serializedVersion: 2
     m_Bits: 8
-  isFlying: 0
-  isProjectileEnemy: 0
-  projectileRange: 8
-  projectileEnemyConfig:
-    hitbox:
-      prefab: {fileID: 0}
-      scaleX: 1
-      scaleY: 1
-      hitLayers:
-        serializedVersion: 2
-        m_Bits: 6
-      damage: 20
-      damageTypeName: Physical
-      useWeaponDamage: 0
-      percentWeaponDamage: 100
-      lifeSteal:
-        enabled: 0
-        type: 1
-        amount: 5
-      knockback:
-        enabled: 0
-        force: 5
-        directionality: 1
-      pull:
-        enabled: 0
-        force: 5
-      forcedMovementPreference: 0
-      onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
-      triggerOneTriggeredAbilityOnDestroy: 0
-      positiveHitLayers:
-        serializedVersion: 2
-        m_Bits: 0
-      positiveHealing: 0
-      onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
-      effects:
-        hitEffectPrefab: {fileID: 0}
-        hitSound: {fileID: 0}
-        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    allowOverride: 0
-    dealsDamageOverTime: 0
-    damagePerTick: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
-    speed: 15
-    useLifetime: 1
-    lifetime: 3
-    maxRange: 0
-    behavior: 0
-    chargeDamageMultiplier: 1
-    canCancelCharge: 1
-    hasMultiShot: 0
-    projectileCount: 1
-    spreadAngle: 15
-    spreadAnglePerProjectile: 0
-    salvoSize: 1
-    salvoInterval: 0.15
-    salvoAngle: 0
-    hasPierce: 0
-    pierceCount: 0
-    hasChaining: 0
-    chainRange: 10
-    maxChains: 0
-    homingStrength: 5
-    waveAmplitude: 1
-    waveFrequency: 2
-    spiralRadius: 1
-    spiralSpeed: 2
-    lobbedArcHeight: 3
-    boomerangDistanceCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.5
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    freezeRotation: 0
-    spinSpeed: 0
-    canPierceLayers:
-      serializedVersion: 2
-      m_Bits: 0
-    destroyOnLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    destroyVisualPrefab: {fileID: 0}
-    destroySound: {fileID: 0}
-    muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 0}
-    enableMuzzleLight: 0
-    muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-    muzzleLightIntensity: 3
-    muzzleLightRange: 2
-    muzzleLightDuration: 0.1
-    localMuzzle: 0
-  projectileAttackCooldownMin: 2
-  projectileAttackCooldownMax: 3
-  useChargeBehavior: 0
-  chargeRange: 5
-  chargeForce: 15
-  chargeFriction: 3
-  chargeStopSpeed: 0.1
   idleAnimationName: Idle
   idleUpAnimationName: IdleUp
   moveAnimationName: Run

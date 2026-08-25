@@ -10,7 +10,7 @@ public class StatContainer
     [NonSerialized] private Dictionary<string, StatValue> statLookup;
 
     public event Action<string, float> StatChanged;
-    public event Action AnyStatChanged;
+    public static event Action OnAnyStatChanged;
 
     public void Initialize(StatTypeDatabase database)
     {
@@ -156,7 +156,7 @@ public class StatContainer
 
         stat.CurrentValue = value;
         StatChanged?.Invoke(stat.StatId, value);
-        AnyStatChanged?.Invoke();
+        OnAnyStatChanged?.Invoke();
         return true;
     }
 

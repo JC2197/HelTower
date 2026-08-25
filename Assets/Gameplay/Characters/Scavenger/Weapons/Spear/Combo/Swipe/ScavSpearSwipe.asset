@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
   cooldownTime: 0
@@ -70,7 +71,7 @@ MonoBehaviour:
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
-  isMovementAbility: 0
+  isMovementAbility: 1
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
@@ -228,7 +229,7 @@ MonoBehaviour:
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 20
+      damage: 12
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -237,7 +238,7 @@ MonoBehaviour:
         type: 1
         amount: 5
       knockback:
-        enabled: 0
+        enabled: 1
         force: 3
         directionality: 0
       pull:
@@ -321,7 +322,7 @@ MonoBehaviour:
     meleeFXSpeed: 0
     flipMeleeFX: 0
     flipMeleeFXY: 1
-    stickToCharacter: 0
+    stickToCharacter: 1
     allowMultiHit: 0
     meleeSound: {fileID: 0}
   weaponData:
@@ -1818,10 +1819,10 @@ MonoBehaviour:
     movementType: 1
     lerp: 0
     speed: 10
-    distance: 5
-    duration: 0.5
+    distance: 3
+    duration: 0.2
     activateAfterPrecast: 0
-    towardMouse: 0
+    towardMouse: 1
     awayFromMouse: 0
     isDashing: 0
     teleportAnimationPrefab: {fileID: 0}

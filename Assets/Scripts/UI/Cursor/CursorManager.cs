@@ -56,17 +56,17 @@ public class CursorManager : MonoBehaviour
     [Range(0f, 0.5f)] private float bottomEdgeMargin = 0.15f;
     
     [Header("Targeting")]
-    [SerializeField] private bool enableEnemyTargeting = true;
+    [SerializeField] private bool enableTargeting = true;
     [SerializeField] private float targetingRadius = 1.5f; // Detection radius around cursor
     [SerializeField] private LayerMask enemyLayerMask;
     [SerializeField] private LayerMask allyLayerMask;
-    [SerializeField] private GameObject targetPrefab;
-    [SerializeField] private float targetFollowLerpSpeed = 15f;
-    [SerializeField] private float targetScaleLerpSpeed = 12f;
-    [SerializeField] private float targetWorldYOffset = 0.5f;
-    [SerializeField] private string targetSortingLayerName = "UI";
-    [SerializeField] private int targetSortingOrder = 200;
-    [SerializeField] private Color defaultTargetColor = Color.red;
+    [SerializeField] private GameObject targetingPrefab;
+    [SerializeField] private float targetingFollowLerpSpeed = 15f;
+    [SerializeField] private float targetingScaleLerpSpeed = 12f;
+    [SerializeField] private float targetingWorldYOffset = 0.5f;
+    [SerializeField] private string targetingSortingLayerName = "UI";
+    [SerializeField] private int targetingSortingOrder = 200;
+    [SerializeField] private Color defaultTargetingColor = Color.red;
     [SerializeField] private List<TargetTagColorRule> targetTagColors = new List<TargetTagColorRule>();
     [SerializeField] private Color targetingCursorColor = Color.red;
     [SerializeField] private Color normalCursorColor = Color.white;
@@ -83,8 +83,8 @@ public class CursorManager : MonoBehaviour
     private float _nextPlayerRefRefreshTime;
     
     // Enemy targeting
-    private Organism currentTarget;
-    private GameObject targetIndicatorInstance;
+    public Organism currentTarget;
+    private GameObject targetingIndicatorInstance;
     private float targetIndicatorScale;
     private bool targetIndicatorIsUi;
     
@@ -247,7 +247,7 @@ public class CursorManager : MonoBehaviour
         ConstrainCursorToRange();
         
         // Update enemy targeting
-        if (enableEnemyTargeting)
+        if (enableTargeting)
         {
             UpdateEnemyTargeting();
         }
@@ -448,41 +448,41 @@ public class CursorManager : MonoBehaviour
 
     private void CreateTargetIndicator()
     {
-        if (targetPrefab == null)
+        if (targetingPrefab == null)
             return;
 
-        if (targetIndicatorInstance != null)
-            Destroy(targetIndicatorInstance);
+        if (targetingIndicatorInstance != null)
+            Destroy(targetingIndicatorInstance);
 
-        targetIndicatorIsUi = targetPrefab.GetComponentInChildren<Canvas>(true) != null
-            || targetPrefab.GetComponentInChildren<RectTransform>(true) != null;
+        targetIndicatorIsUi = targetingPrefab.GetComponentInChildren<Canvas>(true) != null
+            || targetingPrefab.GetComponentInChildren<RectTransform>(true) != null;
 
         if (targetIndicatorIsUi)
         {
             Transform parent = gameplayCursorInstance != null ? gameplayCursorInstance.transform : transform;
-            targetIndicatorInstance = Instantiate(targetPrefab, parent);
+            targetingIndicatorInstance = Instantiate(targetingPrefab, parent);
         }
         else
         {
-            targetIndicatorInstance = Instantiate(targetPrefab);
-            DontDestroyOnLoad(targetIndicatorInstance);
+            targetingIndicatorInstance = Instantiate(targetingPrefab);
+            DontDestroyOnLoad(targetingIndicatorInstance);
 
-            SpriteRenderer[] spriteRenderers = targetIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
+            SpriteRenderer[] spriteRenderers = targetingIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
             for (int i = 0; i < spriteRenderers.Length; i++)
             {
-                if (!string.IsNullOrWhiteSpace(targetSortingLayerName))
-                    spriteRenderers[i].sortingLayerName = targetSortingLayerName;
+                if (!string.IsNullOrWhiteSpace(targetingSortingLayerName))
+                    spriteRenderers[i].sortingLayerName = targetingSortingLayerName;
 
-                spriteRenderers[i].sortingOrder = targetSortingOrder;
+                spriteRenderers[i].sortingOrder = targetingSortingOrder;
             }
         }
 
-        targetIndicatorInstance.name = "TargetIndicator";
-        targetIndicatorInstance.transform.localScale = Vector3.zero;
+        targetingIndicatorInstance.name = "TargetIndicator";
+        targetingIndicatorInstance.transform.localScale = Vector3.zero;
         targetIndicatorScale = 0f;
 
         // Ensure target indicator never blocks UI interactions.
-        UnityEngine.UI.Graphic[] graphics = targetIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+        UnityEngine.UI.Graphic[] graphics = targetingIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
         for (int i = 0; i < graphics.Length; i++)
             graphics[i].raycastTarget = false;
     }
@@ -611,7 +611,7 @@ public class CursorManager : MonoBehaviour
             Color targetColor = normalCursorColor;
             
             // Priority: targeting overrides constraint color
-            if (enableEnemyTargeting && currentTarget != null)
+            if (enableTargeting && currentTarget != null)
             {
                 targetColor = targetingCursorColor;
             }
@@ -703,13 +703,13 @@ public class CursorManager : MonoBehaviour
 
     private void UpdateTargetIndicatorVisual()
     {
-        if (targetIndicatorInstance == null)
+        if (targetingIndicatorInstance == null)
             return;
 
         bool shouldShow = !isInUIMode && currentTarget != null;
         float targetScale = shouldShow ? 1f : 0f;
-        targetIndicatorScale = Mathf.Lerp(targetIndicatorScale, targetScale, Time.deltaTime * targetScaleLerpSpeed);
-        targetIndicatorInstance.transform.localScale = Vector3.one * targetIndicatorScale;
+        targetIndicatorScale = Mathf.Lerp(targetIndicatorScale, targetScale, Time.deltaTime * targetingScaleLerpSpeed);
+        targetingIndicatorInstance.transform.localScale = Vector3.one * targetIndicatorScale;
 
         if (!shouldShow)
             return;
@@ -722,19 +722,19 @@ public class CursorManager : MonoBehaviour
             if (cam != null)
             {
                 Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
-                targetIndicatorInstance.transform.position = Vector3.Lerp(
-                    targetIndicatorInstance.transform.position,
+                targetingIndicatorInstance.transform.position = Vector3.Lerp(
+                    targetingIndicatorInstance.transform.position,
                     screenPos,
-                    Time.deltaTime * targetFollowLerpSpeed);
+                    Time.deltaTime * targetingFollowLerpSpeed);
             }
         }
         else
         {
-            worldPos.y += targetWorldYOffset;
-            targetIndicatorInstance.transform.position = Vector3.Lerp(
-                targetIndicatorInstance.transform.position,
+            worldPos.y += targetingWorldYOffset;
+            targetingIndicatorInstance.transform.position = Vector3.Lerp(
+                targetingIndicatorInstance.transform.position,
                 worldPos,
-                Time.deltaTime * targetFollowLerpSpeed);
+                Time.deltaTime * targetingFollowLerpSpeed);
         }
 
         Color targetColor = ResolveTargetColor(currentTarget.gameObject.tag);
@@ -750,16 +750,16 @@ public class CursorManager : MonoBehaviour
                 return rule.color;
         }
 
-        return defaultTargetColor;
+        return defaultTargetingColor;
     }
 
     private void ApplyTargetIndicatorColor(Color targetColor)
     {
-        UnityEngine.UI.Image[] images = targetIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Image>(true);
+        UnityEngine.UI.Image[] images = targetingIndicatorInstance.GetComponentsInChildren<UnityEngine.UI.Image>(true);
         for (int i = 0; i < images.Length; i++)
             images[i].color = targetColor;
 
-        SpriteRenderer[] sprites = targetIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
+        SpriteRenderer[] sprites = targetingIndicatorInstance.GetComponentsInChildren<SpriteRenderer>(true);
         for (int i = 0; i < sprites.Length; i++)
             sprites[i].color = targetColor;
     }
@@ -787,7 +787,7 @@ public class CursorManager : MonoBehaviour
         Gizmos.DrawWireSphere(constrainedCursorPosition, 0.5f);
         
         // Draw targeting radius
-        if (enableEnemyTargeting)
+        if (enableTargeting)
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(cursorWorldPosition, targetingRadius);

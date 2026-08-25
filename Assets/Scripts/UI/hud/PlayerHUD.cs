@@ -1,134 +1,148 @@
-// using UnityEngine;
-// using UnityEngine.UI;
-// using TMPro;
-// public class PlayerHUD : MonoBehaviour
-// {
-//     [Header("Resource Bars")]
-//     [SerializeField] private Image healthFillImage;
-//     [SerializeField] private Image energyFillImage;
-//     [SerializeField] private TextMeshProUGUI healthText;
-//     [SerializeField] private TextMeshProUGUI energyText;
-//     [SerializeField] private GameObject BossHealthPanel;
-//     private PlayerController player;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using TMPro;
+public class PlayerHUD : MonoBehaviour
+{
+    [Header("Resource Bars")]
+    [SerializeField] private Image healthFillImage;
+    [SerializeField] private Image energyFillImage;
+    [SerializeField] private Image goldIcon;
+    [SerializeField] private TextMeshProUGUI totalGold;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI energyText;
+    [SerializeField] private GameObject BossHealthPanel;
+    private PlayerController player;
     
-//     void Start()
-//     {
-//         FindAndInitializePlayer();
-//     }
+    void Start()
+    {
+        FindAndInitializePlayer();
+    }
     
-//     void OnEnable()
-//     {
-//         Organism.OnHealthChanged += HandleHealthChanged;
-//         Organism.OnEnergyChanged += HandleEnergyChanged;
-//         StatContainer.OnAnyStatChanged += HandleStatsChanged;
-//         PlayerController.OnPlayerSpawned += HandlePlayerSpawned;
+    void OnEnable()
+    {
+        Organism.OnHealthChanged += HandleHealthChanged;
+        Organism.OnEnergyChanged += HandleEnergyChanged;
+        StatContainer.OnAnyStatChanged += HandleStatsChanged;
+        PlayerController.OnPlayerSpawned += HandlePlayerSpawned;
+        SaveFileData.OnGoldChanged += HandleGoldChanged;
+        if (player != null && totalGold != null)
+        {
+            totalGold.text = player.GetCurrentSaveFileData().totalGold.ToString();
+        }
+        // Find player immediately when enabled (important for scene transitions)
+        if (player == null)
+        {
+            player = PlayerController.GetLocalPlayer();
+        }
         
-//         // Find player immediately when enabled (important for scene transitions)
-//         if (player == null)
-//         {
-//             player = PlayerController.GetLocalPlayer();
-//         }
+        RefreshAllDisplays();
+    }
+    private void HandleGoldChanged(int newTotalGold)
+    {
+        if (totalGold != null)
+        {
+            totalGold.text = newTotalGold.ToString();
+        }
+    }
+    private void HandlePlayerSpawned(PlayerController newPlayer)
+    {
+        // Only update HUD for local player
+        bool isNetworkActive = newPlayer.IsServerStarted || newPlayer.IsClientStarted;
+        bool isLocalPlayer = !isNetworkActive || newPlayer.IsOwner;
         
-//         RefreshAllDisplays();
-//     }
-    
-//     private void HandlePlayerSpawned(PlayerController newPlayer)
-//     {
-//         // Only update HUD for local player
-//         bool isNetworkActive = newPlayer.IsServerStarted || newPlayer.IsClientStarted;
-//         bool isLocalPlayer = !isNetworkActive || newPlayer.IsOwner;
+        if (!isLocalPlayer) return;
         
-//         if (!isLocalPlayer) return;
+        player = newPlayer;
+        UpdateHealthDisplay(player);
+        UpdateEnergyDisplay(player);
+    }
+    
+    void FindAndInitializePlayer()
+    {
+        player = PlayerController.GetLocalPlayer();
         
-//         player = newPlayer;
-//         UpdateHealthDisplay(player);
-//         UpdateEnergyDisplay(player);
-//     }
+        if (player != null)
+        {
+            // Initialize with current values
+            UpdateHealthDisplay(player);
+            UpdateEnergyDisplay(player);
+        }
+        else
+        {
+            // Retry after a short delay
+            Invoke(nameof(FindAndInitializePlayer), 0.1f);
+        }
+    }
     
-//     void FindAndInitializePlayer()
-//     {
-//         player = PlayerController.GetLocalPlayer();
+    void OnDisable()
+    {
+        Organism.OnHealthChanged -= HandleHealthChanged;
+        Organism.OnEnergyChanged -= HandleEnergyChanged;
+        StatContainer.OnAnyStatChanged -= HandleStatsChanged;
+        PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
+        SaveFileData.OnGoldChanged -= HandleGoldChanged;
+    }
+    
+    void HandleHealthChanged(Organism organism, float newHealth)
+    {
+        if (organism == player)
+        {
+            UpdateHealthDisplay(organism);
+        }
+    }
+    
+    void HandleEnergyChanged(Organism organism, float newEnergy)
+    {
+        if (organism == player)
+        {
+            UpdateEnergyDisplay(organism);
+        }
+    }
+    
+    void HandleStatsChanged()
+    {
+        if (player != null)
+        {
+            UpdateHealthDisplay(player);
+            UpdateEnergyDisplay(player);
+        }
+    }
+    
+    void UpdateHealthDisplay(Organism organism)
+    {
+        if (healthFillImage != null)
+            healthFillImage.fillAmount = organism.GetHealthPercentage();
         
-//         if (player != null)
-//         {
-//             // Initialize with current values
-//             UpdateHealthDisplay(player);
-//             UpdateEnergyDisplay(player);
-//         }
-//         else
-//         {
-//             // Retry after a short delay
-//             Invoke(nameof(FindAndInitializePlayer), 0.1f);
-//         }
-//     }
+        if (healthText != null)
+            healthText.text = $"{organism.CurrentHealth:F0}/{organism.MaxHealth:F0}";
+    }
     
-//     void OnDisable()
-//     {
-//         Organism.OnHealthChanged -= HandleHealthChanged;
-//         Organism.OnEnergyChanged -= HandleEnergyChanged;
-//         StatContainer.OnAnyStatChanged -= HandleStatsChanged;
-//         PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
-//     }
-    
-//     void HandleHealthChanged(Organism organism, float newHealth)
-//     {
-//         if (organism == player)
-//         {
-//             UpdateHealthDisplay(organism);
-//         }
-//     }
-    
-//     void HandleEnergyChanged(Organism organism, float newEnergy)
-//     {
-//         if (organism == player)
-//         {
-//             UpdateEnergyDisplay(organism);
-//         }
-//     }
-    
-//     void HandleStatsChanged()
-//     {
-//         if (player != null)
-//         {
-//             UpdateHealthDisplay(player);
-//             UpdateEnergyDisplay(player);
-//         }
-//     }
-    
-//     void UpdateHealthDisplay(Organism organism)
-//     {
-//         if (healthFillImage != null)
-//             healthFillImage.fillAmount = organism.GetHealthPercentage();
+    void UpdateEnergyDisplay(Organism organism)
+    {
+        if (energyFillImage != null)
+            energyFillImage.fillAmount = organism.GetEnergyPercentage();
         
-//         if (healthText != null)
-//             healthText.text = $"{organism.CurrentHealth:F0}/{organism.MaxHealth:F0}";
-//     }
-    
-//     void UpdateEnergyDisplay(Organism organism)
-//     {
-//         if (energyFillImage != null)
-//             energyFillImage.fillAmount = organism.GetEnergyPercentage();
-        
-//         if (energyText != null)
-//             energyText.text = $"{organism.CurrentEnergy:F0}/{organism.MaxEnergy:F0}";
-//     }
+        if (energyText != null)
+            energyText.text = $"{organism.CurrentEnergy:F0}/{organism.MaxEnergy:F0}";
+    }
     
 
-//     public void UpdateAbilities(CharacterData characterData)
-//     {
-//         // This will be called to update ability slots
-//         // Implementation handled by AbilitySlotUI components
-//     }
+    public void UpdateAbilities(CharacterData characterData)
+    {
+        // This will be called to update ability slots
+        // Implementation handled by AbilitySlotUI components
+    }
     
-//     /// <summary>
-//     /// Refresh all HUD displays (health, energy, force field). Call this after stat changes.
-//     /// </summary>
-//     public void RefreshAllDisplays()
-//     {
-//         if (player != null)
-//         {
-//             UpdateHealthDisplay(player);
-//             UpdateEnergyDisplay(player);
-//         }
-//     }
-// }
+    /// <summary>
+    /// Refresh all HUD displays (health, energy, force field). Call this after stat changes.
+    /// </summary>
+    public void RefreshAllDisplays()
+    {
+        if (player != null)
+        {
+            UpdateHealthDisplay(player);
+            UpdateEnergyDisplay(player);
+        }
+    }
+}

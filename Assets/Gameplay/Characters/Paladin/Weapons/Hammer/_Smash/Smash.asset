@@ -66,12 +66,12 @@ MonoBehaviour:
     - propertyPath: meleeConfig.hitbox.scaleX
       abilityType: 0
       overrideMode: 1
-      valuePerBar: 50
+      valuePerBar: 100
       allowFractional: 1
     - propertyPath: meleeConfig.hitbox.scaleY
       abilityType: 0
       overrideMode: 1
-      valuePerBar: 50
+      valuePerBar: 100
       allowFractional: 1
     - propertyPath: meleeConfig.hitbox.damage
       abilityType: 0
@@ -247,7 +247,7 @@ MonoBehaviour:
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 10
+      damage: 20
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100

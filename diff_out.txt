@@ -1,0 +1,14 @@
+﻿=>|        if (panZoom != null) panZoom.SetContentPanel(wrapper);
+<=|        if (panZoom != null)
+<=|            // Fit the tree's authored canvas size into whatever size the root RectTransform
+<=|            // actually is (a full-screen canvas or a smaller "window") instead of a fixed 1:1 scale.
+<=|            float fitScale = 1f;
+<=|            if (_treeData != null && _treeData.canvasWidth > 0 && _treeData.canvasHeight > 0 && parent is RectTransform parentRect)
+<=|                float fitScaleX = parentRect.rect.width  / _treeData.canvasWidth;
+<=|                float fitScaleY = parentRect.rect.height / _treeData.canvasHeight;
+<=|                fitScale = Mathf.Max(0.01f, Mathf.Min(fitScaleX, fitScaleY));
+<=|            panZoom.SetContentPanel(wrapper, fitScale);
+<=|            {
+<=|            }
+<=|        {
+<=|        }

@@ -519,7 +519,6 @@ public static class AbilityModifierRuntime
         {
             if (!kvp.Key.StartsWith(prefix)) continue;
             if (!kvp.Value.HasAnyModification) continue;
-
             string remainder = kvp.Key.Substring(prefix.Length);
 
             if (remainder.Contains("."))
@@ -820,29 +819,38 @@ public static class AbilityModifierRuntime
     {
         object baseValue = field.GetValue(baseObj);
 
+        //for setting values
         if (accum.hasSetOverride)
         {
-            if (field.FieldType == typeof(bool))
-                field.SetValue(copyObj, accum.setNumeric != 0f);
-            else if (field.FieldType.IsEnum)
+            switch (field.FieldType)
             {
-                int enumIndex = Mathf.RoundToInt(accum.setNumeric);
-                Array values = Enum.GetValues(field.FieldType);
-                if (values.Length > 0)
-                {
-                    enumIndex = Mathf.Clamp(enumIndex, 0, values.Length - 1);
-                    field.SetValue(copyObj, values.GetValue(enumIndex));
-                }
+                case Type t when t == typeof(bool):
+                    field.SetValue(copyObj, accum.setNumeric != 0f);
+                    break;
+                case Type t when t.IsEnum:
+                    int enumIndex = Mathf.RoundToInt(accum.setNumeric);
+                    Array values = Enum.GetValues(field.FieldType);
+                    if (values.Length > 0)
+                    {
+                        enumIndex = Mathf.Clamp(enumIndex, 0, values.Length - 1);
+                        field.SetValue(copyObj, values.GetValue(enumIndex));
+                    }
+                    break;
+                case Type t when t == typeof(string) && !string.IsNullOrEmpty(accum.setString):
+                    field.SetValue(copyObj, accum.setString);
+                    break;
+                case Type t when typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType) && accum.setObject != null:
+                    field.SetValue(copyObj, accum.setObject);
+                    break;
+                case Type t when t == typeof(int):
+                    field.SetValue(copyObj, (int)accum.setNumeric);
+                    break;
+                case Type t when t == typeof(float):
+                    field.SetValue(copyObj, accum.setNumeric);
+                    break;
             }
-            else if (field.FieldType == typeof(string) && !string.IsNullOrEmpty(accum.setString))
-                field.SetValue(copyObj, accum.setString);
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType) && accum.setObject != null)
-                field.SetValue(copyObj, accum.setObject);
-            else if (field.FieldType == typeof(int))
-                field.SetValue(copyObj, (int)accum.setNumeric);
-            else if (field.FieldType == typeof(float))
-                field.SetValue(copyObj, accum.setNumeric);
         }
+        //multiplies or adds to values
         else if (field.FieldType == typeof(float) || field.FieldType == typeof(int))
         {
             float baseFloat = field.FieldType == typeof(int) ? (int)baseValue : (float)baseValue;
@@ -863,10 +871,11 @@ public static class AbilityModifierRuntime
         if (UsesRateDurationFormula(propertyPath))
         {
             float denominator = Mathf.Max(MinRateDenominator, 1f + (accum.percentDelta / 100f));
-            return flatAdjusted / denominator;
+            float rateAdjusted = flatAdjusted / denominator;
+            return rateAdjusted;
         }
-
-        return flatAdjusted * (1f + accum.percentDelta / 100f);
+        float finalValue = flatAdjusted * (1f + accum.percentDelta / 100f);
+        return finalValue;
     }
 
     private static bool UsesRateDurationFormula(string propertyPath)
@@ -979,7 +988,7 @@ public static class AbilityModifierRuntime
                     if (baseElement == null)
                         return;
 
-                        object copyElement = copyList[segment.index];
+                    object copyElement = copyList[segment.index];
                     if (copyElement == null || ReferenceEquals(copyElement, baseElement))
                     {
                         copyElement = CloneSerializableObject(baseElement);

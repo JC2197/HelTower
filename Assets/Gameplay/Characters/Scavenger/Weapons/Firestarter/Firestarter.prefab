@@ -4941,12 +4941,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -328624783, guid: cf0ff78345c374547a194064ac665b97, type: 3}
+  m_Sprite: {fileID: -328624783, guid: 86a01d13ab04bb241b2a84e2c05d9ab1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.25, y: 0.9375}
+  m_Size: {x: 0.375, y: 0.875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5107,7 +5107,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584142804586380229
+  _initializedTimestamp: -8584139433875335198
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5126,7 +5126,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 42
+  <PrefabId>k__BackingField: 43
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 18140578658782816450
   SceneId: 0

@@ -64,15 +64,28 @@ public class ExplosionAbility : MonoBehaviour, ISubAbility
         // already resolved this position from. The delay VFX below follows this same target.
         if (config.singleTargetMode)
         {
-            float searchRadius = config.singleTargetSearchRadius > 0f
+            if (parentConfig.autocast)
+            {
+                float searchRadius = config.singleTargetSearchRadius > 0f
                 ? config.singleTargetSearchRadius
                 : (config.activationRange > 0f ? config.activationRange : 3f);
-            singleTarget = FindNearestDamageableCollider(transform.position, searchRadius * combinedScale);
+                singleTarget = FindNearestDamageableCollider(transform.position, searchRadius * combinedScale);
 
-            if (singleTarget == null)
-            {
-                Debug.LogWarning($"[ExplosionAbility] singleTargetMode: no living target found within {searchRadius * combinedScale:F1} units of {transform.position} — ability will fizzle.");
+                if (singleTarget == null)
+                {
+                    Debug.LogWarning($"[ExplosionAbility] singleTargetMode: no living target found within {searchRadius * combinedScale:F1} units of {transform.position} — ability will fizzle.");
+                }
             }
+            else
+            {
+                if (CursorManager.Instance != null)
+                {
+                    Organism targetedOrganism = CursorManager.Instance.TargetedOrganism;
+                    if (targetedOrganism != null)
+                        singleTarget = targetedOrganism.GetComponentInChildren<Collider2D>();
+                }
+            }
+
         }
 
         // Safety-net: guarantee destruction regardless of which visual path runs.

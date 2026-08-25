@@ -36,8 +36,8 @@ MonoBehaviour:
     offhandWeaponBehindOnSW: 0
     lockTo2Directions: 1
     flipWeaponOnTurn: 1
-    flipWeaponOnYAxis: 0
-    flipWeaponOnXAxis: 1
+    flipWeaponOnYAxis: 1
+    flipWeaponOnXAxis: 0
     handBehindOnNE: 0
     handBehindOnNW: 0
     handBehindOnSE: 0

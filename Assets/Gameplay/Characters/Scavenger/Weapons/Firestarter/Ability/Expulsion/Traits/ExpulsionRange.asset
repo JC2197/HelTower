@@ -20,7 +20,7 @@ MonoBehaviour:
   traitType: 0
   statModifiers: []
   effectScript: {fileID: 0}
-  requiredAbility: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 9bcefc2aaaa9e9346b43cdbefae3d95b, type: 2}
   requiredAbilityLevel: 0
   requiredTraits: []
   abilityReplacement:

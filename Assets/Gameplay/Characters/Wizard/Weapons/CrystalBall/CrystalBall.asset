@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: CrystalBall
-  weaponType: Artifact
+  weaponType: Orb
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 4321430192779019678, guid: ba25609a1a1ee6f41b68c0e7aed3b466, type: 3}
   weaponDamageMin: 3

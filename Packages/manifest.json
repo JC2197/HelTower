@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.heathen.gameframework": "https://codeberg.org/Heathen-Engineering/Unity-Game-Framework.git?path=/com.heathen.gameframework#v1.0.2",
     "com.heathen.steamworksfoundation": "https://codeberg.org/Heathen-Engineering/Unity-Foundation-for-Steamworks.git?path=/com.heathen.steamworksfoundation",
     "com.heathen.toolbox": "https://codeberg.org/Heathen-Engineering/Unity-Heathen-Toolbox.git?path=/com.heathen.toolbox",

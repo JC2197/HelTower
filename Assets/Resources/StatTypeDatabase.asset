@@ -96,7 +96,7 @@ MonoBehaviour:
     isPercentage: 0
     maxValue: 0
     description: 
-  - statId: PHYSICAL
+  - statId: Physical
     displayName: Physical Damage Bonus
     categoryId: Active
     icon: {fileID: 0}
@@ -104,7 +104,15 @@ MonoBehaviour:
     isPercentage: 1
     maxValue: 0
     description: 
-  - statId: MAGICAL
+  - statId: Magical
+    displayName: Magical Damage Bonus
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 1
+    maxValue: 0
+    description: 
+  - statId: MaxMana
     displayName: Magical Damage Bonus
     categoryId: Active
     icon: {fileID: 0}

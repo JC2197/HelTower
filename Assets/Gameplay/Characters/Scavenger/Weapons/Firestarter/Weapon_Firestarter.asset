@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: Firestarter
-  weaponType: Staff
+  weaponType: Firestarter
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 8236306081892218492, guid: 231071d3705fe3a44b6c32f4a50a6016, type: 3}
   weaponDamageMin: 0

@@ -5267,6 +5267,7 @@ GameObject:
   - component: {fileID: 6651859250582440276}
   - component: {fileID: -4821699031212049550}
   - component: {fileID: 7585706307468894951}
+  - component: {fileID: -7958206491589936126}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5305,7 +5306,7 @@ Animator:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: e299a71dc8733e240a87a80d32f947e6, type: 2}
+  m_Controller: {fileID: 22100000, guid: 9e9e796ce5c97a04ba31f97be550ec39, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5516,7 +5517,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584142804586380229
+  _initializedTimestamp: -8584139433875335198
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5535,7 +5536,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 36
+  <PrefabId>k__BackingField: 37
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 17036934021626112618
   SceneId: 0
@@ -5763,6 +5764,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterTraitManager
   characterData: {fileID: 0}
+  saveFileData: {fileID: 0}
   startingTraits: []
   traitDataList: {fileID: 11400000, guid: aec183f6df864fd4ba05c4f53393a7ee, type: 2}
 --- !u!114 &7585706307468894951
@@ -5782,6 +5784,19 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   showDebugGizmos: 1
+--- !u!210 &-7958206491589936126
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1001 &7891000605144988753
 PrefabInstance:
   m_ObjectHideFlags: 0

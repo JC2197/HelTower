@@ -16,9 +16,9 @@ MonoBehaviour:
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: f38cb6debfa574148aba271e71aa8ef3, type: 2}
   availableWeapons:
+  - {fileID: 11400000, guid: ff4a5e0ed0ed68d428178cf6f557d551, type: 2}
   - {fileID: 11400000, guid: 3701f85a23f9c3040aec6511dfce0c56, type: 2}
   - {fileID: 11400000, guid: 89c203d28d69d6e4daa697cf601c1f60, type: 2}
-  - {fileID: 11400000, guid: ff4a5e0ed0ed68d428178cf6f557d551, type: 2}
   availableAccessories: []
   abilities: []
   baseStatContainer:
@@ -50,7 +50,7 @@ MonoBehaviour:
     - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 2.5
+      currentValue: 3
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
@@ -59,11 +59,16 @@ MonoBehaviour:
       displayName: Maximum HP
       categoryId: Active
       currentValue: 100
-    - statId: PHYSICAL
+    - statId: Physical
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
-    - statId: MAGICAL
+    - statId: Magical
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
+    - statId: MaxMana
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  availableTraitTrees: []

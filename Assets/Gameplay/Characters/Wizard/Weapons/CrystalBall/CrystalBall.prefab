@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FishNet.Runtime::FishNet.Object.NetworkObject
   <IsNested>k__BackingField: 0
-  WasActiveDuringEdit: 1
+  WasActiveDuringEdit: 0
   WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
@@ -115,7 +115,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584142804586380229
+  _initializedTimestamp: -8584139433875335198
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -134,7 +134,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 43
+  <PrefabId>k__BackingField: 44
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 18253880635383320583
   SceneId: 0
@@ -294,7 +294,7 @@ Animator:
   m_GameObject: {fileID: 5103157367756196051}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 1edada7a08e2ccc4dab83a79afc3eaa7, type: 2}
+  m_Controller: {fileID: 9100000, guid: 877ed62e498d6964ba2c3407b3983c28, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

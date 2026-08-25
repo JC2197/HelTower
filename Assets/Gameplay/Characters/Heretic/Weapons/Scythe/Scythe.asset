@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: Scythe
-  weaponType: Sword
+  weaponType: Scythe
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 5574718947540397069, guid: 339efe81539822947b7aed132205a854, type: 3}
   weaponDamageMin: 3

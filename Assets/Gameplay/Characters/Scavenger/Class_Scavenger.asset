@@ -49,7 +49,7 @@ MonoBehaviour:
     - statId: MoveSpeed
       displayName: Movement Speed
       categoryId: Active
-      currentValue: 2.5
+      currentValue: 3
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
@@ -58,11 +58,17 @@ MonoBehaviour:
       displayName: Maximum HP
       categoryId: Active
       currentValue: 100
-    - statId: PHYSICAL
+    - statId: Physical
       displayName: Physical Damage Bonus
       categoryId: Active
       currentValue: 0
-    - statId: MAGICAL
+    - statId: Magical
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
+    - statId: MaxMana
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  availableTraitTrees:
+  - {fileID: 11400000, guid: 83f34da88b0da094d89dd40a44e78a6e, type: 2}

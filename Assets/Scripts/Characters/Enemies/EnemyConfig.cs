@@ -27,7 +27,7 @@ public class EnemyConfig : ScriptableObject
     public float detectionRange = 10f;
 
     [Header("Ability System")]
-    [Tooltip("List of abilities this enemy can use")]
+    [Tooltip("Abilities this enemy can cast. The Attack action picks the highest-priority ability that is in range and off cooldown; cooldowns come from each AbilityDataConfig.")]
     public List<EnemyAbilitySlot> abilities = new List<EnemyAbilitySlot>();
 
     [Header("Weapon System")]
@@ -36,12 +36,15 @@ public class EnemyConfig : ScriptableObject
     
     [Tooltip("Offhand weapon config for dual-wielding (requires OffHandWeaponHolder component on enemy prefab)")]
     public WeaponConfig offhandWeaponConfig;
+
+    [Tooltip("Amount of gold dropped by this enemy on death")]
+    public int goldDropped;
     
     public Sprite handSprite;
     [Tooltip("If true and weapon has grantedPrimaryAbility, that ability will be used automatically")]
     public bool useWeaponGrantedAbilities = true;
     
-    [Tooltip("Range at which weapon abilities can be used (enemy will stop moving and fire when target is within this range)")]
+    [Tooltip("Range assigned to weapon-granted abilities. Abilities in the list above use their own range instead.")]
     public float weaponAbilityRange = 8f;
 
     [Header("AI Behavior System")]
@@ -93,41 +96,6 @@ public class EnemyConfig : ScriptableObject
 
     [Tooltip("Layers that can be hit by collision damage (set to 'Player' layer to hit player)")]
     public LayerMask collisionHitLayers = -1;
-
-    [Header("Enemy Type")]
-    [Tooltip("Flying enemies ignore collision with other enemies and the player")]
-    public bool isFlying = false;
-
-    [Tooltip("Simple ranged enemy: moves into range and fires a projectile on cooldown. Bypasses the ability/action system.")]
-    public bool isProjectileEnemy = false;
-
-    [Tooltip("Range at which the projectile enemy stops moving and starts firing")]
-    public float projectileRange = 8f;
-
-    [Tooltip("Projectile configuration to fire")]
-    public ProjectileConfig projectileEnemyConfig;
-
-    [Tooltip("Minimum time between projectile fires (seconds)")]
-    public float projectileAttackCooldownMin = 2f;
-
-    [Tooltip("Maximum time between projectile fires (seconds)")]
-    public float projectileAttackCooldownMax = 3f;
-
-    [Header("Charge Behavior")]
-    [Tooltip("If true, this enemy will charge at the player when in range instead of using normal movement")]
-    public bool useChargeBehavior = false;
-
-    [Tooltip("Distance at which the enemy will begin its charge")]
-    public float chargeRange = 5f;
-
-    [Tooltip("Force applied when charging (impulse)")]
-    public float chargeForce = 15f;
-
-    [Tooltip("Friction/drag applied during charge to slow the enemy down")]
-    public float chargeFriction = 3f;
-
-    [Tooltip("Minimum speed before charge is considered complete and cooldown begins")]
-    public float chargeStopSpeed = 0.1f;
 
     [Header("Animation Configuration")]
     [Tooltip("Animation name for idle/standing still")]

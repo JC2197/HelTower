@@ -1,0 +1,934 @@
+fileFormatVersion: 2
+guid: 88b83ae400bf1cd429c8a9ee7b258fdc
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 1
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Exile_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 63caf03472f1c1d42916b82f2c3ee7d9
+      internalID: 1795201705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_1
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 2f82d124b1a957f4ea99ada8f46515f7
+      internalID: 997751896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_2
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 0.5}
+        - {x: 4.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 0.5}
+        - {x: 4.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 19d4b11f8174f3445955723d331d0328
+      internalID: 965343287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_3
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 4.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -6.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 4.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -6.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 63da42f478db2a2469de05cd9eae35c9
+      internalID: -569890242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_4
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: -4.5}
+        - {x: 6.5, y: 2.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -3.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: -4.5}
+        - {x: 6.5, y: 2.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -3.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 26abff78cfe0b1d478730fd4e2592b75
+      internalID: -1101792357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_5
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: d077706892f92dd42ac9ce9861e35a7a
+      internalID: 112908588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_6
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 0.5}
+        - {x: 4.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 0.5}
+        - {x: 4.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 4ed1163d9761d2e4590b0d269af09230
+      internalID: -435198523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_7
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 4.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -6.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 4.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -6.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 85e32c6afa5ae764092022f86756c51a
+      internalID: -423940535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_8
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: -4.5}
+        - {x: 6.5, y: 2.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -3.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: -4.5}
+        - {x: 6.5, y: 2.5}
+        - {x: 2.5, y: 6.5}
+        - {x: -2.5, y: 6.5}
+        - {x: -6.5, y: 2.5}
+        - {x: -6.5, y: -3.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 331248c11692baa43b8ac0590da0a585
+      internalID: -1600171847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_9
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: 0.5}
+        - {x: 3.5, y: 4.5}
+        - {x: -1.5, y: 4.5}
+        - {x: -5.5, y: 0.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -6.5}
+        - {x: 7.5, y: 0.5}
+        - {x: 3.5, y: 4.5}
+        - {x: -1.5, y: 4.5}
+        - {x: -5.5, y: 0.5}
+        - {x: -7.5, y: -4.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 84cf204b71b23eb4385f70a4bbb76b0e
+      internalID: 1313817163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_10
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -5.5}
+        - {x: 6.5, y: 0.5}
+        - {x: 2.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -6.5, y: 0.5}
+        - {x: -7.5, y: -5.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -5.5}
+        - {x: 6.5, y: 0.5}
+        - {x: 2.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -6.5, y: 0.5}
+        - {x: -7.5, y: -5.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 568306637a094a24ca5883ce699deefd
+      internalID: -1259843604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_11
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 7.5, y: -5.5}
+        - {x: 6.5, y: 0.5}
+        - {x: 2.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -6.5, y: 0.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      physicsShape:
+      - - {x: 7.5, y: -5.5}
+        - {x: 6.5, y: 0.5}
+        - {x: 2.5, y: 4.5}
+        - {x: -2.5, y: 4.5}
+        - {x: -6.5, y: 0.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 7.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 8d23a95d0b0e0c7408ad6fda63b0c6d5
+      internalID: -1716732866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_12
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 99ed60603c70c624c91d78719abefd26
+      internalID: -1222028669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_13
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 1.5}
+        - {x: 2.5, y: 5.5}
+        - {x: -2.5, y: 5.5}
+        - {x: -6.5, y: 1.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: dbffe140f4fcc4046aa65771f7e061da
+      internalID: 957865191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_14
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -4.5}
+        - {x: 6.5, y: -2.5}
+        - {x: 5.5, y: -1.5}
+        - {x: 5.5, y: 2.5}
+        - {x: 1.5, y: 6.5}
+        - {x: -3.5, y: 6.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -3.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 3.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -4.5}
+        - {x: 6.5, y: -2.5}
+        - {x: 5.5, y: -1.5}
+        - {x: 5.5, y: 2.5}
+        - {x: 1.5, y: 6.5}
+        - {x: -3.5, y: 6.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -3.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 3.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: a50621c1a5775864ea1883c064f97673
+      internalID: 1652722056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_15
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 5.5, y: -3.5}
+        - {x: 7.5, y: -0.5}
+        - {x: 7.5, y: 2.5}
+        - {x: 5.5, y: 3.5}
+        - {x: 0.5, y: 7.5}
+        - {x: -3.5, y: 7.5}
+        - {x: -7.5, y: 3.5}
+        - {x: -7.5, y: -0.5}
+        - {x: -3.5, y: -5.5}
+        - {x: -2.5, y: -5.5}
+        - {x: -0.5, y: -7.5}
+        - {x: 1.5, y: -7.5}
+      physicsShape:
+      - - {x: 5.5, y: -3.5}
+        - {x: 7.5, y: -0.5}
+        - {x: 7.5, y: 2.5}
+        - {x: 5.5, y: 3.5}
+        - {x: 0.5, y: 7.5}
+        - {x: -3.5, y: 7.5}
+        - {x: -7.5, y: 3.5}
+        - {x: -7.5, y: -0.5}
+        - {x: -3.5, y: -5.5}
+        - {x: -2.5, y: -5.5}
+        - {x: -0.5, y: -7.5}
+        - {x: 1.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: b0ff4412c68971342a341944ad9ae17e
+      internalID: 655584955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_16
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -4.5}
+        - {x: 6.5, y: 3.5}
+        - {x: 4.5, y: 5.5}
+        - {x: -4.5, y: 5.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -3.5}
+        - {x: -4.5, y: -6.5}
+        - {x: -0.5, y: -6.5}
+        - {x: 0.5, y: -7.5}
+        - {x: 2.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -4.5}
+        - {x: 6.5, y: 3.5}
+        - {x: 4.5, y: 5.5}
+        - {x: -4.5, y: 5.5}
+        - {x: -7.5, y: 2.5}
+        - {x: -7.5, y: -3.5}
+        - {x: -4.5, y: -6.5}
+        - {x: -0.5, y: -6.5}
+        - {x: 0.5, y: -7.5}
+        - {x: 2.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 309bb77382eda2a4b89f64fc7fad43b3
+      internalID: -695511457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_17
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 4.5, y: 3.5}
+        - {x: -4.5, y: 3.5}
+        - {x: -7.5, y: 0.5}
+        - {x: -7.5, y: -5.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 5.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -6.5}
+        - {x: 6.5, y: 1.5}
+        - {x: 4.5, y: 3.5}
+        - {x: -4.5, y: 3.5}
+        - {x: -7.5, y: 0.5}
+        - {x: -7.5, y: -5.5}
+        - {x: -5.5, y: -7.5}
+        - {x: 5.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 82dea0d881e12394b849260acbf8bcc9
+      internalID: 563350947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_18
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -1.5}
+        - {x: 4.5, y: 0.5}
+        - {x: -4.5, y: 0.5}
+        - {x: -7.5, y: -2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -1.5}
+        - {x: 4.5, y: 0.5}
+        - {x: -4.5, y: 0.5}
+        - {x: -7.5, y: -2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 3f6bc5d4ade64dd4fbe40f16c1c16597
+      internalID: 1400069762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_19
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: 0.5}
+        - {x: 3.5, y: 2.5}
+        - {x: -4.5, y: 2.5}
+        - {x: -7.5, y: -0.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: 0.5}
+        - {x: 3.5, y: 2.5}
+        - {x: -4.5, y: 2.5}
+        - {x: -7.5, y: -0.5}
+        - {x: -7.5, y: -6.5}
+        - {x: -6.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 4ee8b37e0b18aa544860c18ff54b21e7
+      internalID: -1994422449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Exile_20
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 6.5, y: -2.5}
+        - {x: 4.5, y: -0.5}
+        - {x: 0.5, y: 0.5}
+        - {x: -4.5, y: 0.5}
+        - {x: -7.5, y: -2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      physicsShape:
+      - - {x: 6.5, y: -2.5}
+        - {x: 4.5, y: -0.5}
+        - {x: 0.5, y: 0.5}
+        - {x: -4.5, y: 0.5}
+        - {x: -7.5, y: -2.5}
+        - {x: -7.5, y: -7.5}
+        - {x: 6.5, y: -7.5}
+      tessellationDetail: 1
+      bones: []
+      spriteID: 5c3b70036c267604b82a0ff227b7d51a
+      internalID: 3117602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 67d6c672d63a3a245be9e735bbf29c83
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":21.0,"y":1.0},"gridSpriteSize":{"x":15.0,"y":15.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Exile_0: 1795201705
+      Exile_1: 997751896
+      Exile_10: -1259843604
+      Exile_11: -1716732866
+      Exile_12: -1222028669
+      Exile_13: 957865191
+      Exile_14: 1652722056
+      Exile_15: 655584955
+      Exile_16: -695511457
+      Exile_17: 563350947
+      Exile_18: 1400069762
+      Exile_19: -1994422449
+      Exile_2: 965343287
+      Exile_20: 3117602
+      Exile_3: -569890242
+      Exile_4: -1101792357
+      Exile_5: 112908588
+      Exile_6: -435198523
+      Exile_7: -423940535
+      Exile_8: -1600171847
+      Exile_9: 1313817163
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
