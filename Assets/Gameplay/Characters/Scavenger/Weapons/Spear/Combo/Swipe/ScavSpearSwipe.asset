@@ -71,7 +71,7 @@ MonoBehaviour:
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
-  isMovementAbility: 1
+  isMovementAbility: 0
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0

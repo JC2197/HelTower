@@ -15,3 +15,5 @@ MonoBehaviour:
   damageTypes:
   - {fileID: 11400000, guid: 1d38152ab4cec69418df996a79949922, type: 2}
   - {fileID: 11400000, guid: 3bbfd6c0a55e164419af8c0e73353607, type: 2}
+  - {fileID: 11400000, guid: 763d1a78183889b4b9db8116efc6fce2, type: 2}
+  - {fileID: 11400000, guid: c619c966baeb7c2449d18cbe9aecf612, type: 2}

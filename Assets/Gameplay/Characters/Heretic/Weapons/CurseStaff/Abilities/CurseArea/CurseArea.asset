@@ -1363,15 +1363,19 @@ MonoBehaviour:
         burnDamage: 10
         burnDuration: 3
         burnApplicationChance: 1
-        canPoison: 1
+        canPoison: 0
         poisonEffect: {fileID: 11400000, guid: c3d8fbbb9762b414590f8429920e05a0, type: 2}
         poisonDamage: 3
         poisonDuration: 5
         poisonApplicationChance: 1
         canApplyStatBuffs: 0
         statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        canTriggerAbility: 1
+        triggeredAbilityConfigs:
+        - abilityConfig: {fileID: 11400000, guid: dc40b9cb98849c14991289e6ae7d7968, type: 2}
+          triggerChance: 0
+          triggerTiming: 0
+          legacyTriggersOnDestroy: 0
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2

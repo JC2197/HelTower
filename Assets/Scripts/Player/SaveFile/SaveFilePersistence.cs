@@ -23,7 +23,6 @@ public static class SaveFilePersistence
         public int totalGold;
         public int researchPoints;
         public int maxLevelMapUnlocked;
-        public List<string> unlockedNodeIDs = new List<string>();
         public bool inMap;
     }
     
@@ -250,12 +249,12 @@ public static class SaveFilePersistence
         return saveData != null ? saveData.totalGold : -1;
     }
 
-    /// <summary>Saved trait tree node IDs without constructing a SaveFileData. Returns null when no save exists.</summary>
-    public static List<string> LoadUnlockedNodeIDs(string saveFileName)
-    {
-        SaveFileSaveData saveData = ReadSaveData(saveFileName);
-        return saveData?.unlockedNodeIDs;
-    }
+    // /// <summary>Saved trait tree node IDs without constructing a SaveFileData. Returns null when no save exists.</summary>
+    // public static List<string> LoadUnlockedNodeIDs(string saveFileName)
+    // {
+    //     SaveFileSaveData saveData = ReadSaveData(saveFileName);
+    //     return saveData?.unlockedNodeIDs;
+    // }
 
     // ===================== NETWORK SERIALIZATION =====================
 
@@ -305,9 +304,9 @@ public static class SaveFilePersistence
             totalGold = saveFile.totalGold,
             researchPoints = saveFile.researchPoints,
             maxLevelMapUnlocked = Mathf.Max(1, saveFile.maxLevelMapUnlocked),
-            unlockedNodeIDs = saveFile.unlockedNodeIDs != null
-                ? new List<string>(saveFile.unlockedNodeIDs)
-                : new List<string>(),
+            // unlockedNodeIDs = saveFile.unlockedNodeIDs != null
+            //     ? new List<string>(saveFile.unlockedNodeIDs)
+            //     : new List<string>(),
             inMap = saveFile.inMap
         };
     }
@@ -322,7 +321,8 @@ public static class SaveFilePersistence
         saveFile.totalGold = saveData.totalGold;
         saveFile.researchPoints = saveData.researchPoints;
         saveFile.maxLevelMapUnlocked = Mathf.Max(1, saveData.maxLevelMapUnlocked);
-        saveFile.SetUnlockedNodes(saveData.unlockedNodeIDs);
+        // saveFile.SetUnlockedNodes(saveData.unlockedNodeIDs);
+        saveFile.ClearTraitProgress();
         saveFile.inMap = saveData.inMap;
 
         return saveFile;

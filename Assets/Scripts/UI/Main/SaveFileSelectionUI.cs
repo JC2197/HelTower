@@ -94,7 +94,8 @@ public class SaveFileSelectionUI : MonoBehaviour
             return $"{displayName}\n<size=70%>Empty — New Game</size>";
 
         int gold = Mathf.Max(0, SaveFilePersistence.LoadTotalGold(saveFileName));
-        int nodeCount = SaveFilePersistence.LoadUnlockedNodeIDs(saveFileName)?.Count ?? 0;
+        // int nodeCount = SaveFilePersistence.LoadUnlockedNodeIDs(saveFileName)?.Count ?? 0;
+        int nodeCount = 0;
 
         return $"{displayName}\n<size=70%>{gold} gold · {nodeCount} traits</size>";
     }

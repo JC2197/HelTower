@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
   m_Name: Heretic_Scythe_Tree
   m_EditorClassIdentifier: Assembly-CSharp::TraitTree
-  treeName: 
+  treeName: Scythe
   description: 
   nodeSpacing: 100
   nodeIconSize: 17

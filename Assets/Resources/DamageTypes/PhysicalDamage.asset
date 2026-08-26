@@ -15,8 +15,8 @@ MonoBehaviour:
   damageTypeName: Physical
   displayName: Physical
   description: 
-  damageColor: {r: 0.7660377, g: 0.13152722, b: 0.13465112, a: 1}
-  category: 
+  damageColor: {r: 1, g: 0.050943315, b: 0.050943315, a: 1}
+  category: Physical
   subcategory: 
   canCriticalHit: 1
   interactions: []

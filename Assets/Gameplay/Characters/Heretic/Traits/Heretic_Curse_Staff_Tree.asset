@@ -12,13 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
   m_Name: Heretic_Curse_Staff_Tree
   m_EditorClassIdentifier: Assembly-CSharp::TraitTree
-  treeName: 
+  treeName: Cursed Branch
   description: 
   nodeSpacing: 100
   nodeIconSize: 17
   nodeIconFrame: {fileID: 0}
   canvasWidth: 400
-  nodes: []
+  nodes:
+  - nodeID: Curse Poison_c200
+    position: {x: -32, y: -0}
+    connectedNodeIDs: []
+  - nodeID: Curse Poison_a657
+    position: {x: -64, y: 0}
+    connectedNodeIDs: []
+  - nodeID: Curse Poison_e832
+    position: {x: -96, y: -0}
+    connectedNodeIDs: []
   canvasHeight: 225
   minCanvasWidth: 400
   minCanvasHeight: 225

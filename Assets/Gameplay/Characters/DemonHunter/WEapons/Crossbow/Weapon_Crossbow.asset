@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_Crossbow
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
-  weaponName: New Weapon
+  weaponName: Crossbow
   weaponType: Crossbow
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 1356956865304060755, guid: 3bc2953725b7c3b45a22a1c115ccbfac, type: 3}

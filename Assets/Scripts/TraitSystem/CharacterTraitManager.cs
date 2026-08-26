@@ -23,12 +23,9 @@ public class CharacterTraitManager : MonoBehaviour
     [Tooltip("Global list of all TraitData assets. Auto-loaded from Resources/TraitDataList if not assigned.")]
     [SerializeField] private TraitDataList traitDataList;
 
-    private List<Trait> activeTraits = new List<Trait>();
     // Map nodeID -> Trait (allows multiple instances of same trait from different nodes)
     private Dictionary<string, Trait> traitLookupByNode = new Dictionary<string, Trait>();
 
-    // Track which specific nodes are unlocked (allows same trait on multiple nodes)
-    private HashSet<string> unlockedNodeIDs = new HashSet<string>();
     // Gear-granted nodes are tracked separately so they are never written to
     // characterData.unlockedNodeIDs (they are always re-derived from equippedGear on load).
     private HashSet<string> _gearNodeIDs = new HashSet<string>();
@@ -151,88 +148,29 @@ public class CharacterTraitManager : MonoBehaviour
     /// <param name="isRestoring">True when restoring from saved CharacterData — skips IsOwner guard.</param>
     public bool UnlockTrait(string nodeID, TraitData traitData, bool isRestoring = false)
     {
-        if (traitData == null)
-        {
-            Debug.LogError("Cannot unlock null trait!");
-            return false;
-        }
-
-        if (string.IsNullOrEmpty(nodeID))
-        {
-            Debug.LogError("Cannot unlock trait without nodeID!");
-            return false;
-        }
-
-        // New unlocks (non-restore) are only valid for the owning player
-        if (!isRestoring && !IsOwner)
-        {
-            Debug.LogWarning($"[CharacterTraitManager] UnlockTrait called on non-owner instance for node {nodeID} — ignoring.");
-            return false;
-        }
-
-        // Gear-granted nodes (prefix "gear_") are tracked separately from tree nodes
-        // so they are never serialised into characterData.unlockedNodeIDs.
-        bool isGearNode = SaveFileData.IsGearNode(nodeID);
-        HashSet<string> nodeSet = isGearNode ? _gearNodeIDs : unlockedNodeIDs;
+        // STEP A: Check if this node slot already exists in our dictionary tracking
         if (traitLookupByNode.TryGetValue(nodeID, out Trait existingTrait))
         {
+            // The node is already in the dictionary! This means the player is leveling it up.
             if (!existingTrait.LevelTrait())
             {
-                Debug.LogWarning($"Node {nodeID} has already reached its maximum level ({traitData.maxLevel})!");
-                return false;
+                return false; // Already reached max level, exit out safely.
             }
+
+            // Successfully leveled up! Recalculate stats and exit.
             RecalculateModifiers();
-
-            OnTraitUnlocked?.Invoke(nodeID, traitData);
-            OnTraitsChanged?.Invoke();
-
-            if (playerController != null)
-                playerController.RequestStatsRecalculation();
-
-            // UpdateSaveFileTraitList();
-
             return true;
         }
-        nodeSet.Add(nodeID);
 
-        Trait trait = new Trait(traitData);
-        trait.Activate(gameObject);
+        // STEP B: If the nodeID isn't in the dictionary, it's a brand new unlock.
+        Trait newTrait = new Trait(traitData);
+        newTrait.Activate(gameObject);
 
-        if (traitData.unlockedAbilities != null && traitData.unlockedAbilities.Count > 0)
-        {
-            CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
-            if (abilityManager != null)
-            {
-                foreach (var unlock in traitData.unlockedAbilities)
-                {
-                    if (unlock.abilityConfig != null)
-                    {
-                        // Auto-route based on ability type (isMovementAbility → Dash, etc.)
-                        abilityManager.AddAbility(unlock.abilityConfig);
-                        Debug.Log($"[CharacterTraitManager] Trait '{traitData.displayName}' unlocked ability '{unlock.abilityConfig.abilityName}'");
-                    }
-                }
-            }
-        }
-
-        activeTraits.Add(trait);
-        traitLookupByNode[nodeID] = trait;
-
-        Debug.Log(
-            $"[CharacterTraitManager] Unlocked trait '{nodeID}' " +
-            $"at level {trait.level}/{traitData.maxLevel}"
-        );
+        // STEP C: Register the runtime instance directly into the dictionary.
+        // The node ID is permanently linked to this specific instance tracking level and states.
+        traitLookupByNode[nodeID] = newTrait;
 
         RecalculateModifiers();
-
-        OnTraitUnlocked?.Invoke(nodeID, traitData);
-        OnTraitsChanged?.Invoke();
-
-        if (playerController != null)
-            playerController.RequestStatsRecalculation();
-
-        // UpdateSaveFileTraitList();
-
         return true;
     }
 
@@ -241,7 +179,7 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public bool IsNodeUnlocked(string nodeID)
     {
-        return !string.IsNullOrEmpty(nodeID) && (unlockedNodeIDs.Contains(nodeID) || _gearNodeIDs.Contains(nodeID));
+        return !string.IsNullOrEmpty(nodeID) && (traitLookupByNode.ContainsKey(nodeID) || _gearNodeIDs.Contains(nodeID));
     }
 
     /// <summary>
@@ -254,10 +192,7 @@ public class CharacterTraitManager : MonoBehaviour
 
         Trait trait = traitLookupByNode[nodeID];
         trait.Deactivate(gameObject);
-
-        activeTraits.Remove(trait);
         traitLookupByNode.Remove(nodeID);
-        unlockedNodeIDs.Remove(nodeID);
         _gearNodeIDs.Remove(nodeID);
 
         RecalculateModifiers();
@@ -279,7 +214,7 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public HashSet<string> GetUnlockedNodeIDs()
     {
-        return new HashSet<string>(unlockedNodeIDs);
+        return new HashSet<string>(traitLookupByNode.Keys);
     }
 
     /// <summary>
@@ -344,7 +279,9 @@ public class CharacterTraitManager : MonoBehaviour
     public bool HasTrait(TraitData traitData)
     {
         if (traitData == null) return false;
-        return activeTraits.Any(t => t.data == traitData);
+
+        // LINQ checks every running instance inside the dictionary values column
+        return traitLookupByNode.Values.Any(t => t.data == traitData && t.isActive);
     }
 
     /// <summary>
@@ -353,14 +290,14 @@ public class CharacterTraitManager : MonoBehaviour
     public int GetTraitInstanceCount(TraitData traitData)
     {
         if (traitData == null) return 0;
-        return activeTraits.Count(t => t.data == traitData);
+        return traitLookupByNode.Values.Count(t => t.data == traitData && t.isActive);
     }
 
     public int GetTotalTraitLevels()
     {
         int totalLevels = 0;
 
-        foreach (Trait trait in activeTraits)
+        foreach (Trait trait in traitLookupByNode.Values)
         {
             if (trait != null)
                 totalLevels += trait.level;
@@ -387,7 +324,7 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public List<TraitData> GetActiveTraits()
     {
-        return activeTraits.Select(t => t.data).ToList();
+        return traitLookupByNode.Values.Where(t => t.isActive).Select(t => t.data).ToList();
     }
 
     /// <summary>
@@ -398,29 +335,6 @@ public class CharacterTraitManager : MonoBehaviour
     public Dictionary<string, int> GetTraitTagCollection()
     {
         Dictionary<string, int> tagCounts = new Dictionary<string, int>();
-
-        foreach (var trait in activeTraits)
-        {
-            if (trait.data == null) continue;
-
-            // Get all tags from this trait
-            // List<string> tags = trait.data.GetAllTags();
-
-            // foreach (string tag in tags)
-            // {
-            //     if (string.IsNullOrEmpty(tag)) continue;
-
-            //     if (tagCounts.ContainsKey(tag))
-            //     {
-            //         tagCounts[tag]++;
-            //     }
-            //     else
-            //     {
-            //         tagCounts[tag] = 1;
-            //     }
-            // }
-        }
-
         return tagCounts;
     }
 
@@ -513,8 +427,6 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     private void RecalculateModifiers()
     {
-        Debug.Log($"[CharacterTraitManager] ========== RECALCULATING TRAIT MODIFIERS ==========");
-        Debug.Log($"[CharacterTraitManager] Active traits count: {activeTraits.Count}");
 
         cachedFlatModifiers.Clear();
         cachedPercentageModifiers.Clear();
@@ -522,7 +434,7 @@ public class CharacterTraitManager : MonoBehaviour
         // Track how many instances of each trait we have for stacking info
         Dictionary<string, int> traitInstanceCounts = new Dictionary<string, int>();
 
-        foreach (var trait in activeTraits)
+        foreach (var trait in traitLookupByNode.Values)
         {
             if (!trait.isActive)
             {
@@ -711,15 +623,12 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public AbilityConfig GetAbilityReplacement(string abilityName)
     {
-        foreach (var trait in activeTraits)
-        {
-            if (trait.isActive && trait.data.abilityReplacement?.requiredAbility != null
-                && trait.data.abilityReplacement.requiredAbility.abilityName == abilityName)
-            {
-                return trait.data.abilityReplacement.newAbilityConfig;
-            }
-        }
-        return null;
+        return traitLookupByNode.Values
+        .Where(t => t.isActive &&
+        t.data.abilityReplacement?.requiredAbility != null &&
+        t.data.abilityReplacement.requiredAbility.abilityName == abilityName)
+            .Select(t => t.data.abilityReplacement.newAbilityConfig)
+                .FirstOrDefault();
     }
 
     /// <summary>
@@ -729,7 +638,7 @@ public class CharacterTraitManager : MonoBehaviour
     {
         if (abilityConfig == null) return null;
 
-        foreach (var trait in activeTraits)
+        foreach (var trait in traitLookupByNode.Values)
         {
             if (trait.isActive && trait.data.abilityReplacement?.requiredAbility == abilityConfig)
             {
@@ -745,41 +654,32 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public void ResetRunTraits()
     {
-        var nodeIDs = new List<string>(unlockedNodeIDs);
-
+        var nodeIDs = traitLookupByNode.Keys.ToList();
         foreach (string nodeID in nodeIDs)
         {
             RemoveTraitByNode(nodeID);
         }
-
-        unlockedNodeIDs.Clear();
         traitLookupByNode.Clear();
-        activeTraits.Clear();
-
         RecalculateModifiers();
-
         playerController?.RequestStatsRecalculation();
-
         OnTraitsChanged?.Invoke();
-
-        Debug.Log("[CharacterTraitManager] Run traits reset.");
     }
 
     /// <summary>
     /// Reset all traits (for complete respec / character switch)
     /// </summary>
-    public void ResetAllTraits()
-    {
-        var traitsToRemove = GetActiveTraits();
-        foreach (var traitData in traitsToRemove)
-        {
-            RemoveTrait(traitData);
-        }
-
-        // Clear unlocked nodes
-        unlockedNodeIDs.Clear();
-        _gearNodeIDs.Clear();
-    }
+   public void ResetAllTraits()
+   {
+       var nodeIDs = traitLookupByNode.Keys.ToList();
+       foreach (var nodeID in nodeIDs)
+       {
+           RemoveTraitByNode(nodeID);
+       }
+       _gearNodeIDs.Clear();
+       RecalculateModifiers();
+       playerController?.RequestStatsRecalculation();
+       OnTraitsChanged?.Invoke();
+   }
 
     public int GetTraitLevel(string nodeID)
     {
