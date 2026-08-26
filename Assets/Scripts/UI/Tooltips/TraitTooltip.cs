@@ -53,8 +53,6 @@ public class TraitTooltip : MonoBehaviour
             current = current.parent;
             hierarchy = current.name + "/" + hierarchy;
         }
-        Debug.Log($"[TraitTooltip] Hierarchy: {hierarchy}");
-        Debug.Log($"[TraitTooltip] Local scale: {transform.localScale}, World scale: {transform.lossyScale}");
         
         // Check canvas setup
         Canvas canvas = GetComponentInParent<Canvas>();
@@ -95,6 +93,7 @@ public class TraitTooltip : MonoBehaviour
         Debug.Log($"[TraitTooltip] CanvasGroup alpha set to: {canvasGroup.alpha}");
     }
     
+
     void OnEnable()
     {
         instance = this;

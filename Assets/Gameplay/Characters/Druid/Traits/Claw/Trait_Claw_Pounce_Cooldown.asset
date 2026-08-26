@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Trait_Claw_Pounce_Cooldown
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Pounce Cooldown
+  displayName: 
+  baseGoldCost: 1
+  description: Pounce gains +{v1}% cooldown recovery rate.
+  traitIcon: {fileID: 0}
+  weaponTraitTag: Claws
+  traitType: 0
+  maxLevel: 1
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 0}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: cd161a05ebc874a4c93a192a6190d4ba, type: 2}
+    abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: cooldownTime
+      overrideMode: 1
+      numericValue: 10
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

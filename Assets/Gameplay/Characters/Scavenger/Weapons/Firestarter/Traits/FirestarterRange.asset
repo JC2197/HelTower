@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: FirestarterProjSpeed5
   displayName: Projectile Speed
+  baseGoldCost: 1
   description: Your Firestarter projectiles gain +{v1}% projectile speed
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
   weaponTraitTag: 
   traitType: 0
+  maxLevel: 5
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}

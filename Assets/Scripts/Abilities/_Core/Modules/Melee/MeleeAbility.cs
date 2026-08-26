@@ -25,6 +25,10 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     private AbilityDataConfig parentConfig;
     private bool firedFromOffhand;
     private bool destroyTriggersApplied;
+    private static readonly List<Collider2D> _cachedColliders = new List<Collider2D>();
+    private readonly HashSet<IDamageable> _hitDamageables = new HashSet<IDamageable>();
+    private readonly HashSet<GameObject> _hitPositiveObjects = new HashSet<GameObject>();
+
 
     public void SetContext(SubAbilityContext context)
     {
@@ -50,83 +54,114 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
         if (config.hitbox.prefab == null)
         {
-            Debug.LogError("[MeleeAbility] hitbox.prefab is null in MeleeConfig!");
-            Destroy(this);
+            Debug.LogError("[AttackAbility] hitbox.prefab is null in MeleeConfig!");
             return;
         }
 
-        // Spawn position: weapon root offset by radius along attack direction.
+        // 1. Spawning & Positioning Geometry Prefab Shape
         Transform ownerTransform = owner != null ? owner.transform : transform;
         Vector3 spawnPos = ownerTransform.position + (Vector3)(attackDirection * config.meleeFXRadiusDistance);
-
-
-        // Rotation: 0° = facing right, rotated toward attack direction
         float angle = Mathf.Atan2(attackDirection.y, attackDirection.x) * Mathf.Rad2Deg;
         Quaternion spawnRotation = Quaternion.Euler(0f, 0f, angle);
 
         hitboxInstance = Object.Instantiate(config.hitbox.prefab, spawnPos, spawnRotation);
 
-        // Local-only: never network-spawned. Damage/effects stay authoritative wherever this runs
-        // (server for enemies, owner for players); observers get the visual via the RPC below,
-        // avoiding FishNet's parenting/spawn-ordering rules entirely for this cosmetic object.
         if (config.stickToCharacter)
         {
             hitboxInstance.transform.SetParent(ownerTransform, true);
         }
         ApplyFlipAndScale(hitboxInstance, config, angle);
 
+        // 2. Uniform Animation Setup
+        hitboxAnimator = hitboxInstance.GetComponent<Animator>() ?? hitboxInstance.GetComponentInChildren<Animator>();
+        spawnTime = Time.time;
+
+        // Reset runtime processing trackers for this specific execution life cycle
+        _hitDamageables.Clear();
+        _hitPositiveObjects.Clear();
+
+        // 3. Early Out For Cosmetic / Remote Observer Calls
         if (visualOnly)
         {
-            foreach (Collider2D collider in hitboxInstance.GetComponentsInChildren<Collider2D>(true))
-                collider.enabled = false;
-
-            hitboxAnimator = hitboxInstance.GetComponentInChildren<Animator>();
-            spawnTime = Time.time;
+            hitboxInstance.GetComponentsInChildren<Collider2D>(true, _cachedColliders);
+            for (int i = 0; i < _cachedColliders.Count; i++)
+            {
+                _cachedColliders[i].enabled = false;
+            }
             return;
         }
 
+        // 4. Combat Audio & Network Observer Sync
         if (config.meleeSound != null)
             AudioManager.Instance.PlaySpatialSound(config.meleeSound, spawnPos, 1f, 1f);
 
-        // Tell every other observer to show the same swing visual locally.
-        // ObserversRpc can only be invoked by the server; player-owner-triggered attacks on a
-        // true remote client skip this (mirrors PlayerController.ObserversRpcSpawnMuzzleFlash).
         if (InstanceFinder.IsServerStarted)
             owner?.GetComponent<Organism>()?.ObserversRpcSpawnMeleeSwingVisual(abilityName, spawnPos, angle, firedFromOffhand);
 
-        // Find ALL colliders on the hitbox prefab (root + children) so every collider
-        // shape contributes to hit detection, not just the first one found. This matters
-        // for meleeFX prefabs built from multiple collider segments (e.g. a multi-part
-        // swing arc or a blade split into several hitboxes along its length).
-        Collider2D[] allColliders = hitboxInstance.GetComponentsInChildren<Collider2D>(true);
-
-        if (allColliders == null || allColliders.Length == 0)
+        // 5. Geometry Processing
+        hitboxInstance.GetComponentsInChildren<Collider2D>(true, _cachedColliders);
+        if (_cachedColliders.Count == 0)
         {
-            Debug.LogError("[MeleeAbility] meleeFX prefab has no Collider2D!");
+            Debug.LogError("[AttackAbility] Prefab shape contains zero physical geometry properties!");
             Object.Destroy(hitboxInstance);
-            hitboxInstance = null;
-            Destroy(this);
             return;
         }
 
-        foreach (Collider2D col in allColliders)
+        for (int i = 0; i < _cachedColliders.Count; i++)
         {
+            Collider2D col = _cachedColliders[i];
             col.isTrigger = true;
 
-            // Attach TriggerHandler to each collider's GameObject so every collider forwards
-            // its own trigger events into the shared hit-processing callback.
-            GameObject colliderObject = col.gameObject;
-            TriggerHandler triggerHandler = colliderObject.GetComponent<TriggerHandler>();
-            if (triggerHandler == null)
-                triggerHandler = colliderObject.AddComponent<TriggerHandler>();
-            triggerHandler.onTriggerEnter = OnHitboxTriggerEnter;
-        }
-        // Get animator from root or first child
-        hitboxAnimator = hitboxInstance.GetComponent<Animator>();
-        if (hitboxAnimator == null)
-            hitboxAnimator = hitboxInstance.GetComponentInChildren<Animator>();
+            GameObject colObj = col.gameObject;
+            TriggerHandler handler = colObj.GetComponent<TriggerHandler>() ?? colObj.AddComponent<TriggerHandler>();
 
-        spawnTime = Time.time;
+            // Bind directly to our structural routing method
+            handler.onTriggerEnter = OnHitboxTriggerEnterUnified;
+        }
+    }
+
+
+    private void OnHitboxTriggerEnterUnified(Collider2D hitCollider)
+    {
+        if (hitCollider == null) return;
+        GameObject targetObj = hitCollider.gameObject;
+
+        // --- STRATIFiED ROUTE A: HOSTILE TARGETS ---
+        if (config.hitbox.IsNegativeTarget(targetObj))
+        {
+            IDamageable damageable = hitCollider.GetComponentInParent<IDamageable>();
+
+            // Ensure unique structural elements don't duplicate logic calculations
+            if (damageable != null && _hitDamageables.Add(damageable))
+            {
+                // Execute damage sequence utilizing HitboxConfig internals
+                config.hitbox.ApplyDamage(hitCollider, owner, owner, owner, transform.position, abilityName, abilityTags, parentConfig);
+                config.hitbox.ApplyKnockback(hitCollider, owner, transform.position);
+                config.hitbox.ApplyPull(hitCollider, transform.position);
+                config.hitbox.ApplyOnHitEffects(targetObj, gameObject, owner);
+
+                // Central feedback module execution
+                config.hitbox.SpawnHitFeedback(hitCollider.transform.position, parentConfig, hitCollider);
+            }
+            return; // Fast escape routing
+        }
+
+        // --- STRATIFiED ROUTE B: FRIENDLY / SUPPORT TARGETS ---
+        if (config.hitbox.IsPositiveTarget(targetObj))
+        {
+            // Pin tracing context to root organism transform to bypass compound body tracking errors
+            GameObject rootEntity = hitCollider.transform.root.gameObject;
+
+            if (_hitPositiveObjects.Add(rootEntity))
+            {
+                // Execute positive utility sequence utilizing HitboxConfig internals
+                config.hitbox.ApplyHealing(hitCollider, owner, owner, owner, hitCollider.transform.position, abilityName, abilityTags, parentConfig);
+                config.hitbox.ApplyBuffEffects(targetObj, owner, owner);
+
+                // Central feedback module execution
+                config.hitbox.SpawnHitFeedback(hitCollider.transform.position, parentConfig, hitCollider);
+            }
+        }
     }
 
     /// <summary>Shared flip/scale setup used by both the authoritative instance and remote-visual copies.</summary>

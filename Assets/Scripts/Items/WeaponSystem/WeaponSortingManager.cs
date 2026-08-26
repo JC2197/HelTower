@@ -599,7 +599,6 @@ public class WeaponSortingManager : MonoBehaviour
             // Lock to 2 directions: don't rotate, use sprite flips.
             // (targetAngle is already snapped to 0° or 180° from STEP 2)
             weapon.rotation = Quaternion.Euler(0, 0, SnapToCardinalDirection(targetAngle));
-            Debug.Log($"[WeaponSortingManager] 2-direction lock target angle: {targetAngle}");
             weapon.localPosition = weaponOffset;
 
         }

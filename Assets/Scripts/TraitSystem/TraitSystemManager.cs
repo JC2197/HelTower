@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Main manager for the trait system. Coordinates between UI and character trait management.
@@ -11,17 +12,15 @@ public class TraitSystemManager : MonoBehaviour
     public static TraitSystemManager Instance { get; private set; }
     [Header("References")]
     [SerializeField] private TraitTreeUI traitTreeUI;
-    
+
     private CharacterTraitManager currentCharacterTraitManager;
     private TraitTree currentTree;
     private List<TraitTree> currentAvailableTrees;
     private int availableGold;
     private SaveFileData currentSaveFile; // Meta progression owner of gold + unlocked nodes
-    
-    // Events
-    public System.Action<int> OnGoldChanged;
+
     public System.Action<TraitData> OnTraitUnlocked;
-    
+
     private void Awake()
     {
         Instance = this;
@@ -31,13 +30,13 @@ public class TraitSystemManager : MonoBehaviour
     {
         if (Instance == this) Instance = null;
     }
-    
+
     /// <summary>
     /// Open trait tree for a specific character
     /// </summary>
     public void OpenTraitTree(GameObject characterObject, string saveFileName)
     {
-        
+
         // Auto-find TraitTreeUI if not assigned
         if (traitTreeUI == null)
         {
@@ -62,7 +61,7 @@ public class TraitSystemManager : MonoBehaviour
                     Debug.LogWarning("[TraitSystemManager] TraitTreeSceneManager.GetTraitTreeUI() returned null — is 'Trait Tree Canvas' assigned in the TraitTreeSceneManager Inspector, and does it contain a TraitTreeUI component?");
             }
         }
-        
+
         // Get or add trait manager to character
         currentCharacterTraitManager = characterObject.GetComponent<CharacterTraitManager>();
         if (currentCharacterTraitManager == null)
@@ -84,25 +83,6 @@ public class TraitSystemManager : MonoBehaviour
         {
             currentCharacterTraitManager.SetSaveFileData(currentSaveFile);
         }
-
-        if (currentSaveFile != null)
-        {
-            // Always read fresh from disk — the in-memory balance lags behind if gold was
-            // earned while the trait tree was closed.
-            int savedGold = SaveFilePersistence.LoadTotalGold(currentSaveFile.saveFileName);
-            if (savedGold >= 0)
-                currentSaveFile.totalGold = savedGold;
-
-            availableGold = currentSaveFile.totalGold;
-        }
-        else
-        {
-            availableGold = 0;
-            Debug.LogWarning("[TraitSystemManager] No SaveFileData found — trait tree opens with 0 gold.");
-        }
-        
-        OnGoldChanged?.Invoke(availableGold);
-        
         // Tabs come from the equipped class's available trait trees; nodes unlocked in the
         // save file are cross-referenced against whichever tree actually defines them.
         ClassData classData = localPlayer != null ? localPlayer.GetCurrentCharacterData()?.GetClassData() : null;
@@ -122,7 +102,7 @@ public class TraitSystemManager : MonoBehaviour
             currentSaveFile = null;
             return;
         }
-        
+
         // Initialize UI
         if (traitTreeUI != null)
         {
@@ -135,7 +115,7 @@ public class TraitSystemManager : MonoBehaviour
         {
             Debug.LogError($"[TraitSystemManager] TraitTreeUI is null!");
         }
-        
+
         // Show UI — activate parent canvas first (mirrors WeaponCraftingSystemManager pattern)
         if (traitTreeUI != null)
         {
@@ -144,15 +124,15 @@ public class TraitSystemManager : MonoBehaviour
                 parentCanvas.gameObject.SetActive(true);
             traitTreeUI.gameObject.SetActive(true);
         }
-        
+
         // Disable player input
         PlayerController.InputEnabled = false;
-        
+
         // Switch to UI cursor and register ESC close handler
         if (CursorManager.Instance != null)
             CursorManager.Instance.PushPanel(CloseTraitTree);
     }
-    
+
     /// <summary>
     /// Close the trait tree UI
     /// </summary>
@@ -162,33 +142,36 @@ public class TraitSystemManager : MonoBehaviour
         {
             traitTreeUI.OnTraitUnlockRequested -= OnTraitUnlockRequested;
             traitTreeUI.gameObject.SetActive(false);
-            
+
             // Deactivate parent canvas (mirrors WeaponCraftingSystemManager pattern)
             Canvas parentCanvas = traitTreeUI.GetComponentInParent<Canvas>(true);
             if (parentCanvas != null)
                 parentCanvas.gameObject.SetActive(false);
         }
-        
+
         // Re-enable player input
         PlayerController.InputEnabled = true;
-        
+
         // Deregister from ESC stack and switch back to gameplay cursor
         if (CursorManager.Instance != null)
             CursorManager.Instance.PopPanel();
-        
+
         currentCharacterTraitManager = null;
         currentTree = null;
         currentAvailableTrees = null;
         currentSaveFile = null;
     }
-    
+
     /// <summary>
     /// Handle a node purchase request from the UI. Gold is the only currency: the node's
     /// goldCost is deducted from the save file, then the trait is unlocked and persisted.
     /// </summary>
     private void OnTraitUnlockRequested(TraitNode node)
     {
-        if (currentCharacterTraitManager == null || node == null || node.traitData == null || string.IsNullOrEmpty(node.nodeID))
+        if (currentCharacterTraitManager == null ||
+        node == null ||
+         node.traitData == null ||
+          string.IsNullOrEmpty(node.nodeID))
             return;
 
         // Re-derive from CTM so TSM and CTM never operate on diverged objects.
@@ -200,59 +183,36 @@ public class TraitSystemManager : MonoBehaviour
             Debug.LogWarning($"[TraitSystemManager] Cannot unlock '{node.nodeID}' — no save file to charge.");
             return;
         }
+        int currentLevel = currentCharacterTraitManager.GetTraitLevel(node.nodeID);
 
-        if (currentSaveFile.totalGold < node.goldCost)
+        int maxLevel = node.traitData.maxLevel;
+            if (currentLevel >= maxLevel)
+    {
+        Debug.LogWarning(
+            $"[TraitSystemManager] '{node.nodeID}' is already maxed."
+        );
+        return;
+    }
+        int cost = currentCharacterTraitManager.GetTraitGoldCost(node);
+        
+        if (!currentSaveFile.SpendGold(cost))
         {
-            Debug.Log($"[TraitSystemManager] Not enough gold for '{node.nodeID}' — need {node.goldCost}, have {currentSaveFile.totalGold}.");
-            return;
-        }
-
-        if (node.traitData.maxLevel > 1 && currentCharacterTraitManager.GetTraitLevel(node.nodeID) >= node.traitData.maxLevel)
-        {
-            Debug.Log($"[TraitSystemManager] Cannot unlock '{node.nodeID}' — already at max level ({node.traitData.maxLevel}).");
             return;
         }
         if (!currentCharacterTraitManager.UnlockTrait(node.nodeID, node.traitData))
-            return;
-
-        currentSaveFile.SpendGold(node.goldCost);
-        availableGold = currentSaveFile.totalGold;
-
-        // Defensive: mirror the unlocked nodes from CTM in case of reference drift (e.g. hot-reload).
-        currentSaveFile.SetUnlockedNodes(currentCharacterTraitManager.GetUnlockedNodeIDs());
-        SaveFilePersistence.SaveFile(currentSaveFile);
-
-        OnGoldChanged?.Invoke(availableGold);
-        OnTraitUnlocked?.Invoke(node.traitData);
-        PlayerController.GetLocalPlayer()?.RequestStatsRecalculation();
-
-        Debug.Log($"[TraitSystemManager] Unlocked '{node.traitData.displayName}' from node '{node.nodeID}' for {node.goldCost} gold. Remaining: {availableGold}.");
-    }
-
-    /// <summary>
-    /// Grant gold to the active save file. Re-reads the persisted balance first so the
-    /// in-memory total is never stale when the trait tree hasn't been opened yet.
-    /// </summary>
-    public void AddGold(int amount, SaveFileData saveFile = null)
-    {
-        if (amount <= 0)
-            return;
-
-        saveFile ??= ResolveSaveFile();
-
-        if (saveFile == null)
         {
-            Debug.LogWarning($"[TraitSystemManager] AddGold: no save file resolved — {amount} gold discarded.");
+            currentSaveFile.AddGold(cost);
             return;
         }
 
-        saveFile.AddGold(amount);
-        availableGold = saveFile.totalGold;
-        OnGoldChanged?.Invoke(availableGold);
+        availableGold = currentSaveFile.totalGold;
+        currentSaveFile.SetUnlockedNodes(currentCharacterTraitManager.GetUnlockedNodeIDs());
+        SaveFilePersistence.SaveFile(currentSaveFile);
+        OnTraitUnlocked?.Invoke(node.traitData);
+        PlayerController.GetLocalPlayer()?.RequestStatsRecalculation();
 
-        SaveFilePersistence.SaveFile(saveFile);
-        Debug.Log($"[TraitSystemManager] +{amount} gold. Total now: {availableGold} (save: {saveFile.saveFileName})");
     }
+
 
     /// <summary>
     /// Resolve the authoritative save file: the one opened in the tree, then the local player's,
@@ -275,7 +235,7 @@ public class TraitSystemManager : MonoBehaviour
             ? localPlayer.GetCurrentSaveFileData()
             : SaveFileSelectionManager.ActiveSaveFile;
     }
-    
+
     /// <summary>
     /// Get the gold currently available to spend in the trait tree
     /// </summary>
@@ -283,7 +243,7 @@ public class TraitSystemManager : MonoBehaviour
     {
         return availableGold;
     }
-    
+
     /// <summary>
     /// Reset all traits for the active save file and refund the gold spent on them.
     /// </summary>
@@ -302,7 +262,6 @@ public class TraitSystemManager : MonoBehaviour
             SaveFilePersistence.SaveFile(currentSaveFile);
 
             availableGold = currentSaveFile.totalGold;
-            OnGoldChanged?.Invoke(availableGold);
 
             PlayerController.GetLocalPlayer()?.RequestStatsRecalculation();
         }
@@ -326,11 +285,11 @@ public class TraitSystemManager : MonoBehaviour
             foreach (TraitNode node in tree.nodes)
             {
                 if (node != null && unlockedNodeIDs.Contains(node.nodeID))
-                    spent += node.goldCost;
+                    spent += currentCharacterTraitManager.GetTraitGoldCost(node);
             }
         }
 
         return spent;
     }
-    
+
 }

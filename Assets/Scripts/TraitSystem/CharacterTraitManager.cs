@@ -26,7 +26,7 @@ public class CharacterTraitManager : MonoBehaviour
     private List<Trait> activeTraits = new List<Trait>();
     // Map nodeID -> Trait (allows multiple instances of same trait from different nodes)
     private Dictionary<string, Trait> traitLookupByNode = new Dictionary<string, Trait>();
-  
+
     // Track which specific nodes are unlocked (allows same trait on multiple nodes)
     private HashSet<string> unlockedNodeIDs = new HashSet<string>();
     // Gear-granted nodes are tracked separately so they are never written to
@@ -91,23 +91,23 @@ public class CharacterTraitManager : MonoBehaviour
         Debug.Log($"[CharacterTraitManager] SetCharacterData called");
         Debug.Log($"[CharacterTraitManager] New data: {(data != null ? data.displayName : "null")}");
         Debug.Log($"[CharacterTraitManager] Previous characterData: {(characterData != null ? characterData.displayName : "null")}");
-        
+
         // Reset traits if switching to a different character
         if (characterData != null && data != null && characterData.characterName != data.characterName)
         {
             Debug.Log($"[CharacterTraitManager] Character changed from {characterData.characterName} to {data.characterName}, resetting traits");
             ResetAllTraits();
         }
-        
+
         // Check if we need to load traits (before assigning characterData)
         bool shouldLoadTraits = (characterData == null) || (characterData != data);
         Debug.Log($"[CharacterTraitManager] shouldLoadTraits = {shouldLoadTraits}");
-        
+
         characterData = data;
 
         // Trait nodes are meta progression, so they are restored from the save file, not CharacterData.
-        if (data != null && shouldLoadTraits)
-            LoadTraitsFromSaveFile();
+        // if (data != null && shouldLoadTraits)
+        // //     LoadTraitsFromSaveFile();
 
         Debug.Log($"[CharacterTraitManager] ========================================");
     }
@@ -122,11 +122,11 @@ public class CharacterTraitManager : MonoBehaviour
             return;
 
         // Switching save files must not carry trait unlocks across.
-        if (saveFileData != null)
-            ResetAllTraits();
+        // if (saveFileData != null)
+        //     ResetAllTraits();
 
         saveFileData = data;
-        LoadTraitsFromSaveFile();
+        // LoadTraitsFromSaveFile();
     }
 
     /// <summary>Expose the save file this manager persists trait nodes into.</summary>
@@ -174,25 +174,30 @@ public class CharacterTraitManager : MonoBehaviour
         // so they are never serialised into characterData.unlockedNodeIDs.
         bool isGearNode = SaveFileData.IsGearNode(nodeID);
         HashSet<string> nodeSet = isGearNode ? _gearNodeIDs : unlockedNodeIDs;
-
-        // Check if this specific node is already unlocked
-        if (nodeSet.Contains(nodeID))
+        if (traitLookupByNode.TryGetValue(nodeID, out Trait existingTrait))
         {
-            Debug.LogWarning($"Node {nodeID} is already unlocked!");
-            return false;
+            if (!existingTrait.LevelTrait())
+            {
+                Debug.LogWarning($"Node {nodeID} has already reached its maximum level ({traitData.maxLevel})!");
+                return false;
+            }
+            RecalculateModifiers();
+
+            OnTraitUnlocked?.Invoke(nodeID, traitData);
+            OnTraitsChanged?.Invoke();
+
+            if (playerController != null)
+                playerController.RequestStatsRecalculation();
+
+            // UpdateSaveFileTraitList();
+
+            return true;
         }
-        
-        // Mark this node as unlocked
         nodeSet.Add(nodeID);
 
-        // Always activate the trait - allows multiple instances of same trait from different nodes
-        // Create and activate trait instance
         Trait trait = new Trait(traitData);
         trait.Activate(gameObject);
 
-        // Apply trait-unlocked abilities (auto-routed based on ability type)
-        // Skip for AbilityUpgrade traits - the ability already exists (it's the prerequisite)
-        // AbilityUpgrade traits only apply modifiers to the existing ability, not add new instances
         if (traitData.unlockedAbilities != null && traitData.unlockedAbilities.Count > 0)
         {
             CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
@@ -212,37 +217,21 @@ public class CharacterTraitManager : MonoBehaviour
 
         activeTraits.Add(trait);
         traitLookupByNode[nodeID] = trait;
-        
-        // Count how many instances of this trait exist now
-        int instanceCount = GetTraitInstanceCount(traitData);
-        foreach (var mod in traitData.statModifiers)
-        {
-            Debug.Log($"[CharacterTraitManager]   - {mod.statID}: +{mod.value} ({mod.modifierType})");
-        }
 
-        // Recalculate cached stats
+        Debug.Log(
+            $"[CharacterTraitManager] Unlocked trait '{nodeID}' " +
+            $"at level {trait.level}/{traitData.maxLevel}"
+        );
+
         RecalculateModifiers();
+
         OnTraitUnlocked?.Invoke(nodeID, traitData);
         OnTraitsChanged?.Invoke();
 
-        // Belt-and-suspenders: directly tell PlayerController to recalculate stats.
-        // The event path above SHOULD do this, but if the subscription was lost (e.g. object
-        // lifecycle, timing) this ensures traits always affect gameplay stats.
         if (playerController != null)
-        {
             playerController.RequestStatsRecalculation();
-            Debug.Log($"[CharacterTraitManager] Called playerController.RequestStatsRecalculation() directly");
-        }
-        else
-        {
-            Debug.LogWarning($"[CharacterTraitManager] playerController is NULL — cannot directly request stat recalculation!");
-        }
-        
-        Debug.Log($"[CharacterTraitManager] Trait unlock complete!");
-        Debug.Log($"[CharacterTraitManager] ========================================");
-        
-        // Update the save file in-memory — caller handles save + network broadcast
-        UpdateSaveFileTraitList();
+
+        // UpdateSaveFileTraitList();
 
         return true;
     }
@@ -254,7 +243,7 @@ public class CharacterTraitManager : MonoBehaviour
     {
         return !string.IsNullOrEmpty(nodeID) && (unlockedNodeIDs.Contains(nodeID) || _gearNodeIDs.Contains(nodeID));
     }
-    
+
     /// <summary>
     /// Remove a trait by node ID (for respec)
     /// </summary>
@@ -280,11 +269,11 @@ public class CharacterTraitManager : MonoBehaviour
         playerController?.RequestStatsRecalculation();
 
         // Update the save file in-memory — caller handles save + network broadcast
-        UpdateSaveFileTraitList();
+        // UpdateSaveFileTraitList();
 
         return true;
     }
-    
+
     /// <summary>
     /// Get all unlocked node IDs
     /// </summary>
@@ -301,10 +290,17 @@ public class CharacterTraitManager : MonoBehaviour
         if (node == null)
             return false;
 
-        if (node.goldCost <= 0)
-            return true;
+        int cost = GetTraitGoldCost(node);
+        if (cost <= 0)
+        {
+            Debug.Log(
+                $"[CharacterTraitManager] Node {node.nodeID} is free to unlock."
+            );
 
-        return saveFileData != null && saveFileData.totalGold >= node.goldCost;
+            return true;
+        }
+        int playerGold = saveFileData != null ? saveFileData.totalGold : 0;
+        return playerGold >= cost;
     }
 
     /// <summary>
@@ -322,7 +318,7 @@ public class CharacterTraitManager : MonoBehaviour
 
         bool removedAny = false;
         var nodesToRemove = new List<string>();
-        
+
         // Find all nodes with this trait
         foreach (var kvp in traitLookupByNode)
         {
@@ -331,7 +327,7 @@ public class CharacterTraitManager : MonoBehaviour
                 nodesToRemove.Add(kvp.Key);
             }
         }
-        
+
         // Remove each instance
         foreach (var nodeID in nodesToRemove)
         {
@@ -350,7 +346,7 @@ public class CharacterTraitManager : MonoBehaviour
         if (traitData == null) return false;
         return activeTraits.Any(t => t.data == traitData);
     }
-    
+
     /// <summary>
     /// Get the number of active instances of a specific trait
     /// </summary>
@@ -360,6 +356,32 @@ public class CharacterTraitManager : MonoBehaviour
         return activeTraits.Count(t => t.data == traitData);
     }
 
+    public int GetTotalTraitLevels()
+    {
+        int totalLevels = 0;
+
+        foreach (Trait trait in activeTraits)
+        {
+            if (trait != null)
+                totalLevels += trait.level;
+        }
+
+        return totalLevels;
+    }
+
+    public int GetTraitGoldCost(TraitNode node)
+    {
+        if (node == null || node.traitData == null)
+            return 0;
+
+        int totalTraitLevels = GetTotalTraitLevels();
+
+        return TraitUtils.GetGoldCost(
+            node,
+            totalTraitLevels
+        );
+    }
+
     /// <summary>
     /// Get all active traits
     /// </summary>
@@ -367,7 +389,7 @@ public class CharacterTraitManager : MonoBehaviour
     {
         return activeTraits.Select(t => t.data).ToList();
     }
-    
+
     /// <summary>
     /// Collect all trait tags from active traits with their frequencies.
     /// Returns a dictionary of tag -> count (how many times that tag appears).
@@ -376,18 +398,18 @@ public class CharacterTraitManager : MonoBehaviour
     public Dictionary<string, int> GetTraitTagCollection()
     {
         Dictionary<string, int> tagCounts = new Dictionary<string, int>();
-        
+
         foreach (var trait in activeTraits)
         {
             if (trait.data == null) continue;
-            
+
             // Get all tags from this trait
             // List<string> tags = trait.data.GetAllTags();
-            
+
             // foreach (string tag in tags)
             // {
             //     if (string.IsNullOrEmpty(tag)) continue;
-                
+
             //     if (tagCounts.ContainsKey(tag))
             //     {
             //         tagCounts[tag]++;
@@ -398,56 +420,56 @@ public class CharacterTraitManager : MonoBehaviour
             //     }
             // }
         }
-        
+
         return tagCounts;
     }
-    
-    /// <summary>
-    /// Mirror the runtime unlocked node set into the save file (meta progression).
-    /// In-memory only — the caller is responsible for persisting and broadcasting.
-    /// </summary>
-    private void UpdateSaveFileTraitList()
-    {
-        if (saveFileData == null)
-            return;
 
-        saveFileData.SetUnlockedNodes(unlockedNodeIDs);
-        Debug.Log($"[CharacterTraitManager] Trait list updated: {activeTraits.Count} traits, {unlockedNodeIDs.Count} nodes persisted to '{saveFileData.saveFileName}'.");
-    }
-    
+    // /// <summary>
+    // /// Mirror the runtime unlocked node set into the save file (meta progression).
+    // /// In-memory only — the caller is responsible for persisting and broadcasting.
+    // /// </summary>
+    // private void UpdateSaveFileTraitList()
+    // {
+    //     if (saveFileData == null)
+    //         return;
+
+    //     saveFileData.SetUnlockedNodes(unlockedNodeIDs);
+    //     Debug.Log($"[CharacterTraitManager] Trait list updated: {activeTraits.Count} traits, {unlockedNodeIDs.Count} nodes persisted to '{saveFileData.saveFileName}'.");
+    // }
+
     /// <summary>
     /// Restore the save file's persisted trait tree nodes. Each node is resolved via the
     /// save file's trait tree, falling back to TraitDataList by traitID (with any "_N" stack
     /// suffix stripped). Gear-granted node IDs are skipped — they are always re-derived from gear.
     /// </summary>
-    private void LoadTraitsFromSaveFile()
-    {
-        if (saveFileData == null || saveFileData.unlockedNodeIDs == null || saveFileData.unlockedNodeIDs.Count == 0)
-            return;
+    // private void LoadTraitsFromSaveFile()
+    // {
+    //     if (saveFileData == null || saveFileData.unlockedNodeIDs == null || saveFileData.unlockedNodeIDs.Count == 0)
+    //         return;
 
-        // Copy first: UnlockTrait writes back into the save file via UpdateSaveFileTraitList.
-        List<string> savedNodeIDs = new List<string>(saveFileData.unlockedNodeIDs);
-        int restored = 0;
+    //     // Copy first: UnlockTrait writes back into the save file via UpdateSaveFileTraitList.
+    //     List<string> savedNodeIDs = new List<string>(saveFileData.unlockedNodeIDs);
+    //     int restored = 0;
 
-        foreach (string nodeID in savedNodeIDs)
-        {
-            // Gear nodes are re-derived from equipped gear, never restored from the save file.
-            if (string.IsNullOrEmpty(nodeID) || SaveFileData.IsGearNode(nodeID) || unlockedNodeIDs.Contains(nodeID))
-                continue;
+    //     foreach (string nodeID in savedNodeIDs)
+    //     {
+    //         // Gear nodes are re-derived from equipped gear, never restored from the save file.
+    //         if (string.IsNullOrEmpty(nodeID) || SaveFileData.IsGearNode(nodeID) || unlockedNodeIDs.Contains(nodeID))
+    //             continue;
 
-            TraitData traitData = ResolveTraitForNode(nodeID);
-            if (traitData == null)
-            {
-                Debug.LogWarning($"[CharacterTraitManager] Saved node '{nodeID}' has no matching TraitData — skipping.");
-                continue;
-            }
+    //         TraitData traitData = ResolveTraitForNode(nodeID);
+    //         if (traitData == null)
+    //         {
+    //             Debug.LogWarning($"[CharacterTraitManager] Saved node '{nodeID}' has no matching TraitData — skipping.");
+    //             continue;
+    //         }
 
-            if (UnlockTrait(nodeID, traitData, isRestoring: true))
-                restored++;
-        }
+    //         if (UnlockTrait(nodeID, traitData, isRestoring: true))
+    //             restored++;
+    //     }
 
-        Debug.Log($"[CharacterTraitManager] Restored {restored}/{savedNodeIDs.Count} trait nodes from save file '{saveFileData.saveFileName}'.");
-    }
+    //     Debug.Log($"[CharacterTraitManager] Restored {restored}/{savedNodeIDs.Count} trait nodes from save file '{saveFileData.saveFileName}'.");
+    // }
 
     /// <summary>
     /// Resolve the TraitData for a saved node ID: search every trait tree the equipped class
@@ -485,7 +507,7 @@ public class CharacterTraitManager : MonoBehaviour
 
         return int.TryParse(nodeID.Substring(separator + 1), out _) ? nodeID.Substring(0, separator) : nodeID;
     }
-    
+
     /// <summary>
     /// Recalculate all stat modifiers from traits
     /// </summary>
@@ -493,13 +515,13 @@ public class CharacterTraitManager : MonoBehaviour
     {
         Debug.Log($"[CharacterTraitManager] ========== RECALCULATING TRAIT MODIFIERS ==========");
         Debug.Log($"[CharacterTraitManager] Active traits count: {activeTraits.Count}");
-        
+
         cachedFlatModifiers.Clear();
         cachedPercentageModifiers.Clear();
-        
+
         // Track how many instances of each trait we have for stacking info
         Dictionary<string, int> traitInstanceCounts = new Dictionary<string, int>();
-        
+
         foreach (var trait in activeTraits)
         {
             if (!trait.isActive)
@@ -507,21 +529,21 @@ public class CharacterTraitManager : MonoBehaviour
                 Debug.Log($"[CharacterTraitManager] Skipping inactive trait: {trait.data.displayName}");
                 continue;
             }
-            
+
             // Count trait instances
             string traitID = trait.data.traitID;
             if (!traitInstanceCounts.ContainsKey(traitID))
                 traitInstanceCounts[traitID] = 0;
             traitInstanceCounts[traitID]++;
-        
+
             Debug.Log($"[CharacterTraitManager] Processing trait: {trait.data.displayName} (instance #{traitInstanceCounts[traitID]})");
-            
+
             foreach (var modifier in trait.data.statModifiers)
             {
                 // No trait scaling — use the modifier value directly.
                 float scaledValue = modifier.value;
                 float previousValue = 0f;
-                
+
                 switch (modifier.modifierType)
                 {
                     case TraitModifierType.Flat:
@@ -529,7 +551,7 @@ public class CharacterTraitManager : MonoBehaviour
                             previousValue = cachedFlatModifiers[modifier.statID];
                         else
                             cachedFlatModifiers[modifier.statID] = 0f;
-                        
+
                         cachedFlatModifiers[modifier.statID] += scaledValue;
                         Debug.Log($"[CharacterTraitManager]   FLAT {modifier.statID}: {previousValue} + {scaledValue} = {cachedFlatModifiers[modifier.statID]}");
                         break;
@@ -539,14 +561,14 @@ public class CharacterTraitManager : MonoBehaviour
                             previousValue = cachedPercentageModifiers[modifier.statID];
                         else
                             cachedPercentageModifiers[modifier.statID] = 0f;
-                        
+
                         cachedPercentageModifiers[modifier.statID] += scaledValue;
                         Debug.Log($"[CharacterTraitManager]   PERCENT {modifier.statID}: {previousValue}% + {scaledValue}% = {cachedPercentageModifiers[modifier.statID]}%");
                         break;
                 }
             }
         }
-        
+
         // Log summary of stacked traits
         Debug.Log($"[CharacterTraitManager] ---------- STACKING SUMMARY ----------");
         foreach (var kvp in traitInstanceCounts)
@@ -556,7 +578,7 @@ public class CharacterTraitManager : MonoBehaviour
                 Debug.Log($"[CharacterTraitManager] STACKED: {kvp.Key} x{kvp.Value} instances");
             }
         }
-        
+
         // Log final totals
         Debug.Log($"[CharacterTraitManager] ---------- FINAL TOTALS ----------");
         if (cachedFlatModifiers.Count > 0)
@@ -627,32 +649,32 @@ public class CharacterTraitManager : MonoBehaviour
         float percentage = GetPercentageModifier(statID);
 
         float finalValue;
-        
+
         // Check if this is a percentage-based stat
         if (IsPercentageStat(statID))
         {
             // Percentage stats: flat is divided by 100 (15 becomes 0.15)
             finalValue = (baseValue + flat / 100f) * (1f + percentage / 100f);
-            
+
             if (flat != 0f || percentage != 0f)
             {
-                Debug.Log($"[CharacterTraitManager] {statID} (percentage): base={baseValue}, flat={flat}% (+{flat/100f}), percent={percentage}% (x{1f + percentage/100f}), final={finalValue}");
+                Debug.Log($"[CharacterTraitManager] {statID} (percentage): base={baseValue}, flat={flat}% (+{flat / 100f}), percent={percentage}% (x{1f + percentage / 100f}), final={finalValue}");
             }
         }
         else
         {
             // Absolute stats: flat is added as-is
             finalValue = (baseValue + flat) * (1f + percentage / 100f);
-            
+
             if (flat != 0f || percentage != 0f)
             {
-                Debug.Log($"[CharacterTraitManager] {statID} (absolute): base={baseValue}, flat={flat}, percent={percentage}% (x{1f + percentage/100f}), final={finalValue}");
+                Debug.Log($"[CharacterTraitManager] {statID} (absolute): base={baseValue}, flat={flat}, percent={percentage}% (x{1f + percentage / 100f}), final={finalValue}");
             }
         }
 
         return finalValue;
     }
-    
+
     /// <summary>
     /// Determine if a stat uses percentage-based calculations (flat/100) or absolute values (flat as-is)
     /// </summary>
@@ -667,7 +689,7 @@ public class CharacterTraitManager : MonoBehaviour
                 return statType.IsPercentage;
             }
         }
-        
+
         // Fallback: use string pattern matching for unknown stats
         string lowerID = statID.ToLower();
         return lowerID.Contains("speed") ||
@@ -691,7 +713,7 @@ public class CharacterTraitManager : MonoBehaviour
     {
         foreach (var trait in activeTraits)
         {
-            if (trait.isActive && trait.data.abilityReplacement?.requiredAbility != null 
+            if (trait.isActive && trait.data.abilityReplacement?.requiredAbility != null
                 && trait.data.abilityReplacement.requiredAbility.abilityName == abilityName)
             {
                 return trait.data.abilityReplacement.newAbilityConfig;
@@ -699,14 +721,14 @@ public class CharacterTraitManager : MonoBehaviour
         }
         return null;
     }
-    
+
     /// <summary>
     /// Check if any trait replaces a specific ability (by AbilityConfig reference)
     /// </summary>
     public AbilityConfig GetAbilityReplacement(AbilityConfig abilityConfig)
     {
         if (abilityConfig == null) return null;
-        
+
         foreach (var trait in activeTraits)
         {
             if (trait.isActive && trait.data.abilityReplacement?.requiredAbility == abilityConfig)
@@ -723,14 +745,24 @@ public class CharacterTraitManager : MonoBehaviour
     /// </summary>
     public void ResetRunTraits()
     {
-        var rollerNodeIDs = new List<string>(unlockedNodeIDs);
-        foreach (string nodeID in rollerNodeIDs)
+        var nodeIDs = new List<string>(unlockedNodeIDs);
+
+        foreach (string nodeID in nodeIDs)
         {
             RemoveTraitByNode(nodeID);
         }
 
-        // Belt-and-suspenders: ensure the runtime set is cleared
         unlockedNodeIDs.Clear();
+        traitLookupByNode.Clear();
+        activeTraits.Clear();
+
+        RecalculateModifiers();
+
+        playerController?.RequestStatsRecalculation();
+
+        OnTraitsChanged?.Invoke();
+
+        Debug.Log("[CharacterTraitManager] Run traits reset.");
     }
 
     /// <summary>
@@ -743,22 +775,22 @@ public class CharacterTraitManager : MonoBehaviour
         {
             RemoveTrait(traitData);
         }
-        
+
         // Clear unlocked nodes
         unlockedNodeIDs.Clear();
         _gearNodeIDs.Clear();
     }
-    
+
     public int GetTraitLevel(string nodeID)
     {
         if (string.IsNullOrEmpty(nodeID))
             return 0;
 
-        foreach (var trait in activeTraits)
+        if (traitLookupByNode.TryGetValue(nodeID, out Trait trait))
         {
-            if (trait.data != null)
-                return trait.level;
+            return trait.level;
         }
+
         return 0;
     }
 

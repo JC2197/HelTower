@@ -70,4 +70,11 @@ MonoBehaviour:
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
-  availableTraitTrees: []
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  availableTraitTrees:
+  - {fileID: 11400000, guid: 41532abdab37c5f409fb04618f32af8a, type: 2}
+  - {fileID: 11400000, guid: c72044dd3a41e3949bbcb1c32092e738, type: 2}
+  - {fileID: 11400000, guid: b7dd5b7ef37bf62439bf152bf344a72d, type: 2}

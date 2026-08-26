@@ -37,6 +37,10 @@ public class SaveFileData : ScriptableObject
 
     public static event Action<int> OnGoldChanged;
 
+    public int getNodeCount()
+    {
+        return unlockedNodeIDs != null ? unlockedNodeIDs.Count : 0;
+    }
     public bool IsNodeUnlocked(string nodeID)
     {
         return !string.IsNullOrEmpty(nodeID) && unlockedNodeIDs != null && unlockedNodeIDs.Contains(nodeID);
@@ -48,6 +52,7 @@ public class SaveFileData : ScriptableObject
         Debug.Log($"[Gold] Adding {amount} gold. Previous total: {totalGold}, New total: {totalGold + amount}");
         totalGold += amount;
         OnGoldChanged?.Invoke(totalGold);
+
     }
 
     /// <summary>Deduct gold if the balance covers it. Returns false and changes nothing otherwise.</summary>
@@ -60,6 +65,7 @@ public class SaveFileData : ScriptableObject
         OnGoldChanged?.Invoke(totalGold);
         return true;
     }
+
 
     public bool UnlockNode(string nodeID)
     {

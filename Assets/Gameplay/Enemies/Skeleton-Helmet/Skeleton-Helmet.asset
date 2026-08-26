@@ -64,6 +64,10 @@ MonoBehaviour:
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
   statTypeDatabase: {fileID: 11400000, guid: 692b506b6c5a55e48b4de66a8edfbfe0, type: 2}
   isBoss: 0
   detectionRange: 1000

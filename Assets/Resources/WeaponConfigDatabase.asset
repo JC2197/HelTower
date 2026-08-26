@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfigDatabase
   allWeaponConfigs:
   - {fileID: 11400000, guid: 85ad2872cec2f2a429d9b322d97426b5, type: 2}
-  - {fileID: 11400000, guid: 4d7f2e3c4b5a69788796a5b4c3d2e1f3, type: 2}
   - {fileID: 11400000, guid: 0137e9495b97ad649bf6f9a6c413cac8, type: 2}
   - {fileID: 11400000, guid: c04ec44a547f9e04b88bf412f08c0037, type: 2}
   - {fileID: 11400000, guid: a82a4d7b8fecb554c92d67457561fc94, type: 2}
@@ -29,6 +28,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 89c203d28d69d6e4daa697cf601c1f60, type: 2}
   - {fileID: 11400000, guid: 3701f85a23f9c3040aec6511dfce0c56, type: 2}
   - {fileID: 11400000, guid: 13cd9b502782479429a47b24fa9cd5a1, type: 2}
-  - {fileID: 11400000, guid: cbd3119dd770b3b458d49f3f8d5f7598, type: 2}
   - {fileID: 11400000, guid: 9d15fdff62ec88041828310c8adcff17, type: 2}
   - {fileID: 11400000, guid: f04d84d8f3de6a1469c65d0fc1dda867, type: 2}
+  - {fileID: 11400000, guid: 50590f5461100aa4dbe5503b54b0d883, type: 2}

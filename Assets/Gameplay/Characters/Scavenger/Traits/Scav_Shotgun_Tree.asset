@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
+  m_Name: Scav_Shotgun_Tree
+  m_EditorClassIdentifier: Assembly-CSharp::TraitTree
+  treeName: 
+  description: 
+  nodeSpacing: 100
+  nodeIconSize: 17
+  nodeIconFrame: {fileID: 0}
+  canvasWidth: 400
+  nodes:
+  - nodeID: FirestarterSwipeSize5_ee15
+    traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
+    position: {x: 32, y: 0}
+    currentLevel: 0
+    connectedNodeIDs: []
+  - nodeID: FireStarterBurnChance5_813b
+    traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
+    position: {x: -64, y: 0}
+    currentLevel: 0
+    connectedNodeIDs: []
+  - nodeID: FirestarterProjSpeed5_8178
+    traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
+    position: {x: -32, y: 0}
+    currentLevel: 0
+    connectedNodeIDs: []
+  - nodeID: FirestarterDamage5_8c43
+    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
+    position: {x: 64, y: -0}
+    currentLevel: 0
+    connectedNodeIDs: []
+  canvasHeight: 225
+  minCanvasWidth: 400
+  minCanvasHeight: 225
+  autoCanvasSize: 1
+  autoCanvasPadding: 80
+  connections: []

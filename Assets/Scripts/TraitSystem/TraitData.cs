@@ -17,7 +17,8 @@ public class TraitData : ScriptableObject
 
     [Tooltip("Display name shown to players")]
     public string displayName;
-
+    [Tooltip("Gold cost to unlock this trait")]
+    public int baseGoldCost = 1;
     [TextArea(3, 5)]
     [Tooltip("Description of what this trait does")]
     public string description;

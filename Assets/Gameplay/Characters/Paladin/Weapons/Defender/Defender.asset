@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
   advancementLevel: 1
   weaponName: Defender
-  weaponType: Shield
+  weaponType: Defender
   grantedTrait: {fileID: 0}
   weaponPrefab: {fileID: 2979637868561173973, guid: 36d1df09717e1644297ec909940e8a52, type: 3}
   weaponDamageMin: 3

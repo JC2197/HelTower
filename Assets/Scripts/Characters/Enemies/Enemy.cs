@@ -1385,6 +1385,7 @@ public class Enemy : Organism
             {
                 Debug.Log($"[Gold] Adding {config.goldDropped} gold to player {player.gameObject.name}'s save file.");
                 saveFileData.AddGold(config.goldDropped);
+                SaveFilePersistence.SaveFile(saveFileData);
             } else
             {
                 Debug.LogWarning($"[Gold] Failed to add gold to player {player.gameObject.name}'s save file. SaveFileData is null.");

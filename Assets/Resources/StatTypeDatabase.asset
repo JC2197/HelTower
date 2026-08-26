@@ -120,3 +120,11 @@ MonoBehaviour:
     isPercentage: 1
     maxValue: 0
     description: 
+  - statId: BleedDamage
+    displayName: Bleed Damage Bonus
+    categoryId: Active
+    icon: {fileID: 0}
+    defaultValue: 0
+    isPercentage: 1
+    maxValue: 0
+    description: 

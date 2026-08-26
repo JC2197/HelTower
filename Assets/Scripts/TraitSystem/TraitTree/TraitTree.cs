@@ -27,15 +27,13 @@ public class TraitTree : ScriptableObject
     public List<TraitTreeConnection> connections = new List<TraitTreeConnection>();
 }
 
+//Trait nodes are the literal on-tree trait representations, containing data, position, cost, and connection info.
 [System.Serializable]
 public class TraitNode
 {
     public string nodeID;
     public TraitData traitData;
     public Vector2 position;
-    public int goldCost;
-
-
     public List<string> connectedNodeIDs = new List<string>();
 }
 

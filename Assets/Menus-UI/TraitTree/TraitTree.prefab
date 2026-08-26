@@ -400,7 +400,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &58199337523219787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -451,8 +451,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitTreeUI
   hudCanvas: {fileID: 7592061250331430132}
   closeButton: {fileID: 1470448105778626393}
+  nodePrefab: {fileID: 9110775628180578764, guid: 76d9e33076c5fcb4882c95118be5256e, type: 3}
   trees:
-  - {fileID: 11400000, guid: 7cbf2257736f9dc49bb81c94ee1e6817, type: 2}
+  - {fileID: 0}
   tabButtonPrefab: {fileID: 3432289245541074901, guid: 3da7354cad45b0e40baa0def86eb2d9a, type: 3}
   tabContainer: {fileID: 2438289193671100550}
   defaultTabIndex: 0

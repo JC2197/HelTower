@@ -72,3 +72,5 @@ MonoBehaviour:
       currentValue: 0
   availableTraitTrees:
   - {fileID: 11400000, guid: 83f34da88b0da094d89dd40a44e78a6e, type: 2}
+  - {fileID: 11400000, guid: 95ca37d2a01397c4884c1d2218f4cdbb, type: 2}
+  - {fileID: 11400000, guid: 34c126fe13a1ee0498b72579fec1d31a, type: 2}

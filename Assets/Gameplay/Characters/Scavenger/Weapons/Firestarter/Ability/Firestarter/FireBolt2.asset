@@ -235,7 +235,7 @@ MonoBehaviour:
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 64
       damage: 5
       damageTypeName: Physical
       useWeaponDamage: 0

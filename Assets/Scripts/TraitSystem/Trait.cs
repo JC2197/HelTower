@@ -40,6 +40,14 @@ public class Trait
         
         Debug.Log($"Activated trait: {data.displayName}");
     }
+
+    public bool LevelTrait()
+    {
+        if (data == null) return false;
+        if (level >= data.maxLevel) return false;
+        level++;
+        return true;
+    }
     
     /// <summary>
     /// Deactivate this trait (for respec or removal)

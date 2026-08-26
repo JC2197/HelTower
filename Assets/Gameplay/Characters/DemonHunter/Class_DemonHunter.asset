@@ -70,4 +70,7 @@ MonoBehaviour:
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
-  availableTraitTrees: []
+  availableTraitTrees:
+  - {fileID: 11400000, guid: 15a69da009f7b6d4db10f5503f7eb512, type: 2}
+  - {fileID: 11400000, guid: 19e6b171302eeec4985ec7d5bf9ea882, type: 2}
+  - {fileID: 11400000, guid: e1265f9665b0cb74993d2081b22a206a, type: 2}

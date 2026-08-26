@@ -17,7 +17,8 @@ MonoBehaviour:
   animatorController: {fileID: 22100000, guid: e299a71dc8733e240a87a80d32f947e6, type: 2}
   availableWeapons:
   - {fileID: 11400000, guid: 397872368eb0c764ca874159ab400af9, type: 2}
-  - {fileID: 11400000, guid: c04ec44a547f9e04b88bf412f08c0037, type: 2}
+  - {fileID: 11400000, guid: 13cd9b502782479429a47b24fa9cd5a1, type: 2}
+  - {fileID: 11400000, guid: 50590f5461100aa4dbe5503b54b0d883, type: 2}
   availableAccessories: []
   abilities: []
   baseStatContainer:
@@ -70,4 +71,11 @@ MonoBehaviour:
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
-  availableTraitTrees: []
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  availableTraitTrees:
+  - {fileID: 11400000, guid: 3dd6fba0511704a44bd51c41182a0e7f, type: 2}
+  - {fileID: 11400000, guid: afd7bb3b0f1ab64479886d5d96094134, type: 2}
+  - {fileID: 11400000, guid: 941333c1bd1618c42bc4e7afdb3d2359, type: 2}

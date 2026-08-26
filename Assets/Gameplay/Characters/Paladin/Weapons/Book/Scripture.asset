@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841f3c1aafac03148a6705f66026cea6, type: 3}
+  m_Name: Scripture
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponConfig
+  advancementLevel: 1
+  weaponName: Scripture
+  weaponType: Book
+  grantedTrait: {fileID: 0}
+  weaponPrefab: {fileID: 7742965708568834131, guid: 8caf27f350bddfd458001d5b16bbe1a3, type: 3}
+  weaponDamageMin: 3
+  weaponDamageMax: 4
+  weaponDamageType: Physical
+  offhandWeaponConfig: {fileID: 0}
+  inventorySprite: {fileID: -1929713242, guid: ca85478c149823c4bacecba0beb2a4ee, type: 3}
+  worldSprite: {fileID: -1929713242, guid: ca85478c149823c4bacecba0beb2a4ee, type: 3}
+  overridePositioning: 0
+  positioningOverride:
+    aimingRadius: 0.3
+    isMainHand: 1
+    is2Handed: 0
+    northEastOffset: {x: 0, y: 0}
+    northWestOffset: {x: 0, y: 0}
+    southEastOffset: {x: 0, y: 0}
+    southWestOffset: {x: 0, y: 0}
+    weaponBehindOnNE: 0
+    weaponBehindOnNW: 0
+    weaponBehindOnSE: 0
+    weaponBehindOnSW: 0
+    isOffhand: 0
+    offhandNorthEastOffset: {x: 0, y: 0}
+    offhandNorthWestOffset: {x: 0, y: 0}
+    offhandSouthEastOffset: {x: 0, y: 0}
+    offhandSouthWestOffset: {x: 0, y: 0}
+    offhandWeaponBehindOnNE: 0
+    offhandWeaponBehindOnNW: 0
+    offhandWeaponBehindOnSE: 0
+    offhandWeaponBehindOnSW: 0
+    lockTo2Directions: 0
+    flipWeaponOnTurn: 0
+    flipWeaponOnYAxis: 0
+    flipWeaponOnXAxis: 0
+    handBehindOnNE: 0
+    handBehindOnNW: 0
+    handBehindOnSE: 0
+    handBehindOnSW: 0
+    handRotationOffset: 0
+  grantedPrimaryAbility: {fileID: 11400000, guid: 3eee64985b30bac49b23e469fd6ace3a, type: 2}
+  grantedSecondaryAbility: {fileID: 0}
+  grantedPassiveAbility: {fileID: 0}
+  projectilePrefabOverride: {fileID: 0}
+  usesAmmo: 1
+  ammoConfig:
+    dependsOnAmmo: 1
+    magazineSize: 1
+    reloadTime: 2.5
+    ammoIcon: {fileID: 0}
+  muzzleFlashOverride: {fileID: 0}
+  overrideMuzzleLight: 0
+  muzzleLightColorOverride: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  muzzleLightIntensityOverride: 3
+  muzzleLightRangeOverride: 2
+  muzzleLightDurationOverride: 0.1
+  overrideHitEffects: 0
+  hitVisualPrefabOverride: {fileID: 0}
+  hitSoundOverride: {fileID: 0}
+  hitFlashColorOverride: {r: 1, g: 1, b: 1, a: 1}
+  overrideStatusEffects: 0
+  onHitEffectsOverride:
+    canRoot: 0
+    rootEffect: {fileID: 0}
+    rootDuration: 0
+    rootApplicationChance: 1
+    canSlow: 0
+    slowEffect: {fileID: 0}
+    slowDuration: 0
+    slowApplicationChance: 1
+    canStun: 0
+    stunEffect: {fileID: 0}
+    stunDuration: 0
+    stunApplicationChance: 1
+    canBleed: 0
+    bleedEffect: {fileID: 0}
+    bleedDamage: 5
+    bleedDuration: 3
+    bleedApplicationChance: 1
+    canBurn: 0
+    burnEffect: {fileID: 0}
+    burnDamage: 10
+    burnDuration: 3
+    burnApplicationChance: 1
+    canPoison: 0
+    poisonEffect: {fileID: 0}
+    poisonDamage: 3
+    poisonDuration: 5
+    poisonApplicationChance: 1
+    canApplyStatBuffs: 0
+    statBuffApplications: []
+    canTriggerAbility: 0
+    triggeredAbilityConfigs: []

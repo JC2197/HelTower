@@ -133,6 +133,14 @@ public class PlayerHUD : MonoBehaviour
         // This will be called to update ability slots
         // Implementation handled by AbilitySlotUI components
     }
+
+    public void UpdateGoldDisplay(int newTotalGold)
+    {
+        if (totalGold != null)
+        {
+            totalGold.text = newTotalGold.ToString();
+        }
+    }
     
     /// <summary>
     /// Refresh all HUD displays (health, energy, force field). Call this after stat changes.
@@ -143,6 +151,7 @@ public class PlayerHUD : MonoBehaviour
         {
             UpdateHealthDisplay(player);
             UpdateEnergyDisplay(player);
+            UpdateGoldDisplay(player.GetCurrentSaveFileData().totalGold);
         }
     }
 }

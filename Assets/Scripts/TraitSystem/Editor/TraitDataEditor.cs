@@ -10,7 +10,10 @@ public class TraitDataEditor : Editor
     private SerializedProperty traitIDProp;
     private SerializedProperty displayNameProp;
     private SerializedProperty descriptionProp;
+    private SerializedProperty baseGoldCostProp;
     private SerializedProperty traitIconProp;
+    private SerializedProperty requiredTraitsProp;
+    private SerializedProperty maxLevelProp;
     private SerializedProperty weaponTraitTagProp;
     private SerializedProperty traitTypeProp;
     private SerializedProperty statModifiersProp;
@@ -20,7 +23,7 @@ public class TraitDataEditor : Editor
     private SerializedProperty weaponAmmoModifierProp;
     private SerializedProperty requiredAbilityProp;
     private SerializedProperty requiredAbilityLevelProp;
-    private SerializedProperty requiredTraitsProp;
+    
     private SerializedProperty abilityConfigModifiersProp;
     private SerializedProperty mutuallyExclusiveWithProp;
 
@@ -29,6 +32,7 @@ public class TraitDataEditor : Editor
         traitIDProp = serializedObject.FindProperty("traitID");
         displayNameProp = serializedObject.FindProperty("displayName");
         descriptionProp = serializedObject.FindProperty("description");
+        baseGoldCostProp = serializedObject.FindProperty("baseGoldCost");
         traitIconProp = serializedObject.FindProperty("traitIcon");
         weaponTraitTagProp = serializedObject.FindProperty("weaponTraitTag");
         traitTypeProp = serializedObject.FindProperty("traitType");
@@ -40,6 +44,7 @@ public class TraitDataEditor : Editor
         requiredAbilityProp = serializedObject.FindProperty("requiredAbility");
         requiredAbilityLevelProp = serializedObject.FindProperty("requiredAbilityLevel");
         requiredTraitsProp = serializedObject.FindProperty("requiredTraits");
+        maxLevelProp = serializedObject.FindProperty("maxLevel");
         abilityConfigModifiersProp = serializedObject.FindProperty("abilityConfigModifiers");
         mutuallyExclusiveWithProp = serializedObject.FindProperty("mutuallyExclusiveWith");
     }
@@ -110,6 +115,8 @@ public class TraitDataEditor : Editor
         EditorGUILayout.PropertyField(traitIDProp);
         EditorGUILayout.PropertyField(displayNameProp);
         EditorGUILayout.PropertyField(descriptionProp);
+        EditorGUILayout.PropertyField(baseGoldCostProp);
+        EditorGUILayout.PropertyField(maxLevelProp);
         EditorGUILayout.Space(8f);
     }
 
