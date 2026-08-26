@@ -33,6 +33,8 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty disablesMovementDuringCast;
     private SerializedProperty movementBlockDuration;
     private SerializedProperty unlockWeaponDirections;
+    private SerializedProperty lockWeaponDirections;
+
     private SerializedProperty rotationLockDuration;
     private SerializedProperty continueRotatingDuringUnlock;
     private SerializedProperty flipYOnLeftFacing;
@@ -142,6 +144,7 @@ public class AbilityDataConfigEditor : Editor
         disablesMovementDuringCast = serializedObject.FindProperty("disablesMovementDuringCast");
         movementBlockDuration = serializedObject.FindProperty("movementBlockDuration");
         unlockWeaponDirections = serializedObject.FindProperty("unlockWeaponDirections");
+        lockWeaponDirections = serializedObject.FindProperty("lockWeaponDirections");
         rotationLockDuration = serializedObject.FindProperty("rotationLockDuration");
         continueRotatingDuringUnlock = serializedObject.FindProperty("continueRotatingDuringUnlock");
         flipYOnLeftFacing = serializedObject.FindProperty("flipYOnLeftFacing");
@@ -425,11 +428,20 @@ public class AbilityDataConfigEditor : Editor
                 EditorGUILayout.PropertyField(characterAnimationName, new GUIContent("Character Animation"));
                 EditorGUILayout.PropertyField(characterAnimationUp, new GUIContent("Character Animation Up"));
                 EditorGUILayout.PropertyField(unlockWeaponDirections, new GUIContent("Unlock Weapon Directions"));
+                EditorGUILayout.PropertyField(lockWeaponDirections, new GUIContent("Lock Weapon Directions"));
                 if (unlockWeaponDirections.boolValue)
                 {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(rotationLockDuration, new GUIContent("Rotation Lock Duration", "Duration to freeze weapon rotation after firing. Flipping still applies."));
                     EditorGUILayout.PropertyField(continueRotatingDuringUnlock, new GUIContent("Continue Rotation During Unlock", "Keep following live aim while the weapon is unlocked instead of freezing to the first unlocked angle."));
+                    EditorGUILayout.PropertyField(flipYOnLeftFacing, new GUIContent("Flip Y On Left Facing", "Flip the Y-axis of the weapon sprite when facing left"));
+                    EditorGUILayout.PropertyField(flipXOnLeftFacing, new GUIContent("Flip X On Left Facing", "Flip the X-axis of the weapon sprite when facing left"));
+                    EditorGUI.indentLevel--;
+                }
+                if (lockWeaponDirections.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(rotationLockDuration, new GUIContent("Rotation Lock Duration", "Duration to freeze weapon rotation after firing. Flipping still applies."));
                     EditorGUILayout.PropertyField(flipYOnLeftFacing, new GUIContent("Flip Y On Left Facing", "Flip the Y-axis of the weapon sprite when facing left"));
                     EditorGUILayout.PropertyField(flipXOnLeftFacing, new GUIContent("Flip X On Left Facing", "Flip the X-axis of the weapon sprite when facing left"));
                     EditorGUI.indentLevel--;

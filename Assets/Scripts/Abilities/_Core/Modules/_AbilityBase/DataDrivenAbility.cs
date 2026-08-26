@@ -742,7 +742,7 @@ public class DataDrivenAbility : Ability
             // Play the animation
             if (mainhandAnimator != null)
             {
-
+                PlayerController player = GetComponent<PlayerController>();
                 // Lock weapon to aimed direction BEFORE playing animation
                 // This ensures the animation's position offsets are calculated from the unlocked angle
                 if (config.unlockWeaponDirections)
@@ -753,11 +753,9 @@ public class DataDrivenAbility : Ability
                     isMainhandLocked = true;
                     isOffhandLocked = false;
 
-                    Debug.Log($"<color=cyan>[DataDrivenAbility] {config.abilityName} - LOCKED mouse angle: {lockedWeaponAngle:F1}°</color>");
 
                     // Force PlayerController to update weapon position immediately with the unlocked angle
                     // This ensures the weapon is positioned correctly BEFORE the animation starts
-                    PlayerController player = GetComponent<PlayerController>();
                     if (player != null)
                     {
                         player.ForceAnimationUpdate();
@@ -767,8 +765,37 @@ public class DataDrivenAbility : Ability
                     if (config.rotationLockDuration > 0f)
                     {
                         rotationLockEndTime = Time.time + config.rotationLockDuration;
-                        Debug.Log($"[DataDrivenAbility] Rotation lock duration: {config.rotationLockDuration}s (until {rotationLockEndTime:F2})");
                     }
+                }
+                else if (config.lockWeaponDirections)
+
+                {
+                    // A. Get the raw angle from the player pivot to the mouse cursor
+                    float rawAngle = GetAngleToMouseFromLaunchZone("WeaponHolder/Weapon");
+
+                    // B. Replicate your exact SnapToCardinalDirection logic here on frame zero
+                    float absoluteAngle = Mathf.Abs(rawAngle);
+                    if (absoluteAngle >= 0f && absoluteAngle <= 90f)
+                    {
+                        lockedWeaponAngle = 0f; // East (Right)
+                    }
+                    else
+                    {
+                        lockedWeaponAngle = -180f; // West (Left)
+                    }
+
+                    // C. Engage the direction lock using the snapped angle
+                    isWeaponDirectionLocked = true;
+                    isMainhandLocked = !playOnOffhand;
+                    isOffhandLocked = playOnOffhand;
+
+                    Debug.Log($"<color=magenta>[LockWeaponDirections] Snapped 360° weapon to 2-Directions! Snapped Angle: {lockedWeaponAngle}°</color>");
+
+                    if (player != null)
+                    {
+                        player.ForceAnimationUpdate();
+                    }
+                    rotationLockEndTime = Time.time + (config.rotationLockDuration > 0f ? config.rotationLockDuration : 0.35f);
                 }
 
                 // NOW play the animation with the weapon at the correct angle
@@ -853,6 +880,7 @@ public class DataDrivenAbility : Ability
             ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
         }
     }
+
 
     /// <summary>
     /// Spawn particle effects at specified times during the ability
@@ -990,6 +1018,18 @@ public class DataDrivenAbility : Ability
                 isOffhandLocked = playOnOffhand;
 
                 // Force PlayerController to update weapon position immediately with the unlocked angle
+                PlayerController player = GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    player.ForceAnimationUpdate();
+                }
+            }
+            else if (config.lockWeaponDirections)
+            {
+                isWeaponDirectionLocked = true;
+                isMainhandLocked = !playOnOffhand;
+                isOffhandLocked = playOnOffhand;
+                // Force PlayerController to update weapon position immediately with the locked angle
                 PlayerController player = GetComponent<PlayerController>();
                 if (player != null)
                 {
@@ -3244,7 +3284,7 @@ public class DataDrivenAbility : Ability
         {
             return _autocastTarget.Value;
         }
-        
+
         // Players aim at mouse cursor
         if (ownerAsPlayer != null)
         {

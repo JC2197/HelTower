@@ -71,7 +71,7 @@ public class AbilityDataConfig : AbilityConfig
     public float baseCritChance = 0f;
     [Tooltip("Bonus crit damage multiplier for this ability (e.g. 0.5 = +50% crit damage). Added on top of the character's CritDamage stat when this ability crits.")]
     public float baseCritDamageMultiplier = 0f;
-    
+
     [Header("Autocast")]
     [Tooltip("Automatically cast this ability on valid enemies in range. Uses enemy position instead of mouse position.")]
     public bool autocast = false;
@@ -85,11 +85,11 @@ public class AbilityDataConfig : AbilityConfig
     public float autocastRange = 0f;
     [Tooltip("How many unique enemies to target per autocast cycle. Each target receives one cast. Minimum 1.")]
     public int autocastTargets = 1;
-    
+
     [Header("Multicast")]
     [Tooltip("Can this ability benefit from the Multicast stat? If true, ability casts multiple times based on player's Multicast stat value.")]
     public bool canMulticast = false;
-    
+
     public bool disablesMovementDuringCast = false;
     [Tooltip("How long to block player movement (in seconds). Only used if disablesMovementDuringCast is true.")]
     public float movementBlockDuration = 0.5f;
@@ -143,7 +143,10 @@ public class AbilityDataConfig : AbilityConfig
     public string weaponIdleAnimationName = "Idle";
     [Tooltip("Temporarily unlock weapon from 2-direction lock during this ability, allowing free aim at cursor")]
     public bool unlockWeaponDirections = false;
+    [Tooltip("Lock weapon to a 2 direction system (only works when unlockWeaponDirections is disabled)")] 
+    public bool lockWeaponDirections = false;
     [Tooltip("Duration to keep weapon unlocked after firing (only works when unlockWeaponDirections is enabled). Set to 0 to lock immediately.")]
+
     public float rotationLockDuration = 0f;
     [Tooltip("When weapon directions are unlocked, keep following live aim instead of freezing at the initial unlocked angle.")]
     public bool continueRotatingDuringUnlock = false;
@@ -177,7 +180,7 @@ public class AbilityDataConfig : AbilityConfig
     public bool isMeleeAbility = false;
     [Tooltip("Is this an explosion ability (instant AOE damage with knockback)?")]
     public bool isExplosionAbility = false;
-    [Tooltip("Is this a summon ability (spawns a pet that follows and fights)?")] 
+    [Tooltip("Is this a summon ability (spawns a pet that follows and fights)?")]
     public bool isSummonAbility = false;
     [Tooltip("Is this a passive ability (no activation, attaches a MonoBehaviour script to the player for the duration)?")]
     public bool isPassiveAbility = false;
