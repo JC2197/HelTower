@@ -50,7 +50,7 @@ public class PlayerController : Organism
     /// <summary>Fired when an attack ability executes.</summary>
     public event Action<AbilityDataConfig> OnAttack;
     public event Action<AbilityDataConfig, GameObject, float, string> OnAttackDamage;
-
+    public Coroutine WeaponIdleReturnCoroutine { get; set; }
     /// <summary>Fired when a stats recalculation is requested (e.g. after trait changes).</summary>
     public event Action OnStatsRecalculationRequested;
 

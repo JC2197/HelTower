@@ -44,8 +44,8 @@ MonoBehaviour:
   autocastTargets: 1
   canMulticast: 0
   disablesMovementDuringCast: 1
-  movementBlockDuration: 0.33
-  movementSpeedMultiplierDuringCast: 0.052
+  movementBlockDuration: 0.4
+  movementSpeedMultiplierDuringCast: 0.33
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -69,6 +69,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: 
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 5
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 1

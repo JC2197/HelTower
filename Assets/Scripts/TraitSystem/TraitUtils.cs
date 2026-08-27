@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class TraitUtils
 {
-    private static float goldCostMultiplier = 3f;
+    private static float goldCostMultiplier = 1.5f;
 
     public static int GetGoldCost(TraitNode node, int totalTraitLevels)
     {

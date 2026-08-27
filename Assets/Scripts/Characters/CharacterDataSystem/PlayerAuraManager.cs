@@ -78,14 +78,15 @@ public class PlayerAuraManager : MonoBehaviour
     {
         CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
         if (traitManager == null) return abilityDataConfig.areaConfig;
-
+        
         var traitModifierPairs = new List<AbilityModifierRuntime.TraitModifierPair>();
-        foreach (TraitData data in traitManager.GetActiveTraits())
+        foreach (Trait runtimeTrait in traitManager.GetActiveRuntimeTraits())
         {
-            if (data?.abilityConfigModifiers == null) continue;
-            foreach (var modifier in data.abilityConfigModifiers)
+            if (runtimeTrait?.data?.abilityConfigModifiers == null) continue;
+            int currentLevel = runtimeTrait.level;
+            foreach (var modifier in runtimeTrait.data.abilityConfigModifiers)
             {
-                traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(data, modifier));
+                traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(runtimeTrait.data, modifier, currentLevel));
             }
         }
 

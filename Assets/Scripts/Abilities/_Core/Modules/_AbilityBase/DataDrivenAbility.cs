@@ -144,7 +144,6 @@ public class DataDrivenAbility : Ability
     // check in CanUseAbility is skipped for the 2nd+ cast in the same burst.
     private bool _autocastBurstActive = false;
 
-
     /// <summary>
     /// Casts once using an explicit world-space target, then clears the override.
     /// </summary>
@@ -807,16 +806,18 @@ public class DataDrivenAbility : Ability
                     lastAnimationWasMainhand = true;
                 }
 
-                // Cancel any existing idle return coroutine to prevent conflicts
-                if (weaponIdleReturnCoroutine != null)
+                // --- INSIDE PlayAbilityAnimations() ---
+                if (player != null && player.WeaponIdleReturnCoroutine != null)
                 {
-                    StopCoroutine(weaponIdleReturnCoroutine);
+                    // Safely terminates the previous ability component's coroutine loop!
+                    StopCoroutine(player.WeaponIdleReturnCoroutine);
+                    player.WeaponIdleReturnCoroutine = null;
                 }
 
-                // Schedule return to idle animation after shoot animation completes
                 if (!string.IsNullOrEmpty(config.weaponIdleAnimationName))
                 {
-                    weaponIdleReturnCoroutine = StartCoroutine(ReturnWeaponToIdle(mainhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed));
+                    // Store the handle reference back on the central PlayerController object
+                    player.WeaponIdleReturnCoroutine = StartCoroutine(ReturnWeaponToIdle(mainhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed));
                 }
             }
         }
@@ -3063,17 +3064,17 @@ public class DataDrivenAbility : Ability
         CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
         if (traitManager == null) return;
 
-        foreach (TraitData data in traitManager.GetActiveTraits())
+        foreach (Trait trait in traitManager.GetActiveRuntimeTraits())
         {
-            if (data == null) continue;
-            if (data.weaponAmmoModifier == null || data.weaponAmmoModifier.IsEmpty) continue;
+            if (trait.data == null) continue;
+            if (trait.data.weaponAmmoModifier == null || trait.data.weaponAmmoModifier.IsEmpty) continue;
 
             // If the trait has a requiredAbility, only apply to that specific ability
-            if (data.requiredAbility != null && data.requiredAbility != config)
+            if (trait.data.requiredAbility != null && trait.data.requiredAbility != config)
                 continue;
 
-            _ammoMagazineBonus += data.weaponAmmoModifier.magazineSizeBonus;
-            _ammoReloadDelta += data.weaponAmmoModifier.reloadTimeDelta;
+            _ammoMagazineBonus += trait.data.weaponAmmoModifier.magazineSizeBonus;
+            _ammoReloadDelta += trait.data.weaponAmmoModifier.reloadTimeDelta;
         }
 
         Debug.Log($"[DataDrivenAbility] RebuildAmmoModifiers {config?.abilityName}: magazineBonus={_ammoMagazineBonus}, reloadDelta={_ammoReloadDelta:F2}s");
@@ -3102,29 +3103,36 @@ public class DataDrivenAbility : Ability
         CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
         if (traitManager == null) return;
 
-        // Collect all AbilityConfigModifiers paired with their source traits (for tier scaling)
+        // Explicitly type this list to pass into the tier-scaled overload
         var traitModifierPairs = new List<AbilityModifierRuntime.TraitModifierPair>();
-        foreach (TraitData data in traitManager.GetActiveTraits())
-        {
-            if (data?.abilityConfigModifiers == null) continue;
-            foreach (var modifier in data.abilityConfigModifiers)
-            {
-                traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(data, modifier));
 
-                // Check for ability icon override
+        foreach (Trait runtimeTrait in traitManager.GetActiveRuntimeTraits())
+        {
+            if (runtimeTrait?.data?.abilityConfigModifiers == null) continue;
+
+            // Capture the trait level directly from the active runtime object
+            int currentLevel = runtimeTrait.level;
+
+            foreach (var modifier in runtimeTrait.data.abilityConfigModifiers)
+            {
+                // FIXED: Construct the level-aware pair wrapper to safely calculate math without asset corruption
+                traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(runtimeTrait.data, modifier, currentLevel));
+
+                // Check for ability icon override 
                 if (modifier.targetAbility == config && modifier.abilityIcon != null)
                     _effectiveAbilityIcon = modifier.abilityIcon;
             }
         }
 
-        // Accumulate using the Property Path System with tier scaling
-        _accumulatedOverrides = AbilityModifierRuntime.AccumulateOverrides(config, traitModifierPairs);
+        // SUCCESS: Cast 'config' to AbilityDataConfig if needed to guarantee the tier-scaled overload triggers
+        _accumulatedOverrides = AbilityModifierRuntime.AccumulateOverrides((AbilityDataConfig)config, traitModifierPairs);
+
         _effectiveAbilityConfig = AbilityModifierRuntime.BuildEffectiveAbilityConfig(config, _accumulatedOverrides);
 
         if (movementAbility != null && config.isMovementAbility)
-            movementAbility.Initialize(EffectiveAbilityConfig);
+            movementAbility.Initialize(_effectiveAbilityConfig);
 
-        // Build cached effective sub-configs using reflection-based application
+        // Build cached effective sub-configs using reflection-based application 
         if (config.isProjectileAbility && config.projectileConfig != null)
             _effectiveProjectileConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
                 config.projectileConfig, "projectileConfig", _accumulatedOverrides);
@@ -3163,12 +3171,9 @@ public class DataDrivenAbility : Ability
         Debug.Log($"[DataDrivenAbility] RebuildConfigModifiers {config?.abilityName}: " +
                   $"{_accumulatedOverrides?.Count ?? 0} property overrides, " +
                   $"effectiveProj={_effectiveProjectileConfig != null}, " +
-                  $"effectiveArea={_effectiveAreaConfig != null}, " +
-                  $"effectiveBeam={_effectiveBeamConfig != null}, " +
-                  $"effectiveMelee={_effectiveMeleeConfig != null}, " +
-                  $"effectiveExplosion={_effectiveExplosionConfig != null}, " +
-                  $"effectiveSummon={_effectiveSummonConfig != null}");
+                  $"effectiveArea={_effectiveAreaConfig != null}");
     }
+
 
     /// <summary>
     /// Pushes the latest construct config to already spawned constructs so trait modifier

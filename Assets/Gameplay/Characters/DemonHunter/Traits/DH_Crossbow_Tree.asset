@@ -17,23 +17,23 @@ MonoBehaviour:
   nodeSpacing: 100
   nodeIconSize: 17
   nodeIconFrame: {fileID: 0}
-  canvasWidth: 400
+  canvasWidth: 401
   nodes:
-  - nodeID: FirestarterSwipeSize5_ee15
-    traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
-    position: {x: 32, y: 0}
+  - nodeID: CrossbowAttackSpeed_a5d2
+    traitData: {fileID: 11400000, guid: d290222d5a0bd0c4ead2e35f3b19a35e, type: 2}
+    position: {x: -48, y: 0}
     connectedNodeIDs: []
-  - nodeID: FireStarterBurnChance5_813b
-    traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
-    position: {x: -64, y: 0}
+  - nodeID: CrossbowDamage_a922
+    traitData: {fileID: 11400000, guid: 2d57e422af1fe2b458909af905b290a7, type: 2}
+    position: {x: -112, y: 0}
     connectedNodeIDs: []
-  - nodeID: FirestarterProjSpeed5_8178
-    traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
-    position: {x: -32, y: 0}
+  - nodeID: PierceShotDamage_9a5d
+    traitData: {fileID: 11400000, guid: bb9651bc7d34637498a5a9ca86717dc8, type: 2}
+    position: {x: 48, y: -0}
     connectedNodeIDs: []
-  - nodeID: FirestarterDamage5_8c43
-    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
-    position: {x: 64, y: -0}
+  - nodeID: PiercingBaseCrit_bc5b
+    traitData: {fileID: 11400000, guid: a715d556a5d2bb3409c34800eb32dbf5, type: 2}
+    position: {x: 112, y: 0}
     connectedNodeIDs: []
   canvasHeight: 225
   minCanvasWidth: 400

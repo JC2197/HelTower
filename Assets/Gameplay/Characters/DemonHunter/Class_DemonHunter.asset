@@ -19,7 +19,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a82a4d7b8fecb554c92d67457561fc94, type: 2}
   - {fileID: 11400000, guid: a9184305fca725c479beaf15b7d4ab82, type: 2}
   availableAccessories: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: c83976d8540efe2469bb549bd761edc7, type: 2}
   baseStatContainer:
     stats:
     - statId: STR
@@ -68,6 +69,10 @@ MonoBehaviour:
       currentValue: 0
     - statId: MaxMana
       displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
       categoryId: Active
       currentValue: 0
   availableTraitTrees:

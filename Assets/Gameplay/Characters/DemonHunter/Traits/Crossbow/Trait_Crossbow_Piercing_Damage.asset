@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
-  m_Name: FirestarterRange
+  m_Name: Trait_Crossbow_Piercing_Damage
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
-  traitID: FirestarterProjSpeed
-  displayName: Wrist Flicker
+  traitID: PierceShotDamage
+  displayName: Heavy Bolt
   baseGoldCost: 1
-  description: Your Firestarter projectiles gain +{v1}% projectile speed
-  traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
+  description: 
+  traitIcon: {fileID: 0}
   weaponTraitTag: 
   traitType: 0
   maxLevel: 5
   statModifiers: []
   effectScript: {fileID: 0}
-  requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
+  requiredAbility: {fileID: 0}
   requiredAbilityLevel: 0
   requiredTraits: []
   abilityReplacement:
@@ -34,7 +34,7 @@ MonoBehaviour:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
   abilityConfigModifiers:
-  - targetAbility: {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
+  - targetAbility: {fileID: 11400000, guid: 1ab1d2241ccc71547b4d4d5bcfa52c0a, type: 2}
     abilityIcon: {fileID: 0}
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
@@ -44,24 +44,9 @@ MonoBehaviour:
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
-    - propertyPath: projectileConfig.speed
+    - propertyPath: projectileConfig.hitbox.damage
       overrideMode: 1
-      numericValue: 25
-      stringValue: 
-      objectValue: {fileID: 0}
-  - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
-    abilityIcon: {fileID: 0}
-    addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 0}
-      triggerChance: 0
-      triggerTiming: 0
-      legacyTriggersOnDestroy: 0
-    addTriggeredAbilityLegacy: {fileID: 0}
-    addTriggeredAbilityPath: 
-    overrides:
-    - propertyPath: projectileConfig.speed
-      overrideMode: 1
-      numericValue: 25
+      numericValue: 50
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

@@ -1,0 +1,556 @@
+fileFormatVersion: 2
+guid: 8cd306eb96c412343adf143296c31fdc
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 1
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: DemonHunterNew_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 924d692e911783b4b9ac021c34e6f4db
+      internalID: 2025375768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_1
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93ddff7792b6d9741adfaacbcaf17d92
+      internalID: -1687073675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_2
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b838768e44ac97e4681676ac840e611b
+      internalID: 637092989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_3
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 254d94442d8efd144b52f0742e1715a5
+      internalID: 1920939998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_4
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d890ccba3bab3d344a47dedf07205f0b
+      internalID: 2064188430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_5
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a154bdd667f113f4f8ef68cc39801e46
+      internalID: -1816882036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_6
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4dbaca62df66534799a49bb81e1c163
+      internalID: -1370083069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_7
+      rect:
+        serializedVersion: 2
+        x: 98
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d5207cd4038994542b3bc49b831d3612
+      internalID: 1744802595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_8
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75e3ca6cb589fa9429aa27692b5b4302
+      internalID: -1506432952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_9
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a788c9e3169a26543a3351a5a35f9f06
+      internalID: -1053296834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_10
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26ea2f00f803d574b80641cdfb18ce39
+      internalID: -1255000051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_11
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4078af83a0c125f458eafb35fcb20e0b
+      internalID: -315945976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_12
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 872fb4714dff3d24eb4b71383ab5934f
+      internalID: -847103271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_13
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfba2a8308647ca4f89063e30cd91fc6
+      internalID: 1820319298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_14
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 087dd6b0c238cdd40bc019bca5c7582e
+      internalID: -1076676922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_15
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2e9fce42cd910014dbbf83d489db6f85
+      internalID: -458755409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_16
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 17e7a263523cca6478eb1764ebe9f4a4
+      internalID: -1823023219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_17
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce2239ff601be894e85082c63550baae
+      internalID: 2060858463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DemonHunterNew_18
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 0
+        width: 14
+        height: 14
+      alignment: 9
+      pivot: {x: 0.42857143, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0158fd838de77b44aa7b4b0a13c258f8
+      internalID: 2128916715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 67d6c672d63a3a245be9e735bbf29c83
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":19.0,"y":1.0},"gridSpriteSize":{"x":14.0,"y":14.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.4285714328289032,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":1,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      DemonHunterNew_0: 2025375768
+      DemonHunterNew_1: -1687073675
+      DemonHunterNew_10: -1255000051
+      DemonHunterNew_11: -315945976
+      DemonHunterNew_12: -847103271
+      DemonHunterNew_13: 1820319298
+      DemonHunterNew_14: -1076676922
+      DemonHunterNew_15: -458755409
+      DemonHunterNew_16: -1823023219
+      DemonHunterNew_17: 2060858463
+      DemonHunterNew_18: 2128916715
+      DemonHunterNew_2: 637092989
+      DemonHunterNew_3: 1920939998
+      DemonHunterNew_4: 2064188430
+      DemonHunterNew_5: -1816882036
+      DemonHunterNew_6: -1370083069
+      DemonHunterNew_7: 1744802595
+      DemonHunterNew_8: -1506432952
+      DemonHunterNew_9: -1053296834
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

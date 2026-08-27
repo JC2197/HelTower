@@ -214,53 +214,15 @@ public static class AbilityModifierRuntime
     {
         public TraitData trait;
         public AbilityConfigModifier modifier;
-
-        public TraitModifierPair(TraitData trait, AbilityConfigModifier modifier)
+        public int traitLevel;
+        public TraitModifierPair(TraitData trait, AbilityConfigModifier modifier, int traitLevel)
         {
             this.trait = trait;
             this.modifier = modifier;
+            this.traitLevel = traitLevel;
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════════
-    // ACCUMULATION
-    // ══════════════════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// Accumulates all overrides from multiple AbilityConfigModifiers into a dictionary of path → accumulated value.
-    /// This overload does NOT apply tier scaling (for backward compatibility).
-    /// </summary>
-    public static Dictionary<string, AccumulatedValue> AccumulateOverrides(
-        AbilityDataConfig targetConfig,
-        IEnumerable<AbilityConfigModifier> modifiers)
-    {
-        var result = new Dictionary<string, AccumulatedValue>();
-        foreach (var modifier in modifiers)
-        {
-            if (!IsMatchingTargetAbility(modifier.targetAbility, targetConfig)) continue;
-            if (modifier.overrides == null) continue;
-            foreach (var o in modifier.overrides)
-            {
-                if (o.isEmpty) continue;
-                string normalizedPath = NormalizePropertyPath(targetConfig, o.propertyPath);
-                if (string.IsNullOrEmpty(normalizedPath))
-                    continue;
-
-                if (!result.TryGetValue(normalizedPath, out var acc))
-                {
-                    acc = new AccumulatedValue();
-                    result[normalizedPath] = acc;
-                }
-                acc.Apply(o);
-            }
-
-            if (TryGetTriggeredAddition(modifier, out AbilityDataConfig abilityConfig, out float triggerChance, out TriggeredAbilityTriggerTiming triggerTiming))
-            {
-                AddTriggeredAbilityAccumulatedEntry(result, abilityConfig, triggerChance, triggerTiming, modifier.addTriggeredAbilityPath);
-            }
-        }
-        return result;
-    }
 
     /// <summary>
     /// Accumulates all overrides with tier scaling support.
@@ -276,6 +238,9 @@ public static class AbilityModifierRuntime
             if (pair.modifier == null) continue;
             if (!IsMatchingTargetAbility(pair.modifier.targetAbility, targetConfig)) continue;
             if (pair.modifier.overrides == null) continue;
+
+            int level = Mathf.Max(1, pair.traitLevel);
+
             foreach (var o in pair.modifier.overrides)
             {
                 if (o.isEmpty) continue;
@@ -288,9 +253,31 @@ public static class AbilityModifierRuntime
                     acc = new AccumulatedValue();
                     result[normalizedPath] = acc;
                 }
-                acc.Apply(o, pair.trait);
-            }
+                float baseValue = o.numericValue;
 
+                if (o.overrideMode == OverrideMode.Flat || o.overrideMode == OverrideMode.Percent)
+                {
+                    float scaledValue = baseValue * level;
+
+                    switch (o.overrideMode)
+                    {
+                        case OverrideMode.Flat:
+                            acc.flatDelta += scaledValue;
+                            break;
+                        case OverrideMode.Percent:
+                            acc.percentDelta += scaledValue;
+                            break;
+                    }
+
+                    Debug.Log($"[AbilityModifierRuntime] Scaled Override -> Path: '{normalizedPath}', Mode: {o.overrideMode}, Base: {baseValue}, Level: {level}, Scaled Applied: {scaledValue} (Total Flat Delta: {acc.flatDelta}, Total % Delta: {acc.percentDelta})");
+                }
+                else
+                {
+                    // Set overrides do not scale linearly (e.g., swapping a visual sprite or string text)
+                    acc.Apply(o, pair.trait);
+                    Debug.Log($"[AbilityModifierRuntime] Set Override -> Path: '{normalizedPath}', Applied exact value without scaling.");
+                }
+            }
             if (TryGetTriggeredAddition(pair.modifier, out AbilityDataConfig abilityConfig, out float triggerChance, out TriggeredAbilityTriggerTiming triggerTiming))
             {
                 AddTriggeredAbilityAccumulatedEntry(result, abilityConfig, triggerChance, triggerTiming, pair.modifier.addTriggeredAbilityPath);
@@ -795,14 +782,20 @@ public static class AbilityModifierRuntime
             return null;
 
         var traitModifierPairs = new List<TraitModifierPair>();
-        foreach (TraitData trait in traitManager.GetActiveTraits())
-        {
-            if (trait?.abilityConfigModifiers == null)
-                continue;
 
-            foreach (var modifier in trait.abilityConfigModifiers)
+        // Cleanly pull the runtime Trait instances instead of trying to cross-reference data indices
+        foreach (Trait runtimeTrait in traitManager.GetActiveRuntimeTraits())
+        {
+            TraitData data = runtimeTrait.data;
+            if (data?.abilityConfigModifiers == null) continue;
+
+            // Extract the runtime level directly from the active wrapper instance
+            int currentLevel = Mathf.Max(1, runtimeTrait.level);
+
+            foreach (var modifier in data.abilityConfigModifiers)
             {
-                traitModifierPairs.Add(new TraitModifierPair(trait, modifier));
+                // Pass the data, modifier config, and level safely into the modifier pair array
+                traitModifierPairs.Add(new TraitModifierPair(data, modifier, currentLevel));
             }
         }
 

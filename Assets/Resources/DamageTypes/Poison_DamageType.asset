@@ -15,7 +15,7 @@ MonoBehaviour:
   damageTypeName: Poison
   displayName: Poison
   description: 
-  damageColor: {r: 0.5810007, g: 1, b: 0, a: 1}
+  damageColor: {r: 0.6168028, g: 0.85660374, b: 0.166472, a: 1}
   category: Magical
   subcategory: Poison
   canCriticalHit: 1

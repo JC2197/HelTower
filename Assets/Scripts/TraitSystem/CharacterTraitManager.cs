@@ -299,7 +299,7 @@ public class CharacterTraitManager : MonoBehaviour
 
         foreach (Trait trait in traitLookupByNode.Values)
         {
-            if (trait != null)
+            if (trait != null && trait.isActive)
                 totalLevels += trait.level;
         }
 
@@ -322,7 +322,7 @@ public class CharacterTraitManager : MonoBehaviour
     /// <summary>
     /// Get all active traits
     /// </summary>
-    public List<TraitData> GetActiveTraits()
+    public List<TraitData> GetActiveTraitData()
     {
         return traitLookupByNode.Values.Where(t => t.isActive).Select(t => t.data).ToList();
     }
@@ -421,7 +421,13 @@ public class CharacterTraitManager : MonoBehaviour
 
         return int.TryParse(nodeID.Substring(separator + 1), out _) ? nodeID.Substring(0, separator) : nodeID;
     }
-
+    /// <summary>
+    /// Get all active runtime traits
+    /// </summary>
+    public IEnumerable<Trait> GetActiveRuntimeTraits()
+    {
+        return traitLookupByNode.Values.Where(t => t.isActive);
+    }
     /// <summary>
     /// Recalculate all stat modifiers from traits
     /// </summary>
@@ -448,12 +454,11 @@ public class CharacterTraitManager : MonoBehaviour
                 traitInstanceCounts[traitID] = 0;
             traitInstanceCounts[traitID]++;
 
-            Debug.Log($"[CharacterTraitManager] Processing trait: {trait.data.displayName} (instance #{traitInstanceCounts[traitID]})");
-
+            int traitLevel = Mathf.Max(1, trait.level);
             foreach (var modifier in trait.data.statModifiers)
             {
                 // No trait scaling — use the modifier value directly.
-                float scaledValue = modifier.value;
+                float scaledValue = modifier.value * traitLevel;
                 float previousValue = 0f;
 
                 switch (modifier.modifierType)

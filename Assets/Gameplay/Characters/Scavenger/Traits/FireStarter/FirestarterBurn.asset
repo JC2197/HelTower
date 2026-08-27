@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
   m_Name: FirestarterBurn
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
-  traitID: FireStarterBurnChance5
-  displayName: Burn Chance
+  traitID: FireStarterBurnChance
+  displayName: Heat
   baseGoldCost: 1
   description: Firestarter gains +{v1}% chance to burn.
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
@@ -46,12 +46,12 @@ MonoBehaviour:
     overrides:
     - propertyPath: projectileConfig.hitbox.onHitEffects.burnApplicationChance
       overrideMode: 1
-      numericValue: 5
+      numericValue: 15
       stringValue: 
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.onHitEffects.burnApplicationChance
       overrideMode: 1
-      numericValue: 5
+      numericValue: 15
       stringValue: 
       objectValue: {fileID: 0}
   - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
@@ -66,12 +66,12 @@ MonoBehaviour:
     overrides:
     - propertyPath: projectileConfig.hitbox.onHitEffects.burnApplicationChance
       overrideMode: 1
-      numericValue: 5
+      numericValue: 15
       stringValue: 
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.onHitEffects.burnApplicationChance
       overrideMode: 1
-      numericValue: 5
+      numericValue: 15
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

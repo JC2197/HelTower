@@ -53,12 +53,7 @@ public static class TraitSystemHelpers
         var traitManager = character.GetComponent<CharacterTraitManager>();
         if (traitManager != null)
         {
-            var activeTraits = traitManager.GetActiveTraits();
-            foreach (var trait in activeTraits)
-            {
-                if (trait.traitID == traitID)
-                    return true;
-            }
+            return traitManager.IsNodeUnlocked(traitID);
         }
         return false;
     }

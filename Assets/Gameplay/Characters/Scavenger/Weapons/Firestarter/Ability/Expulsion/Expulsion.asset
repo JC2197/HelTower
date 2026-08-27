@@ -62,9 +62,10 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: 
   unlockWeaponDirections: 0
-  rotationLockDuration: 0
+  lockWeaponDirections: 1
+  rotationLockDuration: 0.25
   continueRotatingDuringUnlock: 0
-  flipYOnLeftFacing: 0
+  flipYOnLeftFacing: 1
   flipXOnLeftFacing: 0
   timedParticles: []
   isProjectileAbility: 0

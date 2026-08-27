@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 3
   cooldownTime: 0
@@ -61,6 +62,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: Idle
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -448,8 +450,8 @@ MonoBehaviour:
     salvoSize: 1
     salvoInterval: 0.15
     salvoAngle: 0
-    hasPierce: 0
-    pierceCount: 0
+    hasPierce: 1
+    pierceCount: 2
     hasChaining: 0
     chainRange: 10
     maxChains: 0
@@ -499,7 +501,7 @@ MonoBehaviour:
       m_Bits: 64
     destroyOnLayers:
       serializedVersion: 2
-      m_Bits: 64
+      m_Bits: 128
     destroyVisualPrefab: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 2441138507130290986, guid: ba5be86fb2f3e96439f5a392471d5490, type: 3}
@@ -1821,9 +1823,6 @@ MonoBehaviour:
     distance: 5
     duration: 0.5
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 0
     awayFromMouse: 0
     isDashing: 0
