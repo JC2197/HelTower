@@ -64,6 +64,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: 
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -1314,6 +1315,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1421,9 +1432,19 @@ MonoBehaviour:
     singleTargetSearchRadius: 0
     timeDelay: 0
     delayEffectPrefab: {fileID: 0}
-    explosionEffectPrefab: {fileID: 314110140537708207, guid: 83fdc2197d393d34ba4206e901aa3dd9, type: 3}
+    explosionEffectPrefab: {fileID: 314110140537708207, guid: 3130af0b826bf5f46a32e64efbdce412, type: 3}
     explosionSound: {fileID: 8300000, guid: 722f254723ff6124bb415b2189633713, type: 3}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1

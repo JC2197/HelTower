@@ -256,7 +256,10 @@ public static class TraitDescriptionBuilder
         {
             foreach (var mod in trait.statModifiers)
             {
-                values.Add(FormatPlaceholderValue(mod.value));
+                float value = mod.value;
+                if (string.Equals(mod.statID, "AttackSpeed", System.StringComparison.OrdinalIgnoreCase))
+                    value *= 100f;
+                values.Add(FormatPlaceholderValue(value));
             }
         }
         
@@ -330,7 +333,9 @@ public static class TraitDescriptionBuilder
         int dotIndex = propertyPath.LastIndexOf('.');
         string leafName = dotIndex >= 0 ? propertyPath.Substring(dotIndex + 1) : propertyPath;
 
-        return leafName.EndsWith("Chance", System.StringComparison.OrdinalIgnoreCase);
+        return leafName.EndsWith("Chance", System.StringComparison.OrdinalIgnoreCase)
+            || (propertyPath.IndexOf("statContainer.", System.StringComparison.OrdinalIgnoreCase) >= 0
+                && leafName.Equals("AttackSpeed", System.StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool TryGetEnumDisplayName(string propertyPath, float numericValue, out string displayName)

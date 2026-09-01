@@ -30,8 +30,7 @@ public static class ProjectileSpawner
         ParticleSystemRenderer[] renderers = instance.GetComponentsInChildren<ParticleSystemRenderer>(true);
         foreach (ParticleSystemRenderer renderer in renderers)
         {
-            renderer.sortingLayerName = "Effects";
-            renderer.sortingOrder = 10000;
+            renderer.sortingLayerName = "FX";
         }
 
 

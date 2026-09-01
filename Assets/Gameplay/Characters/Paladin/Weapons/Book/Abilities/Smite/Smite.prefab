@@ -115,19 +115,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightningBoltRenderer
   frames:
-  - {fileID: 824437929, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 655256095, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: -846118532, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 481742438, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 2103646609, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 321304025, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 394659165, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
-  - {fileID: 1170172713, guid: 5f88a883b68b7fa49889245c3ce9c5f9, type: 3}
+  - {fileID: 1326339495, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: -2142744971, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: 224640912, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: 365827592, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: -601665625, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: -1702124556, guid: 031825934d0a92b4181e464f7560085e, type: 3}
+  - {fileID: 0}
   startFrames: []
   loopFrames: []
   endFrames: []
   startOffset: {x: 0, y: 100}
-  tint: {r: 1, g: 1, b: 1, a: 1}
+  tint: {r: 1, g: 0.9482081, b: 0, a: 0.13725491}
   vertexSpriteFrames:
   - {fileID: 1876210212, guid: 750343433d7ef2946b9ec722445bff46, type: 3}
   - {fileID: -1926162741, guid: 750343433d7ef2946b9ec722445bff46, type: 3}
@@ -136,21 +135,22 @@ MonoBehaviour:
   - {fileID: 450907379, guid: 750343433d7ef2946b9ec722445bff46, type: 3}
   - {fileID: -1280211116, guid: 750343433d7ef2946b9ec722445bff46, type: 3}
   - {fileID: 1173339684, guid: 750343433d7ef2946b9ec722445bff46, type: 3}
+  - {fileID: 0}
   targetVertexSpriteFrames:
-  - {fileID: 1434403501, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: 593914130, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: -395534777, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: 1715100385, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: -164540606, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: 147922996, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: 533523976, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
-  - {fileID: 1828750206, guid: e1518c1f00ca52c42aa9a181438bce61, type: 3}
+  - {fileID: 742270401, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: 742270401, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: -1129675695, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: 1322096994, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: 1539664913, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: 970633075, guid: 144cd8a21e7efca40af06773b52ff9f5, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
   vertexMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
   spriteMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
   sortingLayerName: Default
   sortingOrder: 10
   tintPropertyName: _Color
-  fps: 10
+  fps: 16
   fadeFrames: 5
   loopBeam: 0
   usePoints: 0
@@ -209,7 +209,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0

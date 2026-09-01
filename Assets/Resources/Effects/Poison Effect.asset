@@ -26,7 +26,7 @@ MonoBehaviour:
   particleEffect: {fileID: 3836165806907009111, guid: a1701fa0ae7d86d4cadf237fd7d33acb, type: 3}
   particleOffset: {x: 0, y: 0, z: 0}
   entityTint: {r: 0.6427303, g: 0.90188676, b: 0.4339266, a: 1}
-  icon: {fileID: 1101862172, guid: 052ae55046a35b145b0e925647c33d5a, type: 3}
+  icon: {fileID: 0}
   applySound: {fileID: 0}
   expireSound: {fileID: 0}
   canBeCleansed: 1
@@ -34,7 +34,7 @@ MonoBehaviour:
   damageTypeName: Poison
   damagePerTick: 1
   tickInterval: 1
-  poisonParticle: {fileID: 3836165806907009111, guid: 0dcbd27b2bc99d74a9fe1c63000baa1e, type: 3}
+  poisonParticle: {fileID: 3836165806907009111, guid: a1701fa0ae7d86d4cadf237fd7d33acb, type: 3}
   poisonTint: {r: 0.50848305, g: 0.7056604, b: 0.17974362, a: 1}
   canSpread: 0
   spreadRadius: 2

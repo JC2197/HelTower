@@ -159,9 +159,7 @@ public class DotEffect : MonoBehaviour
             if (renderer != null)
             {
                 renderer.sortingLayerName = targetSortingLayer;
-                // Randomly choose front or back for visual variety
-                int randomOffset = UnityEngine.Random.value > 0.2f ? 10000 : -150;
-                renderer.sortingOrder = targetSortingOrder + randomOffset;
+                
             }
         }
     }

@@ -18,10 +18,112 @@ MonoBehaviour:
   nodeIconSize: 17
   nodeIconFrame: {fileID: 0}
   canvasWidth: 400
-  nodes: []
-  canvasHeight: 225
+  nodes:
+  - nodeID: ConstructTurretCount_c35e
+    traitData: {fileID: 11400000, guid: cb79ef5b496532a42b00371110ca53c1, type: 2}
+    position: {x: 0, y: -96}
+    connectedNodeIDs: []
+  - nodeID: SrapGunDamage_2861
+    traitData: {fileID: 11400000, guid: a0a5f4f75b23d3e4c94c70b8b09f6920, type: 2}
+    position: {x: 0, y: -32}
+    connectedNodeIDs:
+    - ScrapGunBleed_1593
+    - ConstructTurretCount_c35e
+    - AttackSpeed_e13a
+  - nodeID: ScrapGunBleed_1593
+    traitData: {fileID: 11400000, guid: 0fcd825b50db86246a20529cbeb832ae, type: 2}
+    position: {x: -48, y: -96}
+    connectedNodeIDs: []
+  - nodeID: ExplosiveDashCount_acaa
+    traitData: {fileID: 11400000, guid: 1d648a9661745874f896238ff896a5b3, type: 2}
+    position: {x: 96, y: -96}
+    connectedNodeIDs: []
+  - nodeID: ExplosiveDashDamage_6108
+    traitData: {fileID: 11400000, guid: dfff1b1151364d14c9672a04ffbf9b4e, type: 2}
+    position: {x: 64, y: -32}
+    connectedNodeIDs:
+    - ExplosiveDashesCount_d1d8
+    - ExplosiveDashCount_acaa
+  - nodeID: ExplosiveDashesCount_d1d8
+    traitData: {fileID: 11400000, guid: 1216062e989c22241803392affc03a8c, type: 2}
+    position: {x: 48, y: -96}
+    connectedNodeIDs: []
+  - nodeID: AttackSpeed_e13a
+    traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
+    position: {x: -96, y: -96}
+    connectedNodeIDs: []
+  - nodeID: TurretAttackSpeed_4ff8
+    traitData: {fileID: 11400000, guid: 68a3a9cdc0755f344b4a8cb01b6fbf78, type: 2}
+    position: {x: -48, y: 16}
+    connectedNodeIDs: []
+  canvasHeight: 369
   minCanvasWidth: 400
   minCanvasHeight: 225
   autoCanvasSize: 1
   autoCanvasPadding: 80
-  connections: []
+  connections:
+  - connectionID: conn_22f7bc98
+    scale: 1
+    fromNodeIDs:
+    - SrapGunDamage_2861
+    toNodeIDs:
+    - ScrapGunBleed_1593
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_ff3a6080
+    scale: 1
+    fromNodeIDs:
+    - SrapGunDamage_2861
+    toNodeIDs:
+    - ConstructTurretCount_c35e
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_e47dd403
+    scale: 1
+    fromNodeIDs:
+    - ExplosiveDashDamage_6108
+    toNodeIDs:
+    - ExplosiveDashesCount_d1d8
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_6850002c
+    scale: 1
+    fromNodeIDs:
+    - ExplosiveDashDamage_6108
+    toNodeIDs:
+    - ExplosiveDashCount_acaa
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_366602ef
+    scale: 1
+    fromNodeIDs:
+    - SrapGunDamage_2861
+    toNodeIDs:
+    - AttackSpeed_e13a
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

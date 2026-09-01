@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &314110140537708207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8716660287899698215}
+  - component: {fileID: -3576943675255685009}
+  - component: {fileID: 3981584454850356900}
+  - component: {fileID: 522246540296997448}
+  m_Layer: 0
+  m_Name: ChainLightning
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8716660287899698215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314110140537708207}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-3576943675255685009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314110140537708207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39e919b69488064ebb8a8d5d893146d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyEffect
+  destroyOnAnimationComplete: 1
+  destroyOnParticleComplete: 0
+  additionalDelay: 0
+  useManualLifetime: 1
+  manualLifetime: 1.5
+  showDebugLogs: 0
+--- !u!114 &3981584454850356900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314110140537708207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 2
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 1
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 41e06b44d1a50a24b15aacfe4957f50f0000000073a87a1fd7da35a26dbad2378fc42995
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 15
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath: []
+--- !u!114 &522246540296997448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314110140537708207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07225bfe02bb9ac45b4f61c14d621889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightningBoltRenderer
+  frames:
+  - {fileID: 7463578621076790475, guid: 26c640ec618c8f345bea4598a859f14f, type: 3}
+  - {fileID: 6240032506983845453, guid: 26c640ec618c8f345bea4598a859f14f, type: 3}
+  - {fileID: -2855263265146993634, guid: 26c640ec618c8f345bea4598a859f14f, type: 3}
+  - {fileID: 1547693294, guid: 26c640ec618c8f345bea4598a859f14f, type: 3}
+  - {fileID: -1614885408, guid: 26c640ec618c8f345bea4598a859f14f, type: 3}
+  startFrames: []
+  loopFrames: []
+  endFrames: []
+  startOffset: {x: 0, y: 10}
+  tint: {r: 0, g: 0.9789114, b: 1, a: 1}
+  vertexSpriteFrames:
+  - {fileID: -2873894501694124798, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -8192929675798481081, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -2931792317816098803, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -1869409510, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: 101410923, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  targetVertexSpriteFrames:
+  - {fileID: -2873894501694124798, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -8192929675798481081, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -2931792317816098803, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: -1869409510, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  - {fileID: 101410923, guid: b796909fa2b3bdf449a2d3462c30dcd2, type: 3}
+  vertexMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
+  spriteMaterial: {fileID: 2100000, guid: 10fd9441caf13934ab9875c94f5f1ae5, type: 2}
+  sortingLayerName: Default
+  sortingOrder: 0
+  tintPropertyName: _Color
+  fps: 12
+  fadeFrames: 3
+  loopBeam: 0
+  usePoints: 0
+  point1Name: boltPoint1
+  point2Name: boltPoint2
+  alphaMultiplier: 1

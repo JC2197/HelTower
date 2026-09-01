@@ -10,8 +10,6 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button quitButton;
     
     [Header("Scene Names")]
-    [SerializeField] private string characterSelectionSceneName = "CharacterSelection";
-    [SerializeField] private string gameSceneName = "CommandScene";
     [SerializeField] private string settingsSceneName = "Settings";
     
     private void Start()
@@ -33,8 +31,10 @@ public class MainMenuManager : MonoBehaviour
     
     private void OnPlayClicked()
     {
-        // Load Character Selection instead of going directly to game
-        SceneManager.LoadScene(characterSelectionSceneName);
+        if (BootstrapManager.Instance != null)
+            BootstrapManager.Instance.LoadCamp();
+        else
+            Debug.LogError("[MainMenuManager] BootstrapManager is unavailable — cannot load Camp.");
     }
     
     private void OnSettingsClicked()
@@ -61,6 +61,6 @@ public class MainMenuManager : MonoBehaviour
 
     public void LoadGame()
     {
-        SceneManager.LoadScene(gameSceneName);
+        OnPlayClicked();
     }
 }

@@ -77,13 +77,8 @@ public class ConstructConfig
     
     [NonReorderable]
     [Tooltip("Abilities the construct can use (Area effects, Projectiles, etc.)")]
-    public List<ConstructAbilityConfig> constructAbilities = new List<ConstructAbilityConfig>();
-    
-    [Tooltip("Load prefab from Resources by name (deprecated)")]
-    public string prefabName = "";
-    
-    [Tooltip("Resources folder path for prefab loading (deprecated)")]
-    public string resourcesPath = "Prefabs/Constructs/";
+    public List<AbilityDataConfig> constructAbilities = new List<AbilityDataConfig>();
+
     
     [Header("Placement Preview")]
     [Tooltip("Holding the ability button shows a semi-transparent ghost of the construct " +
@@ -134,35 +129,6 @@ public class ConstructConfig
         return index;
     }
 }
-
-/// <summary>
-/// Wrapper for construct abilities - holds config for different ability types
-/// </summary>
-[System.Serializable]
-public class ConstructAbilityConfig
-{
-    public enum AbilityType
-    {
-        Area,
-        Projectile,
-        Beam,
-        Channel
-    }
-    
-    [Tooltip("Type of ability this construct uses")]
-    public AbilityType abilityType = AbilityType.Area;
-    
-    [Tooltip("Area ability configuration")]
-    public AreaConfig areaConfig = new AreaConfig();
-    
-    [Tooltip("Projectile ability configuration")]
-    public ProjectileConfig projectileConfig = new ProjectileConfig();
-    
-    // Add more ability configs as needed:
-    // public BeamConfig beamConfig;
-    // public ChannelConfig channelConfig;
-}
-
 /// <summary>
 /// Behavior when construct limit is reached
 /// </summary>

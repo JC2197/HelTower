@@ -94,6 +94,8 @@ namespace FishNet.Component.Spawning
         {
             if (!asServer)
                 return;
+
+            Debug.Log($"[PlayerSpawner] Client {conn.ClientId} completed start scenes. activeScene={UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}, loadedSceneCount={UnityEngine.SceneManagement.SceneManager.sceneCount}, spawner='{gameObject.name}', spawnCount={Spawns.Length}, playerPrefab={_playerPrefab?.name ?? "null"}.");
             if (_playerPrefab == null)
             {
                 _networkManager.LogWarning($"Player prefab is empty and cannot be spawned for connection {conn.ClientId}.");
@@ -104,8 +106,12 @@ namespace FishNet.Component.Spawning
             Quaternion rotation;
             SetSpawn(_playerPrefab.transform, out position, out rotation);
 
+            Debug.Log($"[PlayerSpawner] Spawning client {conn.ClientId} at {position} using rotation {rotation.eulerAngles}.");
+
             NetworkObject nob = _networkManager.GetPooledInstantiated(_playerPrefab, position, rotation, true);
             _networkManager.ServerManager.Spawn(nob, conn);
+
+            Debug.Log($"[PlayerSpawner] Spawned '{nob.name}' for client {conn.ClientId}. objectScene={nob.gameObject.scene.name}, activeScene={UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}.");
 
             // If there are no global scenes 
             if (_addToDefaultScene)

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using Unity.VisualScripting;
 
 /// <summary>
 /// Runtime utility for applying AbilityConfigModifier overrides using cached reflection.
@@ -17,7 +18,7 @@ public static class AbilityModifierRuntime
     private const string TriggeredAbilityAddPathSeparator = "|";
     private const string TriggeredAbilityAddMetadataSeparator = "#";
     private const BindingFlags SerializableInstanceFieldFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-
+    
     private struct PathSegment
     {
         public string fieldName;
@@ -372,49 +373,9 @@ public static class AbilityModifierRuntime
         if (targetConfig == null || !targetConfig.isConstructAbility || targetConfig.constructConfig == null)
             return propertyPath;
 
-        const string legacyProjectilePrefix = "constructConfig.constructProjectileConfig.";
-        const string legacyAreaPrefix = "constructConfig.constructAreaConfig.";
-
-        if (propertyPath.StartsWith(legacyProjectilePrefix, StringComparison.Ordinal))
-        {
-            int projectileIndex = FindFirstConstructAbilityIndex(
-                targetConfig.constructConfig.constructAbilities,
-                ConstructAbilityConfig.AbilityType.Projectile);
-            if (projectileIndex < 0)
-                return propertyPath;
-
-            string suffix = propertyPath.Substring(legacyProjectilePrefix.Length);
-            return $"constructConfig.constructAbilities[{projectileIndex}].projectileConfig.{suffix}";
-        }
-
-        if (propertyPath.StartsWith(legacyAreaPrefix, StringComparison.Ordinal))
-        {
-            int areaIndex = FindFirstConstructAbilityIndex(
-                targetConfig.constructConfig.constructAbilities,
-                ConstructAbilityConfig.AbilityType.Area);
-            if (areaIndex < 0)
-                return propertyPath;
-
-            string suffix = propertyPath.Substring(legacyAreaPrefix.Length);
-            return $"constructConfig.constructAbilities[{areaIndex}].areaConfig.{suffix}";
-        }
-
         return propertyPath;
     }
 
-    private static int FindFirstConstructAbilityIndex(List<ConstructAbilityConfig> abilities, ConstructAbilityConfig.AbilityType type)
-    {
-        if (abilities == null)
-            return -1;
-
-        for (int i = 0; i < abilities.Count; i++)
-        {
-            if (abilities[i] != null && abilities[i].abilityType == type)
-                return i;
-        }
-
-        return -1;
-    }
 
     // ══════════════════════════════════════════════════════════════════════════════
     // APPLICATION
@@ -695,34 +656,6 @@ public static class AbilityModifierRuntime
 
         if (config.isChanneled && config.channelConfig != null)
             AppendTriggeredAbility(config.channelConfig.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-
-        if (config.isSummonAbility && config.summonConfig != null)
-        {
-            if (config.summonConfig.meleeConfig?.hitbox != null)
-                AppendTriggeredAbility(config.summonConfig.meleeConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-
-            if (config.summonConfig.projectileConfig?.hitbox != null)
-                AppendTriggeredAbility(config.summonConfig.projectileConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-
-            if (config.summonConfig.beamConfig != null)
-                AppendTriggeredAbility(config.summonConfig.beamConfig.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-        }
-
-        if (config.isConstructAbility && config.constructConfig?.constructAbilities != null)
-        {
-            foreach (ConstructAbilityConfig constructAbility in config.constructConfig.constructAbilities)
-            {
-                if (constructAbility == null)
-                    continue;
-
-                if (constructAbility.abilityType == ConstructAbilityConfig.AbilityType.Area && constructAbility.areaConfig?.hitbox != null)
-                    AppendTriggeredAbility(constructAbility.areaConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-
-                if (constructAbility.abilityType == ConstructAbilityConfig.AbilityType.Projectile && constructAbility.projectileConfig?.hitbox != null)
-                    AppendTriggeredAbility(constructAbility.projectileConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
-            }
-        }
-
         if (config.isTrapAbility && config.trapConfig != null)
         {
             if (config.trapConfig.abilityType == TrapAbilityType.Area && config.trapConfig.areaConfig?.hitbox != null)
@@ -812,6 +745,49 @@ public static class AbilityModifierRuntime
     {
         object baseValue = field.GetValue(baseObj);
 
+        if (field.FieldType == typeof(StatContainer) && baseValue is StatContainer baseStats)
+        {
+            StatContainer copyStats = field.GetValue(copyObj) as StatContainer;
+            if (copyStats == null || ReferenceEquals(copyStats, baseStats))
+            {
+                // Source 22: Leverage your built-in deep-cloning routine to prevent asset corruption!
+                copyStats = baseStats.Clone();
+                field.SetValue(copyObj, copyStats);
+            }
+
+            // Extract the sub-stat name from the path property string map (e.g., "summonConfig.baseStatTemplate.MoveSpeed")
+            if (!string.IsNullOrEmpty(propertyPath))
+            {
+                int lastDot = propertyPath.LastIndexOf('.');
+                if (lastDot >= 0 && lastDot < propertyPath.Length - 1)
+                {
+                    string targetStatId = propertyPath.Substring(lastDot + 1);
+
+                    // Source 22: Pull the clean, un-modified base template number safely
+                    float baseStatValue = baseStats.GetStat(targetStatId, 0f);
+
+                    // Apply your standard flat and percentage trait modifiers
+                    float modifiedValue = baseStatValue + accum.flatDelta;
+
+                    if (UsesRateDurationFormula(targetStatId)) // Cooldown/Speed checks
+                    {
+                        float denominator = Mathf.Max(MinRateDenominator, 1f + (accum.percentDelta / 100f));
+                        modifiedValue /= denominator;
+                    }
+                    else
+                    {
+                        modifiedValue *= (1f + accum.percentDelta / 100f);
+                    }
+
+                    if (accum.hasSetOverride) modifiedValue = accum.setNumeric;
+
+                    // Source 22: Commit the fresh tier-scaled property value straight into the copy container!
+                    copyStats.SetStat(targetStatId, modifiedValue);
+                    Debug.Log($"[StatModifierSync] Calculated override: {propertyPath} -> Base: {baseStatValue}, Scaled: {modifiedValue}");
+                }
+            }
+            return;
+        }
         //for setting values
         if (accum.hasSetOverride)
         {
@@ -899,7 +875,6 @@ public static class AbilityModifierRuntime
         {
             if (!TryParsePathSegment(rawParts[i], out PathSegment segment))
                 return;
-
             parts.Add(segment);
         }
 
@@ -907,105 +882,87 @@ public static class AbilityModifierRuntime
         object currentCopy = copyRoot;
         Type currentType = rootType;
 
+        // Track the immediate parent container object and its Type layer to allow correct re-assignment
+        object parentCopyObject = null;
+        FieldInfo parentFieldInfo = null;
+
         for (int i = 0; i < parts.Count - 1; i++)
         {
             PathSegment segment = parts[i];
-            FieldInfo stepField = FindSerializedInstanceField(currentType, segment.fieldName);
-            if (stepField == null)
+            if (currentType == typeof(StatContainer) && currentBase is StatContainer baseStats)
+            {
                 return;
+            }
+
+            FieldInfo stepField = FindSerializedInstanceField(currentType, segment.fieldName);
+            if (stepField == null) return;
+
+            // Cache parent assignment scopes before advancing down the type tree
+            parentCopyObject = currentCopy;
+            parentFieldInfo = stepField;
 
             object nextBase = stepField.GetValue(currentBase);
-            if (nextBase == null)
-                return;
-
+            if (nextBase == null) return;
             object nextCopy = stepField.GetValue(currentCopy);
 
             if (segment.hasIndex)
             {
                 if (nextBase is Array baseArray)
                 {
-                    if (!(nextCopy is Array copyArray))
-                        return;
-
-                    if (segment.index < 0 || segment.index >= baseArray.Length || segment.index >= copyArray.Length)
-                        return;
-
+                    if (!(nextCopy is Array copyArray)) return;
+                    if (segment.index < 0 || segment.index >= baseArray.Length || segment.index >= copyArray.Length) return;
                     if (ReferenceEquals(copyArray, baseArray))
                     {
                         copyArray = (Array)baseArray.Clone();
                         stepField.SetValue(currentCopy, copyArray);
                     }
-
                     object baseElement = baseArray.GetValue(segment.index);
-                    if (baseElement == null)
-                        return;
-
+                    if (baseElement == null) return;
                     object copyElement = copyArray.GetValue(segment.index);
                     if (copyElement == null || ReferenceEquals(copyElement, baseElement))
                     {
                         copyElement = CloneSerializableObject(baseElement);
-                        if (copyElement == null)
-                            return;
-
+                        if (copyElement == null) return;
                         copyArray.SetValue(copyElement, segment.index);
                     }
-
                     currentBase = baseElement;
                     currentCopy = copyElement;
                     currentType = baseElement.GetType();
                     continue;
                 }
-
                 if (nextBase is IList baseList)
                 {
-                    if (!(nextCopy is IList copyList))
-                        return;
-
-                    if (segment.index < 0 || segment.index >= baseList.Count)
-                        return;
-
+                    if (!(nextCopy is IList copyList)) return;
+                    if (segment.index < 0 || segment.index >= baseList.Count) return;
                     if (ReferenceEquals(copyList, baseList))
                     {
                         object listClone = CloneListShallow(baseList);
-                        if (!(listClone is IList clonedList))
-                            return;
-
+                        if (!(listClone is IList clonedList)) return;
                         copyList = clonedList;
                         stepField.SetValue(currentCopy, copyList);
                     }
-
-                    if (segment.index >= copyList.Count)
-                        return;
-
+                    if (segment.index >= copyList.Count) return;
                     object baseElement = baseList[segment.index];
-                    if (baseElement == null)
-                        return;
-
+                    if (baseElement == null) return;
                     object copyElement = copyList[segment.index];
                     if (copyElement == null || ReferenceEquals(copyElement, baseElement))
                     {
                         copyElement = CloneSerializableObject(baseElement);
-                        if (copyElement == null)
-                            return;
-
+                        if (copyElement == null) return;
                         copyList[segment.index] = copyElement;
                     }
-
                     currentBase = baseElement;
                     currentCopy = copyElement;
                     currentType = baseElement.GetType();
                     continue;
                 }
-
                 return;
             }
 
             if (nextCopy == null || ReferenceEquals(nextCopy, nextBase))
             {
                 nextCopy = CloneSerializableObject(nextBase);
-                if (nextCopy == null)
-                    return;
-
+                if (nextCopy == null) return;
                 stepField.SetValue(currentCopy, nextCopy);
             }
 
@@ -1015,22 +972,56 @@ public static class AbilityModifierRuntime
         }
 
         PathSegment targetSegment = parts[parts.Count - 1];
-        if (targetSegment.hasIndex)
+        if (targetSegment.hasIndex) return;
+
+        // ── 🔒 FIXED: BOUNDED STAT CONTAINER OVERRIDE APPLICATION ──
+        if (currentType == typeof(StatContainer) && currentBase is StatContainer statContainerBase)
+        {
+            StatContainer statContainerCopy = currentCopy as StatContainer;
+            if (statContainerCopy == null || ReferenceEquals(statContainerCopy, statContainerBase))
+            {
+                // Clone the baseline stats cleanly
+                statContainerCopy = statContainerBase.Clone();
+
+                // FIX: Use the cached parent field info context to re-assign the isolated clone instance back into the copied structure!
+                if (parentFieldInfo != null && parentCopyObject != null)
+                {
+                    parentFieldInfo.SetValue(parentCopyObject, statContainerCopy);
+                }
+            }
+
+            string targetStatId = targetSegment.fieldName;
+            float baseStatValue = statContainerBase.GetStat(targetStatId, 0f);
+            float modifiedValue = baseStatValue + accum.flatDelta;
+
+            string fullPath = string.IsNullOrEmpty(nestedPath) ? null : $"{rootType.Name}.{nestedPath}";
+
+            // Fixed: Check rate modifiers via accum.percentDelta instead of raw flat deltas
+            if (UsesRateDurationFormula(fullPath ?? targetStatId))
+            {
+                float denominator = Mathf.Max(MinRateDenominator, 1f + (accum.percentDelta / 100f));
+                modifiedValue = (baseStatValue + accum.flatDelta) / denominator;
+            }
+            else
+            {
+                modifiedValue *= (1f + accum.percentDelta / 100f);
+            }
+
+            if (accum.hasSetOverride) modifiedValue = accum.setNumeric;
+
+            // Update only the decoupled instance wrapper
+            statContainerCopy.SetStat(targetStatId, modifiedValue);
             return;
+        }
 
         FieldInfo targetField = FindSerializedInstanceField(currentType, targetSegment.fieldName);
-        if (targetField == null)
-            return;
+        if (targetField == null) return;
 
-        string fullPath = string.IsNullOrEmpty(nestedPath)
-            ? null
-            : $"{rootType.Name}.{nestedPath}";
-
-        // Normalize known top-level config prefixes used by ability modifier paths.
+        string normalizedFullPath = string.IsNullOrEmpty(nestedPath) ? null : $"{rootType.Name}.{nestedPath}";
         if (rootType == typeof(HoldChargeConfig) && !string.IsNullOrEmpty(nestedPath))
-            fullPath = $"holdChargeConfig.{nestedPath}";
+            normalizedFullPath = $"holdChargeConfig.{nestedPath}";
 
-        ApplyAccumulatedToField(targetField, currentBase, currentCopy, accum, fullPath);
+        ApplyAccumulatedToField(targetField, currentBase, currentCopy, accum, normalizedFullPath);
     }
 
     private static bool TryParsePathSegment(string rawSegment, out PathSegment segment)
@@ -1142,6 +1133,9 @@ public static class AbilityModifierRuntime
 
         if (type == typeof(string) || type.IsValueType)
             return source;
+
+        if (source is StatContainer statContainer)
+            return statContainer.Clone();
 
         if (typeof(ScriptableObject).IsAssignableFrom(type))
             return UnityEngine.Object.Instantiate((ScriptableObject)source);
@@ -1261,40 +1255,25 @@ public static class AbilityModifierRuntime
                 AddFieldsFromType(typeof(MovementConfig), "movementConfig.", result);
             if (config.holdChargeConfig != null)
                 AddFieldsFromType(typeof(HoldChargeConfig), "holdChargeConfig.", result);
-            if (config.isConstructAbility && config.constructConfig != null)
+            if (config.isPassiveAbility && config.passiveConfig != null && config.passiveConfig.PassiveAbility != null)
             {
-                AddFieldsFromType(typeof(ConstructConfig), "constructConfig.", result);
-                AddConstructAbilityConfigFields("constructConfig.constructAbilities", result, config.constructConfig.constructAbilities);
+                AddCustomPassiveConfigFields("passiveConfig.passiveAbility.", result, config.passiveConfig.PassiveAbility.GetType());
             }
             if (config.isSummonAbility && config.summonConfig != null)
             {
                 AddFieldsFromType(typeof(SummonConfig), "summonConfig.", result);
-                // Parent-level life steal (the single source of truth for summon life steal).
-                AddLifeStealConfigFields("summonConfig.lifeSteal.", result);
-
-                // Summons contain attack sub-configs with their own damage fields.
-                if (config.summonConfig.meleeConfig != null)
+                if (config.summonConfig.statContainer != null)
                 {
-                    AddHitboxConfigFields("summonConfig.meleeConfig.hitbox.", result, config.summonConfig.meleeConfig.hitbox);
-                    AddFieldsFromType(typeof(MeleeConfig), "summonConfig.meleeConfig.", result);
+                    // Source 22: Extract every registered entry inside the template's baseline collection
+                    var allTemplateStats = config.summonConfig.statContainer.GetAllStats();
+                    foreach (StatValue stat in allTemplateStats)
+                    {
+                        if (stat != null && !string.IsNullOrWhiteSpace(stat.StatId))
+                        {
+                            result.Add($"summonConfig.statContainer.{stat.StatId}");
+                        }
+                    }
                 }
-
-                if (config.summonConfig.projectileConfig != null)
-                {
-                    AddHitboxConfigFields("summonConfig.projectileConfig.hitbox.", result, config.summonConfig.projectileConfig.hitbox);
-                    AddFieldsFromType(typeof(ProjectileConfig), "summonConfig.projectileConfig.", result);
-                }
-
-                if (config.summonConfig.beamConfig != null)
-                {
-                    AddFieldsFromType(typeof(BeamAbilityConfig), "summonConfig.beamConfig.", result);
-                    AddEffectDataFields("summonConfig.beamConfig.onHitEffects.", result, config.summonConfig.beamConfig.onHitEffects);
-                }
-            }
-
-            if (config.isPassiveAbility && config.passiveConfig != null && config.passiveConfig.PassiveAbility != null)
-            {
-                AddCustomPassiveConfigFields("passiveConfig.passiveAbility.", result, config.passiveConfig.PassiveAbility.GetType());
             }
         }
 
@@ -1328,35 +1307,6 @@ public static class AbilityModifierRuntime
 
         if (config.isChanneled && config.channelConfig != null)
             result.Add("channelConfig.onHitEffects");
-
-        if (config.isSummonAbility && config.summonConfig != null)
-        {
-            if (config.summonConfig.meleeConfig?.hitbox != null)
-                result.Add("summonConfig.meleeConfig.hitbox.onHitEffects");
-
-            if (config.summonConfig.projectileConfig?.hitbox != null)
-                result.Add("summonConfig.projectileConfig.hitbox.onHitEffects");
-
-            if (config.summonConfig.beamConfig != null)
-                result.Add("summonConfig.beamConfig.onHitEffects");
-        }
-
-        if (config.isConstructAbility && config.constructConfig?.constructAbilities != null)
-        {
-            for (int i = 0; i < config.constructConfig.constructAbilities.Count; i++)
-            {
-                ConstructAbilityConfig constructAbility = config.constructConfig.constructAbilities[i];
-                if (constructAbility == null)
-                    continue;
-
-                if (constructAbility.abilityType == ConstructAbilityConfig.AbilityType.Area && constructAbility.areaConfig?.hitbox != null)
-                    result.Add($"constructConfig.constructAbilities[{i}].areaConfig.hitbox.onHitEffects");
-
-                if (constructAbility.abilityType == ConstructAbilityConfig.AbilityType.Projectile && constructAbility.projectileConfig?.hitbox != null)
-                    result.Add($"constructConfig.constructAbilities[{i}].projectileConfig.hitbox.onHitEffects");
-            }
-        }
-
         if (config.isTrapAbility && config.trapConfig != null)
         {
             if (config.trapConfig.abilityType == TrapAbilityType.Area && config.trapConfig.areaConfig?.hitbox != null)
@@ -1459,32 +1409,7 @@ public static class AbilityModifierRuntime
         }
     }
 
-    private static void AddConstructAbilityConfigFields(string listPathPrefix, List<string> result, List<ConstructAbilityConfig> constructAbilities)
-    {
-        if (constructAbilities == null || constructAbilities.Count == 0)
-            return;
 
-        for (int i = 0; i < constructAbilities.Count; i++)
-        {
-            ConstructAbilityConfig entry = constructAbilities[i];
-            if (entry == null)
-                continue;
-
-            string entryPrefix = $"{listPathPrefix}[{i}].";
-            result.Add(entryPrefix + "abilityType");
-
-            if (entry.abilityType == ConstructAbilityConfig.AbilityType.Area && entry.areaConfig != null)
-            {
-                AddFieldsFromType(typeof(AreaConfig), entryPrefix + "areaConfig.", result);
-                AddHitboxConfigFields(entryPrefix + "areaConfig.hitbox.", result, entry.areaConfig.hitbox);
-            }
-            else if (entry.abilityType == ConstructAbilityConfig.AbilityType.Projectile && entry.projectileConfig != null)
-            {
-                AddFieldsFromType(typeof(ProjectileConfig), entryPrefix + "projectileConfig.", result);
-                AddHitboxConfigFields(entryPrefix + "projectileConfig.hitbox.", result, entry.projectileConfig.hitbox);
-            }
-        }
-    }
 
     /// <summary>
     /// Adds modifiable LifeStealConfig fields to the result list.

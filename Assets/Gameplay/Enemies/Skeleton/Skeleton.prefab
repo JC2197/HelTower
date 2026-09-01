@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: -2160885566246127143}
   - component: {fileID: 318255585603315729}
   - component: {fileID: 7927516768008239007}
-  - component: {fileID: 3371657100645415433}
   - component: {fileID: 8323597340559663755}
   - component: {fileID: 148741671738639852}
   - component: {fileID: 3216235351980726569}
@@ -193,19 +192,6 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
---- !u!210 &3371657100645415433
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 558853963702316885}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
-  m_Sort3DAs2D: 0
 --- !u!114 &8323597340559663755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,7 +573,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3268066136317778550, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3268066136317778550, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_LocalRotation.w
@@ -611,7 +597,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3268066136317778550, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.333
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 3268066136317778550, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -626,12 +612,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3371540212149415763, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3371540212149415763, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_SortingLayerID
-      value: 1257934035
+      value: 400224279
       objectReference: {fileID: 0}
     - target: {fileID: 4774154511544963705, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_Name
       value: HealthBarCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774154511544963705, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

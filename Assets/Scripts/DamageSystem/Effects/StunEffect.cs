@@ -69,7 +69,7 @@ public class StunEffect : EffectConfig
             float currentMoveSpeed = organism.AllStats.GetStat("MoveSpeed");
             float moveSpeedDelta = -currentMoveSpeed;
             organism.AllStats.ModifyStat("MoveSpeed", moveSpeedDelta);
-            organism.RefreshMoveSpeedFromStats();
+            
             appliedMoveSpeedDeltas[effectTarget] = moveSpeedDelta;
         }
 
@@ -130,7 +130,7 @@ public class StunEffect : EffectConfig
         if (organism != null && organism.AllStats != null && appliedMoveSpeedDeltas.TryGetValue(effectTarget, out float appliedDelta))
         {
             organism.AllStats.ModifyStat("MoveSpeed", -appliedDelta);
-            organism.RefreshMoveSpeedFromStats();
+            
         }
 
         appliedMoveSpeedDeltas.Remove(effectTarget);

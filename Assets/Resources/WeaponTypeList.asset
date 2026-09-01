@@ -18,7 +18,7 @@ MonoBehaviour:
   - Defender
   - SandSpear
   - Firestarter
-  - Shotgun
+  - Scrap Gun
   - Dagger
   - Bow
   - Crossbow
@@ -35,3 +35,4 @@ MonoBehaviour:
   - Orb
   - LifeStaff
   - Book
+  - LightningBall

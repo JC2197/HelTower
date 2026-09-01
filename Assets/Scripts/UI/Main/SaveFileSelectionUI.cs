@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
@@ -24,9 +23,6 @@ public class SaveFileSelectionUI : MonoBehaviour
 
     [Tooltip("Parent for the generated slot buttons. Defaults to the prefab's parent.")]
     [SerializeField] private Transform slotContainer;
-
-    [Header("Scene")]
-    [SerializeField] private string gameSceneName = "GameScene";
 
     [Header("Fallbacks")]
     [Tooltip("Slot count used when no SaveFileCollectionConfig is available.")]
@@ -123,7 +119,13 @@ public class SaveFileSelectionUI : MonoBehaviour
         Debug.Log($"[SaveFileSelectionUI] Starting run on '{saveFile.saveFileName}' " +
                   $"(class={saveFile.lastClassName}, nodes={saveFile.unlockedNodeIDs.Count}, gold={saveFile.totalGold}).");
 
-        SceneManager.LoadScene(gameSceneName);
+        if (BootstrapManager.Instance == null)
+        {
+            Debug.LogError("[SaveFileSelectionUI] BootstrapManager is unavailable — cannot load Camp.");
+            return;
+        }
+
+        BootstrapManager.Instance.LoadCamp();
     }
 
     private SaveFileData CreateSaveFileForSlot(int slotIndex, string saveFileName)

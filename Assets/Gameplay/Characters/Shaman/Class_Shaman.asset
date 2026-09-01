@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96489cb8174ba614ebc97499e2c545ce, type: 3}
+  m_Name: Class_Shaman
+  m_EditorClassIdentifier: Assembly-CSharp::ClassData
+  className: Shaman
+  characterPortrait: {fileID: 0}
+  animatorController: {fileID: 22100000, guid: 96dea69ce1dd90345a3b54db909781d3, type: 2}
+  availableWeapons:
+  - {fileID: 11400000, guid: 4788e9e373915234cb9b0a43704d4447, type: 2}
+  availableAccessories: []
+  abilities: []
+  baseStatContainer:
+    stats:
+    - statId: STR
+      displayName: STR
+      categoryId: BASE
+      currentValue: 0
+    - statId: VIG
+      displayName: VIG
+      categoryId: BASE
+      currentValue: 0
+    - statId: INT
+      displayName: BASE
+      categoryId: BASE
+      currentValue: 0
+    - statId: DEX
+      displayName: DEX
+      categoryId: BASE
+      currentValue: 0
+    - statId: FTH
+      displayName: FTH
+      categoryId: BASE
+      currentValue: 0
+    - statId: LUK
+      displayName: LUK
+      categoryId: BASE
+      currentValue: 0
+    - statId: MoveSpeed
+      displayName: Movement Speed
+      categoryId: Active
+      currentValue: 3
+    - statId: AttackSpeed
+      displayName: Attack Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxHealth
+      displayName: Maximum HP
+      categoryId: Active
+      currentValue: 100
+    - statId: Physical
+      displayName: Physical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: Magical
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxMana
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  availableTraitTrees: []

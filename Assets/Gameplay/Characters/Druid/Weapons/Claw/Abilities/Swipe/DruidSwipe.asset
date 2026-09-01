@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1.5
   cooldownTime: 0
@@ -46,7 +47,7 @@ MonoBehaviour:
   comboStepDelays:
   - 0.3
   comboInputWindow: 0.75
-  characterAnimationName: Idle
+  characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: ClawSwipe
@@ -61,6 +62,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: 
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -1311,6 +1313,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1421,6 +1433,16 @@ MonoBehaviour:
     explosionEffectPrefab: {fileID: 0}
     explosionSound: {fileID: 0}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1
@@ -1821,9 +1843,6 @@ MonoBehaviour:
     distance: 5
     duration: 0.5
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 0
     awayFromMouse: 0
     isDashing: 0

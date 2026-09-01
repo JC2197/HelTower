@@ -10,8 +10,6 @@ using FishNet;
 /// </summary>
 public class ConstructAbility : MonoBehaviour, ISubAbility
 {
-    private const string AbilityPipelineTag = "[Ability pipeline]";
-
     private ConstructConfig config;
     private GameObject constructInstance;
     private float spawnTime;
@@ -19,7 +17,7 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
     private List<GameObject> sharedConstructList; // Reference to shared list from DataDrivenAbility
     private GameObject owner;
     private AbilityDataConfig parentConfig;
-    
+
     public void SetContext(SubAbilityContext context)
     {
         parentConfig = context.parentConfig;
@@ -34,23 +32,22 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
         config = constructConfig;
         sharedConstructList = sharedConstructs ?? new List<GameObject>();
 
-        Debug.Log($"{AbilityPipelineTag} ConstructAbility.SpawnConstruct: prefab={(constructConfig != null && constructConfig.constructPrefab != null ? constructConfig.constructPrefab.name : "NULL")}, spawnPosition={spawnPosition}, owner={(owner != null ? owner.name : "NULL")}, sharedCount={sharedConstructList.Count}");
-        
+
         Debug.Log($"[ConstructAbility] SpawnConstruct called. Current constructs: {sharedConstructList.Count}, Max: {config.maxConstructs}");
-        
+
         if (config.constructPrefab == null)
         {
             Debug.LogError("[ConstructAbility] No construct prefab assigned!");
             return;
         }
-        
+
         // Clean up null references
         int nullCount = sharedConstructList.RemoveAll(c => c == null);
         if (nullCount > 0)
         {
             Debug.Log($"[ConstructAbility] Removed {nullCount} null construct references. New count: {sharedConstructList.Count}");
         }
-        
+
         // Handle construct limits using shared list
         if (config.maxConstructs > 0 && sharedConstructList.Count >= config.maxConstructs)
         {
@@ -63,11 +60,11 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
             }
             Debug.Log($"[ConstructAbility] Proceeding with spawn after handling limit. Current count: {sharedConstructList.Count}");
         }
-        
+
         // Instantiate the construct prefab (local first)
         constructInstance = Instantiate(config.constructPrefab, spawnPosition, Quaternion.identity);
         constructInstance.name = $"{config.constructPrefab.name}_Construct";
-        
+
         // Network spawn if in multiplayer
         var networkManager = InstanceFinder.NetworkManager;
         if (networkManager != null && networkManager.IsServerStarted)
@@ -75,27 +72,18 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
             networkManager.ServerManager.Spawn(constructInstance);
             Debug.Log($"[ConstructAbility] Network-spawned construct: {constructInstance.name}");
         }
-        
+
         sharedConstructList.Add(constructInstance);
-        
+
         Debug.Log($"[ConstructAbility] Spawned construct '{constructInstance.name}' at {spawnPosition}. Total constructs in list: {sharedConstructList.Count}/{config.maxConstructs}");
         Debug.Log($"[ConstructAbility] Shared list instance ID: {sharedConstructList.GetHashCode()}");
-        
+
         // Prefer whatever Construct-derived behavior is authored on the prefab.
         // This allows assigning an AutoTurret-scripted prefab directly in constructPrefab.
         Construct construct = constructInstance.GetComponent<Construct>();
 
         bool hasProjectileAbility = config.constructAbilities != null
-            && config.constructAbilities.Exists(a => a != null && a.abilityType == ConstructAbilityConfig.AbilityType.Projectile);
-
-        if (construct == null && hasProjectileAbility)
-        {
-            // Backward compatibility: legacy prefabs without a Construct script still fire
-            // projectile construct abilities by adding AutoTurret at runtime.
-            construct = constructInstance.AddComponent<AutoTurret>();
-            Debug.LogWarning($"[ConstructAbility] Added AutoTurret at runtime on '{constructInstance.name}'. " +
-                "Recommended: add AutoTurret on the prefab and configure its turret settings there.");
-        }
+            && config.constructAbilities.Exists(a => a != null && a.isProjectileAbility);
 
         if (construct == null)
         {
@@ -107,15 +95,15 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
         {
             Debug.Log($"[ConstructAbility] Using prefab-authored component: {construct.GetType().Name}");
         }
-        
+
         // Initialize the construct (this handles health, turrets, etc.)
-        construct.Initialize(config, owner);        
+        construct.Initialize(config, owner);
         // Apply spawn knockback if configured
         if (config.spawnKnockbackRadius > 0 && config.spawnKnockbackForce > 0)
         {
             ApplySpawnKnockback(spawnPosition);
         }
-        
+
         // Activate after delay if configured
         if (config.activationDelay > 0)
         {
@@ -125,10 +113,10 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
         {
             construct.Activate();
         }
-        
+
         spawnTime = Time.time;
     }
-    
+
     private bool HandleConstructLimit(Vector3 newSpawnPosition)
     {
         // Remove null references
@@ -137,9 +125,9 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
         {
             Debug.Log($"[ConstructAbility] HandleConstructLimit removed {nullCount} null references");
         }
-        
+
         Debug.Log($"[ConstructAbility] HandleConstructLimit executing with behavior: {config.limitBehavior}, Current count: {sharedConstructList.Count}");
-        
+
         switch (config.limitBehavior)
         {
             case ConstructLimitBehavior.DestroyOldest:
@@ -148,17 +136,17 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
                     GameObject oldest = sharedConstructList[0];
                     Debug.Log($"[ConstructAbility] Destroying oldest construct: {(oldest != null ? oldest.name : "null")}");
                     sharedConstructList.RemoveAt(0);
-                    
+
                     // Destroy the construct GameObject
                     Destroy(oldest);
                     Debug.Log($"[ConstructAbility] After destroying oldest, count: {sharedConstructList.Count}");
                 }
                 return true; // Proceed with spawn
-                
+
             case ConstructLimitBehavior.PreventSpawn:
                 Debug.Log($"[ConstructAbility] PreventSpawn: Max constructs reached ({sharedConstructList.Count}/{config.maxConstructs}), blocking spawn");
                 return false; // Don't proceed with spawn
-                
+
             case ConstructLimitBehavior.ReplaceClosest:
                 GameObject closest = null;
                 float closestDist = float.MaxValue;
@@ -176,23 +164,23 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
                 {
                     Debug.Log($"[ConstructAbility] Replacing closest construct at distance {closestDist}: {closest.name}");
                     sharedConstructList.Remove(closest);
-                    
+
                     Destroy(closest);
                 }
                 return true; // Proceed with spawn
         }
-        
+
         return true; // Default: proceed with spawn
     }
-    
+
     private void ApplySpawnKnockback(Vector3 spawnPosition)
     {
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(spawnPosition, config.spawnKnockbackRadius);
-        
+
         foreach (Collider2D hit in hitColliders)
         {
             if (hit.gameObject == constructInstance || hit.gameObject == owner) continue;
-            
+
             // Check if it's an enemy
             if (((1 << hit.gameObject.layer) & LayerMask.GetMask("Enemy")) != 0)
             {
@@ -206,17 +194,17 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
             }
         }
     }
-    
+
     private IEnumerator ActivateAfterDelay(Construct construct, float delay)
     {
         yield return new WaitForSeconds(delay);
         construct.Activate();
     }
-    
+
     private void Update()
     {
         if (constructInstance == null || isDestroying) return;
-        
+
         // Check lifetime
         if (config.lifetime > 0 && Time.time >= spawnTime + config.lifetime)
         {
@@ -227,20 +215,20 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
             }
         }
     }
-    
+
     public void DestroyConstruct()
     {
         if (isDestroying || constructInstance == null) return;
-        
+
         isDestroying = true;
         Debug.Log($"[ConstructAbility] Starting construct destruction");
-        
+
         sharedConstructList.Remove(constructInstance);
-        
+
         // Destroy the construct GameObject
         Destroy(constructInstance);
     }
-    
+
     private void OnDestroy()
     {
         // Cleanup construct instance
@@ -250,6 +238,6 @@ public class ConstructAbility : MonoBehaviour, ISubAbility
             Destroy(constructInstance);
         }
     }
-    
+
     public GameObject ConstructInstance => constructInstance;
 }

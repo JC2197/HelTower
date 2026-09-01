@@ -16,6 +16,7 @@ MonoBehaviour:
   weaponName: Crossbow
   weaponType: Crossbow
   grantedTrait: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: 19e6b171302eeec4985ec7d5bf9ea882, type: 2}
   weaponPrefab: {fileID: 1356956865304060755, guid: 3bc2953725b7c3b45a22a1c115ccbfac, type: 3}
   weaponDamageMin: 0
   weaponDamageMax: 0

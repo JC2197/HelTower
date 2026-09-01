@@ -51,6 +51,9 @@ public class PlayerController : Organism
     public event Action<AbilityDataConfig> OnAttack;
     public event Action<AbilityDataConfig, GameObject, float, string> OnAttackDamage;
     public Coroutine WeaponIdleReturnCoroutine { get; set; }
+    private int weaponAnimationSequence;
+    public int BeginWeaponAnimation() => ++weaponAnimationSequence;
+    public bool IsLatestWeaponAnimation(int sequence) => sequence == weaponAnimationSequence;
     /// <summary>Fired when a stats recalculation is requested (e.g. after trait changes).</summary>
     public event Action OnStatsRecalculationRequested;
 
@@ -99,6 +102,11 @@ public class PlayerController : Organism
             Debug.LogWarning("[PlayerController] ApplyClassAnimator called with null class data.");
             return false;
         }
+        var characterData = GetCurrentCharacterData();
+        if (characterData != null)
+        {
+            characterData.SetClassData(classData);
+        }
 
         if (!ApplyClassAnimatorVisual(classData))
             return false;
@@ -142,7 +150,7 @@ public class PlayerController : Organism
         if (target != null)
         {
             source.CopyToStatContainer(target);
-            RefreshMoveSpeedFromStats();
+            
         }
 
         if (MaxHealth > 0f)
@@ -176,7 +184,7 @@ public class PlayerController : Organism
         if (target != null && characterData.statContainer != null)
         {
             characterData.statContainer.CopyToStatContainer(target);
-            RefreshMoveSpeedFromStats();
+            
         }
 
         // Refill only when the class has a valid configured maximum. A missing/zero
@@ -852,6 +860,8 @@ public class PlayerController : Organism
         CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
         abilityManager?.SetWeaponAbility(weaponConfig != null ? weaponConfig.grantedPrimaryAbility : null);
         abilityManager?.SetSecondaryWeaponAbility(weaponConfig != null ? weaponConfig.grantedSecondaryAbility : null);
+        abilityManager?.SetDashAbility(weaponConfig != null ? weaponConfig.grantedDashAbility : null);
+        abilityManager?.SetPassiveAbility(weaponConfig != null ? weaponConfig.grantedPassiveAbility : null);
 
     }
 

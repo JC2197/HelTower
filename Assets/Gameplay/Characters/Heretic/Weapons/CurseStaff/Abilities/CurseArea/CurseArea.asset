@@ -62,6 +62,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: Idle
   unlockWeaponDirections: 1
+  lockWeaponDirections: 0
   rotationLockDuration: 0.5
   continueRotatingDuringUnlock: 1
   flipYOnLeftFacing: 1
@@ -1312,6 +1313,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1363,7 +1374,7 @@ MonoBehaviour:
         burnDamage: 10
         burnDuration: 3
         burnApplicationChance: 1
-        canPoison: 0
+        canPoison: 1
         poisonEffect: {fileID: 11400000, guid: c3d8fbbb9762b414590f8429920e05a0, type: 2}
         poisonDamage: 3
         poisonDuration: 5
@@ -1426,6 +1437,16 @@ MonoBehaviour:
     explosionEffectPrefab: {fileID: 1852263050958127776, guid: 3c56c77bcb49b924292c911c36c3542c, type: 3}
     explosionSound: {fileID: 0}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1

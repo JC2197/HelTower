@@ -47,6 +47,7 @@ public class FloorManager : NetworkBehaviour
         }
 
         SpawnFloor(floorToLoad);
+        RepositionAllPlayers(GetSpawnPoints());
     }
 
     /// <summary>Called by FloorPortal when a player interacts with it after the floor is cleared.</summary>
@@ -84,7 +85,8 @@ public class FloorManager : NetworkBehaviour
         if (fishNetSpawner != null)
         {
             fishNetSpawner.Spawns = spawnPoints;
-        } else
+        }
+        else
         {
             Debug.LogWarning("[FloorManager] No PlayerSpawner found — spawn points will not be assigned.");
         }
@@ -106,8 +108,9 @@ public class FloorManager : NetworkBehaviour
 
     private void DespawnCurrentFloor()
     {
-        if (currentFloorInstance == null) return;
 
+        if (currentFloorInstance == null) return;
+        RemoveAllSummons();
         NetworkObject nob = currentFloorInstance.GetComponent<NetworkObject>();
         if (nob != null && nob.IsSpawned)
             InstanceFinder.ServerManager.Despawn(currentFloorInstance);
@@ -115,6 +118,15 @@ public class FloorManager : NetworkBehaviour
             Destroy(currentFloorInstance);
 
         currentFloorInstance = null;
+    }
+
+    private void RemoveAllSummons()
+    {
+        Summon[] summons = FindObjectsByType<Summon>(FindObjectsSortMode.None);
+        foreach (var summon in summons)
+        {
+            Destroy(summon.gameObject);
+        }
     }
 
     /// <summary>

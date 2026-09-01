@@ -77,13 +77,13 @@ public class WorldHealthBar : MonoBehaviour
     
     void Update()
     {
-        // Auto-hide after delay at full health
-        if (organism.CurrentHealth >= organism.MaxHealth && hideTimer > 0)
-        {
-            hideTimer -= Time.deltaTime;
-            if (hideTimer <= 0)
-                SetVisible(false);
-        }
+        // // Auto-hide after delay at full health
+        // if (organism.CurrentHealth >= organism.MaxHealth && hideTimer > 0)
+        // {
+        //     hideTimer -= Time.deltaTime;
+        //     if (hideTimer <= 0)
+        //         SetVisible(false);
+        // }
     }
     
     void LateUpdate()

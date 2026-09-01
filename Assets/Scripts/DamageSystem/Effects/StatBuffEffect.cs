@@ -119,7 +119,7 @@ public class StatBuffEffect : EffectConfig
         if (touchedMoveSpeed)
         {
             Organism organism = ResolveOrganism(target);
-            organism?.RefreshMoveSpeedFromStats();
+            
         }
     }
 
@@ -173,7 +173,7 @@ public class StatBuffEffect : EffectConfig
         if (touchedMoveSpeed)
         {
             Organism organism = ResolveOrganism(target);
-            organism?.RefreshMoveSpeedFromStats();
+            
         }
     }
 }

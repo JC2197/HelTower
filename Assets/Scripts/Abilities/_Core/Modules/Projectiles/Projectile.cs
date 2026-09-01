@@ -58,6 +58,9 @@ public abstract class Projectile : NetworkBehaviour
     private float _lobbedFlightTime;
     private bool _lobbedTargetSet = false;
     private bool _lobbedLanded = false;
+    protected bool _lobbedIsDescending = false;
+    protected float _lobbedCurrentVerticalVelocity = 0f;
+    protected float _lobbedCalculatedGravity = 0f;
     protected bool freezeRotation;
     protected float spinSpeed;
     private float _accumulatedSpinAngle = 0f;
@@ -382,31 +385,31 @@ public abstract class Projectile : NetworkBehaviour
     {
         if (!_lobbedTargetSet)
         {
-            // Fallback: fly straight until SetLobbedTarget() is called (shouldn't happen in normal use)
             MoveStraight();
             return;
         }
 
         if (_lobbedLanded) return;
 
-        float u = _lobbedFlightTime > 0f ? Mathf.Clamp01(behaviorTime / _lobbedFlightTime) : 1f;
+        float u = _lobbedFlightTime > 0f ? Mathf.Clamp01(behaviorTime / _lobbedFlightTime) : 0.5f;
 
         // ── Parabolic arc ────────────────────────────────────────────────────────────
-        // height(u) = 4 * peakHeight * u * (1 - u)
-        // Derived from ballistic physics: with v0y = sqrt(2*g*h) and g = 4h/T²,
-        // integrating gives this exact parabola. Peaks at u=0.5 with value = lobbedArcHeight.
-        // Horizontal component interpolates linearly (constant horizontal velocity, as in real physics).
+        
         Vector3 groundPos = Vector3.Lerp(_lobbedStartPos, _lobbedTargetPos, u);
         float arcOffset = 4f * lobbedArcHeight * u * (1f - u);
         transform.position = groundPos + Vector3.up * arcOffset;
 
+        // ── Dynamic Sprite Scaling ──────────────────────────────────────────────
+        float maxScaleMultiplier = 1.6f;
+        float currentScaleBonus = 4f * (maxScaleMultiplier - 1f) * u * (1f - u);
+        float targetProgressScale = scale * (1f + currentScaleBonus);
+        transform.localScale = new Vector3(targetProgressScale, targetProgressScale, 1f);
+
         // ── Tangent rotation ─────────────────────────────────────────────────────────
-        // d(groundPos)/du is the constant horizontal vector (targetPos - startPos).
-        // d(arcOffset)/du = 4 * peakHeight * (1 - 2u), giving the vertical derivative.
-        // Together they form the instantaneous velocity direction (tangent to the parabola).
         Vector3 horizontal = _lobbedTargetPos - _lobbedStartPos;
         float arcDeriv = 4f * lobbedArcHeight * (1f - 2f * u);
         Vector3 tangent = horizontal + Vector3.up * arcDeriv;
+
         if (tangent.sqrMagnitude > 0.0001f)
         {
             float angle = Mathf.Atan2(tangent.y, tangent.x) * Mathf.Rad2Deg;
@@ -595,7 +598,7 @@ public abstract class Projectile : NetworkBehaviour
     protected virtual void MoveDropped()
     {
         // Simple drop behavior
-            velocity = Vector3.down * speed;
+        velocity = Vector3.down * speed;
         transform.position += velocity * Time.deltaTime;
     }
 
@@ -1417,29 +1420,31 @@ public abstract class Projectile : NetworkBehaviour
     /// <param name="targetWorldPos">World-space landing position (enemy root or cursor position).</param>
     public void SetLobbedTarget(Vector3 targetWorldPos)
     {
-        _lobbedStartPos = startPosition;
+
+
+        _lobbedStartPos = transform.position;
         _lobbedTargetPos = targetWorldPos;
-
-        // Compute flight time from speed and horizontal distance so the projectile
-        // arrives in a physically plausible time regardless of arc height.
-        float horizontalDist = Vector2.Distance(
-            new Vector2(_lobbedStartPos.x, _lobbedStartPos.y),
-            new Vector2(_lobbedTargetPos.x, _lobbedTargetPos.y));
-        _lobbedFlightTime = speed > 0f ? horizontalDist / speed : 1f;
-        // Guard against zero-distance (e.g. caster fires at own feet).
-        if (_lobbedFlightTime < 0.05f) _lobbedFlightTime = 0.05f;
-
         _lobbedTargetSet = true;
         _lobbedLanded = false;
+        behaviorTime = 0f;
 
-        // Lobbed projectile's collider stays disabled until landing to avoid
-        // triggering enemies along the arc.
         if (projectileCollider != null)
             projectileCollider.enabled = false;
 
-        // Replace lifetime with flight time + a small margin so the projectile
-        // never despawns in the air before landing.
-        currentLifetime = _lobbedFlightTime + 0.5f;
+        // Calculate horizontal distance (ignoring Y/Z if you purely want ground distance)
+        float distance = Vector3.Distance(_lobbedStartPos, _lobbedTargetPos);
+        float executionSpeed = speed > 0f ? speed : 10f;
+
+        float baseStraightTime = distance / executionSpeed;
+        if (baseStraightTime <= 1f) baseStraightTime = 1f;
+
+        float heightFactor = lobbedArcHeight > 0 ? lobbedArcHeight : 1f;
+
+        // FIX 1: Consistent Air Time. Time = Distance / Speed.
+        // If distance is 5f and speed is 10, flight time is exactly 0.5 seconds.
+        _lobbedFlightTime = baseStraightTime * heightFactor;
+
+
 
         // Broadcast landing target to clients so their visual arcs match.
         if (IsSpawned && IsServerStarted)

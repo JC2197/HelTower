@@ -53,7 +53,7 @@ public class SlowEffect : EffectConfig
             float currentMoveSpeed = organism.AllStats.GetStat("MoveSpeed");
             float moveSpeedDelta = -(currentMoveSpeed * slowAmount);
             organism.AllStats.ModifyStat("MoveSpeed", moveSpeedDelta);
-            organism.RefreshMoveSpeedFromStats();
+            
             appliedMoveSpeedDeltas[target] = moveSpeedDelta;
         }
 
@@ -82,7 +82,7 @@ public class SlowEffect : EffectConfig
         if (organism != null && organism.AllStats != null && appliedMoveSpeedDeltas.TryGetValue(target, out float appliedDelta))
         {
             organism.AllStats.ModifyStat("MoveSpeed", -appliedDelta);
-            organism.RefreshMoveSpeedFromStats();
+            
         }
 
         // Restore original color

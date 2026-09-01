@@ -36,8 +36,7 @@ public class TraitSystemManager : MonoBehaviour
     /// </summary>
     public void OpenTraitTree(GameObject characterObject, string saveFileName)
     {
-
-        // Auto-find TraitTreeUI if not assigned
+        // Auto-find TraitTreeUI if not assigned 
         if (traitTreeUI == null)
         {
             traitTreeUI = FindFirstObjectByType<TraitTreeUI>(FindObjectsInactive.Include);
@@ -47,7 +46,7 @@ public class TraitSystemManager : MonoBehaviour
                 Debug.LogWarning("[TraitSystemManager] FindFirstObjectByType<TraitTreeUI> returned null — no TraitTreeUI exists in any loaded scene.");
         }
 
-        // Fallback: search inside TraitTreeSceneManager's traitTreeCanvas reference
+        // Fallback: search inside TraitTreeSceneManager's traitTreeCanvas reference 
         if (traitTreeUI == null)
         {
             if (TraitTreeSceneManager.Instance == null)
@@ -62,52 +61,72 @@ public class TraitSystemManager : MonoBehaviour
             }
         }
 
-        // Get or add trait manager to character
-        currentCharacterTraitManager = characterObject.GetComponent<CharacterTraitManager>();
-        if (currentCharacterTraitManager == null)
+        // Locate the active player instance
+        PlayerController localPlayer = characterObject != null ? characterObject.GetComponent<PlayerController>() : null;
+
+        // Fallback if the passed object is dead or stale 
+        if (localPlayer == null)
         {
-            currentCharacterTraitManager = characterObject.AddComponent<CharacterTraitManager>();
+            localPlayer = PlayerController.GetLocalPlayer();
+            Debug.LogWarning($"[TraitSystemManager] Passed characterObject was missing PlayerController. Fell back to GetLocalPlayer: {localPlayer?.gameObject.name}");
         }
 
-        // Prefer the save file already held by CTM so TSM and CTM always mutate the same object.
-        PlayerController localPlayer = characterObject.GetComponent<PlayerController>();
-        currentSaveFile = currentCharacterTraitManager.GetSaveFileData();
+        // Get or add trait manager to the resolved character target (Redundancy Fixed)
+        if (localPlayer != null)
+        {
+            currentCharacterTraitManager = localPlayer.GetComponent<CharacterTraitManager>();
+            if (currentCharacterTraitManager == null)
+            {
+                currentCharacterTraitManager = localPlayer.gameObject.AddComponent<CharacterTraitManager>();
+            }
+        }
 
+        // Resolve active save profile
         if (currentSaveFile == null)
             currentSaveFile = localPlayer != null ? localPlayer.GetCurrentSaveFileData() : null;
+
         if (currentSaveFile == null)
             currentSaveFile = SaveFileSelectionManager.ActiveSaveFile;
 
-        // Keep CTM synced to whatever we resolved
-        if (currentCharacterTraitManager.GetSaveFileData() == null && currentSaveFile != null)
+        // Keep CTM synced to whatever we resolved 
+        if (currentCharacterTraitManager != null && currentCharacterTraitManager.GetSaveFileData() == null && currentSaveFile != null)
         {
             currentCharacterTraitManager.SetSaveFileData(currentSaveFile);
         }
-        // Tabs come from the equipped class's available trait trees; nodes unlocked in the
-        // save file are cross-referenced against whichever tree actually defines them.
-        ClassData classData = localPlayer != null ? localPlayer.GetCurrentCharacterData()?.GetClassData() : null;
-        currentAvailableTrees = classData != null && classData.availableTraitTrees != null && classData.availableTraitTrees.Count > 0
-            ? classData.availableTraitTrees
-            : null;
 
-        currentTree = currentAvailableTrees != null && currentAvailableTrees.Count > 0 ? currentAvailableTrees[0] : null;
+        // --- WEAPON CONFIG ARCHITECTURE RESOLUTION --- 
+        CharacterData characterData = localPlayer != null ? localPlayer.GetCurrentCharacterData() : null;
+        WeaponConfig equippedWeapon = null;
+
+        if (characterData != null)
+        {
+            equippedWeapon = localPlayer.GetEquippedMainWeaponConfig();
+        }
+
+        if (equippedWeapon == null && localPlayer != null)
+        {
+            equippedWeapon = localPlayer.GetCurrentCharacterData()?.GetMainHandWeaponConfig();
+        }
+
+        // CRITICAL FIX: Safe extraction prevents application crashes if weapon references are null
+        currentTree = equippedWeapon?.weaponTree;
 
         if (currentTree != null)
         {
-            Debug.Log($"[TraitSystemManager] Loaded trait tree '{currentTree.name}' with {currentTree.nodes.Count} nodes for save file '{saveFileName}'");
+            Debug.Log($"[TraitSystemManager] Loaded trait tree '{currentTree.name}' with {currentTree.nodes.Count} nodes for weapon '{equippedWeapon.name}' (Save: '{saveFileName}')");
         }
         else
         {
-            Debug.LogError($"[TraitSystemManager] No trait tree available — class '{classData?.className ?? "null"}' has no availableTraitTrees assigned.");
+            Debug.LogError($"[TraitSystemManager] Failed to load trait tree! Weapon '{equippedWeapon?.name ?? "NULL"}' has no 'weaponTree' asset assigned, or character data is desynced.");
             currentSaveFile = null;
-            return;
+            return; // Gracefully abort UI initialization
         }
 
-        // Initialize UI
+        // Initialize UI 
         if (traitTreeUI != null)
         {
             Debug.Log($"[TraitSystemManager] Initializing TraitTreeUI at: {traitTreeUI.gameObject.name}");
-            traitTreeUI.SetAvailableTrees(currentAvailableTrees);
+            traitTreeUI.SetCurrentTree(currentTree);
             traitTreeUI.Initialize(currentTree, currentCharacterTraitManager);
             traitTreeUI.OnTraitUnlockRequested += OnTraitUnlockRequested;
         }
@@ -116,21 +135,19 @@ public class TraitSystemManager : MonoBehaviour
             Debug.LogError($"[TraitSystemManager] TraitTreeUI is null!");
         }
 
-        // Show UI — activate parent canvas first (mirrors WeaponCraftingSystemManager pattern)
+        // Show UI — activate parent canvas first 
         if (traitTreeUI != null)
         {
             Canvas parentCanvas = traitTreeUI.GetComponentInParent<Canvas>(true);
-            if (parentCanvas != null)
-                parentCanvas.gameObject.SetActive(true);
+            if (parentCanvas != null) parentCanvas.gameObject.SetActive(true);
             traitTreeUI.gameObject.SetActive(true);
         }
 
-        // Disable player input
+        // Disable player input 
         PlayerController.InputEnabled = false;
 
-        // Switch to UI cursor and register ESC close handler
-        if (CursorManager.Instance != null)
-            CursorManager.Instance.PushPanel(CloseTraitTree);
+        // Switch to UI cursor and register ESC close handler 
+        if (CursorManager.Instance != null) CursorManager.Instance.PushPanel(CloseTraitTree);
     }
 
     /// <summary>
@@ -186,15 +203,15 @@ public class TraitSystemManager : MonoBehaviour
         int currentLevel = currentCharacterTraitManager.GetTraitLevel(node.nodeID);
 
         int maxLevel = node.traitData.maxLevel;
-            if (currentLevel >= maxLevel)
-    {
-        Debug.LogWarning(
-            $"[TraitSystemManager] '{node.nodeID}' is already maxed."
-        );
-        return;
-    }
+        if (currentLevel >= maxLevel)
+        {
+            Debug.LogWarning(
+                $"[TraitSystemManager] '{node.nodeID}' is already maxed."
+            );
+            return;
+        }
         int cost = currentCharacterTraitManager.GetTraitGoldCost(node);
-        
+
         if (!currentSaveFile.SpendGold(cost))
         {
             return;

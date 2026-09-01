@@ -33,6 +33,7 @@ public class CharacterTraitManager : MonoBehaviour
     // Cached stat modifiers for performance (case-insensitive to match StatContainer)
     private Dictionary<string, float> cachedFlatModifiers = new Dictionary<string, float>(System.StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, float> cachedPercentageModifiers = new Dictionary<string, float>(System.StringComparer.OrdinalIgnoreCase);
+    private HashSet<string> appliedTraitStatIDs = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
 
     // Cached PlayerController reference
     private PlayerController playerController;
@@ -514,6 +515,8 @@ public class CharacterTraitManager : MonoBehaviour
         }
         Debug.Log($"[CharacterTraitManager] ========================================");
 
+        ApplyModifiersToCharacterStats();
+
         // Rebuild weapon ammo modifiers on all active abilities
         foreach (DataDrivenAbility ability in GetComponents<DataDrivenAbility>())
         {
@@ -543,6 +546,30 @@ public class CharacterTraitManager : MonoBehaviour
     public float GetPercentageModifier(string statID)
     {
         return cachedPercentageModifiers.ContainsKey(statID) ? cachedPercentageModifiers[statID] : 0f;
+    }
+
+    private void ApplyModifiersToCharacterStats()
+    {
+        StatContainer baseline = characterData?.statContainer;
+        StatContainer target = playerController?.AllStats;
+        if (baseline == null || target == null)
+            return;
+
+        var affectedStatIDs = new HashSet<string>(appliedTraitStatIDs, System.StringComparer.OrdinalIgnoreCase);
+        affectedStatIDs.UnionWith(cachedFlatModifiers.Keys);
+        affectedStatIDs.UnionWith(cachedPercentageModifiers.Keys);
+
+        foreach (string statID in affectedStatIDs)
+        {
+            if (!baseline.TryGetStat(statID, out float baseValue) || !target.HasStat(statID))
+                continue;
+
+            target.SetStat(statID, CalculateFinalStat(statID, baseValue));
+        }
+
+        appliedTraitStatIDs.Clear();
+        appliedTraitStatIDs.UnionWith(cachedFlatModifiers.Keys);
+        appliedTraitStatIDs.UnionWith(cachedPercentageModifiers.Keys);
     }
 
 

@@ -11,12 +11,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameScene.unity
     guid: e55375ef493e5b74286bbfc828ea746e
-  - enabled: 0
+  - enabled: 1
     path: Assets/Bootstrap.unity
     guid: 518f2dad6cc21ea4dacc2abbf97c9ccf
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 40390876292717f499c8921623c9635d
+  - enabled: 1
+    path: Assets/Scenes/Camp.unity
+    guid: 1da082b493d369e4da51b3aee1bfeed2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -9,6 +9,8 @@ TagManager:
   - Aura
   - Ally
   - FakeMouse
+  - Projectile
+  - Summon
   layers:
   - Default
   - TransparentFX
@@ -54,6 +56,9 @@ TagManager:
     locked: 0
   - name: FX
     uniqueID: 1863725463
+    locked: 0
+  - name: UI
+    uniqueID: 400224279
     locked: 0
   m_RenderingLayers:
   - Default

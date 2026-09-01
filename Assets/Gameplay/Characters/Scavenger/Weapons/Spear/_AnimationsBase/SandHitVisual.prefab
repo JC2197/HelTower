@@ -982,7 +982,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 35
+        scalar: 7
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -1556,6 +1556,8 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
+    - sprite: {fileID: -7267329379040741972, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -6646820325249897699, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     - sprite: {fileID: -1227417338347808894, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     - sprite: {fileID: -63078289, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     - sprite: {fileID: -341705036, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
@@ -4872,8 +4874,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1863725463
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_RenderMode: 0

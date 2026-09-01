@@ -34,3 +34,6 @@ crashlytics-build.properties
 # Local OS files
 .DS_Store
 Thumbs.db
+
+# Local development checklist
+AGENTS.md

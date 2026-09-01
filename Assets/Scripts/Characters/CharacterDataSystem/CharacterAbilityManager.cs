@@ -16,6 +16,8 @@ public class CharacterAbilityManager : MonoBehaviour
     /// <summary>Fired when weapon ability changes (weapon swap).</summary>
     public event Action<AbilityReference, Ability> OnWeaponAbilityChanged;
     public event Action<AbilityReference, Ability> OnSecondaryWeaponAbilityChanged;
+    public event Action<AbilityReference, Ability> OnDashAbilityChanged;
+    public event Action<AbilityReference, Ability> OnPassiveAbilityChanged;
     
     /// <summary>Fired when trait abilities list changes (add/remove/clear).</summary>
     public event Action OnTraitAbilitiesChanged;
@@ -23,6 +25,11 @@ public class CharacterAbilityManager : MonoBehaviour
     // === Core Abilities ===
     private Ability weaponAbility;    
     private AbilityReference weaponAbilityRef;
+    private Ability dashAbility;
+    private AbilityReference dashAbilityRef;
+    
+    private Ability passiveAbility;
+    private AbilityReference passiveAbilityRef;
 
     
     // Active trait abilities get dynamic keybinds (slots 2-5 = Shift, Q, E, R)
@@ -296,7 +303,6 @@ public class CharacterAbilityManager : MonoBehaviour
         weaponAbilityRef = new AbilityReference(abilityConfig);
         weaponAbility = LoadAbility(weaponAbilityRef, 0);
         
-        Debug.Log($"[CharacterAbilityManager] Set weapon ability: {weaponAbility?.AbilityName ?? "None"}");
         OnWeaponAbilityChanged?.Invoke(weaponAbilityRef, weaponAbility);
     }
     public void SetSecondaryWeaponAbility(AbilityConfig abilityConfig)
@@ -321,8 +327,56 @@ public class CharacterAbilityManager : MonoBehaviour
         offhandAbilityRef = new AbilityReference(abilityConfig);
         offhandAbility = LoadAbility(offhandAbilityRef, 1);
         
-        Debug.Log($"[CharacterAbilityManager] Set secondary weapon ability: {offhandAbility?.AbilityName ?? "None"}");
         OnSecondaryWeaponAbilityChanged?.Invoke(offhandAbilityRef, offhandAbility);
+    }
+    public void SetDashAbility(AbilityConfig abilityConfig)
+    {
+        if (dashAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+            GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
+
+        if (dashAbility != null)
+        {
+            Destroy(dashAbility);
+            dashAbility = null;
+        }
+        dashAbilityRef = null;
+
+        if (abilityConfig == null)
+        {
+            Debug.Log("[CharacterAbilityManager] Cleared dash ability");
+            OnDashAbilityChanged?.Invoke(null, null);
+            return;
+        }
+
+        dashAbilityRef = new AbilityReference(abilityConfig);
+        dashAbility = LoadAbility(dashAbilityRef, 2);
+        
+        OnDashAbilityChanged?.Invoke(dashAbilityRef, dashAbility);
+    }
+
+    public void SetPassiveAbility(AbilityConfig abilityConfig)
+    {
+        if (passiveAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+            GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
+
+        if (passiveAbility != null)
+        {
+            Destroy(passiveAbility);
+            passiveAbility = null;
+        }
+        passiveAbilityRef = null;
+
+        if (abilityConfig == null)
+        {
+            Debug.Log("[CharacterAbilityManager] Cleared passive ability");
+            OnPassiveAbilityChanged?.Invoke(null, null);
+            return;
+        }
+
+        passiveAbilityRef = new AbilityReference(abilityConfig);
+        passiveAbility = LoadAbility(passiveAbilityRef, -1);
+        
+        OnPassiveAbilityChanged?.Invoke(passiveAbilityRef, passiveAbility);
     }
 
 
@@ -426,16 +480,6 @@ public class CharacterAbilityManager : MonoBehaviour
         }
     }
 
-    // ===========================
-    // LEGACY COMPATIBILITY
-    // ===========================
-    // These methods maintain compatibility with old code during transition
-    
-    [Obsolete("Use GetWeaponAbility() instead")]
-    public Ability GetPrimaryAbility() => weaponAbility;
-    
-    [Obsolete("Use SetWeaponAbility() instead")]
-    public void SetPrimaryAbility(AbilityConfig config) => SetWeaponAbility(config);
     
     // Legacy events - redirect to new events
     public event Action<AbilityReference, Ability> OnPrimaryAbilityChanged

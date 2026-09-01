@@ -137,74 +137,85 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             }
         }
 
-        bool isAutocast = IsAutocast;
-        if (beamConfig.canHoldToFire && !isAutocast)
+        bool isChanneled = beamConfig.canHoldToFire;
+
+        if (isChanneled)
         {
+            // If it's a channeled/hold ability, shut down when the player lets go
             if (!IsAbilityButtonHeld())
-                StopBeam("Hold-to-fire released.");
-        }
-        else if (isAutocast && beamConfig.beamRendererPrefab != null && activeBeamGO == null && !HasActiveChainRenderers())
-        {
-            StopBeam("BeamRenderer completed.");
-        }
-        else if (isAutocast && beamConfig.beamRendererPrefab == null && beamLifetime >= Mathf.Max(0.05f, beamConfig.singleShotDuration))
-        {
-            StopBeam("Single-shot duration reached (no renderer).");
-        }
-    }
-
-    private void StartBeam()
-    {
-        if (launchZone == null)
-            launchZone = WeaponLaunchPoint.FindLaunchZone(transform);
-
-        isBeamActive = true;
-        energyConsumptionTimer = 0f;
-        beamLifetime = 0f;
-        organismHitTimers.Clear();
-        // Preserve a pre-locked target (set via SetLockedTarget for multi-beam extras).
-        if (!_isExtraBeam) lockedTarget = null;
-        hasLockedEndpoint = _isExtraBeam && lockedTarget != null;
-        singleShotDamageDealt = false;
-
-        Vector3 start = GetBeamStartPosition();
-        Enemy initialEnemy = null;
-        Vector3 initialTarget;
-
-        if (IsAutocast)
-        {
-            // Extra beams have their target pre-locked via SetLockedTarget — skip the search.
-            if (lockedTarget == null)
-                initialEnemy = FindAutoTargetEnemy(start, start);
-            else
-                initialEnemy = lockedTarget;
-            initialTarget = initialEnemy != null ? initialEnemy.transform.position : start;
+                StopBeam("Hold-to-fire button released.");
         }
         else
         {
-            initialTarget = ResolveDesiredTarget(start, out initialEnemy);
+            // FIXED: If it's a single-shot (autocast OR manual single-click), 
+            // force it to shut down once its singleShotDuration is reached!
+            float maxDuration = Mathf.Max(0.05f, beamConfig.singleShotDuration);
+            if (beamLifetime >= maxDuration)
+            {
+                StopBeam("Single-shot duration reached.");
+            }
+            else if (beamConfig.beamRendererPrefab != null && activeBeamGO == null && !HasActiveChainRenderers() && beamLifetime > 0.05f)
+            {
+                StopBeam("BeamRenderer visual completed execution.");
+            }
         }
+    }
 
-        // For autocast, lock onto whichever enemy was found at cast time.
-        if (IsAutocast)
-        {
-            lockedTarget = initialEnemy;
-            lockedEndpoint = initialTarget;
-            hasLockedEndpoint = true;
-            LogDebug($"StartBeam autocast locked to target={(lockedTarget != null ? lockedTarget.name : "none")}");
-        }
+     private void StartBeam() 
+    { 
+        if (launchZone == null) 
+            launchZone = WeaponLaunchPoint.FindLaunchZone(transform); 
 
-        Vector3 direction = (initialTarget - start).sqrMagnitude > 0.0001f ? (initialTarget - start).normalized : Vector3.right;
+        isBeamActive = true; 
+        energyConsumptionTimer = 0f; 
+        beamLifetime = 0f; 
+        organismHitTimers.Clear(); 
 
-        LogDebug($"StartBeam start={start} initialTarget={initialTarget} direction={direction}");
+        if (!_isExtraBeam) lockedTarget = null; 
+        hasLockedEndpoint = _isExtraBeam && lockedTarget != null; 
+        singleShotDamageDealt = false; 
 
-        SpawnActiveRenderer(start, initialTarget, IsAutocast);
-        InitializeMuzzleFlash(start, direction);
-        EnableMuzzleFlash();
+        Vector3 start = GetBeamStartPosition(); 
+        Enemy initialEnemy = null; 
+        Vector3 initialTarget; 
 
-        // Spawn extra beams for multi-beam autocast (primary beam only, not recursive).
-        if (IsAutocast && !_isExtraBeam && beamConfig.beamAmount > 1)
-            SpawnExtraBeams(start);
+        // 1. Resolve Target exactly once
+        if (IsAutocast) 
+        { 
+            if (lockedTarget == null) 
+                initialEnemy = FindAutoTargetEnemy(start, start); 
+            else 
+                initialEnemy = lockedTarget; 
+            initialTarget = initialEnemy != null ? initialEnemy.transform.position : start; 
+        } 
+        else 
+        { 
+            initialTarget = ResolveDesiredTarget(start, out initialEnemy); 
+        } 
+
+        // 2. Lock target references safely for single-shot tracking snapshots
+        if (initialEnemy != null) 
+        { 
+            lockedTarget = initialEnemy; 
+            lockedEndpoint = initialTarget; 
+            hasLockedEndpoint = true; 
+            LogDebug($"StartBeam locked to target={lockedTarget.name}"); 
+        } 
+
+        // 3. FIXED: Run physics calculations BEFORE spawning visuals to prevent wall-piercing layout flashes
+        ComputeBeamEndpoint(start, initialTarget, initialEnemy, out Vector3 finalVisualEnd, out Vector3 direction);
+        beamEndPosition = finalVisualEnd;
+
+        LogDebug($"StartBeam start={start} initialTarget={initialTarget} finalVisualEnd={beamEndPosition} direction={direction}"); 
+
+        // 4. Initialize visual layers correctly
+        SpawnActiveRenderer(start, beamEndPosition, IsAutocast); 
+        InitializeMuzzleFlash(start, direction); 
+        EnableMuzzleFlash(); 
+
+        // 5. Fire extra multi-beam paths if autocast condition metrics require it
+        if (IsAutocast && !_isExtraBeam && beamConfig.beamAmount > 1) 
+            SpawnExtraBeams(start); 
     }
 
     private void StopBeam(string reason = "")

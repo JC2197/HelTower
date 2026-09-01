@@ -64,6 +64,12 @@ public class TraitTreeUI : MonoBehaviour
             foreach (var t in newTrees)
                 if (t != null) list.Add(t);
         trees = list.ToArray();
+
+    }
+
+    public void SetCurrentTree(TraitTree tree)
+    {
+        _treeData = tree;
     }
 
     [Tooltip("Prefab instantiated for each tab. Must have a Button component and a TMP_Text child for the label.")]
@@ -132,7 +138,7 @@ public class TraitTreeUI : MonoBehaviour
 
     private void OnEnable()
     {
-        BuildTabButtons();
+        //BuildTabButtons();
         if (closeButton != null) closeButton.onClick.AddListener(Close);
         // Tree content is loaded via Initialize(); tabs just switch data when clicked.
     }
@@ -183,7 +189,7 @@ public class TraitTreeUI : MonoBehaviour
 
     /// <summary>
     /// Wire up the crafting manager and render the default tab's tree.
-    /// Called by TraitTreeSceneManager.OpenCraftingTree().
+    /// Called by TraitTreeSceneManager.OpenTraitTree().
     /// The 'data' parameter is accepted for backwards compatibility but the tab-driven
     /// categoryTrees[] bindings are used preferentially; 'data' is the fallback.
     /// </summary>
@@ -198,14 +204,14 @@ public class TraitTreeUI : MonoBehaviour
             _traitTreeManager.OnTraitsChanged += UpdateAllNodeStates;
         }
 
-        // Load the default tab's tree; fall back to the supplied data if no entry exists.
-        int startIndex = (trees != null && trees.Length > 0)
-            ? Mathf.Clamp(defaultTabIndex, 0, trees.Length - 1)
-            : -1;
-        TraitTree startData = (startIndex >= 0) ? trees[startIndex] : data;
+        // Load the default tab's tree; fall back to the supplied data if no entry exists.a
+        // int startIndex = (trees != null && trees.Length > 0)
+        //     ? Mathf.Clamp(defaultTabIndex, 0, trees.Length - 1)
+        //     : -1;
+        TraitTree startData = data;
         _treeData = startData;
-        _activeTabIndex = startIndex >= 0 ? startIndex : 0;
-        RefreshTabVisuals();
+        _activeTabIndex = 0;
+        //RefreshTabVisuals();
 
         EnsureZoomContent();
 

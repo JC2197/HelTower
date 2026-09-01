@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: ExplosiveDashesCount
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: ExplosiveDashesCount
+  displayName: Excitement
+  baseGoldCost: 1
+  description: +{v1} total Dash Charges.
+  traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
+  weaponTraitTag: 
+  traitType: 4
+  maxLevel: 5
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: d1bdd485290243d40bbdb9d7570c3fa2, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities:
+  - abilityConfig: {fileID: 11400000, guid: d1bdd485290243d40bbdb9d7570c3fa2, type: 2}
+    targetSlot: 2
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: e5608c0580449004697730a7d85a8bd5, type: 2}
+    abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: maxCharges
+      overrideMode: 0
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

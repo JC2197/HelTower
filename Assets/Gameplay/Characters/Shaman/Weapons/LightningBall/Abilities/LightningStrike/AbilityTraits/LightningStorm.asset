@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: LightningStorm
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: LightningStrikeUpgradeCooldown
+  displayName: Lightning Storm
+  description: Lightning gains {v2}% increased damage and gains {v3}% increased chance
+    to critically strike.
+  traitIcon: {fileID: -5549121134201745795, guid: e9a82884e4e23e2478e39d556406ac35, type: 3}
+  colorTheme: Storm
+  specializedTraitTag1: Storm
+  specializedTraitTag2: Magic
+  specializedTraitTag3: 
+  weaponTraitTag: 
+  traitType: 4
+  requiredTag: 
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
+    abilityIcon: {fileID: 0}
+    overrides:
+    - propertyPath: cooldownTime
+      overrideMode: 1
+      numericValue: 200
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: autocastTargets
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []
+  tierLevel: 1
+  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

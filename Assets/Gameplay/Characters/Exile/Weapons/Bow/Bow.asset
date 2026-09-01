@@ -16,6 +16,7 @@ MonoBehaviour:
   weaponName: Bow
   weaponType: Bow
   grantedTrait: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: 94d056ba9ff49d040b49d18645a0b941, type: 2}
   weaponPrefab: {fileID: 3862186349191265680, guid: 3fa1f82f978da4c4c8a5ed96d916fb29, type: 3}
   weaponDamageMin: 3
   weaponDamageMax: 4

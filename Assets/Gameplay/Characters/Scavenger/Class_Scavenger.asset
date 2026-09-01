@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ClassData
   className: Scavenger
   characterPortrait: {fileID: 0}
-  animatorController: {fileID: 22100000, guid: 96dea69ce1dd90345a3b54db909781d3, type: 2}
+  animatorController: {fileID: 22100000, guid: 5cf2f1641359ba541abe1e9b3b868d51, type: 2}
   availableWeapons:
   - {fileID: 11400000, guid: babd7d60ceab5c84f9283c3bc4a8370e, type: 2}
   - {fileID: 11400000, guid: 342e530fb7978384e961fc840c3e2aae, type: 2}
+  - {fileID: 11400000, guid: 2157c2e8795b3ed4ea2a0cfc17a1d68b, type: 2}
   availableAccessories: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: c83976d8540efe2469bb549bd761edc7, type: 2}
   baseStatContainer:
     stats:
     - statId: STR
@@ -53,7 +55,7 @@ MonoBehaviour:
     - statId: AttackSpeed
       displayName: Attack Speed
       categoryId: Active
-      currentValue: 1
+      currentValue: 0
     - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
@@ -70,7 +72,11 @@ MonoBehaviour:
       displayName: Magical Damage Bonus
       categoryId: Active
       currentValue: 0
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
   availableTraitTrees:
   - {fileID: 11400000, guid: 83f34da88b0da094d89dd40a44e78a6e, type: 2}
-  - {fileID: 11400000, guid: 95ca37d2a01397c4884c1d2218f4cdbb, type: 2}
   - {fileID: 11400000, guid: 34c126fe13a1ee0498b72579fec1d31a, type: 2}
+  - {fileID: 11400000, guid: 95ca37d2a01397c4884c1d2218f4cdbb, type: 2}

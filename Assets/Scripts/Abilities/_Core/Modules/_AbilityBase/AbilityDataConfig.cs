@@ -143,7 +143,7 @@ public class AbilityDataConfig : AbilityConfig
     public string weaponIdleAnimationName = "Idle";
     [Tooltip("Temporarily unlock weapon from 2-direction lock during this ability, allowing free aim at cursor")]
     public bool unlockWeaponDirections = false;
-    [Tooltip("Lock weapon to a 2 direction system (only works when unlockWeaponDirections is disabled)")] 
+    [Tooltip("Lock weapon to a 2 direction system (only works when unlockWeaponDirections is disabled)")]
     public bool lockWeaponDirections = false;
     [Tooltip("Duration to keep weapon unlocked after firing (only works when unlockWeaponDirections is enabled). Set to 0 to lock immediately.")]
 
@@ -202,6 +202,15 @@ public class AbilityDataConfig : AbilityConfig
                 passiveTypeName = t.Name;
             else
                 UnityEngine.Debug.LogWarning($"[AbilityDataConfig] '{passiveScript.name}' is not a MonoBehaviour — passiveTypeName not set.");
+        }
+        if (isSummonAbility && summonConfig != null && summonConfig.statContainer != null)
+        {
+            StatTypeDatabase db = StatTypeDatabase.Instance;
+            if (db != null && summonConfig.statContainer.GetAllStats().Count == 0)
+            {
+                summonConfig.statContainer.Initialize(db);
+                UnityEngine.Debug.Log($"[StatAutoInit] Automatically initialized default database statistics fields for ability asset: '{abilityName}'");
+            }
         }
     }
 #endif

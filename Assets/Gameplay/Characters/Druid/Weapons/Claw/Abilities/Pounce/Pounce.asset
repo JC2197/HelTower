@@ -50,7 +50,7 @@ MonoBehaviour:
   characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: ClawSwipe
+  mainhandAnimationName: ClawDash
   offhandAnimationName: 
   hasPrecast: 0
   preAnimationName: 
@@ -62,6 +62,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: Idle
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -1312,6 +1313,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1422,6 +1433,16 @@ MonoBehaviour:
     explosionEffectPrefab: {fileID: 0}
     explosionSound: {fileID: 0}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1

@@ -21,6 +21,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 1
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
   cooldownTime: 0
@@ -61,6 +62,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: Idle
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -1311,6 +1313,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1421,6 +1433,16 @@ MonoBehaviour:
     explosionEffectPrefab: {fileID: 0}
     explosionSound: {fileID: 0}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1
@@ -1818,15 +1840,12 @@ MonoBehaviour:
     movementType: 1
     lerp: 1
     speed: 10
-    distance: 3
-    duration: 0.33
+    distance: 5
+    duration: 0.25
     activateAfterPrecast: 0
-    passThruDamage: 0
-    passthruDamageAmount: 0
-    damageTypeName: Physical
     towardMouse: 1
     awayFromMouse: 0
-    isDashing: 0
+    isDashing: 1
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}

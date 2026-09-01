@@ -386,6 +386,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -31
       objectReference: {fileID: 0}
+    - target: {fileID: 2930517212398857591, guid: 822b3e994f8a8d84aada59e91d9359a7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2990325366765367575, guid: 822b3e994f8a8d84aada59e91d9359a7, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -508,6 +512,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4569945769879547061, guid: 822b3e994f8a8d84aada59e91d9359a7, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5166153761641356853, guid: 822b3e994f8a8d84aada59e91d9359a7, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5184547733134403106, guid: 822b3e994f8a8d84aada59e91d9359a7, type: 3}
@@ -1303,7 +1311,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.01
+      scalar: 0.05
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -2187,8 +2195,8 @@ ParticleSystem:
     x:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0
-      minScalar: 0
+      scalar: 50
+      minScalar: -50
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -2240,8 +2248,8 @@ ParticleSystem:
     y:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0
-      minScalar: 0
+      scalar: 50
+      minScalar: -50
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -3381,7 +3389,7 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 50
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -3539,7 +3547,7 @@ ParticleSystem:
         m_RotationOrder: 4
     separateAxes: 0
     frequency: 0.5
-    damping: 1
+    damping: 0
     octaves: 1
     octaveMultiplier: 0.5
     octaveScale: 2
@@ -3547,7 +3555,7 @@ ParticleSystem:
     scrollSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 0.5
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -5534,7 +5542,7 @@ GameObject:
   - component: {fileID: 1766126151}
   - component: {fileID: 1766126150}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

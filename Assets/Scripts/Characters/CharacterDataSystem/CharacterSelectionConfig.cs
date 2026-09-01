@@ -14,7 +14,7 @@ public class CharacterSelectionConfig : ScriptableObject
 
     [Header("Scene Navigation")]
     [Tooltip("Scene to load when starting the game")]
-    public string gameSceneName = "CommandScene";
+    public string gameSceneName = "Camp";
 
     [Tooltip("Scene to return to when canceling")]
     public string mainMenuSceneName = "MainMenu";
@@ -69,7 +69,10 @@ public class CharacterSelectionConfig : ScriptableObject
             newCharacter.abilityLoadout.SetWeaponAbility(chosenWeapon.grantedPrimaryAbility);
         if (chosenWeapon != null && chosenWeapon.grantedSecondaryAbility != null)
             newCharacter.abilityLoadout.SetSecondaryWeaponAbility(chosenWeapon.grantedSecondaryAbility);
-
+        if (chosenWeapon != null && chosenWeapon.grantedDashAbility != null)
+            newCharacter.abilityLoadout.SetDashAbility(chosenWeapon.grantedDashAbility);
+        if (chosenWeapon != null && chosenWeapon.grantedPassiveAbility != null)
+            newCharacter.abilityLoadout.SetPassiveAbility(chosenWeapon.grantedPassiveAbility);
         // Register this runtime character for cleanup tracking
         CharacterSelectionManager.RegisterRuntimeCharacter(newCharacter);
 

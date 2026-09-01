@@ -25,6 +25,8 @@ public class WeaponConfig : ScriptableObject
     [Tooltip("Trait granted when this weapon is equipped (optional)")]
     public TraitData grantedTrait;
 
+    [Header("Weapon Trait Tree")]
+    public TraitTree weaponTree;
     // craftingCost and researchPointCost are inherited from CraftableConfig
 
     [Header("Weapon Prefab")]
@@ -125,6 +127,7 @@ public class WeaponConfig : ScriptableObject
     [Tooltip("Ability that this weapon grants when equipped (e.g., Plasma Beam for Staff). Leave empty if weapon grants no ability.")]
     public AbilityConfig grantedPrimaryAbility;
     public AbilityConfig grantedSecondaryAbility;
+    public AbilityConfig grantedDashAbility;
     public AbilityConfig grantedPassiveAbility;
 
     [Header("Projectile System")]

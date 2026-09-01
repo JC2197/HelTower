@@ -73,7 +73,7 @@ MonoBehaviour:
   detectionRange: 1000
   abilities:
   - abilityConfig: {fileID: 11400000, guid: 335bdc7d04b7b3d498459b199dc42ff4, type: 2}
-    range: 2
+    range: 1
     priority: 1
   mainHandWeaponConfig: {fileID: 0}
   offhandWeaponConfig: {fileID: 0}

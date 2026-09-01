@@ -12,6 +12,7 @@ public class MovementAbility : MonoBehaviour
     private float startTime;
     private GameObject caster;
     private IDamageable casterDamageable;
+    private bool evadeApplied;
 
     // Teleport state
     private bool isTeleporting;
@@ -94,6 +95,7 @@ public class MovementAbility : MonoBehaviour
         if (config.movementConfig.isDashing && casterDamageable != null)
         {
             casterDamageable.SetEvading(true);
+            evadeApplied = true;
             Debug.Log($"[MovementAbility] Evade ENABLED for {config.abilityName}");
         }
 
@@ -195,12 +197,18 @@ public class MovementAbility : MonoBehaviour
         }
         
         // Disable evade when movement ends
-        if (config != null && config.movementConfig.isDashing && casterDamageable != null)
+        if (evadeApplied && casterDamageable != null)
         {
             casterDamageable.SetEvading(false);
-            Debug.Log($"[MovementAbility] Evade DISABLED for {config.abilityName}");
+            evadeApplied = false;
+            Debug.Log($"[MovementAbility] Evade DISABLED for {config?.abilityName}");
         }
 
+    }
+
+    private void OnDisable()
+    {
+        End();
     }
 
     /// <summary>

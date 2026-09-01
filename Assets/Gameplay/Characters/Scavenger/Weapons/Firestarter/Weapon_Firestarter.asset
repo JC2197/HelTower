@@ -16,6 +16,7 @@ MonoBehaviour:
   weaponName: Firestarter
   weaponType: Firestarter
   grantedTrait: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: 83f34da88b0da094d89dd40a44e78a6e, type: 2}
   weaponPrefab: {fileID: 8236306081892218492, guid: 231071d3705fe3a44b6c32f4a50a6016, type: 3}
   weaponDamageMin: 0
   weaponDamageMax: 0
@@ -56,6 +57,7 @@ MonoBehaviour:
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: 9bcefc2aaaa9e9346b43cdbefae3d95b, type: 2}
+  grantedDashAbility: {fileID: 11400000, guid: d09e0cf245229bf45a4fe47c0f399175, type: 2}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0

@@ -16,6 +16,7 @@ MonoBehaviour:
   weaponName: Claw
   weaponType: Claws
   grantedTrait: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: 41532abdab37c5f409fb04618f32af8a, type: 2}
   weaponPrefab: {fileID: 8888960315603938168, guid: 7e0bbd404ad61d145a6cba78ef673cb7, type: 3}
   weaponDamageMin: 3
   weaponDamageMax: 4

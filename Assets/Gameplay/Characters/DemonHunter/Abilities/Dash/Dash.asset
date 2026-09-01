@@ -23,6 +23,7 @@ MonoBehaviour:
     selectedDamageTypes: []
   disableCast: 0
   isAttack: 0
+  isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
   cooldownTime: 0.25
@@ -40,10 +41,10 @@ MonoBehaviour:
   disablesMovementDuringCast: 0
   movementBlockDuration: 0.5
   movementSpeedMultiplierDuringCast: 1
-  hasCharges: 0
-  maxCharges: 1
-  chargeRechargeTime: 1
-  hasCombo: 0
+  hasCharges: 1
+  maxCharges: 2
+  chargeRechargeTime: 3
+  isCombo: 0
   comboAbilities: []
   comboStepDelays:
   - 0.3
@@ -63,6 +64,7 @@ MonoBehaviour:
     modifiers: []
   weaponIdleAnimationName: 
   unlockWeaponDirections: 0
+  lockWeaponDirections: 0
   rotationLockDuration: 0
   continueRotatingDuringUnlock: 0
   flipYOnLeftFacing: 0
@@ -449,7 +451,6 @@ MonoBehaviour:
     lifetime: 3
     maxRange: 0
     behavior: 0
-    targetingMode: 1
     chargeDamageMultiplier: 1
     canCancelCharge: 1
     hasMultiShot: 0
@@ -520,6 +521,7 @@ MonoBehaviour:
     muzzleLightIntensity: 3
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
+    localMuzzle: 0
   onHitEffects:
     canRoot: 0
     rootConfig:
@@ -878,8 +880,6 @@ MonoBehaviour:
     healthBarPrefab: {fileID: 0}
     attackSpeed: 1
     constructAbilities: []
-    prefabName: 
-    resourcesPath: Prefabs/Constructs/
     holdToPlace: 0
     ghostAlpha: 0.45
     use8WayPlacement: 0
@@ -1142,7 +1142,6 @@ MonoBehaviour:
       lifetime: 3
       maxRange: 0
       behavior: 0
-      targetingMode: 1
       chargeDamageMultiplier: 1
       canCancelCharge: 1
       hasMultiShot: 0
@@ -1213,6 +1212,7 @@ MonoBehaviour:
       muzzleLightIntensity: 3
       muzzleLightRange: 2
       muzzleLightDuration: 0.1
+      localMuzzle: 0
     projectileCount: 0
     projectileSpread: 360
     explosionConfig:
@@ -1321,6 +1321,16 @@ MonoBehaviour:
       explosionEffectPrefab: {fileID: 0}
       explosionSound: {fileID: 0}
       activationRange: 0
+      salvos: 0
+      salvoAmount: 0
+      multiCastAmount: 0
+      salvoDelay: 0
+      salvoOffset: 0
+      salvoOffsetDistance: 0
+      salvoOffsetTarget: 0
+      salvoOffsetMouse: 0
+      salvoRandom: 0
+      salvoRadial: 0
     spawnEffect: {fileID: 0}
     triggerEffect: {fileID: 0}
     showTriggerRadius: 1
@@ -1431,13 +1441,26 @@ MonoBehaviour:
     explosionEffectPrefab: {fileID: 0}
     explosionSound: {fileID: 0}
     activationRange: 0
+    salvos: 0
+    salvoAmount: 0
+    multiCastAmount: 0
+    salvoDelay: 0
+    salvoOffset: 0
+    salvoOffsetDistance: 0
+    salvoOffsetTarget: 0
+    salvoOffsetMouse: 0
+    salvoRandom: 0
+    salvoRadial: 0
   summonConfig:
     summonPrefab: {fileID: 0}
     maxSummons: 1
     limitBehavior: 0
     lifetime: -1
-    maxHealth: 50
+    statContainer:
+      stats: []
     healthBarPrefab: {fileID: 0}
+    spawnOffset: {x: 1, y: 0, z: 0}
+    isConstruct: 0
     seekBehavior: 0
     followDistance: 3
     slotOffsets:
@@ -1445,395 +1468,29 @@ MonoBehaviour:
     stopDistance: 1
     moveSpeed: 4
     detectionRange: 8
-    attackSpeed: 1
-    damage: 10
-    damageTypeName: Physical
     attackRange: 1.5
     pathfindingObstacleLayers:
       serializedVersion: 2
       m_Bits: 4294967295
     obstacleAvoidanceStrength: 25
     debugDrawPathfindingRays: 0
-    lifeSteal:
-      enabled: 0
-      type: 1
-      amount: 5
-    attackType: 0
-    meleeConfig:
-      hitbox:
-        prefab: {fileID: 0}
-        scaleX: 1
-        scaleY: 1
-        hitLayers:
-          serializedVersion: 2
-          m_Bits: 6
-        damage: 20
-        damageTypeName: Physical
-        useWeaponDamage: 0
-        percentWeaponDamage: 100
-        lifeSteal:
-          enabled: 0
-          type: 1
-          amount: 5
-        knockback:
-          enabled: 0
-          force: 5
-          directionality: 1
-        pull:
-          enabled: 0
-          force: 5
-        forcedMovementPreference: 0
-        onHitEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
-        triggerOneTriggeredAbilityOnDestroy: 0
-        positiveHitLayers:
-          serializedVersion: 2
-          m_Bits: 0
-        positiveHealing: 0
-        onHitBuffEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
-        effects:
-          hitEffectPrefab: {fileID: 0}
-          hitSound: {fileID: 0}
-          hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-      meleeFXRadiusDistance: 0.5
-      meleeFXSpeed: 0
-      flipMeleeFX: 0
-      flipMeleeFXY: 0
-      stickToCharacter: 0
-      allowMultiHit: 0
-      meleeSound: {fileID: 0}
-    projectileConfig:
-      hitbox:
-        prefab: {fileID: 0}
-        scaleX: 1
-        scaleY: 1
-        hitLayers:
-          serializedVersion: 2
-          m_Bits: 6
-        damage: 20
-        damageTypeName: Physical
-        useWeaponDamage: 0
-        percentWeaponDamage: 100
-        lifeSteal:
-          enabled: 0
-          type: 1
-          amount: 5
-        knockback:
-          enabled: 0
-          force: 5
-          directionality: 1
-        pull:
-          enabled: 0
-          force: 5
-        forcedMovementPreference: 0
-        onHitEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
-        triggerOneTriggeredAbilityOnDestroy: 0
-        positiveHitLayers:
-          serializedVersion: 2
-          m_Bits: 0
-        positiveHealing: 0
-        onHitBuffEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
-        effects:
-          hitEffectPrefab: {fileID: 0}
-          hitSound: {fileID: 0}
-          hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-      allowOverride: 0
-      dealsDamageOverTime: 0
-      damagePerTick: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
-      speed: 15
-      useLifetime: 1
-      lifetime: 3
-      maxRange: 0
-      behavior: 0
-      targetingMode: 1
-      chargeDamageMultiplier: 1
-      canCancelCharge: 1
-      hasMultiShot: 0
-      projectileCount: 1
-      spreadAngle: 15
-      spreadAnglePerProjectile: 0
-      salvoSize: 1
-      salvoInterval: 0.15
-      salvoAngle: 0
-      hasPierce: 0
-      pierceCount: 0
-      hasChaining: 0
-      chainRange: 10
-      maxChains: 0
-      homingStrength: 5
-      waveAmplitude: 1
-      waveFrequency: 2
-      spiralRadius: 1
-      spiralSpeed: 2
-      lobbedArcHeight: 3
-      boomerangDistanceCurve:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 0
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        - serializedVersion: 3
-          time: 0.5
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        - serializedVersion: 3
-          time: 1
-          value: 0
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      freezeRotation: 0
-      spinSpeed: 0
-      canPierceLayers:
-        serializedVersion: 2
-        m_Bits: 0
-      destroyOnLayers:
-        serializedVersion: 2
-        m_Bits: 4294967295
-      destroyVisualPrefab: {fileID: 0}
-      destroySound: {fileID: 0}
-      muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
-      enableMuzzleLight: 0
-      muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-      muzzleLightIntensity: 3
-      muzzleLightRange: 2
-      muzzleLightDuration: 0.1
-    beamConfig:
-      beamRendererPrefab: {fileID: 0}
-      targetingMode: 0
-      fallbackToCursorWhenNoEnemy: 1
-      singleShotDuration: 0.35
-      beamWidth: 0.5
-      beamColor: {r: 1, g: 1, b: 1, a: 1}
-      maxBeamDistance: 20
-      beamAmount: 1
-      multiBeamAngle: 15
-      chain: 0
-      chainAmount: 0
-      value: 50
-      canHeal: 0
-      healTargets:
-        serializedVersion: 2
-        m_Bits: 0
-      hitsPerSecond: 2
-      damageTypeName: Energy
-      hitLayers:
-        serializedVersion: 2
-        m_Bits: 4294967295
-      onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
-      lifeSteal:
-        enabled: 0
-        type: 1
-        amount: 5
-      canHoldToFire: 1
-      channelCostPerSecond: 5
-      trackingRadius: 3
-      muzzleFlashPrefab: {fileID: 0}
-      enableMuzzleLight: 0
-      muzzleLightColor: {r: 1, g: 1, b: 1, a: 1}
-      muzzleLightIntensity: 2
-      muzzleLightRange: 2
-      muzzleLightDuration: 0.2
-      impactEffectPrefab: {fileID: 0}
-      impactAnimationName: Impact
-      impactParticlePrefab: {fileID: 0}
-      beamSound: {fileID: 0}
-      impactSound: {fileID: 0}
-      hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    summonAbilities: []
+    isRotationalTurret: 0
+    turretChildName: Turret
+    turretRotationSpeed: 90
     idleAnimation: Idle
     moveAnimation: Move
-    attackAnimation: Attack
-    attackTriggerNormalizedTime: 0.1
-    spawnOffset: {x: 1, y: 0}
     spawnAnimation: 
+    deathAnimation: Death
     spawnEffectPrefab: {fileID: 0}
     deathEffectPrefab: {fileID: 0}
   movementConfig:
     movementType: 1
     lerp: 0
     speed: 100
-    distance: 3
+    distance: 2
     duration: 0.15
     activateAfterPrecast: 0
-    passThruDamage: 1
-    passthruDamageAmount: 0
-    damageTypeName: 
     towardMouse: 0
     awayFromMouse: 0
     isDashing: 1

@@ -74,17 +74,29 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     public StatContainer AllStats => statContainer;
     public virtual bool IsAlive => isAlive;
     public bool IsEvading => _isEvading;
+    private int _evadeRequestCount;
+    private int _colliderExcludeLayersBeforeEvade;
 
     public void SetEvading(bool evading)
     {
-        //get collider2d and use mask to ignore enemy layer
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
+        if (evading)
         {
-            col.excludeLayers += LayerMask.GetMask("Enemy");
+            if (_evadeRequestCount == 0 && col != null)
+            {
+                _colliderExcludeLayersBeforeEvade = col.excludeLayers;
+                col.excludeLayers |= LayerMask.GetMask("Enemy");
+            }
+            _evadeRequestCount++;
         }
-        _isEvading = evading;
-        Debug.Log($"[Organism] {gameObject.name} evading = {evading}");
+        else if (_evadeRequestCount > 0)
+        {
+            _evadeRequestCount--;
+            if (_evadeRequestCount == 0 && col != null)
+                col.excludeLayers = _colliderExcludeLayersBeforeEvade;
+        }
+
+        _isEvading = _evadeRequestCount > 0;
+        Debug.Log($"[Organism] {gameObject.name} evading = {_isEvading}");
     }
 
 
@@ -99,12 +111,6 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     public float MaxEnergy => statContainer?.GetStat("MaxEnergy") ?? 100f;
     public float CurrentForceField => _syncCurrentForceField.Value;
     public float MaxForceField => statContainer?.GetStat("ForceField") ?? 0f;
-
-    public void RefreshMoveSpeedFromStats()
-    {
-        // MoveSpeed is stat-driven via the MoveSpeed getter.
-        // This method remains for compatibility with existing callers.
-    }
 
     protected virtual void Awake()
     {

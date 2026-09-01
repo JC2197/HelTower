@@ -88,6 +88,15 @@ public class CharacterData : ScriptableObject
         }
         return classData;
     }
+    public void SetClassData(ClassData newClassData)
+    {
+        classData = newClassData;
+    }
+
+    public WeaponConfig GetMainHandWeaponConfig()
+    {
+        return mainHandWeaponConfig;
+    }
     
     // Convenience accessors for class properties
     public RuntimeAnimatorController GetAnimatorController() => classData != null ? classData.animatorController : null;   
@@ -194,6 +203,8 @@ public class CharacterAbilityLoadout
     [Header("Core Abilities")]
     [Tooltip("Weapon-granted ability (LMB). Set automatically when weapon is equipped.")]
     [SerializeField] private AbilityReference weaponAbility;
+    [SerializeField] private AbilityReference dashAbility;
+    [SerializeField] private AbilityReference passiveAbility;
     
     [FormerlySerializedAs("dashAbility")]
     [Tooltip("Secondary weapon ability (RMB). Set automatically when an offhand weapon is equipped.")]
@@ -211,6 +222,8 @@ public class CharacterAbilityLoadout
     // === Properties ===
     public AbilityReference WeaponAbility => weaponAbility;
     public AbilityReference SecondaryWeaponAbility => secondaryWeaponAbility;
+    public AbilityReference DashAbility => dashAbility;
+    public AbilityReference PassiveAbility => passiveAbility;
     public List<AbilityReference> TraitAbilities => traitAbilities ?? new List<AbilityReference>();
     public List<AbilityReference> TriggeredAbilities => triggeredAbilities ?? new List<AbilityReference>();
 
@@ -256,6 +269,16 @@ public class CharacterAbilityLoadout
     public void SetSecondaryWeaponAbility(AbilityConfig config)
     {
         secondaryWeaponAbility = config != null ? new AbilityReference(config) : null;
+    }
+
+    public void SetDashAbility(AbilityConfig config)
+    {
+        dashAbility = config != null ? new AbilityReference(config) : null;
+    }
+
+    public void SetPassiveAbility(AbilityConfig config)
+    {
+        passiveAbility = config != null ? new AbilityReference(config) : null;
     }
 
     /// <summary>

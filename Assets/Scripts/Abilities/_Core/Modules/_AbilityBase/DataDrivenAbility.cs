@@ -143,6 +143,7 @@ public class DataDrivenAbility : Ability
     // True while the autocast burst loop is iterating multi-target casts so the cooldown
     // check in CanUseAbility is skipped for the 2nd+ cast in the same burst.
     private bool _autocastBurstActive = false;
+    private Vector3 _movementCastStartingPosition;
 
     /// <summary>
     /// Casts once using an explicit world-space target, then clears the override.
@@ -560,7 +561,6 @@ public class DataDrivenAbility : Ability
             return;
         Debug.Log($"[DataDrivenAbility] Applying cast move speed modifier: ability={config?.abilityName}, currentMoveSpeed={currentMoveSpeed:F3}, targetMoveSpeed={targetMoveSpeed:F3}, delta={castMoveSpeedAppliedDelta:F3}, duration={duration:F3}s");
         ownerOrganism.AllStats.ModifyStat("MoveSpeed", castMoveSpeedAppliedDelta);
-        ownerOrganism.RefreshMoveSpeedFromStats();
         Debug.Log($"[DataDrivenAbility] Move speed after applying modifier: ability={config?.abilityName}, newMoveSpeed={ownerOrganism.AllStats.GetStat("MoveSpeed"):F3}");
         hasCastMoveSpeedModifier = true;
 
@@ -598,7 +598,6 @@ public class DataDrivenAbility : Ability
             Debug.Log($"[DataDrivenAbility] Move speed modifier before clearing: ability={config?.abilityName}, currentMoveSpeed={ownerOrganism.AllStats.GetStat("MoveSpeed"):F3}, delta={castMoveSpeedAppliedDelta:F3}");
             ownerOrganism.AllStats.ModifyStat("MoveSpeed", -castMoveSpeedAppliedDelta);
             Debug.Log($"[DataDrivenAbility] Cleared cast move speed modifier: ability={config?.abilityName}, delta={-castMoveSpeedAppliedDelta:F3}");
-            ownerOrganism.RefreshMoveSpeedFromStats();
         }
 
         hasCastMoveSpeedModifier = false;
@@ -798,6 +797,7 @@ public class DataDrivenAbility : Ability
                 }
 
                 // NOW play the animation with the weapon at the correct angle
+                int animationSequence = player != null ? player.BeginWeaponAnimation() : 0;
                 PlayWeaponAnimationState(weaponTransform, animationNameToPlay, animationSpeed);
 
                 if (useAlternating)
@@ -817,7 +817,7 @@ public class DataDrivenAbility : Ability
                 if (!string.IsNullOrEmpty(config.weaponIdleAnimationName))
                 {
                     // Store the handle reference back on the central PlayerController object
-                    player.WeaponIdleReturnCoroutine = StartCoroutine(ReturnWeaponToIdle(mainhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed));
+                    player.WeaponIdleReturnCoroutine = StartCoroutine(ReturnWeaponToIdle(mainhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed, player, animationSequence));
                 }
             }
         }
@@ -837,6 +837,7 @@ public class DataDrivenAbility : Ability
             // Play the animation
             if (offhandAnimator != null)
             {
+                PlayerController player = GetComponent<PlayerController>();
                 // Lock weapon to aimed direction BEFORE playing animation
                 if (config.unlockWeaponDirections)
                 {
@@ -847,7 +848,6 @@ public class DataDrivenAbility : Ability
                     isOffhandLocked = true;
 
                     // Force PlayerController to update weapon position immediately with the unlocked angle
-                    PlayerController player = GetComponent<PlayerController>();
                     if (player != null)
                     {
                         player.ForceAnimationUpdate();
@@ -861,6 +861,7 @@ public class DataDrivenAbility : Ability
                 }
 
                 // NOW play the animation with the weapon at the correct angle
+                int animationSequence = player != null ? player.BeginWeaponAnimation() : 0;
                 PlayWeaponAnimationState(offhandWeaponTransform, animationNameToPlay, animationSpeed);
 
                 if (useAlternating)
@@ -872,7 +873,7 @@ public class DataDrivenAbility : Ability
                 // Schedule return to idle animation after animation completes
                 if (!string.IsNullOrEmpty(config.weaponIdleAnimationName))
                 {
-                    StartCoroutine(ReturnWeaponToIdle(offhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed));
+                    StartCoroutine(ReturnWeaponToIdle(offhandAnimator, animationNameToPlay, config.weaponIdleAnimationName, animationSpeed, player, animationSequence));
                 }
             }
         }
@@ -1100,7 +1101,7 @@ public class DataDrivenAbility : Ability
     /// <summary>
     /// Coroutine to return weapon to idle animation after shoot animation completes
     /// </summary>
-    private System.Collections.IEnumerator ReturnWeaponToIdle(Animator weaponAnimator, string shootAnimName, string idleAnimName, float animSpeed)
+    private System.Collections.IEnumerator ReturnWeaponToIdle(Animator weaponAnimator, string shootAnimName, string idleAnimName, float animSpeed, PlayerController player, int animationSequence)
     {
         if (weaponAnimator == null) yield break;
 
@@ -1121,6 +1122,17 @@ public class DataDrivenAbility : Ability
         {
             // Fallback: wait a default time if we can't get clip info
             yield return new WaitForSeconds(0.5f / animSpeed);
+        }
+
+        if (player != null && (!player.IsLatestWeaponAnimation(animationSequence)
+            || player.CurrentAbilityState != PlayerController.AbilityState.Idle))
+        {
+            isWeaponDirectionLocked = false;
+            isMainhandLocked = false;
+            isOffhandLocked = false;
+            rotationLockEndTime = 0f;
+            weaponIdleReturnCoroutine = null;
+            yield break;
         }
 
         // Return weapon to idle animation via NetworkAnimator when available
@@ -1702,6 +1714,8 @@ public class DataDrivenAbility : Ability
             Debug.Log($"Cannot use ability {abilityName}: {blockedReason}");
             return false;
         }
+
+        _movementCastStartingPosition = transform.position;
 
         if (isPlacingConstruct)
         {
@@ -2799,7 +2813,8 @@ public class DataDrivenAbility : Ability
         hash ^= hash >> 16;
 
         float normalized = (hash & 0x00FFFFFFu) / 16777215f;
-        return normalized * maxAngle;
+        float bidirectionalRange = (normalized * 2f) - 1f;
+        return bidirectionalRange * maxAngle;
     }
 
     /// <summary>
@@ -2876,6 +2891,23 @@ public class DataDrivenAbility : Ability
             Transform offhandTransform = transform.Find("OffHandWeaponHolder/OffHandWeapon");
             if (offhandTransform != null)
                 return offhandTransform;
+        }
+
+        Summon summonComponent = GetComponent<Summon>();
+        if (summonComponent != null && summonComponent.ActiveConfig != null)
+        {
+            // Dynamically locate the turret node matching your SummonConfig asset field string
+            string targetNodeName = summonComponent.ActiveConfig.turretChildName;
+            if (string.IsNullOrEmpty(targetNodeName)) targetNodeName = "Gun";
+
+            Transform turretNode = transform.Find(targetNodeName);
+            if (turretNode != null) return turretNode;
+
+            // Fallback to recursive child crawling if the node is nested deeper inside the skeleton
+            foreach (Transform t in GetComponentsInChildren<Transform>(true))
+            {
+                if (t.name == targetNodeName) return t;
+            }
         }
 
         return ownerAsPlayer != null
@@ -3100,7 +3132,21 @@ public class DataDrivenAbility : Ability
 
         if (config == null) return;
 
-        CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
+        CharacterTraitManager traitManager = null;
+        if (ownerAsPlayer != null)
+        {
+            // Player path: Read directly from local component
+            traitManager = GetComponent<CharacterTraitManager>();
+        }
+        else
+        {
+            // Summon/Pet path: Trace up to the minion's owner player entity object
+            Summon summonComponent = GetComponent<Summon>();
+            if (summonComponent != null && summonComponent.Owner != null)
+            {
+                traitManager = summonComponent.Owner.GetComponent<CharacterTraitManager>();
+            }
+        }
         if (traitManager == null) return;
 
         // Explicitly type this list to pass into the tier-scaled overload
@@ -3115,16 +3161,24 @@ public class DataDrivenAbility : Ability
 
             foreach (var modifier in runtimeTrait.data.abilityConfigModifiers)
             {
-                // FIXED: Construct the level-aware pair wrapper to safely calculate math without asset corruption
-                traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(runtimeTrait.data, modifier, currentLevel));
+                if (modifier == null) continue;
 
-                // Check for ability icon override 
-                if (modifier.targetAbility == config && modifier.abilityIcon != null)
-                    _effectiveAbilityIcon = modifier.abilityIcon;
+
+                if (string.Equals(modifier.targetAbility.abilityName, config.abilityName, System.StringComparison.Ordinal))
+                {
+                    traitModifierPairs.Add(new AbilityModifierRuntime.TraitModifierPair(runtimeTrait.data, modifier, currentLevel));
+
+
+                    // Check for ability icon override 
+                    if (modifier.targetAbility == config && modifier.abilityIcon != null)
+                        _effectiveAbilityIcon = modifier.abilityIcon;
+                }
             }
         }
 
-        // SUCCESS: Cast 'config' to AbilityDataConfig if needed to guarantee the tier-scaled overload triggers
+        // Accumulate and build effective configs ONCE from the fully-collected pairs across all
+        // traits — this must run after the loop above, not per-trait, or partial overrides get
+        // applied to shared/cloned sub-configs (e.g. summonConfig.statContainer) on every iteration.
         _accumulatedOverrides = AbilityModifierRuntime.AccumulateOverrides((AbilityDataConfig)config, traitModifierPairs);
 
         _effectiveAbilityConfig = AbilityModifierRuntime.BuildEffectiveAbilityConfig(config, _accumulatedOverrides);
@@ -3154,15 +3208,17 @@ public class DataDrivenAbility : Ability
                 config.explosionConfig, "explosionConfig", _accumulatedOverrides);
 
         if (config.isSummonAbility && config.summonConfig != null)
+        {
             _effectiveSummonConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
                 config.summonConfig, "summonConfig", _accumulatedOverrides);
-
+            RefreshActiveSummonConfigs(_effectiveSummonConfig ?? config.summonConfig);
+        }
         if (config.isConstructAbility && config.constructConfig != null)
             _effectiveConstructConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
                 config.constructConfig, "constructConfig", _accumulatedOverrides);
 
-        if (config.isConstructAbility)
-            RefreshActiveConstructConfigs(_effectiveConstructConfig ?? config.constructConfig);
+        // if (config.isConstructAbility)
+        //     RefreshActiveConstructConfigs(_effectiveConstructConfig ?? config.constructConfig);
 
         if (config.holdChargeConfig != null)
             _effectiveHoldChargeConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
@@ -3179,24 +3235,24 @@ public class DataDrivenAbility : Ability
     /// Pushes the latest construct config to already spawned constructs so trait modifier
     /// changes (damage, salvo size, attack speed, etc.) apply without re-summoning.
     /// </summary>
-    private void RefreshActiveConstructConfigs(ConstructConfig refreshedConfig)
+    private void RefreshActiveSummonConfigs(SummonConfig refreshedConfig)
     {
-        if (refreshedConfig == null || activeConstructs == null || activeConstructs.Count == 0)
+        if (refreshedConfig == null || activeSummons == null || activeSummons.Count == 0)
             return;
 
-        CleanupDestroyedConstructs();
+        CleanupDestroyedSummons();
 
-        for (int i = 0; i < activeConstructs.Count; i++)
+        for (int i = 0; i < activeSummons.Count; i++)
         {
-            GameObject go = activeConstructs[i];
+            GameObject go = activeSummons[i];
             if (go == null)
                 continue;
 
-            Construct construct = go.GetComponent<Construct>();
-            if (construct == null)
+            Summon summon = go.GetComponent<Summon>();
+            if (summon == null)
                 continue;
 
-            construct.ApplyRuntimeConfig(refreshedConfig);
+            summon.ApplyRuntimeConfig(refreshedConfig);
         }
     }
 
@@ -3255,26 +3311,39 @@ public class DataDrivenAbility : Ability
             return InputUtility.GetDirectionToMouse(transform.position);
         }
 
-        // Enemies: Check for FakeMouse target (set by enemy AI)
+        LayerMask targetLayers = GetAbilityTargetLayers();
+
+        // Overlap circle scans for targets matching your config asset's exact hitLayers list
+        Collider2D[] localTargets = Physics2D.OverlapCircleAll(transform.position, 15f, targetLayers);
+        GameObject closestMatch = null;
+        float closestDist = float.MaxValue;
+
+        foreach (Collider2D col in localTargets)
+        {
+            if (col.gameObject == gameObject) continue;
+
+            Organism targetOrganism = col.GetComponentInParent<Organism>();
+            if (targetOrganism != null && !targetOrganism.IsAlive) continue; // Ignore deceased entities
+
+            float currentDist = Vector2.Distance(transform.position, col.transform.position);
+            if (currentDist < closestDist)
+            {
+                closestDist = currentDist;
+                closestMatch = col.gameObject;
+            }
+        }
+
+        if (closestMatch != null)
+        {
+            return (closestMatch.transform.position - transform.position).normalized;
+        }
+
         Transform fakeMouse = transform.Find("FakeMouse");
         if (fakeMouse != null)
         {
-            Vector3 direction = (fakeMouse.position - transform.position).normalized;
-            Debug.Log($"[DataDrivenAbility] Enemy {gameObject.name} using FakeMouse aim: {direction}, angle: {Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg:F1}°");
-            return direction;
+            return (fakeMouse.position - transform.position).normalized;
         }
 
-        // Fallback: Find player and aim at them (for enemy AI)
-        PlayerController player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
-        {
-            Vector3 direction = (player.transform.position - transform.position).normalized;
-            Debug.Log($"[DataDrivenAbility] Enemy {gameObject.name} aiming at player (no FakeMouse): {direction}");
-            return direction;
-        }
-
-        // Last resort: aim right
-        Debug.LogWarning($"[DataDrivenAbility] Enemy {gameObject.name} has no FakeMouse and no Player found! Aiming right.");
         return Vector3.right;
     }
 
@@ -3284,40 +3353,50 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private Vector3 GetTargetWorldPosition()
     {
-        // Autocast: override target with nearest enemy found this frame
         if (_autocastTarget.HasValue)
         {
             return _autocastTarget.Value;
         }
-
-        // Players aim at mouse cursor
+        if (config != null && config.castAtFeet)
+        {
+            return _movementCastStartingPosition;
+        }
         if (ownerAsPlayer != null)
         {
-            if (CursorManager.Instance != null)
-            {
-                Organism targetedOrganism = CursorManager.Instance.TargetedOrganism;
-                if (targetedOrganism != null)
-                    return targetedOrganism.transform.position;
-            }
+            if (CursorManager.Instance != null && CursorManager.Instance.TargetedOrganism != null)
+                return CursorManager.Instance.TargetedOrganism.transform.position;
 
             return InputUtility.GetMouseWorldPosition();
         }
 
-        // Enemies: Check for FakeMouse target (set by enemy AI)
+        // DATA-DRIVEN HIT LAYER POSITION LOOKUP
+        LayerMask targetLayers = GetAbilityTargetLayers();
+        Collider2D[] localTargets = Physics2D.OverlapCircleAll(transform.position, 15f, targetLayers);
+        GameObject closestMatch = null;
+        float closestDist = float.MaxValue;
+
+        foreach (Collider2D col in localTargets)
+        {
+            if (col.gameObject == gameObject) continue;
+            Organism targetOrganism = col.GetComponentInParent<Organism>();
+            if (targetOrganism != null && !targetOrganism.IsAlive) continue;
+
+            float currentDist = Vector2.Distance(transform.position, col.transform.position);
+            if (currentDist < closestDist)
+            {
+                closestDist = currentDist;
+                closestMatch = col.gameObject;
+            }
+        }
+
+        if (closestMatch != null)
+        {
+            return closestMatch.transform.position;
+        }
+
         Transform fakeMouse = transform.Find("FakeMouse");
-        if (fakeMouse != null)
-        {
-            return fakeMouse.position;
-        }
+        if (fakeMouse != null) return fakeMouse.position;
 
-        // Fallback: Find player and aim at them (for enemy AI)
-        PlayerController player = FindFirstObjectByType<PlayerController>();
-        if (player != null)
-        {
-            return player.transform.position;
-        }
-
-        // Last resort: position in front of enemy
         return transform.position + transform.right;
     }
 
@@ -3654,7 +3733,7 @@ public class DataDrivenAbility : Ability
         PlacementLog("holdToPlace=false — falling through to immediate spawn");
 
         // Clean up destroyed constructs
-        CleanupDestroyedConstructs();
+        //CleanupDestroyedConstructs();
 
         Debug.Log($"[DataDrivenAbility] ExecuteConstructAbility - Current activeConstructs count: {activeConstructs.Count}, Max: {constructConfig.maxConstructs}");
         Debug.Log($"[DataDrivenAbility] activeConstructs list instance ID: {activeConstructs.GetHashCode()}");
@@ -3783,7 +3862,7 @@ public class DataDrivenAbility : Ability
         Destroy(constructPlacementGhost);
         constructPlacementGhost = null;
 
-        CleanupDestroyedConstructs();
+        //CleanupDestroyedConstructs();
 
         // Override constructPrefab on a temporary copy so SpawnConstruct uses the directional one.
         ConstructConfig spawnConfig = constructConfig;
@@ -3827,18 +3906,10 @@ public class DataDrivenAbility : Ability
         {
             return constructConfig.constructPrefab;
         }
-
-        // Fallback to legacy Resources loading
-        if (!string.IsNullOrEmpty(constructConfig.prefabName))
-        {
-            string fullPath = constructConfig.resourcesPath + constructConfig.prefabName;
-            return Resources.Load<GameObject>(fullPath);
-        }
-
         return null;
     }
 
-    private void CleanupDestroyedConstructs()
+    private void CleanupDestroyedSummons()
     {
         activeConstructs.RemoveAll(c => c == null);
     }
@@ -3937,7 +4008,7 @@ public class DataDrivenAbility : Ability
         // Setup configured abilities
         if (constructConfig.constructAbilities != null)
         {
-            foreach (ConstructAbilityConfig abilityConfig in constructConfig.constructAbilities)
+            foreach (AbilityDataConfig abilityConfig in constructConfig.constructAbilities)
             {
                 if (abilityConfig == null) continue;
 
@@ -4030,41 +4101,25 @@ public class DataDrivenAbility : Ability
     /// <summary>
     /// Setup any ability type on the construct (Area, Projectile, etc.)
     /// </summary>
-    private void SetupConstructAbility(GameObject construct, ConstructAbilityConfig abilityConfig)
+    private void SetupConstructAbility(GameObject construct, AbilityDataConfig abilityConfig)
     {
-        Debug.Log($"[SetupConstructAbility] Setting up {abilityConfig.abilityType} ability on {construct.name}");
+        Debug.Log($"[SetupConstructAbility] Setting up {abilityConfig.abilityName} ability on {construct.name}");
 
-        // Determine ability type and setup accordingly
-        switch (abilityConfig.abilityType)
+        if (abilityConfig.isProjectileAbility)
         {
-            case ConstructAbilityConfig.AbilityType.Area:
-                if (abilityConfig.areaConfig != null)
-                {
-                    SetupConstructAreaAbility(construct, abilityConfig.areaConfig);
-                }
-                break;
-
-            case ConstructAbilityConfig.AbilityType.Projectile:
-                if (abilityConfig.projectileConfig != null)
-                {
-                    if (construct.GetComponent<AutoTurret>() != null)
-                    {
-                        Debug.Log($"{AbilityPipelineTag} SetupConstructAbility: projectile config is handled by AutoTurret on {construct.name}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"{AbilityPipelineTag} SetupConstructAbility: projectile config present on {construct.name}, but no AutoTurret component is handling it");
-                    }
-                }
-                break;
-
-            case ConstructAbilityConfig.AbilityType.Beam:
-                Debug.LogWarning($"[SetupConstructAbility] Beam abilities on constructs not yet implemented");
-                break;
-
-            case ConstructAbilityConfig.AbilityType.Channel:
-                Debug.LogWarning($"[SetupConstructAbility] Channel abilities on constructs not yet implemented");
-                break;
+            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a projectile ability");
+        }
+        if (abilityConfig.isAreaAbility)
+        {
+            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is an area ability");
+        }
+        if (abilityConfig.isBeamAbility)
+        {
+            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a beam ability");
+        }
+        if (abilityConfig.isMeleeAbility)
+        {
+            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a melee ability");
         }
     }
 
@@ -4804,6 +4859,76 @@ public class DataDrivenAbility : Ability
             }
         }
         activeSummons.Clear();
+    }
+
+    private LayerMask GetAbilityTargetLayers()
+    {
+        LayerMask finalLayers = 0;
+        bool hasHitbox = false;
+
+        // 1. Parse Projectile Config Layers
+        if (config.isProjectileAbility)
+        {
+            var projCfg = GetEffectiveProjectileConfig();
+            if (projCfg != null)
+            {
+                finalLayers |= projCfg.hitbox.hitLayers;
+                // Include support layers if healing or buffing modules are active
+                if (projCfg.hitbox.positiveHealing > 0f || projCfg.hitbox.onHitBuffEffects != null)
+                    finalLayers |= projCfg.hitbox.positiveHitLayers;
+                hasHitbox = true;
+            }
+        }
+
+        // 2. Parse Melee Config Layers
+        if (config.isMeleeAbility)
+        {
+            var meleeCfg = GetEffectiveMeleeConfig();
+            if (meleeCfg != null)
+            {
+                finalLayers |= meleeCfg.hitbox.hitLayers;
+                if (meleeCfg.hitbox.positiveHealing > 0f || meleeCfg.hitbox.onHitBuffEffects != null)
+                    finalLayers |= meleeCfg.hitbox.positiveHitLayers;
+                hasHitbox = true;
+            }
+        }
+
+        // 3. Parse Area/Aura Config Layers
+        if (config.isAreaAbility)
+        {
+            var areaCfg = GetEffectiveAreaConfig();
+            if (areaCfg != null && areaCfg.hitbox != null)
+            {
+                finalLayers |= areaCfg.hitbox.hitLayers;
+                if (areaCfg.hitbox.positiveHealing > 0f || areaCfg.hitbox.onHitBuffEffects != null)
+                    finalLayers |= areaCfg.hitbox.positiveHitLayers;
+                hasHitbox = true;
+            }
+        }
+
+        // 4. Parse Explosion Config Layers
+        if (config.isExplosionAbility)
+        {
+            var explCfg = GetEffectiveExplosionConfig();
+            if (explCfg != null && explCfg.hitbox != null)
+            {
+                finalLayers |= explCfg.hitbox.hitLayers;
+                if (explCfg.hitbox.positiveHealing > 0f || explCfg.hitbox.onHitBuffEffects != null)
+                    finalLayers |= explCfg.hitbox.positiveHitLayers;
+                hasHitbox = true;
+            }
+        }
+
+        // Return the combined configuration if found
+        if (hasHitbox) return finalLayers;
+
+        // ── 🔒 STRUCTURAL FALLBACKS ──
+        if (GetComponent<Summon>() != null || (ownerAsPlayer != null && ownerAsPlayer.IsOwner))
+        {
+            return LayerMask.GetMask("Enemy");
+        }
+
+        return LayerMask.GetMask("Player");
     }
 
     #endregion

@@ -60,9 +60,9 @@ public class EnemySpawner : NetworkBehaviour
     [ContextMenu("Start Spawn Sequence")]
     public void TryStartSpawnSequence()
     {
-        
+
         if (!CanSpawnInCurrentMode()) return;
-        
+
         if (spawnGroup == null)
         {
             Debug.LogError("[EnemySpawner] No spawn group assigned.", this);
@@ -152,22 +152,41 @@ public class EnemySpawner : NetworkBehaviour
         int minCount = Mathf.Min(wave.enemyCountRange.x, wave.enemyCountRange.y);
         int maxCount = Mathf.Max(wave.enemyCountRange.x, wave.enemyCountRange.y);
         int totalToSpawn = UnityEngine.Random.Range(Mathf.Max(0, minCount), Mathf.Max(0, maxCount) + 1);
-
+        int completedSpawns = 0;
         for (int spawnIndex = 0; spawnIndex < totalToSpawn; spawnIndex++)
         {
             EnemySpawnData selectedEnemy = SelectWeightedEnemy(weightedEntries, totalWeight);
             if (selectedEnemy == null)
+            {
+                completedSpawns++;
                 continue;
-            
-            yield return SpawnSingleEnemyRoutine(selectedEnemy.enemyPrefab);
+            }
+            StartCoroutine(SpawnAndTrackEnemy(selectedEnemy.enemyPrefab, () =>
+            {
+                completedSpawns++;
+            }));
 
             float delay = Mathf.Max(0f, selectedEnemy.spawnDelay);
             if (delay > 0f)
                 yield return new WaitForSeconds(delay);
         }
 
+        // --- CRITICAL PROTECTION ---
+        // Wait until EVERY single background coroutine has completely finished spawning its enemy 
+        // before we allow the wave setup to declare itself complete.
+        while (completedSpawns < totalToSpawn)
+        {
+            yield return null;
+        }
+
         _isSpawningWave = false;
         TryAdvanceAfterWaveClear();
+    }
+
+    private IEnumerator SpawnAndTrackEnemy(GameObject prefab, System.Action onComplete)
+    {
+        yield return SpawnSingleEnemyRoutine(prefab);
+        onComplete?.Invoke();
     }
 
     private static EnemySpawnData SelectWeightedEnemy(List<EnemySpawnData> entries, int totalWeight)
@@ -230,7 +249,7 @@ public class EnemySpawner : NetworkBehaviour
 
             float clipLength = animator.GetCurrentAnimatorStateInfo(0).length;
             if (clipLength > 0f)
-                yield return new WaitForSeconds(clipLength/2);
+                yield return new WaitForSeconds(clipLength / 2);
         }
 
         Destroy(spawnEffect);
@@ -296,7 +315,7 @@ public class EnemySpawner : NetworkBehaviour
 
         if (rollTraitsOnFloorComplete)
             TriggerFloorCompleteTraitRoll();
-        
+
         FloorCompleteCoroutine();
 
     }
@@ -313,6 +332,11 @@ public class EnemySpawner : NetworkBehaviour
         foreach (var portal in portals)
         {
             portal.Enable();
+        }
+        Anvil anvil = FindFirstObjectByType<Anvil>();
+        if (anvil != null)
+        {
+            anvil.Enable();
         }
     }
 
@@ -353,7 +377,7 @@ public class EnemySpawner : NetworkBehaviour
 
     private static void ResetSpawner()
     {
-        
+
     }
 
     private sealed class SpawnedEnemyTracker : MonoBehaviour

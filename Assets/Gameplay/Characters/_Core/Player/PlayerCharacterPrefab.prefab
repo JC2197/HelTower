@@ -5267,7 +5267,7 @@ GameObject:
   - component: {fileID: 6651859250582440276}
   - component: {fileID: -4821699031212049550}
   - component: {fileID: 7585706307468894951}
-  - component: {fileID: -7958206491589936126}
+  - component: {fileID: 7621106317282464732}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5306,7 +5306,7 @@ Animator:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: da7112c1f96fe0a448ab3f4750ca6d28, type: 2}
+  m_Controller: {fileID: 22100000, guid: f38cb6debfa574148aba271e71aa8ef3, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5517,7 +5517,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584138902072857759
+  _initializedTimestamp: -8584135003687945295
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5536,7 +5536,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 37
+  <PrefabId>k__BackingField: 41
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 17036934021626112618
   SceneId: 0
@@ -5784,19 +5784,24 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   showDebugGizmos: 1
---- !u!210 &-7958206491589936126
-SortingGroup:
+--- !u!114 &7621106317282464732
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
-  m_Sort3DAs2D: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7ca16fb6dd13684ca34ff51fc268b0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 8054363077136831453}
+  _networkObjectCache: {fileID: 0}
+  _cameraHolder: {fileID: 939052996780319900}
+  _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  _orthographicSize: 5
 --- !u!1001 &7891000605144988753
 PrefabInstance:
   m_ObjectHideFlags: 0

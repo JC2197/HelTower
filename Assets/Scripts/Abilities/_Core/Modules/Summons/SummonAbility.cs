@@ -57,7 +57,6 @@ public class SummonAbility : MonoBehaviour, ISubAbility
         GameObject summonInstance = Object.Instantiate(config.summonPrefab, spawnPosition, Quaternion.identity);
         summonInstance.name = $"{config.summonPrefab.name}_Summon";
 
-        // Network spawn if in multiplayer
         var networkManager = InstanceFinder.NetworkManager;
         if (networkManager != null && networkManager.IsServerStarted)
         {
@@ -67,15 +66,20 @@ public class SummonAbility : MonoBehaviour, ISubAbility
         sharedSummonList.Add(summonInstance);
         _ownedInstances.Add(summonInstance);
 
-        // Get or add SummonedPet component
-        SummonedPet pet = summonInstance.GetComponent<SummonedPet>();
-        if (pet == null)
+        Summon pet = summonInstance.GetComponent<Summon>();
+        if (pet == null) pet = summonInstance.AddComponent<Summon>();
+
+        List<AbilityDataConfig> resolvedAbilities = new List<AbilityDataConfig>();
+
+        foreach (AbilityDataConfig baseAbilityFile in config.summonAbilities)
         {
-            pet = summonInstance.AddComponent<SummonedPet>();
+            if (baseAbilityFile != null)
+                resolvedAbilities.Add(baseAbilityFile);
         }
 
-        pet.Initialize(config, owner, parentConfig, rawParentConfig);
-
+        // Pass context straight to the tracking setup scripts
+        pet.Initialize(config, owner, resolvedAbilities, parentConfig, rawParentConfig);
+        
         // Assign the per-slot offset so each summon follows a distinct position around the owner.
         if (config.slotOffsets != null && config.slotOffsets.Length > 0)
         {

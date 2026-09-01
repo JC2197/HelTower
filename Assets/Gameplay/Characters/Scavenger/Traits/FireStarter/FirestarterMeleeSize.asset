@@ -46,12 +46,12 @@ MonoBehaviour:
     overrides:
     - propertyPath: meleeConfig.hitbox.scaleX
       overrideMode: 1
-      numericValue: 5
+      numericValue: 10
       stringValue: 
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.scaleY
       overrideMode: 1
-      numericValue: 5
+      numericValue: 10
       stringValue: 
       objectValue: {fileID: 0}
   - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
@@ -66,12 +66,12 @@ MonoBehaviour:
     overrides:
     - propertyPath: meleeConfig.hitbox.scaleX
       overrideMode: 1
-      numericValue: 5
+      numericValue: 10
       stringValue: 
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.scaleY
       overrideMode: 1
-      numericValue: 5
+      numericValue: 10
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

@@ -30,22 +30,35 @@ public class ExplosionConfigDrawer : PropertyDrawer
             {
                 yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("singleTargetSearchRadius"), position, yPos);
             }
-            else
+            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("timeDelay"), position, yPos);
+            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("delayEffectPrefab"), position, yPos);
+            SerializedProperty salvos = property.FindPropertyRelative("salvos");
+            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvos, position, yPos);
+            if (salvos.boolValue)
             {
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("shape"), position, yPos);
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("dimensions"), position, yPos);
+                SerializedProperty multiCastAmount = property.FindPropertyRelative("multiCastAmount");
+                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(multiCastAmount, position, yPos);
+                SerializedProperty salvoAmount = property.FindPropertyRelative("salvoAmount");
+                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoAmount, position, yPos);
+                SerializedProperty salvoDelay = property.FindPropertyRelative("salvoDelay");
+                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoDelay, position, yPos);
+                SerializedProperty salvoOffset = property.FindPropertyRelative("salvoOffset");
+                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoOffset, position, yPos);
+                if (salvoOffset.boolValue)
+                {
+                    SerializedProperty salvoOffsetDistance = property.FindPropertyRelative("salvoOffsetDistance");
+                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoOffsetDistance, position, yPos);
+                    SerializedProperty salvoOffsetTarget = property.FindPropertyRelative("salvoOffsetTarget");
+                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoOffsetTarget, position, yPos);
+                    SerializedProperty salvoOffsetMouse = property.FindPropertyRelative("salvoOffsetMouse");
+                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoOffsetMouse, position, yPos);
+                    SerializedProperty salvoRandom = property.FindPropertyRelative("salvoRandom");
+                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoRandom, position, yPos);
+                    SerializedProperty salvoRadial = property.FindPropertyRelative("salvoRadial");
+                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(salvoRadial, position, yPos);
+                }
             }
 
-            // Effects
-            SerializedProperty timeDelay = property.FindPropertyRelative("timeDelay");
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(timeDelay, position, yPos);
-            if (timeDelay.floatValue > 0f)
-            {
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("delayEffectPrefab"), position, yPos);
-            }
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("explosionEffectPrefab"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("explosionSound"), position, yPos);
-            
             // Activation
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("activationRange"), position, yPos);
 
@@ -74,24 +87,28 @@ public class ExplosionConfigDrawer : PropertyDrawer
         {
             height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("singleTargetSearchRadius")) + EditorGUIUtility.standardVerticalSpacing;
         }
-        else
-        {
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("shape")) + EditorGUIUtility.standardVerticalSpacing;
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("dimensions")) + EditorGUIUtility.standardVerticalSpacing;
-        }
-
-        // Effects
-        SerializedProperty timeDelay = property.FindPropertyRelative("timeDelay");
-        height += EditorGUI.GetPropertyHeight(timeDelay) + EditorGUIUtility.standardVerticalSpacing;
-        if (timeDelay.floatValue > 0f)
-        {
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("delayEffectPrefab")) + EditorGUIUtility.standardVerticalSpacing;
-        }
-        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("explosionEffectPrefab")) + EditorGUIUtility.standardVerticalSpacing;
-        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("explosionSound")) + EditorGUIUtility.standardVerticalSpacing;
+        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("timeDelay")) + EditorGUIUtility.standardVerticalSpacing;
+        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("delayEffectPrefab")) + EditorGUIUtility.standardVerticalSpacing;
         
         // Activation
         height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("activationRange")) + EditorGUIUtility.standardVerticalSpacing;
+        SerializedProperty salvos = property.FindPropertyRelative("salvos");
+        height += EditorGUI.GetPropertyHeight(salvos) + EditorGUIUtility.standardVerticalSpacing;
+        if (salvos.boolValue)
+        {
+            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoAmount")) + EditorGUIUtility.standardVerticalSpacing;
+            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("multiCastAmount")) + EditorGUIUtility.standardVerticalSpacing;
+            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoDelay")) + EditorGUIUtility.standardVerticalSpacing;
+            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoOffset")) + EditorGUIUtility.standardVerticalSpacing;
+            if (property.FindPropertyRelative("salvoOffset").boolValue)
+            {
+                height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoOffsetDistance")) + EditorGUIUtility.standardVerticalSpacing;
+                height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoOffsetMouse")) + EditorGUIUtility.standardVerticalSpacing;
+                height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoOffsetTarget")) + EditorGUIUtility.standardVerticalSpacing;
+                height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoRandom")) + EditorGUIUtility.standardVerticalSpacing;
+                height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("salvoRadial")) + EditorGUIUtility.standardVerticalSpacing;
+            }
+        }
 
         return height;
     }

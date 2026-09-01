@@ -19,6 +19,7 @@ public static class StatContainerRefreshTool
 
         int classCount = RefreshClasses(defaultDatabase, out int changedClasses);
         int enemyCount = RefreshEnemies(defaultDatabase, out int changedEnemies);
+        int summonCount = RefreshSummonConfigs(defaultDatabase, out int changedSummons);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -55,6 +56,7 @@ public static class StatContainerRefreshTool
         return guids.Length;
     }
 
+
     private static int RefreshEnemies(StatTypeDatabase defaultDatabase, out int changedContainers)
     {
         changedContainers = 0;
@@ -81,6 +83,43 @@ public static class StatContainerRefreshTool
         }
 
         return guids.Length;
+    }
+
+    private static int RefreshSummonConfigs(StatTypeDatabase defaultDatabase, out int changedContainers)
+    {
+        changedContainers = 0;
+        int processedCount = 0;
+
+        // Find all AbilityDataConfig assets in the project folder
+        string[] guids = AssetDatabase.FindAssets("t:AbilityDataConfig");
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+            AbilityDataConfig abilityConfig = AssetDatabase.LoadAssetAtPath<AbilityDataConfig>(path);
+            if (abilityConfig == null) continue;
+
+            // Only process if it is structurally flagged as a summon ability with an active config
+            if (abilityConfig.isSummonAbility && abilityConfig.summonConfig != null)
+            {
+                processedCount++;
+                Undo.RecordObject(abilityConfig, "Refresh Summon Stats");
+
+                // Secure allocation: ensure the nested container isn't null
+                abilityConfig.summonConfig.statContainer ??= new StatContainer();
+
+                // Run your standard synchronization pipeline to populate the fields
+                int changed = abilityConfig.summonConfig.statContainer.Synchronize(defaultDatabase);
+                changedContainers += changed > 0 ? 1 : 0;
+
+                if (changed > 0)
+                {
+                    EditorUtility.SetDirty(abilityConfig);
+                }
+            }
+        }
+        return processedCount;
+
     }
 }
 #endif
