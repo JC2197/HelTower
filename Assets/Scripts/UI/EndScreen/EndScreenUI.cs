@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -19,6 +20,15 @@ public class EndScreenUI : MonoBehaviour
         else
             Destroy(gameObject);
         endScreenPanel.SetActive(false);
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
     }
     private void OnEnable()
     {
@@ -28,19 +38,32 @@ public class EndScreenUI : MonoBehaviour
 
     private void RestartGame()
     {
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        if (localPlayer == null)
+        {
+            Debug.LogWarning("[EndScreenUI] No local player is available to return to Camp.");
+            return;
+        }
+
+        localPlayer.ServerRpcReturnToCamp();
         HideEndScreen();
-        
+    }
+
+    private void OnActiveSceneChanged(Scene previousScene, Scene activeScene)
+    {
+        if (activeScene.name == "MainMenu")
+            Destroy(gameObject);
     }
     public void ShowEndScreen(int goldEarned)
     {
-        SaveFilePersistence.SaveGoldEarned(goldEarned);
-        this.goldEarned = goldEarned;
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        this.goldEarned = localPlayer != null ? localPlayer.BagGold : goldEarned;
 
         if (endScreenPanel != null)
             endScreenPanel.SetActive(true);
 
         if (goldEarnedText != null)
-            goldEarnedText.text = $"Gold Earned: {goldEarned}";
+            goldEarnedText.text = $"Gold Earned: {this.goldEarned}";
     }
 
     public void HideEndScreen()

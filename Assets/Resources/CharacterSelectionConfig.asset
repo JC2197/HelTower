@@ -22,6 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f76be42dbf33b43459f52aedeb575dfe, type: 2}
   - {fileID: 11400000, guid: 79720cd869f51634a856081368774d14, type: 2}
   - {fileID: 11400000, guid: 42c8c9dca4ad12e40b48b29f2f7b6908, type: 2}
-  defaultClass: {fileID: 11400000, guid: 78d911cc0284845468b9d4e108f75115, type: 2}
+  - {fileID: 11400000, guid: bb558df9442d6e24e83436e91cdf1012, type: 2}
+  defaultClass: {fileID: 11400000, guid: 95afc63eced7af04e924342a4b1b54ab, type: 2}
   gameSceneName: CommandScene
   mainMenuSceneName: MainMenu

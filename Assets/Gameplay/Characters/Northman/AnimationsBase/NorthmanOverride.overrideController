@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: NorthmanOverride
+  m_Controller: {fileID: 9100000, guid: 022e37b62d7f3af4ab673d070e6f0234, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 97be68e49225316498603fc2b3124316, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 4307117d1664a4b49824f33ecbf4aa44, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 9c2034cc9ebea024e974dcf46d0446fd, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 24d1e97210dbfc44db85e998c4e01a01, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: a9bf90a0ad6cfde4ea6b1c9c42719e1e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 6f765cce296224b4383685c027fcd630, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 3f9a27994867fa841adab23d3d3be243, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 2850b8e9215f8984a94cabc071c6ec58, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: ddb485d66bcc58243b423d2b0cb72675, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: e209a5978c60c0f41b9611e9d3b7a370, type: 2}

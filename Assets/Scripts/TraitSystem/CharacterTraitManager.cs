@@ -235,7 +235,7 @@ public class CharacterTraitManager : MonoBehaviour
 
             return true;
         }
-        int playerGold = saveFileData != null ? saveFileData.totalGold : 0;
+        int playerGold = playerController != null ? playerController.BagGold : 0;
         return playerGold >= cost;
     }
 

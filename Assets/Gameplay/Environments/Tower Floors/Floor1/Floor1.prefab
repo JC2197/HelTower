@@ -8951,6 +8951,7 @@ MonoBehaviour:
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects:
   - {fileID: 6307837462057765564}
+  - {fileID: 5217021220708264126}
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
   _isNetworked: 1
@@ -8959,7 +8960,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584136629097278675
+  _initializedTimestamp: -8584132371498910725
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -13154,7 +13155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584134233869068495
+      value: -8584132371498910725
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: <IsNested>k__BackingField
@@ -13172,6 +13173,10 @@ PrefabInstance:
       propertyPath: InitializedParentNetworkBehaviour
       value: 
       objectReference: {fileID: -6583264942647547542}
+    - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
+      propertyPath: SerializedTransformProperties.Position.y
+      value: 3.06
+      objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: SerializedTransformProperties.Rotation.x
       value: -0
@@ -13263,11 +13268,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584134271455701835
+      value: -8584132371498910725
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: <IsNested>k__BackingField
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: <PrefabId>k__BackingField
       value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: <ComponentIndex>k__BackingField
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: InitializedParentNetworkBehaviour
+      value: 
+      objectReference: {fileID: -6583264942647547542}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: SerializedTransformProperties.Position.x
+      value: -0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: SerializedTransformProperties.Position.y
+      value: -3.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: SerializedTransformProperties.Rotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: SerializedTransformProperties.Rotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+      propertyPath: SerializedTransformProperties.Rotation.z
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8329787745661693742, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: m_Name
@@ -13283,3 +13320,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3427584488422033071, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
   m_PrefabInstance: {fileID: 4168627654537195267}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5217021220708264126 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
+  m_PrefabInstance: {fileID: 4168627654537195267}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Object.NetworkObject

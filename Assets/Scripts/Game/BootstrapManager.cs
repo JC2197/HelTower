@@ -11,11 +11,13 @@ using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 public class BootstrapManager : MonoBehaviour
 {
     [SerializeField] private NetworkManager networkManager;
+    [SerializeField] private GameObject gameplaySessionPrefab;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private string campSceneName = "Camp";
     [SerializeField] private bool verboseLogging = true;
 
     private static BootstrapManager instance;
+    private GameObject gameplaySessionInstance;
     private bool loadingCamp;
     private bool networkingRequested;
 
@@ -92,6 +94,7 @@ public class BootstrapManager : MonoBehaviour
         if (UnitySceneManager.GetActiveScene().name == mainMenuSceneName)
             return;
 
+        EndGameplaySession();
         UnitySceneManager.LoadScene(mainMenuSceneName);
     }
 
@@ -127,6 +130,15 @@ public class BootstrapManager : MonoBehaviour
     {
         Log($"Loading '{campSceneName}' as a global scene. activeScene={UnitySceneManager.GetActiveScene().name}");
         networkManager.SceneManager.OnLoadEnd += OnCampLoaded;
+
+        bool returningFromGame = UnitySceneManager.GetActiveScene().name == "GameScene";
+
+        foreach (PlayerController activePlayer in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            activePlayer.DepositBagIntoHoard();
+            if (returningFromGame)
+                activePlayer.Revive();
+        }
 
         SceneLoadData sceneLoadData = new SceneLoadData(campSceneName)
         {
@@ -167,6 +179,7 @@ public class BootstrapManager : MonoBehaviour
 
             networkManager.SceneManager.OnLoadEnd -= OnCampLoaded;
             loadingCamp = false;
+            EnsureGameplaySession();
 
             if (!networkManager.IsClientStarted)
             {
@@ -182,6 +195,33 @@ public class BootstrapManager : MonoBehaviour
     {
         if (verboseLogging)
             Debug.Log($"[BootstrapManager] {message}");
+    }
+
+    private void EnsureGameplaySession()
+    {
+        if (GameplaySessionRoot.Instance != null)
+            return;
+
+        if (gameplaySessionPrefab == null)
+        {
+            Debug.LogError("[BootstrapManager] Gameplay Session Prefab is not assigned. Create one shared HUD/pause/trait UI prefab with GameplaySessionRoot and assign it here.");
+            return;
+        }
+
+        gameplaySessionInstance = Instantiate(gameplaySessionPrefab);
+        GameplaySessionRoot sessionRoot = gameplaySessionInstance.GetComponent<GameplaySessionRoot>();
+        if (sessionRoot == null || !sessionRoot.BeginSession())
+        {
+            Debug.LogError("[BootstrapManager] Gameplay Session Prefab requires GameplaySessionRoot on its root GameObject.");
+            Destroy(gameplaySessionInstance);
+            gameplaySessionInstance = null;
+        }
+    }
+
+    private void EndGameplaySession()
+    {
+        if (gameplaySessionInstance != null)
+            Destroy(gameplaySessionInstance);
     }
 
     private void StopUnexpectedNetwork()

@@ -1,0 +1,197 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
+  m_Name: Shaman_LightningBall
+  m_EditorClassIdentifier: Assembly-CSharp::TraitTree
+  treeName: Lightning Ball
+  description: 
+  nodeSpacing: 100
+  nodeIconSize: 17
+  nodeIconFrame: {fileID: 0}
+  canvasWidth: 400
+  nodes:
+  - nodeID: ChainLightning_CritChance_bcb4
+    traitData: {fileID: 11400000, guid: 1f613831fc98ed54b945ba2a4ed6da3c, type: 2}
+    position: {x: -32, y: -64}
+    connectedNodeIDs:
+    - ChainLightning_Chain_aa3b
+  - nodeID: ChainLightning_Chain_aa3b
+    traitData: {fileID: 11400000, guid: 7daca213562a8e94e810fda39878de5b, type: 2}
+    position: {x: -48, y: -112}
+    connectedNodeIDs: []
+  - nodeID: ChainLightning_Damage_c0ca
+    traitData: {fileID: 11400000, guid: 3df627cb8cc4acf41bee75460628e4e7, type: 2}
+    position: {x: -64, y: -64}
+    connectedNodeIDs:
+    - ChainLightning_Chain_aa3b
+  - nodeID: AttackSpeed_1719
+    traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
+    position: {x: -48, y: -0}
+    connectedNodeIDs:
+    - ChainLightning_CritChance_bcb4
+    - ChainLightning_Damage_c0ca
+  - nodeID: LightningStrikeCooldown_0de6
+    traitData: {fileID: 11400000, guid: a173a7e40acb09e4493a2881b7f03d6b, type: 2}
+    position: {x: 32, y: -0}
+    connectedNodeIDs:
+    - LightningStrikeDamage_0212
+  - nodeID: LightningStrikeDamage_71e7
+    traitData: {fileID: 11400000, guid: 4859e5d0a552c8e4e872a10afa5d9df1, type: 2}
+    position: {x: 64, y: 0}
+    connectedNodeIDs:
+    - LightningStrikeDamage_0212
+  - nodeID: LightningStrikeDamage_0212
+    traitData: {fileID: 11400000, guid: 623e818b8c5857c49b7534367d625253, type: 2}
+    position: {x: 64, y: -64}
+    connectedNodeIDs:
+    - LightningStrikeUpgradeCooldown_9592
+    - StrikeTwice_9e89
+  - nodeID: LightningStrikeUpgradeCooldown_9592
+    traitData: {fileID: 11400000, guid: aae5aacdfcf9a2049b0821ee708d4bff, type: 2}
+    position: {x: 64, y: -112}
+    connectedNodeIDs: []
+  - nodeID: StrikeTwice_9e89
+    traitData: {fileID: 11400000, guid: df00b0c3b701cb44eaadd73aae516c19, type: 2}
+    position: {x: 16, y: -112}
+    connectedNodeIDs: []
+  - nodeID: BoltTotheHeart_3ba8
+    traitData: {fileID: 11400000, guid: 6e46f8859747bd14aa9a2a9af34798c6, type: 2}
+    position: {x: 96, y: -112}
+    connectedNodeIDs: []
+  - nodeID: LightningStrikeCrit_c6ce
+    traitData: {fileID: 11400000, guid: db546e01a948e5d41b92c439d8bb2cd0, type: 2}
+    position: {x: 96, y: 0}
+    connectedNodeIDs:
+    - BoltTotheHeart_3ba8
+  canvasHeight: 401
+  minCanvasWidth: 400
+  minCanvasHeight: 225
+  autoCanvasSize: 1
+  autoCanvasPadding: 80
+  connections:
+  - connectionID: conn_4d555317
+    scale: 1
+    fromNodeIDs:
+    - AttackSpeed_1719
+    toNodeIDs:
+    - ChainLightning_CritChance_bcb4
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_468c0db0
+    scale: 1
+    fromNodeIDs:
+    - AttackSpeed_1719
+    toNodeIDs:
+    - ChainLightning_Damage_c0ca
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_e9e568b5
+    scale: 1
+    fromNodeIDs:
+    - ChainLightning_Damage_c0ca
+    toNodeIDs:
+    - ChainLightning_Chain_aa3b
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_17efb304
+    scale: 1
+    fromNodeIDs:
+    - ChainLightning_CritChance_bcb4
+    toNodeIDs:
+    - ChainLightning_Chain_aa3b
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_624c0a5b
+    scale: 1
+    fromNodeIDs:
+    - LightningStrikeCooldown_0de6
+    toNodeIDs:
+    - LightningStrikeDamage_0212
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_f4dad2d3
+    scale: 1
+    fromNodeIDs:
+    - LightningStrikeDamage_71e7
+    toNodeIDs:
+    - LightningStrikeDamage_0212
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_a23880eb
+    scale: 1
+    fromNodeIDs:
+    - LightningStrikeDamage_0212
+    toNodeIDs:
+    - LightningStrikeUpgradeCooldown_9592
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_1cc4d0b3
+    scale: 1
+    fromNodeIDs:
+    - LightningStrikeDamage_0212
+    toNodeIDs:
+    - StrikeTwice_9e89
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_6443da1f
+    scale: 1
+    fromNodeIDs:
+    - LightningStrikeCrit_c6ce
+    toNodeIDs:
+    - BoltTotheHeart_3ba8
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

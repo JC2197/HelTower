@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: ChainLightning_Chain
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: ChainLightning_Chain
+  displayName: Chain Lightning Chain
+  baseGoldCost: 1
+  description: Chain Lightning Chains +{v1} time(s).
+  traitIcon: {fileID: -6044353383409064944, guid: 1b710adb658c4f64fbe079afcaf84442, type: 3}
+  weaponTraitTag: 
+  traitType: 0
+  maxLevel: 5
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
+    abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: beamConfig.chainAmount
+      overrideMode: 0
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

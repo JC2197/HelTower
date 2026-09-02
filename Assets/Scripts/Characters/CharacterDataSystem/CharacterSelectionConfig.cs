@@ -53,9 +53,9 @@ public class CharacterSelectionConfig : ScriptableObject
         if (chosenWeapon == null && classData.availableWeapons != null && classData.availableWeapons.Length > 0)
             chosenWeapon = classData.availableWeapons[0];
 
-        newCharacter.hasDualWeapons = false;
+        newCharacter.hasDualWeapons = chosenWeapon != null && chosenWeapon.offhandWeaponConfig != null;
         newCharacter.mainHandWeaponConfig = chosenWeapon;
-        newCharacter.offHandWeaponConfig = null;
+        newCharacter.offHandWeaponConfig = chosenWeapon != null ? chosenWeapon.offhandWeaponConfig : null;
 
         // Copy the class accessory pool so each runtime character owns its loadout list.
         newCharacter.accessoryConfigs = classData.availableAccessories != null

@@ -4,6 +4,8 @@ using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Component.Animating;
+using FishNet.Object.Synchronizing;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -33,9 +35,11 @@ public class PlayerController : Organism
     public static bool InputEnabled { get; set; } = true;
     public static PlayerController LocalPlayer { get; private set; }
 
+    private readonly SyncVar<int> _syncBagGold = new SyncVar<int>();
     private CharacterData _currentCharacterData;
     private SaveFileData _currentSaveFileData;
     private NetworkObject _currentMainWeaponNob;
+    private NetworkObject _currentOffhandWeaponNob;
     private WeaponConfig _equippedMainWeaponConfig;
     private WeaponSettings _currentMainWeaponSettings;
     private readonly List<AccessorySettings> _equippedAccessorySettings = new List<AccessorySettings>();
@@ -46,6 +50,8 @@ public class PlayerController : Organism
     private bool _hasFacing;
     /// <summary>Fired on the local owner when the player spawns / gains ownership.</summary>
     public static event Action<PlayerController> OnPlayerSpawned;
+    public static event Action<PlayerController> OnLocalPlayerSceneChanged;
+    public static event Action<PlayerController, int> OnBagGoldChanged;
 
     /// <summary>Fired when an attack ability executes.</summary>
     public event Action<AbilityDataConfig> OnAttack;
@@ -59,6 +65,7 @@ public class PlayerController : Organism
 
     public CharacterData GetCurrentCharacterData() => _currentCharacterData;
     public SaveFileData GetCurrentSaveFileData() => _currentSaveFileData;
+    public int BagGold => _syncBagGold.Value;
     public void SetCurrentCharacterData(CharacterData characterData) => _currentCharacterData = characterData;
 
     /// <summary>
@@ -69,6 +76,110 @@ public class PlayerController : Organism
     {
         _currentSaveFileData = saveFileData;
         GetComponent<CharacterTraitManager>()?.SetSaveFileData(saveFileData);
+    }
+
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        _syncBagGold.OnChange += OnBagGoldSync;
+    }
+
+    public override void OnStopNetwork()
+    {
+        _syncBagGold.OnChange -= OnBagGoldSync;
+        base.OnStopNetwork();
+    }
+
+    public void AddBagGold(int amount)
+    {
+        if (!IsServerStarted || amount <= 0)
+            return;
+
+        _syncBagGold.Value += amount;
+    }
+
+    public void ResetBagGold()
+    {
+        if (IsServerStarted)
+            _syncBagGold.Value = 0;
+    }
+
+    /// <summary>Deduct Bag Gold if the balance covers it. Returns false and changes nothing otherwise.</summary>
+    public bool SpendBagGold(int amount)
+    {
+        if (!IsServerStarted || amount <= 0)
+            return amount <= 0;
+
+        if (_syncBagGold.Value < amount)
+            return false;
+
+        _syncBagGold.Value -= amount;
+        return true;
+    }
+
+    public void DepositBagIntoHoard()
+    {
+        if (!IsServerStarted || _syncBagGold.Value <= 0)
+            return;
+
+        SaveFileData saveFileData = GetCurrentSaveFileData();
+        if (saveFileData == null)
+        {
+            Debug.LogWarning($"[Gold] Cannot deposit Bag for {gameObject.name}: no save file is assigned.");
+            return;
+        }
+
+        saveFileData.AddGold(_syncBagGold.Value);
+        SaveFilePersistence.SaveFile(saveFileData);
+        _syncBagGold.Value = 0;
+    }
+
+    public override void Revive()
+    {
+        if (IsNetworkActive && !IsServerStarted)
+            return;
+
+        CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
+        traitManager?.ResetAllTraits();
+
+        if (_currentCharacterData != null)
+        {
+            _currentCharacterData.abilityLoadout?.ClearTraitAbilities();
+            GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(_currentCharacterData);
+        }
+
+        if (_currentSaveFileData != null)
+        {
+            _currentSaveFileData.ClearTraitProgress();
+            SaveFilePersistence.SaveFile(_currentSaveFileData);
+        }
+
+        base.Revive();
+        ObserversRpcRestoreAfterRevive();
+    }
+
+    [ObserversRpc(RunLocally = true)]
+    private void ObserversRpcRestoreAfterRevive()
+    {
+        isAlive = true;
+        CurrentAbilityState = AbilityState.Idle;
+
+        Animator bodyAnimator = ResolveBodyAnimator();
+        if (bodyAnimator != null)
+        {
+            bodyAnimator.SetBool(_movingParameter, false);
+            bodyAnimator.Play("Idle", 0, 0f);
+        }
+
+        if (IsOwner)
+            EnableInputActions();
+
+        OnLocalPlayerSceneChanged?.Invoke(this);
+    }
+
+    private void OnBagGoldSync(int previousValue, int nextValue, bool asServer)
+    {
+        OnBagGoldChanged?.Invoke(this, nextValue);
     }
     public WeaponConfig GetEquippedMainWeaponConfig() => _equippedMainWeaponConfig;
     public enum AbilityState
@@ -114,13 +225,39 @@ public class PlayerController : Organism
         ApplyClassBaseStats(classData);
 
         WeaponConfig defaultWeapon = GetRandomWeaponForClass(classData);
-        if (defaultWeapon != null)
-            EquipMainHandWeapon(defaultWeapon);
+        if (characterData != null)
+        {
+            characterData.hasDualWeapons = defaultWeapon != null && defaultWeapon.offhandWeaponConfig != null;
+            characterData.mainHandWeaponConfig = defaultWeapon;
+            characterData.offHandWeaponConfig = defaultWeapon != null ? defaultWeapon.offhandWeaponConfig : null;
+            characterData.accessoryConfigs = classData.availableAccessories != null
+                ? new List<AccessoryConfig>(classData.availableAccessories)
+                : new List<AccessoryConfig>();
+            characterData.abilityLoadout = CreateBaseAbilityLoadout(defaultWeapon);
+        }
+
+        EquipMainHandWeapon(defaultWeapon);
+    EquipOffhandWeapon(characterData?.offHandWeaponConfig);
+        EquipAccessories(characterData?.accessoryConfigs);
+        GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(characterData);
 
         SynchronizeClassVisual(classData.className);
 
         Debug.Log($"[PlayerController] Switched animator to class '{classData.className}'.");
         return true;
+    }
+
+    private static CharacterAbilityLoadout CreateBaseAbilityLoadout(WeaponConfig weaponConfig)
+    {
+        CharacterAbilityLoadout loadout = new CharacterAbilityLoadout();
+        if (weaponConfig == null)
+            return loadout;
+
+        loadout.SetWeaponAbility(weaponConfig.grantedPrimaryAbility);
+        loadout.SetSecondaryWeaponAbility(weaponConfig.grantedSecondaryAbility);
+        loadout.SetDashAbility(weaponConfig.grantedDashAbility);
+        loadout.SetPassiveAbility(weaponConfig.grantedPassiveAbility);
+        return loadout;
     }
 
     /// <summary>
@@ -150,7 +287,7 @@ public class PlayerController : Organism
         if (target != null)
         {
             source.CopyToStatContainer(target);
-            
+
         }
 
         if (MaxHealth > 0f)
@@ -184,7 +321,7 @@ public class PlayerController : Organism
         if (target != null && characterData.statContainer != null)
         {
             characterData.statContainer.CopyToStatContainer(target);
-            
+
         }
 
         // Refill only when the class has a valid configured maximum. A missing/zero
@@ -209,6 +346,11 @@ public class PlayerController : Organism
             EquipMainHandWeapon(characterData.mainHandWeaponConfig);
         else
             UnequipMainHandWeapon();
+
+        if (characterData.hasDualWeapons && characterData.offHandWeaponConfig != null)
+            EquipOffhandWeapon(characterData.offHandWeaponConfig);
+        else
+            UnequipOffhandWeapon();
 
         // Accessories (any number, all under the single AccessoryHolder).
         EquipAccessories(characterData.accessoryConfigs);
@@ -279,8 +421,23 @@ public class PlayerController : Organism
         return null;
     }
 
-    // Animation system not yet ported to the new controller; kept as a hook for callers.
-    public void ForceAnimationUpdate() { }
+    public void ForceAnimationUpdate()
+    {
+        if (IsOwner)
+            UpdateMainWeaponPresentation();
+    }
+
+    [ServerRpc]
+    public void ServerRpcReturnToCamp()
+    {
+        if (BootstrapManager.Instance == null)
+        {
+            Debug.LogError("[PlayerController] BootstrapManager is unavailable — cannot return to Camp.");
+            return;
+        }
+
+        BootstrapManager.Instance.LoadCamp();
+    }
 
     /// <summary>
     /// ServerRpc proxy for DataDrivenAbility projectile spawning. DataDrivenAbility is added via
@@ -485,6 +642,18 @@ public class PlayerController : Organism
             LocalPlayer = null;
     }
 
+    private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene previousScene, UnityEngine.SceneManagement.Scene activeScene)
+    {
+        if (IsOwner)
+            StartCoroutine(NotifySceneChanged());
+    }
+
+    private System.Collections.IEnumerator NotifySceneChanged()
+    {
+        yield return null;
+        OnLocalPlayerSceneChanged?.Invoke(this);
+    }
+
     private void EnsureCharacterAssigned()
     {
         // The save file is chosen in the main menu, before this player exists.
@@ -645,6 +814,86 @@ public class PlayerController : Organism
         WeaponHolder weaponHolder = GetExistingMainWeaponHolder();
         if (weaponHolder != null)
             weaponHolder.UnequipWeapon();
+    }
+
+    private void EquipOffhandWeapon(WeaponConfig weaponConfig)
+    {
+        if (weaponConfig == null)
+        {
+            UnequipOffhandWeapon();
+            return;
+        }
+
+        if (IsServerStarted)
+        {
+            ServerEquipOffhandWeaponByName(weaponConfig.weaponName);
+            return;
+        }
+
+        if (IsOwner && IsClientStarted)
+            ServerRpcEquipOffhandWeaponByName(weaponConfig.weaponName);
+    }
+
+    private void UnequipOffhandWeapon()
+    {
+        if (_currentOffhandWeaponNob != null && _currentOffhandWeaponNob.IsSpawned)
+            InstanceFinder.ServerManager.Despawn(_currentOffhandWeaponNob);
+
+        _currentOffhandWeaponNob = null;
+        GetComponent<OffHandWeaponHolder>()?.UnequipWeapon();
+    }
+
+    [ServerRpc]
+    private void ServerRpcEquipOffhandWeaponByName(string weaponName)
+    {
+        ServerEquipOffhandWeaponByName(weaponName);
+    }
+
+    private void ServerEquipOffhandWeaponByName(string weaponName)
+    {
+        if (!IsServerStarted)
+            return;
+
+        WeaponConfig weaponConfig = WeaponConfigRegistry.GetConfig(weaponName);
+        if (weaponConfig == null || weaponConfig.weaponPrefab == null)
+        {
+            Debug.LogWarning($"[PlayerController] Cannot equip offhand weapon '{weaponName}'.");
+            return;
+        }
+
+        UnequipOffhandWeapon();
+
+        GameObject spawnedWeapon = Instantiate(weaponConfig.weaponPrefab);
+        NetworkObject weaponNob = spawnedWeapon.GetComponent<NetworkObject>();
+        if (weaponNob == null)
+        {
+            Debug.LogError($"[PlayerController] Offhand weapon prefab '{weaponConfig.weaponPrefab.name}' has no NetworkObject component.");
+            Destroy(spawnedWeapon);
+            return;
+        }
+
+        InstanceFinder.ServerManager.Spawn(spawnedWeapon, Owner);
+        weaponNob.SetParent(NetworkObject);
+        _currentOffhandWeaponNob = weaponNob;
+        ObserversRpcSetupOffhandWeaponVisuals(weaponNob, weaponName);
+    }
+
+    [ObserversRpc(BufferLast = true, RunLocally = true)]
+    private void ObserversRpcSetupOffhandWeaponVisuals(NetworkObject offhandWeaponNob, string weaponName)
+    {
+        if (offhandWeaponNob == null)
+            return;
+
+        WeaponConfig weaponConfig = WeaponConfigRegistry.GetConfig(weaponName);
+        if (weaponConfig == null)
+            return;
+
+        OffHandWeaponHolder holder = GetComponent<OffHandWeaponHolder>();
+        if (holder == null)
+            holder = gameObject.AddComponent<OffHandWeaponHolder>();
+
+        holder.SetupNetworkWeapon(offhandWeaponNob.gameObject);
+        _currentOffhandWeaponNob = offhandWeaponNob;
     }
 
     [ServerRpc]
@@ -903,11 +1152,13 @@ public class PlayerController : Organism
 
     private void OnEnable()
     {
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnActiveSceneChanged;
         EnableInputActions();
     }
 
     private void OnDisable()
     {
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         DisableInputActions();
     }
 
@@ -1104,6 +1355,38 @@ public class PlayerController : Organism
             IsClientStarted || IsServerStarted,
             IsOwner,
             null);
+
+        WeaponConfig offhandConfig = GetEquippedOffhandWeaponConfig();
+        OffHandWeaponHolder offhandHolder = GetComponent<OffHandWeaponHolder>();
+        GameObject offhandWeapon = offhandHolder != null ? offhandHolder.GetCurrentWeapon() : null;
+        if (offhandConfig == null || offhandWeapon == null)
+            return;
+
+        WeaponSettings offhandSettings = offhandConfig.ToOffhandWeaponSettings();
+        _weaponSortingManager.UpdateActiveAimingWeapon(
+            offhandWeapon.transform,
+            offhandSettings,
+            offhandConfig.weaponName,
+            aimDir,
+            transform,
+            Camera.main,
+            _characterSpriteRenderer,
+            false,
+            transform.Find("BackpackHolder"),
+            () => _isFacingLeft,
+            value => _isFacingLeft = value,
+            _ => { },
+            IsClientStarted || IsServerStarted,
+            IsOwner,
+            null);
+
+        _weaponSortingManager.ApplyDualWieldSorting(
+            currentWeapon.transform,
+            offhandWeapon.transform,
+            _isFacingLeft,
+            aimDir,
+            _currentMainWeaponSettings,
+            offhandSettings);
     }
 
     private void ApplyFacingVisual(bool facingLeft)
@@ -1266,5 +1549,5 @@ public class PlayerController : Organism
         }
     }
 
-    
+
 }

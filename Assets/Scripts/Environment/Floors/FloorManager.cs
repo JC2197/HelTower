@@ -1,6 +1,7 @@
 using UnityEngine;
 using FishNet;
 using FishNet.Object;
+using FishNet.Managing.Scened;
 using NUnit.Framework;
 using System.Linq;
 using FishNet.Component.Spawning;
@@ -47,7 +48,26 @@ public class FloorManager : NetworkBehaviour
         }
 
         SpawnFloor(floorToLoad);
-        RepositionAllPlayers(GetSpawnPoints());
+        InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+    }
+
+    public override void OnStopServer()
+    {
+        InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        base.OnStopServer();
+    }
+
+    private void OnSceneLoadEnd(SceneLoadEndEventArgs sceneLoadEnd)
+    {
+        foreach (UnityEngine.SceneManagement.Scene scene in sceneLoadEnd.LoadedScenes)
+        {
+            if (scene != gameObject.scene)
+                continue;
+
+            RepositionAllPlayers(GetSpawnPoints());
+            InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+            return;
+        }
     }
 
     /// <summary>Called by FloorPortal when a player interacts with it after the floor is cleared.</summary>

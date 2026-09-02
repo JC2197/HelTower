@@ -23,6 +23,12 @@ public class PlayerCamera : NetworkBehaviour
         UnitySceneManager.activeSceneChanged += OnActiveSceneChanged;
     }
 
+    private void LateUpdate()
+    {
+        if (IsOwner)
+            FollowCamera();
+    }
+
     private void OnDisable()
     {
         UnitySceneManager.activeSceneChanged -= OnActiveSceneChanged;
@@ -51,31 +57,38 @@ public class PlayerCamera : NetworkBehaviour
 
         if (_activeCamera == null)
         {
-            GameObject cameraObject = new GameObject("Player Camera");
-            _activeCamera = cameraObject.AddComponent<Camera>();
-            cameraObject.AddComponent<AudioListener>();
+            Debug.LogError($"[PlayerCamera] No camera exists in active scene '{UnitySceneManager.GetActiveScene().name}'.");
+            return;
         }
 
-        if (_activeCamera != null)
-        {
-            UniversalAdditionalCameraData cameraData = _activeCamera.GetUniversalAdditionalCameraData();
-            cameraData.renderPostProcessing = true;
+        if (_activeCamera.GetComponent<CameraParentTrace>() == null)
+            _activeCamera.gameObject.AddComponent<CameraParentTrace>();
 
-            _activeCamera.gameObject.SetActive(true);
-            _activeCamera.enabled = true;
-            _activeCamera.tag = "MainCamera";
-            _activeCamera.transform.SetParent(_cameraHolder, false);
-            _activeCamera.transform.localPosition = new Vector3(0f, 0f, -10f);
-            _activeCamera.transform.localRotation = Quaternion.identity;
-            _activeCamera.clearFlags = CameraClearFlags.SolidColor;
-            _activeCamera.backgroundColor = _backgroundColor;
-            _activeCamera.orthographic = true;
-            _activeCamera.orthographicSize = _orthographicSize;
-            _activeCamera.depth = -1;
-            _activeCamera.allowHDR = false;
-            _activeCamera.allowMSAA = false;
-            _activeCamera.cullingMask = -1;
-        }
+        UniversalAdditionalCameraData cameraData = _activeCamera.GetUniversalAdditionalCameraData();
+        cameraData.renderPostProcessing = true;
+
+        _activeCamera.gameObject.SetActive(true);
+        _activeCamera.enabled = true;
+        _activeCamera.tag = "MainCamera";
+        _activeCamera.clearFlags = CameraClearFlags.SolidColor;
+        _activeCamera.backgroundColor = _backgroundColor;
+        _activeCamera.orthographic = true;
+        _activeCamera.orthographicSize = _orthographicSize;
+        _activeCamera.depth = -1;
+        _activeCamera.allowHDR = false;
+        _activeCamera.allowMSAA = false;
+        _activeCamera.cullingMask = -1;
+        FollowCamera();
+    }
+
+    private void FollowCamera()
+    {
+        if (_activeCamera == null || _cameraHolder == null)
+            return;
+
+        _activeCamera.transform.SetPositionAndRotation(
+            _cameraHolder.position + new Vector3(0f, 0f, -10f),
+            Quaternion.identity);
     }
 
     private static Camera FindCameraInActiveScene()

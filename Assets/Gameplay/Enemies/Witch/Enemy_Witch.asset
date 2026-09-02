@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314b876028dce5b468eb6ea7e0902966, type: 3}
+  m_Name: Enemy_Witch
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
+  enemyName: Witch
+  displayName: Witch
+  stats:
+    stats:
+    - statId: STR
+      displayName: STR
+      categoryId: BASE
+      currentValue: 0
+    - statId: VIG
+      displayName: VIG
+      categoryId: BASE
+      currentValue: 0
+    - statId: INT
+      displayName: BASE
+      categoryId: BASE
+      currentValue: 0
+    - statId: DEX
+      displayName: DEX
+      categoryId: BASE
+      currentValue: 0
+    - statId: FTH
+      displayName: FTH
+      categoryId: BASE
+      currentValue: 0
+    - statId: LUK
+      displayName: LUK
+      categoryId: BASE
+      currentValue: 0
+    - statId: MoveSpeed
+      displayName: Movement Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: AttackSpeed
+      displayName: Attack Speed
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxHealth
+      displayName: Maximum HP
+      categoryId: Active
+      currentValue: 400
+    - statId: Physical
+      displayName: Physical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: Magical
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: MaxMana
+      displayName: Magical Damage Bonus
+      categoryId: Active
+      currentValue: 0
+    - statId: BleedDamage
+      displayName: Bleed Damage Bonus
+      categoryId: Active
+      currentValue: 0
+  statTypeDatabase: {fileID: 0}
+  isBoss: 1
+  detectionRange: 10
+  abilities:
+  - abilityConfig: {fileID: 0}
+    range: 0
+    priority: 0
+  mainHandWeaponConfig: {fileID: 0}
+  offhandWeaponConfig: {fileID: 0}
+  goldDropped: 0
+  handSprite: {fileID: 0}
+  useWeaponGrantedAbilities: 1
+  weaponAbilityRange: 8
+  isSimpleEnemy: 0
+  actions:
+  - actionType: 4
+    minDistance: 0
+    maxDistance: 0
+    healthPercentThreshold: 0
+    movementSpeedMultiplier: 0
+    movementDuration: 0
+    strafeDistance: 0
+    strafeClockwise: 0
+    patrolRadius: 0
+    patrolWaitTime: 0
+    attackCooldownMin: 0
+    attackCooldownMax: 0
+    abilityIndex: 0
+  - actionType: 4
+    minDistance: 0
+    maxDistance: 0
+    healthPercentThreshold: 0
+    movementSpeedMultiplier: 0
+    movementDuration: 0
+    strafeDistance: 0
+    strafeClockwise: 0
+    patrolRadius: 0
+    patrolWaitTime: 0
+    attackCooldownMin: 0
+    attackCooldownMax: 0
+    abilityIndex: 0
+  canMove: 1
+  continuousMovement: 1
+  movementTime: 1
+  stopTime: 0.5
+  pathfindingObstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  obstacleAvoidanceStrength: 25
+  debugDrawPathfindingRays: 0
+  hasCollisionDamage: 0
+  targetTags:
+  - Player
+  collisionDamage: 5
+  collisionDamageCooldown: 1
+  collisionDamageType: Bludgeoning
+  collisionHitLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  idleAnimationName: Idle
+  idleUpAnimationName: IdleUp
+  moveAnimationName: Move
+  moveUpAnimationName: MoveUp
+  deathAnimationName: Death
+  onDeathAbility: {fileID: 0}
+  maxDrops: 3

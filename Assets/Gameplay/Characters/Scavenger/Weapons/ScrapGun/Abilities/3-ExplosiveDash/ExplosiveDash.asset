@@ -464,7 +464,7 @@ MonoBehaviour:
     waveFrequency: 2
     spiralRadius: 1
     spiralSpeed: 2
-    lobbedArcHeight: 1.5
+    lobbedArcHeight: 0.5
     boomerangDistanceCurve:
       serializedVersion: 2
       m_Curve:
@@ -1306,14 +1306,10 @@ MonoBehaviour:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-      shape: 0
-      dimensions: {x: 3, y: 3}
       singleTargetMode: 0
       singleTargetSearchRadius: 0
       timeDelay: 0
       delayEffectPrefab: {fileID: 0}
-      explosionEffectPrefab: {fileID: 0}
-      explosionSound: {fileID: 0}
       activationRange: 0
       salvos: 0
       salvoAmount: 0
@@ -1426,14 +1422,10 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    shape: 0
-    dimensions: {x: 3, y: 3}
     singleTargetMode: 0
     singleTargetSearchRadius: 0
     timeDelay: 0
     delayEffectPrefab: {fileID: 0}
-    explosionEffectPrefab: {fileID: 0}
-    explosionSound: {fileID: 0}
     activationRange: 0
     salvos: 0
     salvoAmount: 0
@@ -1471,7 +1463,6 @@ MonoBehaviour:
     summonAbilities: []
     isRotationalTurret: 0
     turretChildName: Turret
-    turretRotationSpeed: 90
     idleAnimation: Idle
     moveAnimation: Move
     spawnAnimation: Spawn

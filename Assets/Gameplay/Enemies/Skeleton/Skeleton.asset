@@ -51,7 +51,7 @@ MonoBehaviour:
     - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 15
+      currentValue: 100
     - statId: Physical
       displayName: Physical Damage Bonus
       categoryId: Active
@@ -73,7 +73,7 @@ MonoBehaviour:
   detectionRange: 1000
   abilities:
   - abilityConfig: {fileID: 11400000, guid: 335bdc7d04b7b3d498459b199dc42ff4, type: 2}
-    range: 1
+    range: 2
     priority: 1
   mainHandWeaponConfig: {fileID: 0}
   offhandWeaponConfig: {fileID: 0}
@@ -97,7 +97,7 @@ MonoBehaviour:
     attackCooldownMax: 3
     abilityIndex: 0
   - actionType: 4
-    minDistance: -1
+    minDistance: 2
     maxDistance: -1
     healthPercentThreshold: -1
     movementSpeedMultiplier: 1

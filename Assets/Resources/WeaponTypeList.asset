@@ -23,7 +23,6 @@ MonoBehaviour:
   - Bow
   - Crossbow
   - Pistol
-  - Wand
   - Claws
   - Lute
   - Curse Staff
@@ -36,3 +35,4 @@ MonoBehaviour:
   - LifeStaff
   - Book
   - LightningBall
+  - Greataxe

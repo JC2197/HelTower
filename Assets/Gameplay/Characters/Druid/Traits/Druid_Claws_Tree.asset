@@ -35,7 +35,11 @@ MonoBehaviour:
     traitData: {fileID: 11400000, guid: b9e79fb05e23ab743aedaae5db208d3f, type: 2}
     position: {x: 128, y: 0}
     connectedNodeIDs: []
-  canvasHeight: 225
+  - nodeID: AttackSpeed_ff72
+    traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
+    position: {x: 0, y: -32}
+    connectedNodeIDs: []
+  canvasHeight: 241
   minCanvasWidth: 400
   minCanvasHeight: 225
   autoCanvasSize: 1

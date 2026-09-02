@@ -25,11 +25,11 @@ MonoBehaviour:
     weaponBehindOnNW: 1
     weaponBehindOnSE: 0
     weaponBehindOnSW: 1
-    isOffhand: 0
-    offhandNorthEastOffset: {x: -0.15, y: -0.2}
-    offhandNorthWestOffset: {x: -0.15, y: -0.2}
-    offhandSouthEastOffset: {x: -0.15, y: -0.2}
-    offhandSouthWestOffset: {x: -0.15, y: -0.2}
+    isOffhand: 1
+    offhandNorthEastOffset: {x: 0.25, y: -0.2}
+    offhandNorthWestOffset: {x: 0.25, y: -0.2}
+    offhandSouthEastOffset: {x: 0.25, y: -0.2}
+    offhandSouthWestOffset: {x: 0.25, y: -0.2}
     offhandWeaponBehindOnNE: 1
     offhandWeaponBehindOnNW: 0
     offhandWeaponBehindOnSE: 1

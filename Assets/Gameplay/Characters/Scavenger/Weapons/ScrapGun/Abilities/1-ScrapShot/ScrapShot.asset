@@ -504,7 +504,7 @@ MonoBehaviour:
       m_Bits: 128
     destroyVisualPrefab: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
     destroySound: {fileID: 0}
-    muzzleFlashPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
+    muzzleFlashPrefab: {fileID: 3240179893309576959, guid: 36b11a302f9b36d4f8a42e2065fccce5, type: 3}
     muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -1302,14 +1302,10 @@ MonoBehaviour:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-      shape: 0
-      dimensions: {x: 3, y: 3}
       singleTargetMode: 0
       singleTargetSearchRadius: 0
       timeDelay: 0
       delayEffectPrefab: {fileID: 0}
-      explosionEffectPrefab: {fileID: 0}
-      explosionSound: {fileID: 0}
       activationRange: 0
       salvos: 0
       salvoAmount: 0
@@ -1422,14 +1418,10 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    shape: 0
-    dimensions: {x: 3, y: 3}
     singleTargetMode: 0
     singleTargetSearchRadius: 0
     timeDelay: 0
     delayEffectPrefab: {fileID: 0}
-    explosionEffectPrefab: {fileID: 0}
-    explosionSound: {fileID: 0}
     activationRange: 0
     salvos: 0
     salvoAmount: 0
@@ -1467,7 +1459,6 @@ MonoBehaviour:
     summonAbilities: []
     isRotationalTurret: 0
     turretChildName: Turret
-    turretRotationSpeed: 90
     idleAnimation: Idle
     moveAnimation: Move
     spawnAnimation: 

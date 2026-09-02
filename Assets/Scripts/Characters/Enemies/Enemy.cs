@@ -536,6 +536,22 @@ public class Enemy : Organism
     }
 
     /// <summary>
+    /// True while any ability's precast/cast sequence is actively animating, regardless of
+    /// whether that ability locks movement. Used to stop the state machine from overwriting
+    /// the ability's animation and to pause reassessment mid-cast.
+    /// </summary>
+    private bool IsAnyAbilityBusy()
+    {
+        foreach (var instance in abilityInstances)
+        {
+            if (instance.ability != null && (instance.ability.IsCastSequenceActive || instance.ability.IsPerformingAbility))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Get the config for a specific ability by index
     /// </summary>
     public AbilityDataConfig GetAbilityConfig(int index)
@@ -1085,29 +1101,42 @@ public class Enemy : Organism
         // State Machine System
         if (config != null && config.actions != null && config.actions.Count > 0)
         {
-            // Decrement reassessment timer
-            stateReassessmentTimer -= Time.deltaTime;
-
-            // Only reassess state when timer expires
-            if (stateReassessmentTimer <= 0f)
+            // While an ability's precast/cast animation is playing, let it own the animator and
+            // hold position instead of letting Chase/Attack re-assert Run/Idle every frame and
+            // reassessment yanking us out of the ability mid-animation.
+            if (IsAnyAbilityBusy())
             {
-                EnemyState nextState = DetermineNextState(distanceToTarget, hasTarget, currentState);
-
-                // Transition to new state if changed
-                if (nextState != currentState)
+                if (rb != null)
                 {
-                    Debug.Log($"[Enemy] {gameObject.name} state transition: {currentState} -> {nextState} (distance: {distanceToTarget:F2}, attackRange: {GetAttackRange():F2}, health: {(CurrentHealth / MaxHealth * 100f):F1}%)");
-                    currentState = nextState;
-                    stateTimer = 0f;
+                    rb.linearVelocity = Vector2.zero;
+                }
+            }
+            else
+            {
+                // Decrement reassessment timer
+                stateReassessmentTimer -= Time.deltaTime;
+
+                // Only reassess state when timer expires
+                if (stateReassessmentTimer <= 0f)
+                {
+                    EnemyState nextState = DetermineNextState(distanceToTarget, hasTarget, currentState);
+
+                    // Transition to new state if changed
+                    if (nextState != currentState)
+                    {
+                        Debug.Log($"[Enemy] {gameObject.name} state transition: {currentState} -> {nextState} (distance: {distanceToTarget:F2}, attackRange: {GetAttackRange():F2}, health: {(CurrentHealth / MaxHealth * 100f):F1}%)");
+                        currentState = nextState;
+                        stateTimer = 0f;
+                    }
+
+                    // Reset reassessment timer
+                    stateReassessmentTimer = STATE_REASSESSMENT_INTERVAL;
                 }
 
-                // Reset reassessment timer
-                stateReassessmentTimer = STATE_REASSESSMENT_INTERVAL;
+                // Execute current state
+                isChasing = hasTarget;
+                ExecuteState(currentState, distanceToTarget);
             }
-
-            // Execute current state
-            isChasing = hasTarget;
-            ExecuteState(currentState, distanceToTarget);
         }
         else
         {
@@ -1377,19 +1406,10 @@ public class Enemy : Organism
             collider.enabled = false;
         }
         Debug.Log($"[Gold] {gameObject.name} died and trying to drop {config.goldDropped} gold.");
-        if (player != null)
+        if (player != null && IsServerStarted)
         {
-            Debug.Log($"[Gold] {gameObject.name} is granting gold to player {player.gameObject.name}.");
-            SaveFileData saveFileData = player.GetCurrentSaveFileData();
-            if (saveFileData != null)
-            {
-                Debug.Log($"[Gold] Adding {config.goldDropped} gold to player {player.gameObject.name}'s save file.");
-                saveFileData.AddGold(config.goldDropped);
-                SaveFilePersistence.SaveFile(saveFileData);
-            } else
-            {
-                Debug.LogWarning($"[Gold] Failed to add gold to player {player.gameObject.name}'s save file. SaveFileData is null.");
-            }
+            Debug.Log($"[Gold] Adding {config.goldDropped} gold to {player.gameObject.name}'s Bag.");
+            player.AddBagGold(config.goldDropped);
         }
         //Death Animation
         if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))

@@ -82,8 +82,20 @@ public class CharacterAbilityManager : MonoBehaviour
             offhandAbility = LoadAbility(offhandAbilityRef, 1);
         }
 
+        if (loadout.DashAbility?.Config != null)
+        {
+            dashAbilityRef = loadout.DashAbility;
+            dashAbility = LoadAbility(dashAbilityRef, 2);
+        }
+
+        if (loadout.PassiveAbility?.Config != null)
+        {
+            passiveAbilityRef = loadout.PassiveAbility;
+            passiveAbility = LoadAbility(passiveAbilityRef, -1);
+        }
+
         // Load Trait Abilities
-        int activeSlot = 2;
+        int activeSlot = 3;
         foreach (var traitRef in loadout.TraitAbilities)
         {
             if (traitRef?.Config == null) continue;

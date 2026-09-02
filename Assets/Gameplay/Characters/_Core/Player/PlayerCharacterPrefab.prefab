@@ -76,6 +76,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 102942654033116495}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2398132087493060419
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4731522161850830724}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4731522161850830724
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2398132087493060419}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.00627, y: 0.24726, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 102942654033116495}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2798400235474379220
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,7 +278,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
+  m_SortingOrder: -2
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2143944500, guid: 210807b2973169547bd891bdedf4446a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -5259,7 +5290,6 @@ GameObject:
   - component: {fileID: -6924435267670265924}
   - component: {fileID: 1982527419454777385}
   - component: {fileID: 299155514535836926}
-  - component: {fileID: 9151821784917077401}
   - component: {fileID: -6323806338761550441}
   - component: {fileID: -8027385352663489862}
   - component: {fileID: -2646983330549828241}
@@ -5293,7 +5323,9 @@ Transform:
   - {fileID: 3220463590396056228}
   - {fileID: 939052996780319900}
   - {fileID: 4300221802488895558}
+  - {fileID: 7116937188694734652}
   - {fileID: 1333207022433787871}
+  - {fileID: 4731522161850830724}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8662488452663639749
@@ -5306,7 +5338,7 @@ Animator:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: f38cb6debfa574148aba271e71aa8ef3, type: 2}
+  m_Controller: {fileID: 22100000, guid: 25b6a9bf61d9e1e4998d30948b4a169e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5505,7 +5537,7 @@ MonoBehaviour:
   - {fileID: -6924435267670265924}
   - {fileID: 1982527419454777385}
   - {fileID: 299155514535836926}
-  - {fileID: 9151821784917077401}
+  - {fileID: 0}
   - {fileID: -6323806338761550441}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
@@ -5628,24 +5660,6 @@ MonoBehaviour:
   _interpolation: 2
   _clientAuthoritative: 1
   _sendToOwner: 0
---- !u!114 &9151821784917077401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5979735782993668707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a54ee3bd1ee94452aad756158fcfb43c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: JoeConticello.Characters2D.FishNet.Runtime::JoeConticello.Characters2D.FishNet.FishNetCharacterCamera
-  _componentIndexCache: 3
-  _addedNetworkObject: {fileID: 8054363077136831453}
-  _networkObjectCache: {fileID: 8054363077136831453}
-  _cameraHolder: {fileID: 939052996780319900}
-  _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  _orthographicSize: 6
 --- !u!114 &-6323806338761550441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5802,6 +5816,51 @@ MonoBehaviour:
   _cameraHolder: {fileID: 939052996780319900}
   _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
   _orthographicSize: 5
+--- !u!1 &8250924038244619466
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7116937188694734652}
+  - component: {fileID: 562351443250258079}
+  m_Layer: 3
+  m_Name: OffHandWeaponHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7116937188694734652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8250924038244619466}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 102942654033116495}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &562351443250258079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8250924038244619466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3020903a116128943a6605d925aa6a2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponHolder
+  weaponSortingOrder: 1
 --- !u!1001 &7891000605144988753
 PrefabInstance:
   m_ObjectHideFlags: 0

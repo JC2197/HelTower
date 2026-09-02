@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
@@ -25,11 +26,9 @@ public class PlayerHUD : MonoBehaviour
         Organism.OnEnergyChanged += HandleEnergyChanged;
         StatContainer.OnAnyStatChanged += HandleStatsChanged;
         PlayerController.OnPlayerSpawned += HandlePlayerSpawned;
+        PlayerController.OnLocalPlayerSceneChanged += HandlePlayerSceneChanged;
+        PlayerController.OnBagGoldChanged += HandleBagGoldChanged;
         SaveFileData.OnGoldChanged += HandleGoldChanged;
-        if (player != null && totalGold != null)
-        {
-            totalGold.text = player.GetCurrentSaveFileData().totalGold.ToString();
-        }
         // Find player immediately when enabled (important for scene transitions)
         if (player == null)
         {
@@ -40,10 +39,16 @@ public class PlayerHUD : MonoBehaviour
     }
     private void HandleGoldChanged(int newTotalGold)
     {
-        if (totalGold != null)
+        if (totalGold != null && !IsInGameScene())
         {
             totalGold.text = newTotalGold.ToString();
         }
+    }
+
+    private void HandleBagGoldChanged(PlayerController changedPlayer, int newBagGold)
+    {
+        if (changedPlayer == player && IsInGameScene())
+            UpdateGoldDisplay(newBagGold);
     }
     private void HandlePlayerSpawned(PlayerController newPlayer)
     {
@@ -54,8 +59,14 @@ public class PlayerHUD : MonoBehaviour
         if (!isLocalPlayer) return;
         
         player = newPlayer;
-        UpdateHealthDisplay(player);
-        UpdateEnergyDisplay(player);
+        RefreshAllDisplays();
+    }
+
+    private void HandlePlayerSceneChanged(PlayerController movedPlayer)
+    {
+        player = movedPlayer;
+        RefreshAllDisplays();
+        UpdateAbilities(player.GetCurrentCharacterData());
     }
     
     void FindAndInitializePlayer()
@@ -81,6 +92,8 @@ public class PlayerHUD : MonoBehaviour
         Organism.OnEnergyChanged -= HandleEnergyChanged;
         StatContainer.OnAnyStatChanged -= HandleStatsChanged;
         PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
+        PlayerController.OnLocalPlayerSceneChanged -= HandlePlayerSceneChanged;
+        PlayerController.OnBagGoldChanged -= HandleBagGoldChanged;
         SaveFileData.OnGoldChanged -= HandleGoldChanged;
     }
     
@@ -151,7 +164,13 @@ public class PlayerHUD : MonoBehaviour
         {
             UpdateHealthDisplay(player);
             UpdateEnergyDisplay(player);
-            UpdateGoldDisplay(player.GetCurrentSaveFileData().totalGold);
+            SaveFileData saveFileData = player.GetCurrentSaveFileData();
+            UpdateGoldDisplay(IsInGameScene() ? player.BagGold : saveFileData != null ? saveFileData.totalGold : 0);
         }
+    }
+
+    private static bool IsInGameScene()
+    {
+        return SceneManager.GetActiveScene().name == "GameScene";
     }
 }

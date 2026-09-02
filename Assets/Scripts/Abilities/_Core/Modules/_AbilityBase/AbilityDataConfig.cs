@@ -96,6 +96,8 @@ public class AbilityDataConfig : AbilityConfig
     [Tooltip("Optional movement speed multiplier while casting (1 = no change, 0 = cannot move). If < 1, this is used instead of hard control lock.")]
     [Range(0f, 1f)]
     public float movementSpeedMultiplierDuringCast = 1f;
+    [Tooltip("Also block player movement during the pre-cast/hold phase, before the ability actually fires. Uses the same speed multiplier as the cast lock and lasts for the precast/hold duration.")]
+    public bool disablesMovementDuringPrecast = false;
 
     [Header("Charge System")]
     [Tooltip("Does this ability use a charge system instead of cooldown?")]
@@ -137,6 +139,8 @@ public class AbilityDataConfig : AbilityConfig
     public bool activateOnButtonRelease = false;
     [Tooltip("Looping animation to play on weapon while the button is held (between precast and cast). Requires activateOnButtonRelease.")]
     public string holdAnimationName = "";
+    [Tooltip("Looping animation to play on character while the button is held (between precast and cast). Used by enemies and other casters without weapon animators. Requires activateOnButtonRelease.")]
+    public string characterHoldAnimationName = "";
     [Tooltip("Hold-to-charge configuration: bar duration, overcharge bars, and per-bar field modifiers. Requires activateOnButtonRelease.")]
     public HoldChargeConfig holdChargeConfig;
     [Tooltip("Animation to return to after weapon animation completes (e.g., 'Idle'). Leave empty to not reset.")]
@@ -158,6 +162,12 @@ public class AbilityDataConfig : AbilityConfig
     [Tooltip("Particle effects to spawn at specific times during the ability (e.g., slash effects during melee animation)")]
     [NonReorderable]
     public List<TimedParticleSpawn> timedParticles = new List<TimedParticleSpawn>();
+
+    [Header("Indicator")]
+    [Tooltip("Show a telegraph/indicator prefab during pre-cast, facing the direction the ability will fire. Mostly used by enemies to warn players before an attack resolves.")]
+    public bool hasIndicator = false;
+    [Tooltip("Indicator prefab, spawn delay, and lifetime. Spawned at the character root facing the aim direction.")]
+    public IndicatorConfig indicatorConfig = new IndicatorConfig();
 
     [Header("Ability Type Flags")]
     [Tooltip("Does this ability use a weapon (gun, bow, melee)?")]

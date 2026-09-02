@@ -190,6 +190,7 @@ public class DataDrivenAbility : Ability
     // One fully-initialized runner per combo step; the shell only sequences them.
     private DataDrivenAbility[] comboSteps;
     private bool isComboStep = false;
+    private DataDrivenAbility comboShell;
     private Coroutine comboIdleWatcher = null;
 
     // Alternating animation tracking for dual-wielding
@@ -199,6 +200,8 @@ public class DataDrivenAbility : Ability
     public bool IsPerformingAbility => (movementAbility != null && movementAbility.IsExecuting) || (channelAbility != null && channelAbility.IsChanneling) || isActivatingWeapon || isWeaponDirectionLocked || isMovementPrecastPending || !playerControl;
     public bool HasPlayerControl => playerControl; // Simple flag: false = ability controls movement, true = player controls movement
     public bool IsMovementAbilityExecuting => movementAbility != null && movementAbility.IsExecuting;
+    // True for the full precast->cast coroutine, independent of whether the ability locks movement (e.g. free-move melee attacks).
+    public bool IsCastSequenceActive => chargingCoroutine != null;
     public float CooldownTime => GetEffectiveCooldown();
     public float EnergyCost => GetEffectiveEnergyCost();
     public int MaxCharges => GetEffectiveMaxCharges();
@@ -250,10 +253,11 @@ public class DataDrivenAbility : Ability
     /// Marks this runner as a step inside a combo shell: it never polls input or autocasts,
     /// it is only cast by its owning shell.
     /// </summary>
-    public void ConfigureAsComboStep(int ownerSlotIndex)
+    public void ConfigureAsComboStep(int ownerSlotIndex, DataDrivenAbility shell)
     {
         isComboStep = true;
         abilitySlotIndex = ownerSlotIndex;
+        comboShell = shell;
     }
 
     public bool FireTriggeredProjectile(float damageMultiplier = 1f)
@@ -532,15 +536,29 @@ public class DataDrivenAbility : Ability
     {
         // Take control if ability disables movement
         if (config != null && config.disablesMovementDuringCast)
-        {
-            float castSpeedMultiplier = Mathf.Clamp01(config.movementSpeedMultiplierDuringCast);
-            if (castSpeedMultiplier < 1f)
-                ApplyCastMoveSpeedModifier(castSpeedMultiplier, config.movementBlockDuration);
-            else
-                AcquireMovementControl(config.movementBlockDuration, $"{config.abilityName} cast lock");
-        }
+            ApplyMovementLock(config.movementSpeedMultiplierDuringCast, config.movementBlockDuration, $"{config.abilityName} cast lock");
 
         PlayAbilityAnimations();
+    }
+
+    /// <summary>
+    /// Locks/slows player movement for the precast (or hold) phase, mirroring the cast-lock behavior
+    /// in <see cref="OnAbilityActivated"/> but keyed off <see cref="AbilityDataConfig.disablesMovementDuringPrecast"/>.
+    /// </summary>
+    private void ApplyPrecastMovementLock(float duration)
+    {
+        if (config == null || !config.disablesMovementDuringPrecast || duration <= 0f) return;
+
+        ApplyMovementLock(config.movementSpeedMultiplierDuringCast, duration, $"{config.abilityName} precast lock");
+    }
+
+    private void ApplyMovementLock(float speedMultiplier, float duration, string reason)
+    {
+        float clampedMultiplier = Mathf.Clamp01(speedMultiplier);
+        if (clampedMultiplier < 1f)
+            ApplyCastMoveSpeedModifier(clampedMultiplier, duration);
+        else
+            AcquireMovementControl(duration, reason);
     }
 
     private void ApplyCastMoveSpeedModifier(float speedMultiplier, float duration)
@@ -699,7 +717,7 @@ public class DataDrivenAbility : Ability
 
         if (useAlternating)
         {
-            if (lastAnimationWasMainhand)
+            if (LastAnimationWasMainhand)
             {
                 playOnMainhand = false;
                 playOnOffhand = true;
@@ -799,11 +817,13 @@ public class DataDrivenAbility : Ability
                 // NOW play the animation with the weapon at the correct angle
                 int animationSequence = player != null ? player.BeginWeaponAnimation() : 0;
                 PlayWeaponAnimationState(weaponTransform, animationNameToPlay, animationSpeed);
+                if (!string.IsNullOrEmpty(config.offhandAnimationName))
+                    PlayWeaponAnimationState(transform.Find("OffHandWeaponHolder/OffHandWeapon"), config.offhandAnimationName, animationSpeed);
 
                 if (useAlternating)
                 {
                     // Mark that mainhand was used this time
-                    lastAnimationWasMainhand = true;
+                    LastAnimationWasMainhand = true;
                 }
 
                 // --- INSIDE PlayAbilityAnimations() ---
@@ -867,7 +887,7 @@ public class DataDrivenAbility : Ability
                 if (useAlternating)
                 {
                     // Mark that offhand was used this time
-                    lastAnimationWasMainhand = false;
+                    LastAnimationWasMainhand = false;
                 }
 
                 // Schedule return to idle animation after animation completes
@@ -883,6 +903,32 @@ public class DataDrivenAbility : Ability
         }
     }
 
+    /// <summary>
+    /// Spawn the pre-cast telegraph indicator (if configured) at the character root,
+    /// facing the direction the ability will fire.
+    /// </summary>
+    private void SpawnIndicatorIfConfigured()
+    {
+        if (config == null || !config.hasIndicator || config.indicatorConfig == null || config.indicatorConfig.prefab == null)
+            return;
+
+        StartCoroutine(SpawnIndicatorRoutine(config.indicatorConfig));
+    }
+
+    private IEnumerator SpawnIndicatorRoutine(IndicatorConfig indicatorConfig)
+    {
+        if (indicatorConfig.spawnDelay > 0f)
+            yield return new WaitForSeconds(indicatorConfig.spawnDelay);
+
+        Vector3 aimDirection = GetAimDirection();
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        Vector3 spawnPosition = transform.position + indicatorConfig.offset;
+
+        GameObject indicatorInstance = Instantiate(indicatorConfig.prefab, spawnPosition, Quaternion.Euler(0f, 0f, angle));
+
+        float lifetime = indicatorConfig.duration > 0f ? indicatorConfig.duration : Mathf.Max(GetPrecastDelay(), 0.1f);
+        Destroy(indicatorInstance, lifetime);
+    }
 
     /// <summary>
     /// Spawn particle effects at specified times during the ability
@@ -972,6 +1018,8 @@ public class DataDrivenAbility : Ability
     {
         if (config == null) return;
 
+        SpawnIndicatorIfConfigured();
+
         // Calculate animation speed (attack speed for attacks, cast speed for spells)
         float animationSpeed = GetAnimationSpeed();
 
@@ -997,7 +1045,7 @@ public class DataDrivenAbility : Ability
         if (string.IsNullOrEmpty(config.preAnimationName)) return;
 
         bool useAlternating = ShouldUseAlternatingAnimations(out _);
-        bool playOnOffhand = useAlternating && lastAnimationWasMainhand;
+        bool playOnOffhand = useAlternating && LastAnimationWasMainhand;
         string weaponHolderPath = playOnOffhand ? "OffHandWeaponHolder/OffHandWeapon" : "WeaponHolder/Weapon";
 
         Animator weaponAnimator = null;
@@ -1063,7 +1111,13 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private void PlayHoldAnimation()
     {
-        if (config == null || string.IsNullOrEmpty(config.holdAnimationName)) return;
+        if (config == null) return;
+
+        Animator characterAnimator = GetComponent<Animator>();
+        if (characterAnimator != null && !string.IsNullOrEmpty(config.characterHoldAnimationName))
+            PlayCharacterAnimationState(characterAnimator, config.characterHoldAnimationName);
+
+        if (string.IsNullOrEmpty(config.holdAnimationName)) return;
 
         Transform weaponTransform = transform.Find("WeaponHolder/Weapon");
         if (weaponTransform != null)
@@ -1520,6 +1574,7 @@ public class DataDrivenAbility : Ability
         {
             AbilityDataConfig pendingConfig = effectiveConfig;
             isMovementPrecastPending = true;
+            ApplyPrecastMovementLock(movementPrecastDelay);
             PlayPreAnimation();
             StartCoroutine(ExecuteMovementAfterPrecast(movementPrecastDelay, pendingConfig));
             Debug.Log($"[Movement] Delaying movement execution for precast: ability={pendingConfig.abilityName}, delay={movementPrecastDelay:F3}s");
@@ -2015,7 +2070,7 @@ public class DataDrivenAbility : Ability
 
             DataDrivenAbility step = gameObject.AddComponent<DataDrivenAbility>();
             step.SetAbilityReference(new AbilityReference(stepConfig));
-            step.ConfigureAsComboStep(abilitySlotIndex);
+            step.ConfigureAsComboStep(abilitySlotIndex, this);
             step.InitializeAbility();
             comboSteps[i] = step;
         }
@@ -2146,6 +2201,7 @@ public class DataDrivenAbility : Ability
         float precastDuration = GetPrecastDelay();
         if (precastDuration > 0f)
         {
+            ApplyPrecastMovementLock(precastDuration);
             if (config.activateOnButtonRelease && hcc != null)
                 chargeBar?.StartCharge(hcc.barDuration, ownerAsPlayer?.transform, maxBars);
             yield return new WaitForSeconds(precastDuration);
@@ -2375,7 +2431,7 @@ public class DataDrivenAbility : Ability
             // which always runs before FireAbility/PerformProjectileShoot), so it reliably
             // tells us which hand just fired. Only consuming ammo on the mainhand half of the
             // alternation halves the effective ammo cost per shot — two weapons sharing one pool.
-            bool consumesAmmoThisShot = !ShouldUseAlternatingAnimations() || lastAnimationWasMainhand;
+            bool consumesAmmoThisShot = !ShouldUseAlternatingAnimations() || LastAnimationWasMainhand;
             if (consumesAmmoThisShot)
             {
                 currentAmmo--;
@@ -2881,7 +2937,19 @@ public class DataDrivenAbility : Ability
 
     private bool IsCurrentShotFromOffhand()
     {
-        return ShouldUseAlternatingAnimations() && !lastAnimationWasMainhand;
+        return ShouldUseAlternatingAnimations() && !LastAnimationWasMainhand;
+    }
+
+    private bool LastAnimationWasMainhand
+    {
+        get => comboShell != null ? comboShell.lastAnimationWasMainhand : lastAnimationWasMainhand;
+        set
+        {
+            if (comboShell != null)
+                comboShell.lastAnimationWasMainhand = value;
+            else
+                lastAnimationWasMainhand = value;
+        }
     }
 
     private Transform GetActiveWeaponTransform(bool firedFromOffhand)
@@ -2974,6 +3042,9 @@ public class DataDrivenAbility : Ability
     private bool ShouldUseAlternatingAnimations(out bool isSameWeaponAsset)
     {
         isSameWeaponAsset = false;
+
+        if (config == null || !config.isAttack)
+            return false;
 
         // A mainhand animation name is the only strictly required field — offhandAnimationName
         // is an optional override (falls back to mainhandAnimationName when unset), since a

@@ -32,6 +32,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty autocastTargets;
     private SerializedProperty disablesMovementDuringCast;
     private SerializedProperty movementBlockDuration;
+    private SerializedProperty disablesMovementDuringPrecast;
     private SerializedProperty unlockWeaponDirections;
     private SerializedProperty lockWeaponDirections;
 
@@ -41,6 +42,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty flipXOnLeftFacing;
     private SerializedProperty characterAnimationName;
     private SerializedProperty characterAnimationUp;
+    private SerializedProperty characterPrecastAnimationName;
     private SerializedProperty mainhandAnimationName;
     private SerializedProperty offhandAnimationName;
     private SerializedProperty weaponIdleAnimationName;
@@ -48,6 +50,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty preAnimationName;
     private SerializedProperty activateOnButtonRelease;
     private SerializedProperty holdAnimationName;
+    private SerializedProperty characterHoldAnimationName;
     private SerializedProperty holdChargeConfig;
     private SerializedProperty hasCharges;
     private SerializedProperty maxCharges;
@@ -57,6 +60,8 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty comboStepDelays;
     private SerializedProperty comboInputWindow;
     private SerializedProperty movementSpeedMultiplierDuringCast;
+    private SerializedProperty hasIndicator;
+    private SerializedProperty indicatorConfig;
     // Type flags
     private SerializedProperty isProjectileAbility;
     private SerializedProperty isAreaAbility;
@@ -143,6 +148,7 @@ public class AbilityDataConfigEditor : Editor
         autocastTargets = serializedObject.FindProperty("autocastTargets");
         disablesMovementDuringCast = serializedObject.FindProperty("disablesMovementDuringCast");
         movementBlockDuration = serializedObject.FindProperty("movementBlockDuration");
+        disablesMovementDuringPrecast = serializedObject.FindProperty("disablesMovementDuringPrecast");
         unlockWeaponDirections = serializedObject.FindProperty("unlockWeaponDirections");
         lockWeaponDirections = serializedObject.FindProperty("lockWeaponDirections");
         rotationLockDuration = serializedObject.FindProperty("rotationLockDuration");
@@ -151,6 +157,7 @@ public class AbilityDataConfigEditor : Editor
         flipXOnLeftFacing = serializedObject.FindProperty("flipXOnLeftFacing");
         characterAnimationName = serializedObject.FindProperty("characterAnimationName");
         characterAnimationUp = serializedObject.FindProperty("characterAnimationUp");
+        characterPrecastAnimationName = serializedObject.FindProperty("characterPrecastAnimationName");
         mainhandAnimationName = serializedObject.FindProperty("mainhandAnimationName");
         offhandAnimationName = serializedObject.FindProperty("offhandAnimationName");
         hasPrecast = serializedObject.FindProperty("hasPrecast");
@@ -158,6 +165,7 @@ public class AbilityDataConfigEditor : Editor
         preAnimationName = serializedObject.FindProperty("preAnimationName");
         activateOnButtonRelease = serializedObject.FindProperty("activateOnButtonRelease");
         holdAnimationName = serializedObject.FindProperty("holdAnimationName");
+        characterHoldAnimationName = serializedObject.FindProperty("characterHoldAnimationName");
         holdChargeConfig = serializedObject.FindProperty("holdChargeConfig");
         hasCharges = serializedObject.FindProperty("hasCharges");
         maxCharges = serializedObject.FindProperty("maxCharges");
@@ -167,6 +175,8 @@ public class AbilityDataConfigEditor : Editor
         comboStepDelays = serializedObject.FindProperty("comboStepDelays");
         comboInputWindow = serializedObject.FindProperty("comboInputWindow");
         movementSpeedMultiplierDuringCast = serializedObject.FindProperty("movementSpeedMultiplierDuringCast");
+        hasIndicator = serializedObject.FindProperty("hasIndicator");
+        indicatorConfig = serializedObject.FindProperty("indicatorConfig");
         // Type flags
         isProjectileAbility = serializedObject.FindProperty("isProjectileAbility");
         isAreaAbility = serializedObject.FindProperty("isAreaAbility");
@@ -419,6 +429,7 @@ public class AbilityDataConfigEditor : Editor
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(movementBlockDuration, new GUIContent("Movement Block Duration (s)"));
+                EditorGUILayout.PropertyField(disablesMovementDuringPrecast, new GUIContent("Also Disable During Pre-Cast", "Also block/slow movement during the pre-cast (and hold) phase, before the ability fires. Uses the precast/hold duration instead of Movement Block Duration."));
                 EditorGUI.indentLevel--;
             }
             EditorGUILayout.PropertyField(weaponIdleAnimationName, new GUIContent("Weapon Idle Animation"));
@@ -452,15 +463,27 @@ public class AbilityDataConfigEditor : Editor
                 if (hasPrecast.boolValue)
                 {
                     EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(preAnimationName, new GUIContent("Pre-Cast Animation"));
+                    EditorGUILayout.PropertyField(preAnimationName, new GUIContent("Pre-Cast Animation (Weapon)"));
+                    EditorGUILayout.PropertyField(characterPrecastAnimationName, new GUIContent("Pre-Cast Animation (Character)", "Played on the character animator before firing. Used by enemies and other casters without weapon animators."));
                     EditorGUILayout.PropertyField(activateOnButtonRelease, new GUIContent("Activate On Button Release", "Flow: precast -> hold animation (looping while held) -> release -> cast animation."));
                     if (activateOnButtonRelease.boolValue)
                     {
                         EditorGUI.indentLevel++;
-                        EditorGUILayout.PropertyField(holdAnimationName, new GUIContent("Hold Animation", "Looping animation played on weapon while button is held."));
+                        EditorGUILayout.PropertyField(holdAnimationName, new GUIContent("Hold Animation (Weapon)", "Looping animation played on weapon while button is held."));
+                        EditorGUILayout.PropertyField(characterHoldAnimationName, new GUIContent("Hold Animation (Character)", "Looping animation played on the character animator while button is held."));
                         EditorGUILayout.PropertyField(holdChargeConfig, new GUIContent("Hold Charge Config", "Bar duration, overcharge bars, and per-bar field modifiers. Uses the same property paths as trait ability modifiers."), true);
                         EditorGUI.indentLevel--;
                     }
+                    EditorGUI.indentLevel--;
+                }
+
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("Indicator", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(hasIndicator, new GUIContent("Has Indicator", "Show a telegraph prefab during pre-cast, facing the direction the ability will fire."));
+                if (hasIndicator.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(indicatorConfig, new GUIContent("Indicator Config"), true);
                     EditorGUI.indentLevel--;
                 }
 

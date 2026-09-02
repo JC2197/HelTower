@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnGroup
   GroupName: Skeletons
   waves:
-  - enemyCountRange: {x: 15, y: 25}
+  - enemyCountRange: {x: 2, y: 3}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 100
       spawnDelay: 0
-  - enemyCountRange: {x: 35, y: 50}
+  - enemyCountRange: {x: 3, y: 5}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 2
@@ -27,7 +27,7 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
       spawnWeight: 1
       spawnDelay: 0
-  - enemyCountRange: {x: 50, y: 100}
+  - enemyCountRange: {x: 5, y: 7}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 1

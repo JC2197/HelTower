@@ -39,6 +39,9 @@ public class CampDoor : Interactable
         isStarting = true;
         SetInteractable(false);
 
+        foreach (PlayerController activePlayer in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            activePlayer.ResetBagGold();
+
         Debug.Log($"[CampDoor] Server: starting game — loading '{gameSceneName}' for all players.");
 
         // Move players before Camp unloads so ownership and per-player state persist into GameScene.

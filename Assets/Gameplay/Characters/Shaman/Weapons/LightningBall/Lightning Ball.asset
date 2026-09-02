@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponName: Lightning Ball
   weaponType: LightningBall
   grantedTrait: {fileID: 0}
-  weaponTree: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: be1151bc34c00e14f81d9a267974653e, type: 2}
   weaponPrefab: {fileID: 822294425512415404, guid: 5cfb907cd05a0ee458c9b09c90b7860c, type: 3}
   weaponDamageMin: 3
   weaponDamageMax: 4
@@ -57,6 +57,7 @@ MonoBehaviour:
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
+  grantedDashAbility: {fileID: 0}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0

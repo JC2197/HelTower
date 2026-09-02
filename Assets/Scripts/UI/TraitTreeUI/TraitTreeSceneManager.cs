@@ -38,11 +38,13 @@ public class TraitTreeSceneManager : MonoBehaviour
     {
         // Subscribe to player spawn event to get the correct player instance
         PlayerController.OnPlayerSpawned += OnPlayerSpawned;
+        PlayerController.OnLocalPlayerSceneChanged += OnPlayerSceneChanged;
     }
 
     private void OnDisable()
     {
         PlayerController.OnPlayerSpawned -= OnPlayerSpawned;
+        PlayerController.OnLocalPlayerSceneChanged -= OnPlayerSceneChanged;
     }
 
     private void OnPlayerSpawned(PlayerController player)
@@ -56,6 +58,11 @@ public class TraitTreeSceneManager : MonoBehaviour
         }
 
         Debug.Log($"[TraitTreeSceneManager] Local player spawned! Setting player reference to instance: {player.gameObject.GetInstanceID()}");
+        playerReference = player.gameObject;
+    }
+
+    private void OnPlayerSceneChanged(PlayerController player)
+    {
         playerReference = player.gameObject;
     }
 

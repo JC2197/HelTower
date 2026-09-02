@@ -113,6 +113,7 @@ public class TraitSystemManager : MonoBehaviour
 
         if (currentTree != null)
         {
+            availableGold = localPlayer != null ? localPlayer.BagGold : 0;
             Debug.Log($"[TraitSystemManager] Loaded trait tree '{currentTree.name}' with {currentTree.nodes.Count} nodes for weapon '{equippedWeapon.name}' (Save: '{saveFileName}')");
         }
         else
@@ -212,21 +213,22 @@ public class TraitSystemManager : MonoBehaviour
         }
         int cost = currentCharacterTraitManager.GetTraitGoldCost(node);
 
-        if (!currentSaveFile.SpendGold(cost))
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        if (localPlayer == null || !localPlayer.SpendBagGold(cost))
         {
             return;
         }
         if (!currentCharacterTraitManager.UnlockTrait(node.nodeID, node.traitData))
         {
-            currentSaveFile.AddGold(cost);
+            localPlayer.AddBagGold(cost);
             return;
         }
 
-        availableGold = currentSaveFile.totalGold;
+        availableGold = localPlayer.BagGold;
         currentSaveFile.SetUnlockedNodes(currentCharacterTraitManager.GetUnlockedNodeIDs());
         SaveFilePersistence.SaveFile(currentSaveFile);
         OnTraitUnlocked?.Invoke(node.traitData);
-        PlayerController.GetLocalPlayer()?.RequestStatsRecalculation();
+        localPlayer.RequestStatsRecalculation();
 
     }
 
@@ -272,16 +274,18 @@ public class TraitSystemManager : MonoBehaviour
         int refund = GetSpentGold(currentCharacterTraitManager.GetUnlockedNodeIDs());
         currentCharacterTraitManager.ResetAllTraits();
 
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        if (localPlayer != null)
+            localPlayer.AddBagGold(refund);
+
         if (currentSaveFile != null)
         {
-            currentSaveFile.AddGold(refund);
             currentSaveFile.ClearTraitProgress();
             SaveFilePersistence.SaveFile(currentSaveFile);
-
-            availableGold = currentSaveFile.totalGold;
-
-            PlayerController.GetLocalPlayer()?.RequestStatsRecalculation();
         }
+
+        availableGold = localPlayer != null ? localPlayer.BagGold : 0;
+        localPlayer?.RequestStatsRecalculation();
 
         Debug.Log($"[TraitSystemManager] Reset traits, refunded {refund} gold, total: {availableGold}");
     }
