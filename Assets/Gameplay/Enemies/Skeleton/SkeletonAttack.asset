@@ -36,10 +36,10 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
+  disablesMovementDuringCast: 1
   movementBlockDuration: 0.5
   movementSpeedMultiplierDuringCast: 1
-  disablesMovementDuringPrecast: 0
+  disablesMovementDuringPrecast: 1
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -70,12 +70,12 @@ MonoBehaviour:
   flipYOnLeftFacing: 0
   flipXOnLeftFacing: 0
   timedParticles: []
-  hasIndicator: 0
+  hasIndicator: 1
   indicatorConfig:
-    prefab: {fileID: 0}
+    prefab: {fileID: 1706963154372854534, guid: 82b3908bc9c0c0a4cbc0c69ee4039bdf, type: 3}
     spawnDelay: 0
-    duration: 0
-    offset: {x: 0, y: 0, z: 0}
+    duration: 1
+    offset: {x: 1, y: 0, z: 0}
   isProjectileAbility: 0
   isAreaAbility: 0
   isConstructAbility: 0
@@ -232,13 +232,13 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 6284264067008683432, guid: 530638f53d363b1479d10739a36292b2, type: 3}
+      prefab: {fileID: 6284264067008683432, guid: a484a4c845080474a8c529a4948350b1, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
         m_Bits: 8
-      damage: 2
+      damage: 10
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -248,7 +248,7 @@ MonoBehaviour:
         amount: 5
       knockback:
         enabled: 1
-        force: 1
+        force: 200
         directionality: 0.499
       pull:
         enabled: 0
@@ -327,7 +327,7 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 1
+    meleeFXRadiusDistance: 0
     meleeFXSpeed: 0
     flipMeleeFX: 0
     flipMeleeFXY: 1

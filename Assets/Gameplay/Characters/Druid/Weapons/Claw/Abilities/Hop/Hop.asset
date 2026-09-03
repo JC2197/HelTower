@@ -24,7 +24,7 @@ MonoBehaviour:
   isInstant: 0
   requiredWeaponTypes: []
   attackSpeed: 1
-  cooldownTime: 0.25
+  cooldownTime: 0.33
   energyCost: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
@@ -39,6 +39,7 @@ MonoBehaviour:
   disablesMovementDuringCast: 0
   movementBlockDuration: 0.5
   movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringPrecast: 0
   hasCharges: 1
   maxCharges: 3
   chargeRechargeTime: 3
@@ -56,6 +57,7 @@ MonoBehaviour:
   preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: 
+  characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
@@ -76,6 +78,12 @@ MonoBehaviour:
     attachToSource: 0
     rotationMode: 0
     customRotation: {x: 0, y: 0, z: 0}
+  hasIndicator: 0
+  indicatorConfig:
+    prefab: {fileID: 0}
+    spawnDelay: 0
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 0
   isAreaAbility: 0
   isConstructAbility: 0
@@ -1478,7 +1486,7 @@ MonoBehaviour:
     lerp: 0
     speed: 10
     distance: 2
-    duration: 0.2
+    duration: 0.3
     activateAfterPrecast: 0
     towardMouse: 0
     awayFromMouse: 0

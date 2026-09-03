@@ -39,18 +39,12 @@ public class Enemy : Organism
     protected List<EnemyAbilityInstance> abilityInstances = new List<EnemyAbilityInstance>();
 
     protected Transform targetTransform;
-    protected Transform transform;
-    protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
     protected Animator animator;
     protected Collider2D combatCollider;
     protected bool isChasing = false;
     protected bool isKnockedBack = false;
     protected float knockbackTimer = 0f;
-
-    // Movement timer state
-    private float movementTimer = 0f;
-    private bool isMoving = false;
 
     private AIPathfinding _pathfinding;
     private EffectManager effectManager;
@@ -65,17 +59,21 @@ public class Enemy : Organism
     private NetworkObject _currentWeaponNOB;
     private NetworkObject _currentOffHandWeaponNOB;
 
-    // State Machine System
-    private EnemyState currentState = EnemyState.Patrol;
-    private float stateTimer = 0f;
-    private float stateReassessmentTimer = 0f;
+    // Finite state machine driving all AI behavior (server-side).
+    private readonly EnemyStateMachine stateMachine = new EnemyStateMachine();
+    private float distanceToTarget = float.MaxValue;
     private Vector3 spawnPosition;
-    private Vector3 patrolTarget;
-    private bool hasPatrolTarget = false;
-    private float strafeAngle = 0f;
     private const float KITE_DISTANCE = 2.5f;
-    private const float RETREAT_HEALTH_PERCENT = 15f;
-    private const float STATE_REASSESSMENT_INTERVAL = 2f;
+    private const float DEFAULT_RETREAT_HEALTH_PERCENT = 15f;
+
+    // Behavior state instances (one set per enemy so per-state fields stay isolated).
+    public IdleState IdleBehavior { get; } = new IdleState();
+    public ChaseState ChaseBehavior { get; } = new ChaseState();
+    public AttackState AttackBehavior { get; } = new AttackState();
+    public CastingState CastingBehavior { get; } = new CastingState();
+    public StrafeState StrafeBehavior { get; } = new StrafeState();
+    public RetreatState RetreatBehavior { get; } = new RetreatState();
+    public PatrolState PatrolBehavior { get; } = new PatrolState();
 
     // Collision damage tracking
     private float collisionDamageTimer = 0f;
@@ -86,7 +84,6 @@ public class Enemy : Organism
     protected override void Awake()
     {
         base.Awake();
-        transform = GetComponent<Transform>();
         effectManager = GetComponent<EffectManager>();
         if (effectManager == null)
         {
@@ -117,13 +114,6 @@ public class Enemy : Organism
         _pathfinding = gameObject.AddComponent<AIPathfinding>();
         _pathfinding.Initialize(config.pathfindingObstacleLayers, config.obstacleAvoidanceStrength,
             debug: config.debugDrawPathfindingRays);
-
-        // Initialize movement timer (start moving immediately for timed movement)
-        if (!config.continuousMovement)
-        {
-            isMoving = true;
-            movementTimer = 0f;
-        }
 
         // Initialize data-driven ability system
         foreach (var abilitySlot in config.abilities)
@@ -214,6 +204,9 @@ public class Enemy : Organism
 
         // Store spawn position for patrol/retreat actions
         spawnPosition = transform.position;
+
+        // Start in the appropriate movement state.
+        stateMachine.ChangeState(this, SelectMovementState());
 
         // Add WeaponSortingManager if enemy has weapons (needed on all clients for sorting)
         if (config.mainHandWeaponConfig != null || config.offhandWeaponConfig != null)
@@ -472,6 +465,8 @@ public class Enemy : Organism
     /// Cooldowns and costs are owned by each AbilityDataConfig; this only schedules when the
     /// next cast is attempted so the state machine is not hammering TryUseAbility every frame.
     /// </summary>
+    public bool TryUseAbilities() => TryUseAbilities(distanceToTarget);
+
     private bool TryUseAbilities(float distanceToTarget)
     {
         if (Time.time < nextAbilityAttemptTime)
@@ -522,6 +517,8 @@ public class Enemy : Organism
     /// <summary>
     /// True when at least one ability is in range and off cooldown.
     /// </summary>
+    public bool HasAbilityReady() => HasAbilityReady(distanceToTarget);
+
     private bool HasAbilityReady(float distanceToTarget)
     {
         foreach (var instance in abilityInstances)
@@ -537,10 +534,10 @@ public class Enemy : Organism
 
     /// <summary>
     /// True while any ability's precast/cast sequence is actively animating, regardless of
-    /// whether that ability locks movement. Used to stop the state machine from overwriting
-    /// the ability's animation and to pause reassessment mid-cast.
+    /// whether that ability locks movement. Used so the state machine hands full control to
+    /// <see cref="CastingState"/> and never overwrites the ability's animation mid-cast.
     /// </summary>
-    private bool IsAnyAbilityBusy()
+    public bool IsAnyAbilityBusy()
     {
         foreach (var instance in abilityInstances)
         {
@@ -738,7 +735,7 @@ public class Enemy : Organism
     /// <summary>
     /// Check if enemy has a specific action configured
     /// </summary>
-    private bool HasAction(EnemyActionType actionType)
+    public bool HasAction(EnemyActionType actionType)
     {
         if (config == null || config.actions == null) return false;
         return config.actions.Exists(a => a.actionType == actionType);
@@ -747,7 +744,7 @@ public class Enemy : Organism
     /// <summary>
     /// Get action config for a specific action type
     /// </summary>
-    private EnemyActionConfig GetAction(EnemyActionType actionType)
+    public EnemyActionConfig GetAction(EnemyActionType actionType)
     {
         if (config == null || config.actions == null) return null;
         return config.actions.Find(a => a.actionType == actionType);
@@ -770,253 +767,111 @@ public class Enemy : Organism
     }
 
     /// <summary>
-    /// Determine next state based on current conditions
+    /// Central combat-state selection shared by every state's transition check. Encodes the
+    /// behavior priority ladder (retreat &gt; patrol/idle &gt; attack &gt; strafe &gt; chase) purely
+    /// from the enemy's configured actions, current health, and distance to target.
     /// </summary>
-    private EnemyState DetermineNextState(float distanceToTarget, bool hasTarget, EnemyState currentState)
+    public IEnemyState SelectMovementState()
     {
-        if (config == null || config.actions == null || config.actions.Count == 0)
-            return EnemyState.Patrol;
-
-        float healthPercent = (CurrentHealth / MaxHealth) * 100f;
         EnemyActionConfig retreatAction = GetAction(EnemyActionType.Retreat);
 
-        // Priority 1: Retreat when health drops below the action's threshold
+        // Flee when health drops below the retreat threshold.
         if (retreatAction != null)
         {
-            float retreatThreshold = retreatAction.healthPercentThreshold >= 0f
+            float threshold = retreatAction.healthPercentThreshold >= 0f
                 ? retreatAction.healthPercentThreshold
-                : RETREAT_HEALTH_PERCENT;
+                : DEFAULT_RETREAT_HEALTH_PERCENT;
 
-            if (healthPercent <= retreatThreshold)
-                return EnemyState.Retreat;
+            if (HealthPercent <= threshold)
+                return RetreatBehavior;
         }
 
-        // Priority 2: Kite if has Retreat action and player within kite distance
-        if (retreatAction != null && hasTarget && distanceToTarget <= KITE_DISTANCE)
-        {
-            return EnemyState.Kite;
-        }
+        // No target: patrol around spawn if able, otherwise stand idle.
+        if (!HasTarget)
+            return HasAction(EnemyActionType.Patrol) ? (IEnemyState)PatrolBehavior : IdleBehavior;
 
-        // No target in range: Patrol if has Patrol action
-        if (!hasTarget)
-        {
-            if (HasAction(EnemyActionType.Patrol))
-                return EnemyState.Patrol;
-            return EnemyState.Patrol; // Default fallback
-        }
+        // Ranged kite: back off when the target closes inside kite distance.
+        if (retreatAction != null && distanceToTarget <= KITE_DISTANCE)
+            return RetreatBehavior;
 
-        // Target within reach of at least one ability: Attack or Strafe
+        // Within attack range: fire if ready, else strafe (ranged) or hold and wait (melee).
         if (distanceToTarget <= GetAttackRange())
         {
-            // If an ability is ready, always attack
-            if (HasAbilityReady(distanceToTarget))
-            {
-                return EnemyState.Attack;
-            }
+            if (HasAbilityReady())
+                return AttackBehavior;
 
-            // Everything on cooldown - stay in Strafe if already strafing
             if (HasAction(EnemyActionType.Strafe))
-            {
-                if (currentState == EnemyState.Strafe)
-                {
-                    // Stay in Strafe until an ability comes off cooldown
-                    return EnemyState.Strafe;
-                }
-                else if (currentState == EnemyState.Attack)
-                {
-                    // Just finished attacking, randomly choose to strafe or wait
-                    if (UnityEngine.Random.value > 0.5f)
-                    {
-                        return EnemyState.Strafe;
-                    }
-                }
-            }
+                return StrafeBehavior;
 
-            // Default: stay in Attack state (waiting for cooldown)
-            return EnemyState.Attack;
+            return AttackBehavior; // Hold position, wait for cooldown.
         }
 
-        // Target outside every ability's range: Chase if has Chase action
-        if (HasAction(EnemyActionType.Chase))
-        {
-            return EnemyState.Chase;
-        }
+        // Out of range: chase if the enemy can move, otherwise stand and wait to be approached.
+        if (canMove)
+            return ChaseBehavior;
 
-        // Default: stand still and attack if in detection range
-        return EnemyState.Attack;
+        return AttackBehavior;
     }
 
-    /// <summary>
-    /// Execute behavior for the current state
-    /// </summary>
-    private void ExecuteState(EnemyState state, float distanceToTarget)
+    /// <summary>Percentage of max health remaining (0-100).</summary>
+    public float HealthPercent => MaxHealth > 0f ? (CurrentHealth / MaxHealth) * 100f : 0f;
+
+    /// <summary>True when a live target is within detection range.</summary>
+    public bool HasTarget => targetTransform != null && distanceToTarget <= detectionRange;
+
+    /// <summary>Current target transform, or null.</summary>
+    public Transform Target => targetTransform;
+
+    /// <summary>Config asset for this enemy.</summary>
+    public EnemyConfig Config => config;
+
+    /// <summary>Spawn position, used as the patrol anchor.</summary>
+    public Vector3 SpawnPosition => spawnPosition;
+
+    /// <summary>Distance to the current target (cached each server tick).</summary>
+    public float DistanceToTarget() => distanceToTarget;
+
+    /// <summary>Normalized direction from this enemy toward its target (zero if no target).</summary>
+    public Vector2 DirectionToTarget()
     {
-        // Simple enemies skip weapon aiming entirely
-        if (config != null && !config.isSimpleEnemy)
-        {
-            // Update weapon aiming based on state
-            bool aimAway = (state == EnemyState.Retreat || state == EnemyState.Kite);
-            UpdateWeaponAiming(aimAway);
-        }
-
-        switch (state)
-        {
-            case EnemyState.Chase:
-                ExecuteChase(distanceToTarget);
-                break;
-
-            case EnemyState.Retreat:
-                ExecuteRetreat();
-                break;
-
-            case EnemyState.Strafe:
-                ExecuteStrafe(distanceToTarget);
-                break;
-
-            case EnemyState.Patrol:
-                ExecutePatrol();
-                break;
-
-            case EnemyState.Attack:
-                ExecuteAttack(distanceToTarget);
-                break;
-
-            case EnemyState.Kite:
-                ExecuteKite(distanceToTarget);
-                break;
-        }
+        if (targetTransform == null) return Vector2.zero;
+        return ((Vector2)(targetTransform.position - transform.position)).normalized;
     }
 
-    private void ExecuteChase(float distanceToTarget)
+    /// <summary>Movement speed multiplier for a configured action, or a fallback if unconfigured.</summary>
+    public float GetActionSpeedMultiplier(EnemyActionType actionType, float fallback)
     {
-        if (targetTransform == null || rb == null || config == null) return;
-
-        EnemyActionConfig chaseAction = GetAction(EnemyActionType.Chase);
-        float speedMultiplier = chaseAction != null ? chaseAction.movementSpeedMultiplier : 1f;
-
-        // Chase toward target using weighted ray pathfinding
-        float moveSpeed = statContainer.GetStat("MoveSpeed") * speedMultiplier;
-        Vector2 directionToTarget = (targetTransform.position - transform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionToTarget);
-        rb.linearVelocity = bestDirection * moveSpeed;
-
-        PlayMovementAnimation(bestDirection);
+        EnemyActionConfig action = GetAction(actionType);
+        return action != null ? action.movementSpeedMultiplier : fallback;
     }
 
-    private void ExecuteRetreat()
-    {
-        if (targetTransform == null || rb == null) return;
-
-        EnemyActionConfig retreatAction = GetAction(EnemyActionType.Retreat);
-        float speedMultiplier = retreatAction != null ? retreatAction.movementSpeedMultiplier : 1.5f;
-
-        float moveSpeed = statContainer.GetStat("MoveSpeed") * speedMultiplier;
-        Vector2 directionAwayFromTarget = (transform.position - targetTransform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionAwayFromTarget);
-        rb.linearVelocity = bestDirection * moveSpeed;
-
-        PlayMovementAnimation(bestDirection);
-    }
-
-    private void ExecuteStrafe(float distanceToTarget)
-    {
-        if (targetTransform == null || rb == null) return;
-
-        EnemyActionConfig strafeAction = GetAction(EnemyActionType.Strafe);
-        if (strafeAction == null) return;
-
-        Vector2 toTarget = (targetTransform.position - transform.position).normalized;
-
-        // Calculate tangent direction for circular orbit
-        float angleIncrement = 90f * Time.deltaTime; // 90 degrees per second
-        if (!strafeAction.strafeClockwise)
-            angleIncrement = -angleIncrement;
-
-        strafeAngle += angleIncrement;
-
-        // Calculate perpendicular direction for circular movement
-        Vector2 perpendicular = new Vector2(-toTarget.y, toTarget.x);
-        if (!strafeAction.strafeClockwise)
-            perpendicular = -perpendicular;
-
-        // Combine tangential movement with radial correction to maintain distance
-        float distanceError = distanceToTarget - strafeAction.strafeDistance;
-        Vector2 radialCorrection = -toTarget * distanceError * 0.5f; // Move in/out to correct distance
-
-        Vector2 strafeDirection = (perpendicular + radialCorrection).normalized;
-
-        float moveSpeed = statContainer.GetStat("MoveSpeed") * strafeAction.movementSpeedMultiplier;
-        rb.linearVelocity = strafeDirection * moveSpeed;
-
-        PlayMovementAnimation(strafeDirection);
-    }
-
-    private void ExecutePatrol()
+    /// <summary>Steer toward a preferred direction and drive the walk animation.</summary>
+    public void MoveInDirection(Vector2 preferredDirection, float speedMultiplier)
     {
         if (rb == null) return;
 
-        EnemyActionConfig patrolAction = GetAction(EnemyActionType.Patrol);
-        if (patrolAction == null) return;
-
-        // Check if we need a new patrol target
-        if (!hasPatrolTarget || Vector3.Distance(transform.position, patrolTarget) < 0.5f)
-        {
-            // Wait at current position if we just reached a patrol point
-            if (hasPatrolTarget)
-            {
-                rb.linearVelocity = Vector2.zero;
-
-                // Use state timer for wait time
-                if (stateTimer < patrolAction.patrolWaitTime)
-                {
-                    PlayIdleAnimation();
-                    return;
-                }
-            }
-
-            // Generate new random patrol target around spawn position
-            Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * patrolAction.patrolRadius;
-            patrolTarget = spawnPosition + new Vector3(randomOffset.x, randomOffset.y, 0f);
-            hasPatrolTarget = true;
-            stateTimer = 0f; // Reset timer for next wait
-        }
-
-        // Move toward patrol target using weighted ray pathfinding
-        Vector2 directionToPatrol = (patrolTarget - transform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionToPatrol);
-        float moveSpeed = statContainer.GetStat("MoveSpeed") * patrolAction.movementSpeedMultiplier;
-        rb.linearVelocity = bestDirection * moveSpeed;
-
-        PlayMovementAnimation(bestDirection);
-    }
-
-    private void ExecuteAttack(float distanceToTarget)
-    {
-        // Stop moving when attacking
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
-
-        PlayIdleAnimation();
-        TryUseAbilities(distanceToTarget);
-    }
-
-    private void ExecuteKite(float distanceToTarget)
-    {
-        // Kite behavior: move away from the target while still casting whatever is off cooldown
-        EnemyActionConfig retreatAction = GetAction(EnemyActionType.Retreat);
-        float speedMultiplier = retreatAction != null ? retreatAction.movementSpeedMultiplier : 1.2f;
-
-        // Move away using weighted ray pathfinding
+        Vector2 steered = CalculateBestMovementDirection(preferredDirection);
         float moveSpeed = statContainer.GetStat("MoveSpeed") * speedMultiplier;
-        Vector2 directionAwayFromTarget = (transform.position - targetTransform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionAwayFromTarget);
-        rb.linearVelocity = bestDirection * moveSpeed;
+        rb.linearVelocity = steered * moveSpeed;
 
-        PlayMovementAnimation(bestDirection);
+        PlayMovementAnimation(steered);
+    }
 
-        TryUseAbilities(distanceToTarget);
+    /// <summary>Halt all movement without touching the animator.</summary>
+    public void StopMovement()
+    {
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+    }
+
+    /// <summary>Play the idle animation (direction-aware).</summary>
+    public void PlayIdle() => PlayIdleAnimation();
+
+    /// <summary>Update weapon aiming toward (or away from) the target; no-op for simple enemies.</summary>
+    public void FaceAndAim(bool aimAway)
+    {
+        if (config != null && !config.isSimpleEnemy)
+            UpdateWeaponAiming(aimAway);
     }
 
     /// <summary>
@@ -1091,111 +946,14 @@ public class Enemy : Organism
             return; // Don't move while knocked back
         }
 
-        stateTimer += Time.deltaTime;
-
         // Find nearest valid target
         targetTransform = FindNearestTarget();
-        float distanceToTarget = targetTransform != null ? Vector3.Distance(transform.position, targetTransform.position) : float.MaxValue;
-        bool hasTarget = targetTransform != null && distanceToTarget <= detectionRange;
+        distanceToTarget = targetTransform != null ? Vector3.Distance(transform.position, targetTransform.position) : float.MaxValue;
+        isChasing = HasTarget;
 
-        // State Machine System
-        if (config != null && config.actions != null && config.actions.Count > 0)
-        {
-            // While an ability's precast/cast animation is playing, let it own the animator and
-            // hold position instead of letting Chase/Attack re-assert Run/Idle every frame and
-            // reassessment yanking us out of the ability mid-animation.
-            if (IsAnyAbilityBusy())
-            {
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
-            }
-            else
-            {
-                // Decrement reassessment timer
-                stateReassessmentTimer -= Time.deltaTime;
+        // Drive the finite state machine (handles transitions + per-state behavior).
+        stateMachine.Tick(this, Time.deltaTime);
 
-                // Only reassess state when timer expires
-                if (stateReassessmentTimer <= 0f)
-                {
-                    EnemyState nextState = DetermineNextState(distanceToTarget, hasTarget, currentState);
-
-                    // Transition to new state if changed
-                    if (nextState != currentState)
-                    {
-                        Debug.Log($"[Enemy] {gameObject.name} state transition: {currentState} -> {nextState} (distance: {distanceToTarget:F2}, attackRange: {GetAttackRange():F2}, health: {(CurrentHealth / MaxHealth * 100f):F1}%)");
-                        currentState = nextState;
-                        stateTimer = 0f;
-                    }
-
-                    // Reset reassessment timer
-                    stateReassessmentTimer = STATE_REASSESSMENT_INTERVAL;
-                }
-
-                // Execute current state
-                isChasing = hasTarget;
-                ExecuteState(currentState, distanceToTarget);
-            }
-        }
-        else
-        {
-            // LEGACY BEHAVIOR: No actions configured
-            if (!hasTarget)
-            {
-                isChasing = false;
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
-                PlayIdleAnimation();
-                return;
-            }
-
-            isChasing = true;
-
-            // Check if we're in range of any ability OR weapon
-            bool inAbilityRange = false;
-
-            // Check configured abilities
-            foreach (var abilityInstance in abilityInstances)
-            {
-                if (distanceToTarget <= abilityInstance.range)
-                {
-                    inAbilityRange = true;
-                    break;
-                }
-            }
-
-            // Check weapon range if using weapon-granted abilities
-            if (!inAbilityRange && config.useWeaponGrantedAbilities)
-            {
-                if (distanceToTarget <= config.weaponAbilityRange)
-                {
-                    inAbilityRange = true;
-                }
-            }
-
-            // If in ability range, stop moving and try to attack
-            if (inAbilityRange)
-            {
-                // Stop all movement when in ability range
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector2.zero;
-                }
-
-                TryUseAbilities(distanceToTarget);
-                PlayIdleAnimation();
-            }
-            // Out of ability range, chase the target
-            else if (canMove)
-            {
-                ChaseTarget();
-            }
-        }
-
-        // Flip sprite based on movement or target
         ApplyMovementEffectsFromStatus();
 
         if (spriteRenderer != null)
@@ -1297,48 +1055,6 @@ public class Enemy : Organism
         }
     }
 
-    protected virtual void ChaseTarget()
-    {
-        if (rb == null || targetTransform == null || isKnockedBack || config == null) return;
-
-        // Handle continuous vs timed movement
-        if (config.continuousMovement)
-        {
-            // Continuous movement - always moving toward target
-            MoveTowardTarget();
-        }
-        else
-        {
-            // Timed movement - alternate between moving and stopping
-            if (isMoving)
-            {
-                movementTimer += Time.deltaTime;
-                MoveTowardTarget();
-
-                if (movementTimer >= config.movementTime)
-                {
-                    // Switch to stop phase
-                    isMoving = false;
-                    movementTimer = 0f;
-                    rb.linearVelocity = Vector2.zero;
-                    PlayIdleAnimation();
-                }
-            }
-            else
-            {
-                // Currently stopped
-                movementTimer += Time.deltaTime;
-
-                if (movementTimer >= config.stopTime)
-                {
-                    // Switch to move phase
-                    isMoving = true;
-                    movementTimer = 0f;
-                }
-            }
-        }
-    }
-
     private void PlayIdleAnimation()
     {
         if (animator != null && config != null)
@@ -1366,29 +1082,6 @@ public class Enemy : Organism
         else
         {
             Debug.LogWarning($"[Enemy] {gameObject.name} tried to play animation '{animName}' but it doesn't exist in the animator controller");
-        }
-    }
-
-    private void MoveTowardTarget()
-    {
-        if (rb == null) return;
-
-        // Get movement speed from stats (allows runtime modification)
-        float currentMoveSpeed = statContainer.GetStat("MoveSpeed");
-        if (currentMoveSpeed <= 0)
-        {
-            currentMoveSpeed = 3f; // Default fallback if stat not set
-        }
-
-        Vector2 directionToTarget = (targetTransform.position - transform.position).normalized;
-        Vector2 bestDirection = CalculateBestMovementDirection(directionToTarget);
-        rb.linearVelocity = bestDirection * currentMoveSpeed;
-
-        // Play appropriate animation based on direction
-        if (animator != null)
-        {
-            string animName = bestDirection.y > 0.1f ? config.moveUpAnimationName : config.moveAnimationName;
-            PlayAnimationSafe(animName);
         }
     }
 

@@ -15,7 +15,8 @@ MonoBehaviour:
   className: Northman
   characterPortrait: {fileID: 0}
   animatorController: {fileID: 22100000, guid: 25b6a9bf61d9e1e4998d30948b4a169e, type: 2}
-  availableWeapons: []
+  availableWeapons:
+  - {fileID: 11400000, guid: 1d141f3a6fded944b8c85fc9ca371b23, type: 2}
   availableAccessories: []
   abilities: []
   baseStatContainer:

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 314b876028dce5b468eb6ea7e0902966, type: 3}
   m_Name: Skeleton-Helmet
   m_EditorClassIdentifier: Assembly-CSharp::EnemyConfig
-  enemyName: Skeleton
-  displayName: Skeleton
+  enemyName: Helmet Skeleton
+  displayName: Helmet Skeleton
   stats:
     stats:
     - statId: STR
@@ -71,41 +71,32 @@ MonoBehaviour:
   statTypeDatabase: {fileID: 11400000, guid: 692b506b6c5a55e48b4de66a8edfbfe0, type: 2}
   isBoss: 0
   detectionRange: 1000
-  abilities: []
+  abilities:
+  - abilityConfig: {fileID: 11400000, guid: 335bdc7d04b7b3d498459b199dc42ff4, type: 2}
+    range: 2
+    priority: 1
   mainHandWeaponConfig: {fileID: 0}
   offhandWeaponConfig: {fileID: 0}
   goldDropped: 3
   handSprite: {fileID: 0}
   useWeaponGrantedAbilities: 0
   weaponAbilityRange: 0.2
-  isSimpleEnemy: 1
+  isSimpleEnemy: 0
   actions:
   - actionType: 0
-    minDistance: 0
-    maxDistance: 0
     healthPercentThreshold: -1
     movementSpeedMultiplier: 1
-    movementDuration: 120
     strafeDistance: 0
     strafeClockwise: 0
     patrolRadius: 0
     patrolWaitTime: 0
-    attackCooldownMin: 0
-    attackCooldownMax: 0
-    abilityIndex: 0
   - actionType: 4
-    minDistance: 0
-    maxDistance: 1
     healthPercentThreshold: -1
     movementSpeedMultiplier: 1
-    movementDuration: 120
     strafeDistance: 0
     strafeClockwise: 0
     patrolRadius: 0
     patrolWaitTime: 0
-    attackCooldownMin: 0
-    attackCooldownMax: 0
-    abilityIndex: 0
   canMove: 1
   continuousMovement: 1
   movementTime: 1
@@ -115,7 +106,7 @@ MonoBehaviour:
     m_Bits: 0
   obstacleAvoidanceStrength: 20.2
   debugDrawPathfindingRays: 0
-  hasCollisionDamage: 1
+  hasCollisionDamage: 0
   targetTags:
   - Player
   collisionDamage: 15

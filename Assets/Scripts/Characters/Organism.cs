@@ -847,6 +847,20 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     }
 
     /// <summary>
+    /// Catch-all interrupt: cancels every in-progress ability cast on this character and removes
+    /// any telegraph indicators early. Call when a character is stunned, knocked back, or dies.
+    /// </summary>
+    public void CancelAllAbilities(string reason = "Interrupted")
+    {
+        DataDrivenAbility[] abilities = GetComponents<DataDrivenAbility>();
+        foreach (DataDrivenAbility ability in abilities)
+        {
+            if (ability != null)
+                ability.CancelAbility(reason);
+        }
+    }
+
+    /// <summary>
     /// Replicates a melee hitbox's swing visual to observers. The instigating machine (server for
     /// enemies, owner for players) already shows its own local copy, so this is skipped there.
     /// </summary>
@@ -1116,6 +1130,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         Debug.Log($"[DEATH-DIAG] [Organism.Die] {gameObject.name} died — health={_syncCurrentHealth.Value}, IsNetworkActive={IsNetworkActive}, IsServerInitialized={IsServerInitialized}");
         isAlive = false;
 
+        // Interrupt any in-progress cast so a dying character stops precasting and drops its indicator.
+        CancelAllAbilities("Death");
+
         // Notify clients of death - use RPC in networked mode, local in single-player
         if (IsNetworkActive)
         {
@@ -1135,6 +1152,8 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     private void OnDeathObserversRpc()
     {
         Debug.Log($"[MeleeAbility][KillTrace] OnDeathObserversRpc executing on {gameObject.name} — isServerStarted={IsServerStarted}, isOwner={IsOwner}");
+        // Cancel casts on the owner client too (player abilities run client-side, not on the server).
+        CancelAllAbilities("Death");
         OnOrganismDeath?.Invoke(this);
         HandleDeath();
     }

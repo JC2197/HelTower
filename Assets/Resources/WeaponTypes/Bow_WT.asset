@@ -17,10 +17,10 @@ MonoBehaviour:
     aimingRadius: 0.3
     isMainHand: 1
     is2Handed: 1
-    northEastOffset: {x: 0, y: 0}
-    northWestOffset: {x: 0, y: 0}
-    southEastOffset: {x: 0, y: 0}
-    southWestOffset: {x: 0, y: 0}
+    northEastOffset: {x: 0, y: -0.15}
+    northWestOffset: {x: 0, y: -0.15}
+    southEastOffset: {x: 0, y: -0.15}
+    southWestOffset: {x: 0, y: -0.15}
     weaponBehindOnNE: 0
     weaponBehindOnNW: 0
     weaponBehindOnSE: 0

@@ -100,6 +100,9 @@ public class DataDrivenAbility : Ability
     // Weapon activation delay state
     private bool isActivatingWeapon = false;
     private Coroutine weaponActivationCoroutine;
+    // Telegraph indicator tracking (so an interrupt can remove it early)
+    private Coroutine indicatorCoroutine;
+    private GameObject activeIndicatorInstance;
     // Player control state
     private bool playerControl = true; // When false, ability has full control of character movement
     // Construct tracking
@@ -139,6 +142,9 @@ public class DataDrivenAbility : Ability
     private bool isTriggeredProjectileOnly = false;
     // Autocast target — set each frame by the autocast tick, cleared after GetTargetWorldPosition consumes it
     private Vector3? _autocastTarget = null;
+    // Aim direction captured at cast start; while set, GetAimDirection returns it so a deferred
+    // attack resolves in the direction chosen when the cast began (used for enemies).
+    private Vector3? _lockedAimDirection = null;
     private float _lastAutocastAttempt = -999f;
     // True while the autocast burst loop is iterating multi-target casts so the cooldown
     // check in CanUseAbility is skipped for the 2nd+ cast in the same burst.
@@ -912,22 +918,54 @@ public class DataDrivenAbility : Ability
         if (config == null || !config.hasIndicator || config.indicatorConfig == null || config.indicatorConfig.prefab == null)
             return;
 
-        StartCoroutine(SpawnIndicatorRoutine(config.indicatorConfig));
+        indicatorCoroutine = StartCoroutine(SpawnIndicatorRoutine(config.indicatorConfig));
+    }
+
+    /// <summary>
+    /// Total time the telegraph indicator is on screen (spawn delay + lifetime), or 0 when none
+    /// is configured. Used to hold the precast so the attack fires only after the indicator ends.
+    /// </summary>
+    private float GetIndicatorHoldDuration()
+    {
+        if (config == null || !config.hasIndicator || config.indicatorConfig == null || config.indicatorConfig.prefab == null)
+            return 0f;
+
+        IndicatorConfig indicatorConfig = config.indicatorConfig;
+        float lifetime = indicatorConfig.duration > 0f ? indicatorConfig.duration : Mathf.Max(GetPrecastDelay(), 0.1f);
+        return indicatorConfig.spawnDelay + lifetime;
     }
 
     private IEnumerator SpawnIndicatorRoutine(IndicatorConfig indicatorConfig)
     {
         if (indicatorConfig.spawnDelay > 0f)
             yield return new WaitForSeconds(indicatorConfig.spawnDelay);
-
         Vector3 aimDirection = GetAimDirection();
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        Vector3 spawnPosition = transform.position + indicatorConfig.offset;
+        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
+        // Offset is applied in the indicator's local (aim-facing) space, not world space.
+        Vector3 spawnPosition = transform.position + rotation * indicatorConfig.offset;
 
-        GameObject indicatorInstance = Instantiate(indicatorConfig.prefab, spawnPosition, Quaternion.Euler(0f, 0f, angle));
+        activeIndicatorInstance = Instantiate(indicatorConfig.prefab, spawnPosition, rotation);
 
         float lifetime = indicatorConfig.duration > 0f ? indicatorConfig.duration : Mathf.Max(GetPrecastDelay(), 0.1f);
-        Destroy(indicatorInstance, lifetime);
+        Destroy(activeIndicatorInstance, lifetime);
+    }
+
+    /// <summary>
+    /// Stop the pending indicator spawn and destroy any live indicator immediately.
+    /// </summary>
+    private void RemoveIndicator()
+    {
+        if (indicatorCoroutine != null)
+        {
+            StopCoroutine(indicatorCoroutine);
+            indicatorCoroutine = null;
+        }
+        if (activeIndicatorInstance != null)
+        {
+            Destroy(activeIndicatorInstance);
+            activeIndicatorInstance = null;
+        }
     }
 
     /// <summary>
@@ -1822,8 +1860,11 @@ public class DataDrivenAbility : Ability
 
         bool movementHasDelayedPrecast = GetMovementPrecastDelay(config) > 0f;
 
-        // Immediate/Delayed Sequence path
-        if (!string.IsNullOrEmpty(config.mainhandAnimationName))
+        // Immediate/Delayed Sequence path. Enter the cast sequence when there is a weapon cast
+        // animation OR a configured precast — the latter covers weaponless attacks (e.g. enemies)
+        // whose precast would otherwise be skipped by the immediate OnAbilityActivated() path.
+        bool hasPrecastSequence = config.hasPrecast && HasConfiguredPrecastAnimation(config);
+        if (!string.IsNullOrEmpty(config.mainhandAnimationName) || hasPrecastSequence)
         {
             chargingCoroutine = StartCoroutine(AbilityCastSequence());
 
@@ -2192,6 +2233,10 @@ public class DataDrivenAbility : Ability
         var hcc = GetEffectiveHoldChargeConfig();
         int maxBars = hcc != null ? Mathf.Max(1, hcc.maxBars) : 1;
 
+        // Enemies commit to the aim direction chosen at cast start; players keep tracking their cursor.
+        if (ownerAsPlayer == null)
+            _lockedAimDirection = GetAimDirection();
+
         // 1. Precast animation
         if (config.hasPrecast && HasConfiguredPrecastAnimation(config))
             PlayPreAnimation();
@@ -2199,12 +2244,15 @@ public class DataDrivenAbility : Ability
         // 2. Precast duration — driven by animation clip length.
         // Start the charge bar at the same time if this is a hold-to-release ability with a charge config.
         float precastDuration = GetPrecastDelay();
-        if (precastDuration > 0f)
+        // Hold the precast at least until the telegraph indicator finishes so the attack does
+        // not resolve before the indicator's duration has elapsed.
+        float precastHoldDuration = Mathf.Max(precastDuration, GetIndicatorHoldDuration());
+        if (precastHoldDuration > 0f)
         {
-            ApplyPrecastMovementLock(precastDuration);
+            ApplyPrecastMovementLock(precastHoldDuration);
             if (config.activateOnButtonRelease && hcc != null)
                 chargeBar?.StartCharge(hcc.barDuration, ownerAsPlayer?.transform, maxBars);
-            yield return new WaitForSeconds(precastDuration);
+            yield return new WaitForSeconds(precastHoldDuration);
         }
 
         // 3. Hold phase — continue charge bar and wait for button release
@@ -2237,7 +2285,7 @@ public class DataDrivenAbility : Ability
             lastChargeValue = precastDuration > 0f ? 1f : 0f;
         }
 
-        if (!isCharging) yield break; // Cancelled externally
+        if (!isCharging) { _lockedAimDirection = null; yield break; } // Cancelled externally
 
         chargeBar?.CompleteCharge();
 
@@ -2285,6 +2333,7 @@ public class DataDrivenAbility : Ability
         if (ownerAsPlayer)
             ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
         isCharging = false;
+        _lockedAimDirection = null;
         chargeBar?.StopCharge();
         chargingCoroutine = null;
     }
@@ -2399,6 +2448,7 @@ public class DataDrivenAbility : Ability
                 chargingCoroutine = null;
             }
             isCharging = false;
+            _lockedAimDirection = null;
         }
 
         // Cancel any ongoing weapon activation
@@ -3368,6 +3418,11 @@ public class DataDrivenAbility : Ability
 
     private Vector3 GetAimDirection()
     {
+        // A cast in progress locks the aim so the attack resolves in the direction chosen when
+        // the cast began, instead of re-aiming from the enemy's current position at fire time.
+        if (_lockedAimDirection.HasValue)
+            return _lockedAimDirection.Value;
+
         // When an autocast/retaliation target is set, aim directly at it regardless of
         // whether this is a player or enemy — this ensures retaliation melee faces the attacker.
         if (_autocastTarget.HasValue)
@@ -4863,6 +4918,49 @@ public class DataDrivenAbility : Ability
             weaponActivationCoroutine = null;
             isActivatingWeapon = false;
         }
+    }
+
+    /// <summary>
+    /// Catch-all interrupt: hard-cancels any in-progress cast/charge on this ability, removes the
+    /// telegraph indicator early, and returns the character to a clean, controllable state. Safe to
+    /// call on any ability at any time (does nothing meaningful if nothing is active).
+    /// </summary>
+    public void CancelAbility(string reason = "Interrupted")
+    {
+        RemoveIndicator();
+
+        // Hard-stop the cast/charge sequence regardless of canCancelCharge.
+        if (chargingCoroutine != null)
+        {
+            StopCoroutine(chargingCoroutine);
+            chargingCoroutine = null;
+        }
+        isCharging = false;
+        isHoldingForRelease = false;
+        isHoldingFire = false;
+        _lockedAimDirection = null;
+        _autocastTarget = null;
+        chargeBar?.StopCharge();
+
+        // Stop combo/continuous fire and any weapon-activation delay.
+        StopContinuousFiring();
+
+        // End movement ability if mid-dash so the character isn't left in a moving state.
+        if (movementAbility != null && movementAbility.IsExecuting)
+            movementAbility.End();
+
+        // Release movement/aim locks and cast slows.
+        ClearCastMoveSpeedModifier(reason);
+        if (!playerControl)
+            ReleaseMovementControl(reason, force: true);
+        isWeaponDirectionLocked = false;
+        isActivatingWeapon = false;
+        isMovementPrecastPending = false;
+
+        if (ownerAsPlayer != null)
+            ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
+
+        Debug.Log($"[DataDrivenAbility] CancelAbility: ability={config?.abilityName}, reason={reason}");
     }
 
     /// <summary>

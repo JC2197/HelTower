@@ -36,9 +36,10 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
-  movementBlockDuration: 0.5
-  movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringCast: 1
+  movementBlockDuration: 0.33
+  movementSpeedMultiplierDuringCast: 0.375
+  disablesMovementDuringPrecast: 1
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -56,6 +57,7 @@ MonoBehaviour:
   preAnimationName: SlamPrecast
   activateOnButtonRelease: 0
   holdAnimationName: 
+  characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
@@ -68,6 +70,12 @@ MonoBehaviour:
   flipYOnLeftFacing: 1
   flipXOnLeftFacing: 0
   timedParticles: []
+  hasIndicator: 0
+  indicatorConfig:
+    prefab: {fileID: 0}
+    spawnDelay: 0
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 0
   isAreaAbility: 0
   isConstructAbility: 0
@@ -1302,14 +1310,10 @@ MonoBehaviour:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-      shape: 0
-      dimensions: {x: 3, y: 3}
       singleTargetMode: 0
       singleTargetSearchRadius: 0
       timeDelay: 0
       delayEffectPrefab: {fileID: 0}
-      explosionEffectPrefab: {fileID: 0}
-      explosionSound: {fileID: 0}
       activationRange: 0
       salvos: 0
       salvoAmount: 0
@@ -1422,14 +1426,10 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    shape: 0
-    dimensions: {x: 3, y: 3}
     singleTargetMode: 0
     singleTargetSearchRadius: 0
     timeDelay: 0
     delayEffectPrefab: {fileID: 0}
-    explosionEffectPrefab: {fileID: 1852263050958127776, guid: be1dde5c0a7de3b41b5c6f857a4dc5e1, type: 3}
-    explosionSound: {fileID: 0}
     activationRange: 0.1
     salvos: 1
     salvoAmount: 0
@@ -1467,7 +1467,6 @@ MonoBehaviour:
     summonAbilities: []
     isRotationalTurret: 0
     turretChildName: Turret
-    turretRotationSpeed: 90
     idleAnimation: Idle
     moveAnimation: Move
     spawnAnimation: 

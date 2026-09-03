@@ -17,11 +17,11 @@ MonoBehaviour:
   nodeSpacing: 100
   nodeIconSize: 17
   nodeIconFrame: {fileID: 0}
-  canvasWidth: 433
+  canvasWidth: 465
   nodes:
   - nodeID: FireStarterBurnChance5_b0e9
     traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
-    position: {x: -32, y: 0}
+    position: {x: -32, y: -32}
     connectedNodeIDs: []
   - nodeID: FirestarterDamage5_b55f
     traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
@@ -29,17 +29,17 @@ MonoBehaviour:
     connectedNodeIDs: []
   - nodeID: FirestarterProjSpeed5_bdd9
     traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
-    position: {x: -96, y: 0}
+    position: {x: -96, y: -48}
     connectedNodeIDs: []
   - nodeID: FirestarterSwipeSize5_894f
     traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
-    position: {x: -128, y: -0}
+    position: {x: -144, y: 0}
     connectedNodeIDs: []
   - nodeID: ExpulsionCooldown_48ef
     traitData: {fileID: 11400000, guid: 4c1dc5246efb45c458e5354154885229, type: 2}
     position: {x: 32, y: -0}
     connectedNodeIDs: []
-  canvasHeight: 225
+  canvasHeight: 273
   minCanvasWidth: 400
   minCanvasHeight: 225
   autoCanvasSize: 1

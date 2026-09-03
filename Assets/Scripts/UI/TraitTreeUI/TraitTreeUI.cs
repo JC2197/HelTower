@@ -835,7 +835,8 @@ public class TraitTreeUI : MonoBehaviour
         if (traitData == null || TraitTooltip.Instance == null)
             return;
 
-        string description = traitData.description ?? string.Empty;
+        // Resolve {v1}/{v2} placeholders and effect descriptions instead of showing the raw template.
+        string description = TraitDescriptionBuilder.BuildDynamicDescription(traitData);
 
         TraitNode node = nodeUI != null
             ? nodeUI.NodeData

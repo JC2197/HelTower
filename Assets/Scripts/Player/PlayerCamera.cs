@@ -8,7 +8,7 @@ public class PlayerCamera : NetworkBehaviour
 {
     [SerializeField] private Transform _cameraHolder;
     [SerializeField] private Color _backgroundColor = Color.black;
-    [SerializeField] private float _orthographicSize = 5f;
+    [SerializeField] private float _orthographicSize = 6.5f;
 
     private Camera _activeCamera;
 

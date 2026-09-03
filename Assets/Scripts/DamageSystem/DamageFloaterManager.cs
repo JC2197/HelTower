@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public class DamageFloaterManager : MonoBehaviour
@@ -10,6 +12,23 @@ public class DamageFloaterManager : MonoBehaviour
 
     [Header("Prefab")]
     [SerializeField] private GameObject damageFloaterPrefab;
+
+    [Header("Aggregation")]
+    [Tooltip("Damage hits to the same target within this window (seconds) are summed into one floater. 0 = show every hit immediately.")]
+    [SerializeField] private float damageAggregationWindow = 0.1f;
+
+    // Buffered damage keyed by target+type+crit while its aggregation window is open.
+    private readonly Dictionary<string, PendingDamage> pendingDamage = new Dictionary<string, PendingDamage>();
+
+    private class PendingDamage
+    {
+        public float total;
+        public string damageType;
+        public bool isCritical;
+        public Vector3 position;
+        public Vector3? attackerPosition;
+        public Transform targetTransform;
+    }
 
     private Canvas worldCanvas;
     private RectTransform canvasRect;
@@ -66,9 +85,71 @@ public class DamageFloaterManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows damage floater with directional movement based on attacker position
+    /// Shows damage floater with directional movement based on attacker position.
+    /// Hits to the same target within <see cref="damageAggregationWindow"/> are summed into one floater.
     /// </summary>
     public void ShowDamage(Vector3 targetPosition, float damage, string damageType = "Physical", bool isCritical = false, Vector3? attackerPosition = null, Transform targetTransform = null)
+    {
+        if (damageFloaterPrefab == null || config == null)
+        {
+            Debug.LogWarning("DamageFloater prefab or config not assigned!");
+            return;
+        }
+
+        if (Camera.main == null)
+        {
+            Debug.LogError("Main camera not found!");
+            return;
+        }
+
+        // Only aggregate when we can key on a concrete target; otherwise show immediately so
+        // hits are never pooled across different entities that merely share a position.
+        if (damageAggregationWindow <= 0f || targetTransform == null)
+        {
+            SpawnDamageFloater(targetPosition, damage, damageType, isCritical, attackerPosition, targetTransform);
+            return;
+        }
+
+        string key = BuildAggregationKey(targetTransform, damageType, isCritical);
+        if (pendingDamage.TryGetValue(key, out PendingDamage pending))
+        {
+            pending.total += damage;
+            pending.position = targetPosition;
+            if (attackerPosition.HasValue) pending.attackerPosition = attackerPosition;
+        }
+        else
+        {
+            pendingDamage[key] = new PendingDamage
+            {
+                total = damage,
+                damageType = damageType,
+                isCritical = isCritical,
+                position = targetPosition,
+                attackerPosition = attackerPosition,
+                targetTransform = targetTransform,
+            };
+            StartCoroutine(FlushDamageAfterWindow(key));
+        }
+    }
+
+    private static string BuildAggregationKey(Transform target, string damageType, bool isCritical)
+    {
+        // Keyed by the target's unique instance ID so damage never pools across entities.
+        return $"{target.GetInstanceID()}|{damageType}|{isCritical}";
+    }
+
+    private IEnumerator FlushDamageAfterWindow(string key)
+    {
+        yield return new WaitForSeconds(damageAggregationWindow);
+
+        if (pendingDamage.TryGetValue(key, out PendingDamage pending))
+        {
+            pendingDamage.Remove(key);
+            SpawnDamageFloater(pending.position, pending.total, pending.damageType, pending.isCritical, pending.attackerPosition, pending.targetTransform);
+        }
+    }
+
+    private void SpawnDamageFloater(Vector3 targetPosition, float damage, string damageType, bool isCritical, Vector3? attackerPosition, Transform targetTransform)
     {
         if (damageFloaterPrefab == null || config == null)
         {

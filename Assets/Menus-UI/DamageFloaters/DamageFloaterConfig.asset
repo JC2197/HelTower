@@ -50,12 +50,12 @@ MonoBehaviour:
   criticalFontSizeMultiplier: 1.3
   enableOutline: 0
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineThickness: 0.2
-  physicalDamageColor: {r: 0.90943396, g: 0.36892128, b: 0.36892128, a: 1}
-  criticalDamageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  magicalDamageColor: {r: 0.5, g: 0.5, b: 1, a: 1}
+  outlineThickness: 0.401
+  physicalDamageColor: {r: 1, g: 0, b: 0, a: 1}
+  criticalDamageColor: {r: 1, g: 0.80887455, b: 0.015686274, a: 1}
+  magicalDamageColor: {r: 0.5410876, g: 0, b: 1, a: 1}
   magicalCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  healingColor: {r: 0, g: 1, b: 0, a: 1}
+  healingColor: {r: 0.00741769, g: 0.82641506, b: 0, a: 1}
   energySpentColor: {r: 0.3, g: 0.6, b: 1, a: 1}
   fireColor: {r: 1, g: 0.27524382, b: 0, a: 1}
   fireCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -65,7 +65,7 @@ MonoBehaviour:
   lightningCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   poisonColor: {r: 0.49399415, g: 0.79622644, b: 0.088636465, a: 1}
   bleedingColor: {r: 0.5924529, g: 0.12664418, b: 0.052538246, a: 1}
-  burningColor: {r: 1, g: 0.27450982, b: 0, a: 1}
+  burningColor: {r: 1, g: 0.22990648, b: 0, a: 1}
   darkColor: {r: 1, g: 0, b: 1, a: 1}
   darkCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   lightColor: {r: 1, g: 1, b: 1, a: 1}
