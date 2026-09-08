@@ -21,11 +21,18 @@ public class EnemySpawner : NetworkBehaviour
     [SerializeField] private GameObject spawnPrefab;
 
     [Header("Rewards")]
+    [Tooltip("Multiplies the gold dropped by every enemy spawned by this spawner.")]
+    [SerializeField] private float goldScaling = 1f;
     [Tooltip("Roll a trait choice for every player when this floor is cleared.")]
     [SerializeField] private bool rollTraitsOnFloorComplete = true;
     [SerializeField] private TraitRollType floorCompleteTraitRollType = TraitRollType.General;
 
     public event Action FloorComplete;
+
+    public void SetGoldScaling(float multiplier)
+    {
+        goldScaling = Mathf.Max(0f, multiplier);
+    }
 
     private readonly HashSet<int> _aliveSpawnedEnemyIds = new HashSet<int>();
     private int _currentWaveIndex = -1;
@@ -224,6 +231,10 @@ public class EnemySpawner : NetworkBehaviour
 
         int instanceId = enemyInstance.GetInstanceID();
         _aliveSpawnedEnemyIds.Add(instanceId);
+
+        Enemy enemy = enemyInstance.GetComponent<Enemy>();
+        if (enemy != null)
+            enemy.SetGoldMultiplier(goldScaling);
 
         SpawnedEnemyTracker tracker = enemyInstance.GetComponent<SpawnedEnemyTracker>();
         if (tracker == null)

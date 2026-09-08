@@ -35,4 +35,7 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
       spawnWeight: 1
       spawnDelay: 0
+    - enemyPrefab: {fileID: 558853963702316885, guid: dc1739a36e98b3e4f8531f06181f7488, type: 3}
+      spawnWeight: 1
+      spawnDelay: 0
   spawnRadius: 12

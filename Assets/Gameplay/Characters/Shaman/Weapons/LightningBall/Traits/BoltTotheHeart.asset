@@ -14,16 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: BoltTotheHeart
   displayName: Bolt To the Heart
+  baseGoldCost: 8
   description: Lightning gains {v2}% increased damage and gains {v1}% increased chance
     to critically strike.
   traitIcon: {fileID: -8987344780260316355, guid: 5dea82c2c0d841d45bdc2acee4c4e95d, type: 3}
-  colorTheme: Storm
-  specializedTraitTag1: Storm
-  specializedTraitTag2: Assassination
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 4
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
@@ -40,7 +37,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
     abilityIcon: {fileID: 0}
-    addTriggeredAbility: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: baseCritChance
       overrideMode: 0
@@ -53,5 +56,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

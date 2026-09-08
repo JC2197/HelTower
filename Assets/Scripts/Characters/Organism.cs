@@ -19,7 +19,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     [SerializeField] protected bool enableDamageFlash = true;
     [SerializeField] protected Color damageFlashColor = Color.white;
     [SerializeField] protected float damageFlashDuration = 0.2f;
-    [SerializeField] protected int damageFlashCount = 2;
+    [SerializeField] protected int damageFlashCount = 1;
+    [Tooltip("Squash on damage flash: X widens and Y shortens by this fraction of the baseline scale. 0 disables squash/stretch.")]
+    [SerializeField] protected float damageFlashSquash = 0.6f;
 
     [Header("Damage Type Registry")]
     [SerializeField] protected List<DamageTypeData> damageTypeRegistry = new List<DamageTypeData>();
@@ -31,8 +33,10 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     protected List<Color> originalColors = new List<Color>();
     protected Coroutine damageFlashCoroutine;
     private List<Material> originalMaterials = new List<Material>();
+    // Per-renderer resting scales; the squash targets these child transforms, not the
+    // networked root (whose scale NetworkTransform/facing-flip overwrites).
+    private readonly List<Vector3> _spriteBaselineScales = new List<Vector3>();
     private Material damageFlashMaterial;
-    private Vector3 _baselineScale = new Vector3(0.9f, 0.9f, 1f); // Stored once to prevent squash/stretch stacking
 
     // Cached network manager reference to avoid repeated lookups
     protected FishNet.Managing.NetworkManager _cachedNetworkManager;
@@ -74,6 +78,31 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     public StatContainer AllStats => statContainer;
     public virtual bool IsAlive => isAlive;
     public bool IsEvading => _isEvading;
+
+    // Caster-wide ability lockout. A cast holds it open for its whole precast->postcast run, then
+    // leaves a timed tail so the configured recovery window still blocks every other ability.
+    private float _abilityLockoutEndTime = -999f;
+    private int _abilityLockoutHolds;
+    public bool IsAbilityLockedOut => _abilityLockoutHolds > 0 || Time.time < _abilityLockoutEndTime;
+    public float RemainingAbilityLockout => _abilityLockoutHolds > 0
+        ? float.PositiveInfinity
+        : Mathf.Max(0f, _abilityLockoutEndTime - Time.time);
+
+    public void AcquireAbilityLockoutHold() => _abilityLockoutHolds++;
+
+    public void ReleaseAbilityLockoutHold() => _abilityLockoutHolds = Mathf.Max(0, _abilityLockoutHolds - 1);
+
+    /// <summary>Extends the timed tail of the lockout; never shortens an existing one.</summary>
+    public void ApplyAbilityLockout(float duration)
+    {
+        if (duration <= 0f) return;
+        _abilityLockoutEndTime = Mathf.Max(_abilityLockoutEndTime, Time.time + duration);
+    }
+
+    /// <summary>Clears the timed tail. Open holds are owned by their casts and released separately.</summary>
+    public void ClearAbilityLockout() => _abilityLockoutEndTime = -999f;
+
+
     private int _evadeRequestCount;
     private int _colliderExcludeLayersBeforeEvade;
 
@@ -116,7 +145,6 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     {
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
-        _baselineScale = transform.localScale; // Store once to prevent squash/stretch stacking
 
         // Find all sprite renderers (exclude shadows or include based on name)
         SpriteRenderer[] foundRenderers = GetComponentsInChildren<SpriteRenderer>();
@@ -128,6 +156,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             spriteRenderers.Add(sr);
             originalColors.Add(sr.color);
             originalMaterials.Add(sr.material);
+            _spriteBaselineScales.Add(sr.transform.localScale);
             Debug.Log($"[Organism] Found SpriteRenderer on {gameObject.name}: {sr.gameObject.name}");
         }
 
@@ -1035,7 +1064,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
                 Debug.Log($"[TriggerDamageFlash] Stopping existing flash coroutine");
                 StopCoroutine(damageFlashCoroutine);
                 // Reset scale immediately to prevent stacking when coroutine is interrupted mid-squash
-                transform.localScale = _baselineScale;
+                ResetSpriteScale();
             }
             Debug.Log($"[TriggerDamageFlash] Starting DamageFlashCoroutine with color {flashColor} on {spriteRenderers.Count} renderers");
             damageFlashCoroutine = StartCoroutine(DamageFlashCoroutine(flashColor));
@@ -1194,9 +1223,6 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             yield break;
         }
 
-        // Use baseline scale for squash effect (prevents stacking if coroutine is interrupted)
-        Vector3 squashScale = new Vector3(_baselineScale.x, _baselineScale.y, _baselineScale.z);
-
         // Use DamageFlash material if available
         if (damageFlashMaterial != null)
         {
@@ -1207,28 +1233,38 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
             for (int i = 0; i < damageFlashCount; i++)
             {
-                // Apply squash scale as an animation effect to enhance feedback (optional)
-                //over time
-
-                transform.localScale = squashScale;
-
-                // Flash all sprite renderers
+                // Flash all sprite renderers (instant, not lerped)
                 foreach (var sr in spriteRenderers)
                 {
                     if (sr != null) sr.material = flashInstance;
                 }
-                yield return new WaitForSeconds(damageFlashDuration / 2f);
 
-                // Restore baseline scale
-                transform.localScale = _baselineScale;
-
-                // Restore original materials
-                for (int j = 0; j < spriteRenderers.Count; j++)
+                bool restored = false;
+                float elapsed = 0f;
+                while (elapsed < damageFlashDuration)
                 {
-                    if (spriteRenderers[j] != null && j < originalMaterials.Count)
-                        spriteRenderers[j].material = originalMaterials[j];
+                    SetSpriteSquash(elapsed / damageFlashDuration);
+
+                    // Restore materials at the halfway point so the flash blinks off.
+                    if (!restored && elapsed >= damageFlashDuration * 0.5f)
+                    {
+                        for (int j = 0; j < spriteRenderers.Count; j++)
+                            if (spriteRenderers[j] != null && j < originalMaterials.Count)
+                                spriteRenderers[j].material = originalMaterials[j];
+                        restored = true;
+                    }
+
+                    elapsed += Time.deltaTime;
+                    yield return null;
                 }
-                yield return new WaitForSeconds(damageFlashDuration / 2f);
+
+                SetSpriteSquash(1f);
+                if (!restored)
+                {
+                    for (int j = 0; j < spriteRenderers.Count; j++)
+                        if (spriteRenderers[j] != null && j < originalMaterials.Count)
+                            spriteRenderers[j].material = originalMaterials[j];
+                }
             }
 
             Destroy(flashInstance); // Clean up material instance
@@ -1239,26 +1275,38 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             // Fallback: color-based flash
             for (int i = 0; i < damageFlashCount; i++)
             {
-                // Apply squash scale
-                transform.localScale = squashScale;
-
-                // Flash all sprite renderers
+                // Flash all sprite renderers (instant, not lerped)
                 foreach (var sr in spriteRenderers)
                 {
                     if (sr != null) sr.color = flashColor;
                 }
-                yield return new WaitForSeconds(damageFlashDuration / 2f);
 
-                // Restore baseline scale
-                transform.localScale = _baselineScale;
-
-                // Restore original colors
-                for (int j = 0; j < spriteRenderers.Count; j++)
+                bool restored = false;
+                float elapsed = 0f;
+                while (elapsed < damageFlashDuration)
                 {
-                    if (spriteRenderers[j] != null && j < originalColors.Count)
-                        spriteRenderers[j].color = originalColors[j];
+                    SetSpriteSquash(elapsed / damageFlashDuration);
+
+                    // Restore colors at the halfway point so the flash blinks off.
+                    if (!restored && elapsed >= damageFlashDuration * 0.5f)
+                    {
+                        for (int j = 0; j < spriteRenderers.Count; j++)
+                            if (spriteRenderers[j] != null && j < originalColors.Count)
+                                spriteRenderers[j].color = originalColors[j];
+                        restored = true;
+                    }
+
+                    elapsed += Time.deltaTime;
+                    yield return null;
                 }
-                yield return new WaitForSeconds(damageFlashDuration / 2f);
+
+                SetSpriteSquash(1f);
+                if (!restored)
+                {
+                    for (int j = 0; j < spriteRenderers.Count; j++)
+                        if (spriteRenderers[j] != null && j < originalColors.Count)
+                            spriteRenderers[j].color = originalColors[j];
+                }
             }
 
             // Final restore
@@ -1270,10 +1318,53 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
 
         // Ensure scale is restored
-        transform.localScale = _baselineScale;
+        ResetSpriteScale();
 
         Debug.Log($"[DamageFlashCoroutine] Completed on {gameObject.name}");
         damageFlashCoroutine = null;
+    }
+
+    // Lerp each sprite renderer from a squash pose (wide X, short Y) to a stretch pose
+    // (narrow X, tall Y) about its own resting scale. Applied to the child sprites so the
+    // networked root's synced scale isn't disturbed. t goes 0 (squash) -> 1 (stretch).
+    private void SetSpriteSquash(float t)
+    {
+        for (int i = 0; i < spriteRenderers.Count; i++)
+        {
+            var sr = spriteRenderers[i];
+            if (sr == null || i >= _spriteBaselineScales.Count)
+                continue;
+
+            Vector3 baseline = _spriteBaselineScales[i];
+            // Preserve facing sign on X while scaling the magnitude.
+            float xSign = Mathf.Sign(sr.transform.localScale.x == 0f ? baseline.x : sr.transform.localScale.x);
+            float absX = Mathf.Abs(baseline.x);
+
+            // Reduction is the inverse of the growth so shrink/grow are symmetric.
+            float grow = 1f + damageFlashSquash;
+            float shrink = 1f / grow;
+
+            float squashX = 1f; // absX * grow;
+            float squashY = 1f; //baseline.y * shrink;
+            float stretchX = absX * shrink;
+            float stretchY = baseline.y * grow;
+
+            sr.transform.localScale = new Vector3(
+                Mathf.Lerp(stretchX,squashX,  t) * xSign,
+                Mathf.Lerp(stretchY,squashY,  t),
+                baseline.z);
+        }
+    }
+
+    private void ResetSpriteScale()
+    {
+        for (int i = 0; i < spriteRenderers.Count; i++)
+        {
+            var sr = spriteRenderers[i];
+            if (sr == null || i >= _spriteBaselineScales.Count)
+                continue;
+            sr.transform.localScale = _spriteBaselineScales[i];
+        }
     }
 
     public void UpdateOriginalColor(Color newColor)

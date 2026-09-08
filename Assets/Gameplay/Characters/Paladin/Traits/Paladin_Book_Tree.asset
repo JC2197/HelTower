@@ -17,6 +17,15 @@ MonoBehaviour:
   nodeSpacing: 100
   nodeIconSize: 17
   nodeIconFrame: {fileID: 0}
+  editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
+  anchorTreeToBottom: 1
+  useLevelZones: 1
+  levelZoneBandCount: 11
+  levelsPerBand: 5
+  defaultZoom: 1
+  allowZoom: 0
+  previewWindowSize: {x: 350, y: 400}
+  connectionLineWidth: 3
   canvasWidth: 400
   nodes: []
   canvasHeight: 225

@@ -14,18 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: LightningStrikeCrit
   displayName: Critical Lightning
+  baseGoldCost: 8
   description: Lightning Strike gains +{v1}% crit chance.
   traitIcon: {fileID: -389872151744718184, guid: 35f77a9cf0fa6ad4eb05753dc3b5e161, type: 3}
-  colorTheme: Storm
-  specializedTraitTag1: Storm
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -37,11 +36,17 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: baseCritChance
       overrideMode: 0
       numericValue: 0.05
       stringValue: 
       objectValue: {fileID: 0}
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}
+  mutuallyExclusiveWith: []

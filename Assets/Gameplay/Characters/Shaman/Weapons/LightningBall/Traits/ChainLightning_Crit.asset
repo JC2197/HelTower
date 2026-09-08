@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ChainLightning_CritChance
   displayName: Chain Lightning CritChance
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Chain Lightning gains +(v1)% Critical Strike Chance.
   traitIcon: {fileID: 8829191105318514933, guid: a1910ac50c687864b90ccea10e8a3204, type: 3}
   weaponTraitTag: 

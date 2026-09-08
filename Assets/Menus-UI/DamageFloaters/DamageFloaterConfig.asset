@@ -42,15 +42,15 @@ MonoBehaviour:
   startScale: 1
   endScale: 1.25
   scaleAnimationDuration: 0.25
-  worldOffset: {x: 0, y: 0, z: 0}
+  worldOffset: {x: 0, y: 0.5, z: 0}
   directionalOffset: 0.5
   customFont: {fileID: 11400000, guid: 1d35b82bbd4ac5d4388f472a07fa26a6, type: 2}
   fontMaterial: {fileID: 0}
-  fontSize: 36
+  fontSize: 48
   criticalFontSizeMultiplier: 1.3
-  enableOutline: 0
-  outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineThickness: 0.401
+  enableOutline: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineThickness: 0.1
   physicalDamageColor: {r: 1, g: 0, b: 0, a: 1}
   criticalDamageColor: {r: 1, g: 0.80887455, b: 0.015686274, a: 1}
   magicalDamageColor: {r: 0.5410876, g: 0, b: 1, a: 1}

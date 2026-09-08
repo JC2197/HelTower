@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ChainLightning_Cooldown
   displayName: Quick Chain
+  baseGoldCost: 8
   description: +{v1}% Cooldown Reduction Rate for Chain Lightning.
   traitIcon: {fileID: 907626429212129282, guid: 340eaa3476be0e640a3dbf76e4012438, type: 3}
-  colorTheme: Storm
-  specializedTraitTag1: Storm
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
@@ -39,7 +36,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
     abilityIcon: {fileID: 0}
-    addTriggeredAbility: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: cooldownTime
       overrideMode: 1
@@ -47,5 +50,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

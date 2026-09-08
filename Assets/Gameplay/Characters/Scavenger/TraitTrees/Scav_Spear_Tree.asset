@@ -15,13 +15,94 @@ MonoBehaviour:
   treeName: Sand Spear
   description: 
   nodeSpacing: 100
-  nodeIconSize: 17
+  nodeIconSize: 34
   nodeIconFrame: {fileID: 0}
+  editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
+  anchorTreeToBottom: 1
+  useLevelZones: 1
+  levelZoneBandCount: 11
+  levelsPerBand: 5
+  defaultZoom: 1
+  allowZoom: 0
+  previewWindowSize: {x: 350, y: 400}
+  connectionLineWidth: 3
   canvasWidth: 400
-  nodes: []
-  canvasHeight: 225
+  nodes:
+  - nodeID: SpearAddSlash_3722
+    traitData: {fileID: 11400000, guid: cf560e85430c6b24fa9ecac553bb5d3a, type: 2}
+    position: {x: -0, y: -16}
+    connectedNodeIDs: []
+  - nodeID: SpearAttackSpeed_1de6
+    traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
+    position: {x: -48, y: 152}
+    connectedNodeIDs:
+    - SpearAddSlash_3722
+    - StabAttackSpeed_e45b
+  - nodeID: SpearAttackSpeed_976d
+    traitData: {fileID: 11400000, guid: 1c8bba8be5a5b5649b8df2ee4c05d6d4, type: 2}
+    position: {x: -128, y: 152}
+    connectedNodeIDs:
+    - SpearAddSlash_3722
+    - StabAttackSpeed_e45b
+  - nodeID: StabAttackSpeed_e45b
+    traitData: {fileID: 11400000, guid: c32ba2349e127314e94900444776d636, type: 2}
+    position: {x: -112, y: -16}
+    connectedNodeIDs: []
+  canvasHeight: 401
   minCanvasWidth: 400
   minCanvasHeight: 225
-  autoCanvasSize: 1
+  autoCanvasSize: 0
   autoCanvasPadding: 80
-  connections: []
+  connections:
+  - connectionID: conn_e61ff984
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_976d
+    toNodeIDs:
+    - SpearAddSlash_3722
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_277d305c
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_1de6
+    toNodeIDs:
+    - SpearAddSlash_3722
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_45b464ab
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_1de6
+    toNodeIDs:
+    - StabAttackSpeed_e45b
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_b3e7614d
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_976d
+    toNodeIDs:
+    - StabAttackSpeed_e45b
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

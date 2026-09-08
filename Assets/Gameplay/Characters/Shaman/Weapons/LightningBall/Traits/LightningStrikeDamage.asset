@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: LightningStrikeDamage
   displayName: Voltage
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Increase the damage of Lightning Strike by {v1}.
   traitIcon: {fileID: 8773306404184041723, guid: e0bbe32b3139e79429cb24ad9bc2d438, type: 3}
   weaponTraitTag: 

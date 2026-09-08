@@ -63,6 +63,7 @@ public class TraitTreeEditorWindow : EditorWindow
     private float gridSize = 16f;
     private bool showGrid = true;
     private bool snapToGrid = true;
+    private bool showWindowFrame = true;
     private GridType gridType = GridType.Square;
 
     // Grid type enum
@@ -183,6 +184,7 @@ public class TraitTreeEditorWindow : EditorWindow
 
         showGrid = GUILayout.Toggle(showGrid, "Grid", EditorStyles.toolbarButton);
         snapToGrid = GUILayout.Toggle(snapToGrid, "Snap", EditorStyles.toolbarButton);
+        showWindowFrame = GUILayout.Toggle(showWindowFrame, "Window", EditorStyles.toolbarButton);
 
         // Grid type selector
         if (showGrid)
@@ -267,8 +269,13 @@ public class TraitTreeEditorWindow : EditorWindow
 
         Vector2 canvasCenter = canvasRect.size / 2 + canvasOffset * zoomLevel;
         Rect workspaceRect = GetWorkspaceRect(canvasCenter);
+        Rect windowFrameRect = GetWindowFrameRect(canvasCenter);
         Color bgColor = new Color(0.12f, 0.15f, 0.2f, 1f);
         EditorGUI.DrawRect(workspaceRect, bgColor);
+        // The background art is static to the window at runtime, so preview it inside the frame.
+        DrawBackgroundSprite(showWindowFrame ? windowFrameRect : workspaceRect);
+        // Tinted level bands rising from the bottom edge (bottom-anchored trees only).
+        DrawLevelZones(workspaceRect);
         // Draw grid
         if (showGrid)
         {
@@ -303,6 +310,10 @@ public class TraitTreeEditorWindow : EditorWindow
             DrawBoxSelection();
         }
 
+        // Frame overlay last so the dim + outline reads on top of the tree content.
+        if (showWindowFrame)
+            DrawWindowFrame(windowFrameRect);
+
         GUILayout.EndArea();
     }
 
@@ -314,6 +325,109 @@ public class TraitTreeEditorWindow : EditorWindow
         float w = Mathf.Max(1, currentTree.canvasWidth) * zoomLevel;
         float h = Mathf.Max(1, currentTree.canvasHeight) * zoomLevel;
         return new Rect(center.x - w * 0.5f, center.y - h * 0.5f, w, h);
+    }
+
+    // Preview the tree's static background sprite stretched over the canvas bounds.
+    private void DrawBackgroundSprite(Rect rect)
+    {
+        Sprite s = currentTree != null ? currentTree.editorBackgroundSprite : null;
+        if (s == null || s.texture == null) return;
+
+        Rect tr = s.textureRect;
+        var uv = new Rect(
+            tr.x / s.texture.width,
+            tr.y / s.texture.height,
+            tr.width / s.texture.width,
+            tr.height / s.texture.height);
+        GUI.DrawTextureWithTexCoords(rect, s.texture, uv, true);
+    }
+
+    // The in-game window frame: horizontally centered, vertically bottom-pinned when the tree is
+    // bottom-anchored (else centered). Content outside it is what players scroll to reach.
+    private Rect GetWindowFrameRect(Vector2 canvasCenter)
+    {
+        float w = Mathf.Max(1, currentTree != null ? currentTree.previewWindowSize.x : 350) * zoomLevel;
+        float h = Mathf.Max(1, currentTree != null ? currentTree.previewWindowSize.y : 400) * zoomLevel;
+        float x = canvasCenter.x - w * 0.5f;
+
+        if (currentTree != null && currentTree.anchorTreeToBottom)
+        {
+            float canvasBottom = canvasCenter.y + Mathf.Max(1, currentTree.canvasHeight) * zoomLevel * 0.5f;
+            return new Rect(x, canvasBottom - h, w, h);
+        }
+        return new Rect(x, canvasCenter.y - h * 0.5f, w, h);
+    }
+
+    // Tinted level bands rising from the canvas bottom edge. Band height (tree units) is
+    // Node Icon Size / 2 * Levels Per Band; higher bands require more invested tree levels.
+    private void DrawLevelZones(Rect workspaceRect)
+    {
+        if (currentTree == null || !currentTree.anchorTreeToBottom || !currentTree.useLevelZones)
+            return;
+
+        float bandHeightPx = currentTree.LevelBandHeight * zoomLevel;
+        if (bandHeightPx <= 0.5f)
+            return;
+
+        int bandCount = Mathf.Max(1, currentTree.levelZoneBandCount);
+        float bottom = workspaceRect.yMax;
+
+        // With auto-size off, let bands rise past the canvas bounds up the full view.
+        float topBound = currentTree.autoCanvasSize ? workspaceRect.yMin : 0f;
+
+        // Two alternating tints keep adjacent bands readable; low alpha so nodes read on top.
+        Color tintA = new Color(0.30f, 0.65f, 1f, 0.10f);
+        Color tintB = new Color(1f, 0.75f, 0.25f, 0.10f);
+        Color divider = new Color(1f, 1f, 1f, 0.35f);
+        var labelStyle = new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = new Color(1f, 1f, 1f, 0.85f) } };
+
+        for (int i = 0; i < bandCount; i++)
+        {
+            float bandTop = bottom - (i + 1) * bandHeightPx;
+            float clampedTop = Mathf.Max(bandTop, topBound);
+            float clampedBottom = Mathf.Min(bottom - i * bandHeightPx, workspaceRect.yMax);
+            float h = clampedBottom - clampedTop;
+            if (h <= 0f)
+                continue;
+
+            Rect bandRect = new Rect(workspaceRect.xMin, clampedTop, workspaceRect.width, h);
+            EditorGUI.DrawRect(bandRect, (i % 2 == 0) ? tintA : tintB);
+
+            // Divider line at the band's top edge.
+            if (bandTop >= topBound && bandTop <= workspaceRect.yMax)
+                EditorGUI.DrawRect(new Rect(workspaceRect.xMin, bandTop, workspaceRect.width, 1f), divider);
+
+            int requiredLevel = currentTree.GetRequiredLevelForBand(i);
+            GUI.Label(new Rect(workspaceRect.xMin + 4, clampedTop + 2, workspaceRect.width - 8, 14),
+                $"Band {i} — Lv {requiredLevel}+", labelStyle);
+        }
+    }
+
+    // Dim the scrollable area outside the window and outline the visible frame.
+    private void DrawWindowFrame(Rect frame)
+    {
+        float W = canvasRect.width, H = canvasRect.height;
+        Color dim = new Color(0f, 0f, 0f, 0.45f);
+
+        float top = Mathf.Clamp(frame.yMin, 0f, H);
+        float bottom = Mathf.Clamp(frame.yMax, 0f, H);
+        float left = Mathf.Clamp(frame.xMin, 0f, W);
+        float right = Mathf.Clamp(frame.xMax, 0f, W);
+
+        EditorGUI.DrawRect(new Rect(0, 0, W, top), dim);
+        EditorGUI.DrawRect(new Rect(0, bottom, W, Mathf.Max(0, H - bottom)), dim);
+        EditorGUI.DrawRect(new Rect(0, top, left, Mathf.Max(0, bottom - top)), dim);
+        EditorGUI.DrawRect(new Rect(right, top, Mathf.Max(0, W - right), Mathf.Max(0, bottom - top)), dim);
+
+        Color line = new Color(1f, 0.8f, 0.2f, 0.9f);
+        const float t = 2f;
+        EditorGUI.DrawRect(new Rect(frame.xMin, frame.yMin, frame.width, t), line);
+        EditorGUI.DrawRect(new Rect(frame.xMin, frame.yMax - t, frame.width, t), line);
+        EditorGUI.DrawRect(new Rect(frame.xMin, frame.yMin, t, frame.height), line);
+        EditorGUI.DrawRect(new Rect(frame.xMax - t, frame.yMin, t, frame.height), line);
+
+        var style = new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = line } };
+        GUI.Label(new Rect(frame.xMin + 4, frame.yMin + 2, 220, 16), "In-game window", style);
     }
 
     private void DrawNodeBubbles(Vector2 canvasCenter)
@@ -505,6 +619,11 @@ public class TraitTreeEditorWindow : EditorWindow
         Handles.BeginGUI();
 
         Vector2 center = canvasRect.size / 2 + canvasOffset * zoomLevel;
+
+        // Bottom-anchored trees draw their origin at the window's bottom edge so the designer
+        // lays nodes out upward from where the tree pins to the bottom of the runtime window.
+        if (currentTree != null && currentTree.anchorTreeToBottom)
+            center.y += Mathf.Max(1, currentTree.canvasHeight) * zoomLevel * 0.5f;
 
         // Draw crosshair at center (0,0 world position)
         float crosshairSize = 20f;
@@ -902,6 +1021,128 @@ public class TraitTreeEditorWindow : EditorWindow
     {
         EditorGUILayout.Space();
         EditorGUILayout.LabelField($"Total nodes: {currentTree.nodes.Count}");
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Presentation", EditorStyles.boldLabel);
+        EditorGUI.BeginChangeCheck();
+
+        var newBg = (Sprite)EditorGUILayout.ObjectField(
+            new GUIContent("Background Sprite", "Static art shown behind the tree (fixed to the window at runtime; previewed in the canvas above)."),
+            currentTree.editorBackgroundSprite, typeof(Sprite), false);
+
+        bool newAnchor = EditorGUILayout.Toggle(
+            new GUIContent("Anchor To Bottom", "Open pinned to the window bottom; players scroll upward to reveal higher nodes and cannot pan past the bottom edge."),
+            currentTree.anchorTreeToBottom);
+
+        bool newUseLevelZones = currentTree.useLevelZones;
+        int newBandCount = currentTree.levelZoneBandCount;
+        int newLevelsPerBand = currentTree.levelsPerBand;
+        if (newAnchor)
+        {
+            EditorGUI.indentLevel++;
+            newUseLevelZones = EditorGUILayout.Toggle(
+                new GUIContent("Show Level Zones", "Draw tinted level bands from the bottom edge upward. A node inside a band requires that many invested levels before nodes in higher bands unlock."),
+                currentTree.useLevelZones);
+            if (newUseLevelZones)
+            {
+                newBandCount = EditorGUILayout.IntField(
+                    new GUIContent("Band Count", "How many level bands to draw upward from the bottom edge."),
+                    currentTree.levelZoneBandCount);
+                newLevelsPerBand = EditorGUILayout.IntField(
+                    new GUIContent("Levels Per Band", "Levels represented by each band. Band N unlocks at N x Levels Per Band invested levels. Band height = Node Icon Size / 2 x Levels Per Band."),
+                    currentTree.levelsPerBand);
+                EditorGUILayout.LabelField(
+                    new GUIContent("Band Height", "Computed band height in tree units."),
+                    new GUIContent($"{currentTree.LevelBandHeight:0.#} units"));
+            }
+            EditorGUI.indentLevel--;
+        }
+
+        bool newAllowZoom = EditorGUILayout.Toggle(
+            new GUIContent("Allow Zoom", "Let players zoom with the mouse wheel. When off, the tree stays locked at Default Zoom (panning still works)."),
+            currentTree.allowZoom);
+
+        float newDefaultZoom = EditorGUILayout.FloatField(
+            new GUIContent("Default Zoom", "Zoom level applied when the tree opens (1 = fit-to-window). Clamped to the pan/zoom component's min/max."),
+            currentTree.defaultZoom);
+
+        int newIconSize = EditorGUILayout.IntField(
+            new GUIContent("Node Icon Size", "Pixel size of node icons and their in-game hitboxes (used when TraitTreeUI's Node Icon Size Override is 0)."),
+            currentTree.nodeIconSize);
+
+        int newConnWidth = EditorGUILayout.IntField(
+            new GUIContent("Connection Line Width", "Default pixel width for connection lines. Use the button below to apply it to every existing connection."),
+            currentTree.connectionLineWidth);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Canvas Bounds", EditorStyles.boldLabel);
+        Vector2Int newWindow = EditorGUILayout.Vector2IntField(
+            new GUIContent("Window Size", "In-game window frame previewed in the canvas (tree units). Content outside it is scrollable at runtime."),
+            currentTree.previewWindowSize);
+        bool newAuto = EditorGUILayout.Toggle(
+            new GUIContent("Auto Size", "Fit canvas bounds to the node layout automatically."),
+            currentTree.autoCanvasSize);
+
+        int newW = currentTree.canvasWidth;
+        int newH = currentTree.canvasHeight;
+        int newMinW = currentTree.minCanvasWidth;
+        int newMinH = currentTree.minCanvasHeight;
+        int newPad = currentTree.autoCanvasPadding;
+        if (newAuto)
+        {
+            newMinW = EditorGUILayout.IntField("Min Width", currentTree.minCanvasWidth);
+            newMinH = EditorGUILayout.IntField("Min Height", currentTree.minCanvasHeight);
+            newPad = EditorGUILayout.IntField("Padding", currentTree.autoCanvasPadding);
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.IntField("Width", currentTree.canvasWidth);
+                EditorGUILayout.IntField("Height", currentTree.canvasHeight);
+            }
+        }
+        else
+        {
+            newW = EditorGUILayout.IntField("Width", currentTree.canvasWidth);
+            newH = EditorGUILayout.IntField("Height", currentTree.canvasHeight);
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(currentTree, "Edit Trait Tree Settings");
+            currentTree.editorBackgroundSprite = newBg;
+            currentTree.anchorTreeToBottom = newAnchor;
+            currentTree.useLevelZones = newUseLevelZones;
+            currentTree.levelZoneBandCount = Mathf.Max(1, newBandCount);
+            currentTree.levelsPerBand = Mathf.Max(1, newLevelsPerBand);
+            currentTree.allowZoom = newAllowZoom;
+            currentTree.defaultZoom = Mathf.Max(0.01f, newDefaultZoom);
+            currentTree.nodeIconSize = Mathf.Max(4, newIconSize);
+            currentTree.connectionLineWidth = Mathf.Max(1, newConnWidth);
+            currentTree.previewWindowSize = new Vector2Int(Mathf.Max(1, newWindow.x), Mathf.Max(1, newWindow.y));
+            currentTree.autoCanvasSize = newAuto;
+            currentTree.minCanvasWidth = Mathf.Max(1, newMinW);
+            currentTree.minCanvasHeight = Mathf.Max(1, newMinH);
+            currentTree.autoCanvasPadding = Mathf.Max(0, newPad);
+            currentTree.canvasWidth = Mathf.Max(1, newW);
+            currentTree.canvasHeight = Mathf.Max(1, newH);
+            _previewDirty = true;
+            EditorUtility.SetDirty(currentTree);
+            Repaint();
+        }
+
+        if (currentTree.connections != null && currentTree.connections.Count > 0)
+        {
+            if (GUILayout.Button(new GUIContent(
+                $"Apply Width ({currentTree.connectionLineWidth}) To All Connections",
+                "Set every connection's Line Width to the Connection Line Width above.")))
+            {
+                Undo.RecordObject(currentTree, "Apply Connection Line Width");
+                int width = Mathf.Max(1, currentTree.connectionLineWidth);
+                foreach (var conn in currentTree.connections)
+                    if (conn != null) conn.lineWidth = width;
+                _previewDirty = true;
+                EditorUtility.SetDirty(currentTree);
+            }
+        }
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Instructions:", EditorStyles.boldLabel);
@@ -1852,6 +2093,28 @@ public class TraitTreeEditorWindow : EditorWindow
         EditorGUILayout.LabelField($"Connection {selectedConnectionIndex}", EditorStyles.boldLabel);
 
         connection.connectionID = EditorGUILayout.TextField("ID", connection.connectionID);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
+        EditorGUI.BeginChangeCheck();
+        int newLineWidth = EditorGUILayout.IntField(
+            new GUIContent("Line Width", "Pixel width of this connection's rendered path."),
+            connection.lineWidth);
+        float newCurve = EditorGUILayout.FloatField(
+            new GUIContent("Curve Amount", "Pixels shaved off each leg at the corner. 0 = sharp right angle."),
+            connection.curveAmount);
+        Color newColor = EditorGUILayout.ColorField(
+            new GUIContent("Line Color", "Base colour of the path (tinted by activation state at runtime)."),
+            connection.lineColor);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(currentTree, "Edit Connection Appearance");
+            connection.lineWidth = Mathf.Max(1, newLineWidth);
+            connection.curveAmount = Mathf.Max(0f, newCurve);
+            connection.lineColor = newColor;
+            _previewDirty = true;
+            EditorUtility.SetDirty(currentTree);
+        }
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Directional nodes (From → To)", EditorStyles.boldLabel);

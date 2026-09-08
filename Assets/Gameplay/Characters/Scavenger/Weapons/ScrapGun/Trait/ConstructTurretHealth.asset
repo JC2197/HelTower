@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ScrapTurretHealth
   displayName: TurretHealth
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Turrets gain {v1}% Max HP.
   traitIcon: {fileID: -6323971847628488457, guid: ca4bc5534dc2244448b8fefcc17da814, type: 3}
   weaponTraitTag: 

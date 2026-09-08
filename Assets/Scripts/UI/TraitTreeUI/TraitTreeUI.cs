@@ -96,14 +96,36 @@ public class TraitTreeUI : MonoBehaviour
     [Header("Node Widgets")]
     [Tooltip("Parent RectTransform for interactive node widgets (stretch-fill, on top of TreeImage).")]
     [SerializeField] private RectTransform nodeContainer;
-    [Tooltip("Should match nodeIconSizeOverride.")]
-    [SerializeField] private int nodePixelSize = 20;
+
+    // ── Masking ─────────────────────────────────────────────────────────
+
+    [Header("Masking")]
+    [Tooltip("Optional viewport the zoomable tree content is placed inside. A RectMask2D is added automatically so zoomed/panned nodes are clipped to this rect instead of overflowing the window. Size/anchor it to the visible tree area. If unset, content fills the node container's parent with no clipping.")]
+    [SerializeField] private RectTransform contentViewport;
 
     // ── Currency ────────────────────────────────────────────────────────
 
     [Header("Currency")]
     [Tooltip("Displays the save file's gold balance — the only currency trait nodes cost.")]
     [SerializeField] private TMP_Text goldText;
+
+    // ── Level zone overlay ──────────────────────────────────────────────
+
+    [Header("Level Zone Overlay")]
+    [Tooltip("Optional pre-authored fog Image from the prefab. If set, the code only drives its position/size (reveal) and leaves its sprite/material/color as authored. If null, an overlay is created at runtime using the sprite/material/color below.")]
+    [SerializeField] private Image levelOverlayImage;
+    [Tooltip("Fog image stretched over the unrevealed level bands. It scrolls/zooms with the tree and recedes upward as tree levels are invested. Only used for bottom-anchored trees with level zones enabled.")]
+    [SerializeField] private Sprite levelOverlaySprite;
+    [Tooltip("Optional material for the runtime-created fog overlay (e.g. a transparent fog shader). Requires an alpha-blended UI/Sprite shader, otherwise the overlay renders opaque.")]
+    [SerializeField] private Material levelOverlayMaterial;
+    [Tooltip("Tint/opacity applied to the runtime-created fog overlay. Use white with full alpha to let the sprite/material control transparency.")]
+    [SerializeField] private Color levelOverlayColor = new Color(0f, 0f, 0f, 0.85f);
+    [Tooltip("Optional vertical alpha-gradient Image placed at the reveal boundary to soften the filled overlay edge.")]
+    [SerializeField] private Image levelOverlayEdgeImage;
+    [Tooltip("Fallback vertical gradient sprite for the reveal edge. It should fade from transparent at bottom to fog at top.")]
+    [SerializeField] private Sprite levelOverlayEdgeSprite;
+    [Min(0f)]
+    [SerializeField] private float levelOverlayEdgeHeight = 24f;
 
     // ── Runtime state ─────────────────────────────────────────────────────────
 
@@ -115,6 +137,10 @@ public class TraitTreeUI : MonoBehaviour
 
     private RectTransform _zoomContent;
     private RectTransform _connectionContainer;
+    private RectTransform _levelOverlay;
+    private Image _levelOverlayImg;
+    private RectTransform _levelOverlayEdge;
+    private Image _levelOverlayEdgeImg;
     private readonly List<TraitConnectionUI> _connectionUIs = new();
 
     private static readonly Vector2[] s_BubbleDirOffsets =
@@ -208,8 +234,6 @@ public class TraitTreeUI : MonoBehaviour
         // int startIndex = (trees != null && trees.Length > 0)
         //     ? Mathf.Clamp(defaultTabIndex, 0, trees.Length - 1)
         //     : -1;
-        TraitTree startData = data;
-        _treeData = startData;
         _activeTabIndex = 0;
         //RefreshTabVisuals();
 
@@ -217,10 +241,13 @@ public class TraitTreeUI : MonoBehaviour
 
         if (_treeData != null && _treeData.nodes != null && _treeData.nodes.Count > 0)
         {
-            //ApplyBackground();
+            ApplyBackground();
             CreateConnectionWidgets();
             CreateNodeWidgets();
             UpdateAllNodeStates();
+            ApplyContentBounds();
+            ApplyZoomSettings();
+            ApplyBottomAnchor();
         }
     }
 
@@ -251,6 +278,15 @@ public class TraitTreeUI : MonoBehaviour
         {
             Debug.LogError("[ConnDbg] EnsureZoomContent: nodeContainer.parent is NULL — connection layer cannot be created!");
             return;
+        }
+
+        // When a viewport is assigned, host the zoom content inside it and clip overflow with a
+        // RectMask2D so zoomed-in nodes stay within the tree window instead of covering the chrome.
+        if (contentViewport != null)
+        {
+            parent = contentViewport;
+            if (contentViewport.GetComponent<RectMask2D>() == null)
+                contentViewport.gameObject.AddComponent<RectMask2D>();
         }
 
         Debug.Log($"[ConnDbg] EnsureZoomContent: building content wrapper. nodeContainer='{nodeContainer.name}', parent='{parent.name}', nodeRect={nodeContainer.rect}, nodeAnchors=({nodeContainer.anchorMin}->{nodeContainer.anchorMax}), nodePivot={nodeContainer.pivot}");
@@ -382,10 +418,13 @@ public class TraitTreeUI : MonoBehaviour
         _treeData = newData;
         if (_treeData == null || _treeData.nodes == null || _treeData.nodes.Count == 0)
             return;
-        // ApplyBackground();
+        ApplyBackground();
         CreateConnectionWidgets();
         CreateNodeWidgets();
         UpdateAllNodeStates();
+        ApplyContentBounds();
+        ApplyZoomSettings();
+        ApplyBottomAnchor();
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -393,11 +432,64 @@ public class TraitTreeUI : MonoBehaviour
     // ═════════════════════════════════════════════════════════════════════════
 
     /// <summary>Push the tree's editor background art to the background Image.</summary>
-    // private void ApplyBackground()
-    // {
-    //     if (backgroundImage != null && _treeData != null)
-    //         backgroundImage.sprite = _treeData.editorBackgroundSprite;
-    // }
+    private void ApplyBackground()
+    {
+        if (backgroundImage == null) return;
+        Sprite bg = _treeData != null ? _treeData.editorBackgroundSprite : null;
+        backgroundImage.sprite = bg;
+        backgroundImage.enabled = bg != null;
+    }
+
+    /// <summary>Tell the pan/zoom controller whether this tree opens pinned to the window bottom.</summary>
+    private void ApplyBottomAnchor()
+    {
+        var panZoom = GetComponent<CraftingTreePanZoom>();
+        if (panZoom == null) return;
+        // Pin to the authored canvas bottom (the editor's orange origin indicator), not the outer
+        // node-extent bounds, so the in-game view matches the editor's window preview.
+        panZoom.SetBottomAnchorReference(_treeData != null ? _treeData.canvasHeight : 0f);
+        panZoom.SetAnchorToBottom(_treeData != null && _treeData.anchorTreeToBottom);
+    }
+
+    /// <summary>Push this tree's opening zoom and wheel-zoom permission to the pan/zoom controller.</summary>
+    private void ApplyZoomSettings()
+    {
+        if (_treeData == null) return;
+        var panZoom = GetComponent<CraftingTreePanZoom>();
+        if (panZoom == null) return;
+        panZoom.SetZoomSettings(_treeData.defaultZoom, _treeData.allowZoom);
+    }
+
+    /// <summary>
+    /// Feed the pan/zoom controller the tree's real content size so it can scroll to every node
+    /// — including any placed outside the authored canvas bounds — right from the start.
+    /// </summary>
+    private void ApplyContentBounds()
+    {
+        if (_treeData == null) return;
+        var panZoom = GetComponent<CraftingTreePanZoom>();
+        if (panZoom == null) return;
+        panZoom.SetContentBounds(ComputeContentBounds());
+    }
+
+    // Symmetric (center-origin) content size covering the canvas and every node plus a node-sized margin.
+    private Vector2 ComputeContentBounds()
+    {
+        float halfW = Mathf.Max(_treeData.canvasWidth, 1) * 0.5f;
+        float halfH = Mathf.Max(_treeData.canvasHeight, 1) * 0.5f;
+        float icon = nodeIconSizeOverride > 0 ? nodeIconSizeOverride : Mathf.Max(_treeData.nodeIconSize, 4);
+        float margin = icon;
+
+        if (_treeData.nodes != null)
+        {
+            foreach (var node in _treeData.nodes)
+            {
+                halfW = Mathf.Max(halfW, Mathf.Abs(node.position.x) + icon * 0.5f + margin);
+                halfH = Mathf.Max(halfH, Mathf.Abs(node.position.y) + icon * 0.5f + margin);
+            }
+        }
+        return new Vector2(halfW * 2f, halfH * 2f);
+    }
 
     /// <summary>
     /// (Re)build the live connection lines from _treeData into the connection layer.
@@ -658,13 +750,22 @@ public class TraitTreeUI : MonoBehaviour
         int layer = nodeContainer.gameObject.layer;
         Sprite frame = _treeData.nodeIconFrame;
 
+        // Match the widget size to the rendered icon size (override, else the tree's nodeIconSize).
+        int nodeSize = nodeIconSizeOverride > 0 ? nodeIconSizeOverride : Mathf.Max(_treeData.nodeIconSize, 4);
+
         foreach (var node in _treeData.nodes)
         {
+            if (node == null || node.traitData == null)
+            {
+                Debug.LogWarning($"[TraitTreeUI] Skipping node '{node?.nodeID}' in tree '{_treeData.name}' — no TraitData assigned.", this);
+                continue;
+            }
+
             var go = Instantiate(nodePrefab, nodeContainer, false);
             go.name = $"Node_{node.nodeID}";
             go.layer = layer;
             var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(nodePixelSize, nodePixelSize);
+            rt.sizeDelta = new Vector2(nodeSize, nodeSize);
             rt.anchoredPosition = new Vector2(node.position.x, -node.position.y);
             go.AddComponent<Image>();
             var nodeUI = go.GetComponent<TraitNodeUI>();
@@ -723,7 +824,7 @@ public class TraitTreeUI : MonoBehaviour
                 );
             }
             // First level — prerequisites still matter.
-            else if (IsNodeAvailable(nodeData, unlockedIDs))
+            else if (IsNodeAvailable(nodeData, unlockedIDs) && MeetsLevelZoneRequirement(nodeData))
             {
                 bool canAfford =
                     _traitTreeManager.CanAffordNode(nodeData);
@@ -740,7 +841,8 @@ public class TraitTreeUI : MonoBehaviour
             {
                 nodeUI.UpdateVisualState(
                     TraitNodeState.Locked,
-                    currentLevel
+                    currentLevel,
+                    HasTakenPrerequisite(nodeData, unlockedIDs)
                 );
             }
         }
@@ -752,7 +854,176 @@ public class TraitTreeUI : MonoBehaviour
         }
 
         UpdateGoldDisplay();
+        UpdateLevelOverlay();
     }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    //  Level zone reveal overlay
+    // ═════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Create (once) the fog overlay inside the scrollable tree content so it pans/zooms with the
+    /// tree. It shares the node coordinate frame (canvas units around the content centre).
+    /// </summary>
+    private void EnsureLevelOverlay()
+    {
+        if (_levelOverlay != null || _zoomContent == null) return;
+
+        RectTransform rt;
+        Image img;
+
+        // Prefer a designer-authored overlay so its art/material/shader can be styled in the prefab;
+        // we only re-parent it into the scrollable content and drive its fill below.
+        if (levelOverlayImage != null)
+        {
+            img = levelOverlayImage;
+            rt = levelOverlayImage.rectTransform;
+            rt.SetParent(_zoomContent, false);
+            if (levelOverlayMaterial != null) img.material = levelOverlayMaterial;
+        }
+        else
+        {
+            var go = new GameObject("LevelZoneOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.layer = _zoomContent.gameObject.layer;
+
+            rt = go.GetComponent<RectTransform>();
+            rt.SetParent(_zoomContent, false);
+
+            img = go.GetComponent<Image>();
+            img.sprite = levelOverlaySprite;
+            if (levelOverlayMaterial != null) img.material = levelOverlayMaterial;
+            img.color = levelOverlayColor;
+        }
+
+        img.raycastTarget = false; // never intercept clicks — nodes beneath are gated separately
+        EnsureCanvasShaderChannels(img.canvas);
+        // Vertical fill from the top so the unrevealed (upper) portion shrinks upward as levels rise.
+        img.type = Image.Type.Filled;
+        img.fillMethod = Image.FillMethod.Vertical;
+        img.fillOrigin = (int)Image.OriginVertical.Top;
+
+        // Centre-anchored so anchoredPosition matches the node frame; bottom pivot so the fixed rect
+        // sits on the band region's bottom edge.
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.localScale = Vector3.one;
+
+        _levelOverlay = rt;
+        _levelOverlayImg = img;
+        EnsureLevelOverlayEdge();
+    }
+
+    private void EnsureLevelOverlayEdge()
+    {
+        if (_levelOverlayEdge != null || _zoomContent == null) return;
+
+        Image img;
+        RectTransform rt;
+
+        if (levelOverlayEdgeImage != null)
+        {
+            img = levelOverlayEdgeImage;
+            rt = levelOverlayEdgeImage.rectTransform;
+            rt.SetParent(_zoomContent, false);
+            if (levelOverlayMaterial != null) img.material = levelOverlayMaterial;
+        }
+        else
+        {
+            var go = new GameObject("LevelZoneOverlayEdge", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.layer = _zoomContent.gameObject.layer;
+
+            rt = go.GetComponent<RectTransform>();
+            rt.SetParent(_zoomContent, false);
+
+            img = go.GetComponent<Image>();
+            img.sprite = levelOverlayEdgeSprite != null ? levelOverlayEdgeSprite : levelOverlaySprite;
+            if (levelOverlayMaterial != null) img.material = levelOverlayMaterial;
+            img.color = levelOverlayColor;
+        }
+
+        img.raycastTarget = false;
+        EnsureCanvasShaderChannels(img.canvas);
+
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.localScale = Vector3.one;
+
+        _levelOverlayEdge = rt;
+        _levelOverlayEdgeImg = img;
+    }
+
+    private void EnsureCanvasShaderChannels(Canvas canvas)
+    {
+        if (canvas == null) return;
+
+        canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+        canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
+        canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+        canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
+    }
+
+    /// <summary>
+    /// Cover the level bands with a fixed-size fog rect and reveal them by shrinking the image's
+    /// vertical fill from the top down. Fully cleared once invested levels reach the top band.
+    /// </summary>
+    private void UpdateLevelOverlay()
+    {
+        if (_zoomContent == null || _treeData == null) return;
+
+        bool active = _treeData.anchorTreeToBottom
+                      && _treeData.useLevelZones
+                      && _treeData.levelZoneBandCount > 0;
+
+        EnsureLevelOverlay();
+        if (_levelOverlay == null || _levelOverlayImg == null) return;
+
+        if (!active)
+        {
+            _levelOverlay.gameObject.SetActive(false);
+            if (_levelOverlayEdge != null) _levelOverlayEdge.gameObject.SetActive(false);
+            return;
+        }
+
+        int bandCount = Mathf.Max(1, _treeData.levelZoneBandCount);
+        int levelsPerBand = Mathf.Max(1, _treeData.levelsPerBand);
+        float bandHeight = _treeData.LevelBandHeight;
+        float totalBandHeight = bandHeight * bandCount;
+
+        int invested = GetTreeInvestedLevels();
+        // Band 0 (levels 0..levelsPerBand) is free, so it starts revealed: begin one band up and
+        // reveal a further band for every levelsPerBand invested.
+        float revealedBands = 1f + (float)invested / levelsPerBand;
+        float revealedHeight = Mathf.Min(revealedBands * bandHeight, totalBandHeight);
+
+        float halfCanvas = Mathf.Max(_treeData.canvasHeight, 1) * 0.5f;
+        float coverFraction = totalBandHeight > 0f
+            ? Mathf.Clamp01((totalBandHeight - revealedHeight) / totalBandHeight)
+            : 0f;
+
+        float width = ComputeContentBounds().x;
+
+        _levelOverlay.gameObject.SetActive(coverFraction > 0.0001f);
+        // Fixed rect spanning the whole band region; the fill (not the bounds) does the revealing.
+        _levelOverlay.sizeDelta = new Vector2(width, totalBandHeight);
+        _levelOverlay.anchoredPosition = new Vector2(0f, -halfCanvas);
+        _levelOverlayImg.fillAmount = coverFraction;
+        _levelOverlay.SetAsLastSibling(); // draw above nodes/connections
+
+        if (_levelOverlayEdge != null)
+        {
+            bool showEdge = coverFraction > 0.0001f && levelOverlayEdgeHeight > 0f && _levelOverlayEdgeImg != null;
+            _levelOverlayEdge.gameObject.SetActive(showEdge);
+            if (showEdge)
+            {
+                _levelOverlayEdge.sizeDelta = new Vector2(width, levelOverlayEdgeHeight);
+                _levelOverlayEdge.anchoredPosition = new Vector2(0f, revealedHeight - halfCanvas);
+                _levelOverlayEdge.SetAsLastSibling();
+            }
+        }
+    }
+
 
     /// <summary>
     /// Refresh the gold readout from the authoritative TraitSystemManager balance.
@@ -795,6 +1066,64 @@ public class TraitTreeUI : MonoBehaviour
         return !hasPrereqs || anyMet;
     }
 
+    /// <summary>
+    /// True when at least one connected upstream node feeding this node is already unlocked.
+    /// Used to only fog locked nodes that are next in line.
+    /// </summary>
+    private bool HasTakenPrerequisite(TraitNode nodeData, HashSet<string> nodeIDs)
+    {
+        foreach (var conn in _treeData.connections)
+        {
+            if (conn.toNodeIDs == null || conn.toNodeIDs.Length == 0) continue;
+
+            bool isTarget = false;
+            foreach (string id in conn.toNodeIDs)
+                if (id == nodeData.nodeID) { isTarget = true; break; }
+            if (!isTarget) continue;
+
+            if (conn.fromNodeIDs == null) continue;
+            foreach (string fromID in conn.fromNodeIDs)
+            {
+                if (string.IsNullOrEmpty(fromID) || !_nodeUILookup.ContainsKey(fromID)) continue;
+                if (nodeIDs.Contains(fromID)) return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Total levels invested across every node in this tree. Used to gate level-zone bands.
+    /// </summary>
+    private int GetTreeInvestedLevels()
+    {
+        if (_treeData == null || _treeData.nodes == null || _traitTreeManager == null)
+            return 0;
+
+        int total = 0;
+        foreach (var node in _treeData.nodes)
+        {
+            if (node == null || node.traitData == null)
+                continue;
+            total += _traitTreeManager.GetTraitLevel(node.nodeID);
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// A node in a higher level band cannot be taken until enough levels are invested in the tree.
+    /// Only enforced for bottom-anchored trees with level zones enabled.
+    /// </summary>
+    private bool MeetsLevelZoneRequirement(TraitNode nodeData)
+    {
+        if (_treeData == null || nodeData == null)
+            return true;
+        if (!_treeData.anchorTreeToBottom || !_treeData.useLevelZones)
+            return true;
+
+        int required = _treeData.GetRequiredLevelForPosition(nodeData.position);
+        return GetTreeInvestedLevels() >= required;
+    }
+
     // ═════════════════════════════════════════════════════════════════════════
     //  Interaction callbacks  (called by TraitNodeUI)
     // ═════════════════════════════════════════════════════════════════════════
@@ -814,6 +1143,17 @@ public class TraitTreeUI : MonoBehaviour
             Debug.Log(
                 $"[TraitTreeUI] Node '{node.nodeID}' is already at " +
                 $"max level ({maxLevel})."
+            );
+            return;
+        }
+
+        // Block taking a node in a higher level band until enough tree levels are invested.
+        if (currentLevel == 0 && !MeetsLevelZoneRequirement(node))
+        {
+            Debug.Log(
+                $"[TraitTreeUI] Node '{node.nodeID}' requires " +
+                $"{_treeData.GetRequiredLevelForPosition(node.position)} invested tree levels " +
+                $"(have {GetTreeInvestedLevels()})."
             );
             return;
         }
@@ -852,8 +1192,8 @@ public class TraitTreeUI : MonoBehaviour
 
             if (currentLevel < maxLevel)
             {
-                int goldCost =
-                    _traitTreeManager.GetTraitGoldCost(node);
+                int cost =
+                    _traitTreeManager.GetTraitCost(node);
 
                 string colour =
                     _traitTreeManager.CanAffordNode(node)
@@ -862,7 +1202,7 @@ public class TraitTreeUI : MonoBehaviour
 
                 description +=
                     $"\n\n<b>Level:</b> {currentLevel}/{maxLevel}" +
-                    $"\n<b>Cost:</b> <color={colour}>{goldCost} gold</color>";
+                    $"\n<b>Cost:</b> <color={colour}>{cost}</color>";
             }
             else
             {
@@ -883,17 +1223,6 @@ public class TraitTreeUI : MonoBehaviour
 
     private void AppendCostAndRequirements(TraitNode nodeData, System.Text.StringBuilder sb)
     {
-
-
-        // if (nodeData.goldCost > 0)
-        // {
-        //     PlayerController lp = PlayerController.GetLocalPlayer();
-        //     var charData = lp != null ? lp.GetCurrentCharacterData() : CharacterSelectionManager.SelectedCharacter;
-        //     int rp = charData != null ? charData.totalGold : 0;
-        //     string col = rp >= nodeData.goldCost ? "#00ff00" : "#ff4444";
-        //     sb.AppendLine($"\n<b>Gold:</b> <color={col}>{nodeData.goldCost}</color>");
-        // }
-
         // var prereqs = GetNodePrerequisites(nodeData);
         // if (prereqs.Count > 0)
         // {

@@ -81,6 +81,15 @@ public class Enemy : Organism
     // Runtime scaling set by MobSpawner
     private float runtimeDamageMultiplier = 1f;
 
+    // Runtime gold multiplier set by EnemySpawner
+    private float runtimeGoldMultiplier = 1f;
+
+    /// <summary>Multiplies the config gold drop for this specific enemy instance.</summary>
+    public void SetGoldMultiplier(float multiplier)
+    {
+        runtimeGoldMultiplier = Mathf.Max(0f, multiplier);
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -1098,11 +1107,12 @@ public class Enemy : Organism
         {
             collider.enabled = false;
         }
-        Debug.Log($"[Gold] {gameObject.name} died and trying to drop {config.goldDropped} gold.");
+        int goldReward = Mathf.RoundToInt(config.goldDropped * runtimeGoldMultiplier);
+        Debug.Log($"[Gold] {gameObject.name} died and trying to drop {goldReward} gold (base {config.goldDropped} x{runtimeGoldMultiplier:F2}).");
         if (player != null && IsServerStarted)
         {
-            Debug.Log($"[Gold] Adding {config.goldDropped} gold to {player.gameObject.name}'s Bag.");
-            player.AddBagGold(config.goldDropped);
+            Debug.Log($"[Gold] Adding {goldReward} gold to {player.gameObject.name}'s Bag.");
+            player.AddBagGold(goldReward);
         }
         //Death Animation
         if (animator != null && !string.IsNullOrEmpty(config.deathAnimationName))

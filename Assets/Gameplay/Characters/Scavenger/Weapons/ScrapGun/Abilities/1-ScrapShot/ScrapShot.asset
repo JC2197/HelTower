@@ -39,6 +39,7 @@ MonoBehaviour:
   disablesMovementDuringCast: 1
   movementBlockDuration: 0.25
   movementSpeedMultiplierDuringCast: 0.501
+  disablesMovementDuringPrecast: 0
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -56,6 +57,7 @@ MonoBehaviour:
   preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: 
+  characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
@@ -68,6 +70,12 @@ MonoBehaviour:
   flipYOnLeftFacing: 0
   flipXOnLeftFacing: 0
   timedParticles: []
+  hasIndicator: 0
+  indicatorConfig:
+    prefab: {fileID: 0}
+    spawnDelay: 0
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 1
   isAreaAbility: 0
   isConstructAbility: 0
@@ -436,7 +444,7 @@ MonoBehaviour:
     dotDuration: 3
     dotParticleEffectPrefab: {fileID: 0}
     startParticlesFromFeet: 0
-    speed: 25
+    speed: 35
     useLifetime: 0
     lifetime: 3
     maxRange: 4

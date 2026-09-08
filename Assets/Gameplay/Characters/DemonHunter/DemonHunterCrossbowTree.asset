@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
+  m_Name: DemonHunterCrossbowTree
+  m_EditorClassIdentifier: Assembly-CSharp::TraitTree
+  treeName: Crossbow
+  description: 
+  nodeSpacing: 100
+  nodeIconSize: 34
+  nodeIconFrame: {fileID: 0}
+  editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
+  anchorTreeToBottom: 1
+  useLevelZones: 1
+  levelZoneBandCount: 11
+  levelsPerBand: 5
+  defaultZoom: 1
+  allowZoom: 0
+  previewWindowSize: {x: 350, y: 400}
+  connectionLineWidth: 3
+  canvasWidth: 400
+  nodes:
+  - nodeID: CrossbowDamage_05a9
+    traitData: {fileID: 11400000, guid: 2d57e422af1fe2b458909af905b290a7, type: 2}
+    position: {x: -96, y: -16}
+    connectedNodeIDs: []
+  - nodeID: PierceShotDamage_7ddd
+    traitData: {fileID: 11400000, guid: bb9651bc7d34637498a5a9ca86717dc8, type: 2}
+    position: {x: 96, y: 64}
+    connectedNodeIDs: []
+  - nodeID: CrossbowAttackSpeed_2d06
+    traitData: {fileID: 11400000, guid: d290222d5a0bd0c4ead2e35f3b19a35e, type: 2}
+    position: {x: -96, y: 64}
+    connectedNodeIDs: []
+  - nodeID: PiercingBaseCrit_e0db
+    traitData: {fileID: 11400000, guid: a715d556a5d2bb3409c34800eb32dbf5, type: 2}
+    position: {x: 96, y: -16}
+    connectedNodeIDs: []
+  canvasHeight: 225
+  minCanvasWidth: 400
+  minCanvasHeight: 225
+  autoCanvasSize: 0
+  autoCanvasPadding: 80
+  connections: []

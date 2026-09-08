@@ -25,6 +25,7 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private TraitTreeUI treeUI;
     private TraitNodeState currentState = TraitNodeState.Locked;
     private int currentLevel = 0;
+    private bool prerequisiteTaken = true; // whether an upstream connected node is unlocked
     private int maxlevel = 1;
     private bool isHovered = false;
     private Image lockedOverlayImage; // Cached reference to overlay image
@@ -41,11 +42,12 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         nodeData = node;
         treeUI = parentTreeUI;
-        maxlevel = node.traitData.maxLevel;
+        maxlevel = node.traitData != null ? node.traitData.maxLevel : 1;
         EnsureRuntimeVisuals(iconFrame);
         if (levelDisplayText != null)
         {
             levelDisplayText.text = $"{currentLevel}/{maxlevel}";
+            levelDisplayText.gameObject.SetActive(currentLevel > 0);
         }
         if (lockedOverlay != null)
         {
@@ -115,11 +117,12 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     /// <summary>
     /// Update the visual state of the node
     /// </summary>
-    public void UpdateVisualState(TraitNodeState newState, int currentLevel = 0)
+    public void UpdateVisualState(TraitNodeState newState, int currentLevel = 0, bool prerequisiteTaken = false)
     {
         currentState = newState;
         maxlevel = nodeData != null ? nodeData.traitData.maxLevel : 1;
         this.currentLevel = currentLevel;
+        this.prerequisiteTaken = prerequisiteTaken;
 
         // Adjust locked overlay alpha based on state
         if (lockedOverlayImage != null)
@@ -129,21 +132,22 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             switch (newState)
             {
                 case TraitNodeState.Locked:
-                    overlayColor.a = 0.99f; // 99% opacity - almost fully black
+                    overlayColor.a = 0.8f; // 99% opacity - almost fully black
+                    // Only fog locked nodes that are next in line (an upstream node is taken).
                     lockedOverlay.SetActive(true);
                     break;
                 case TraitNodeState.CannotAfford:
-                    overlayColor.a = 0.90f; // Reachable but unaffordable
+                    overlayColor.a = 0.8f; // Reachable but unaffordable
                     lockedOverlay.SetActive(true);
                     break;
                 case TraitNodeState.Available:
-                    overlayColor.a = 0.80f; // 80% opacity - slightly lighter
+                    overlayColor.a = 0.5f; // 80% opacity - slightly lighter
                     lockedOverlay.SetActive(true);
                     break;
                 case TraitNodeState.Upgradeable:
                     // Same basic visual treatment as Available,
                     // but this node already has at least one level.
-                    overlayColor.a = 0.80f;
+                    overlayColor.a = 0.0f;
                     lockedOverlay.SetActive(true);
                     break;
                 case TraitNodeState.Unlocked:
@@ -155,6 +159,7 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             lockedOverlayImage.color = overlayColor;
         }
         levelDisplayText.text = nodeData != null ? $"{this.currentLevel}/{maxlevel}" : "";
+        levelDisplayText.gameObject.SetActive(nodeData != null && this.currentLevel > 0);
         // Set icon
         if (iconImage != null && nodeData?.traitData != null)
         {
@@ -169,7 +174,7 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void OnPointerEnter(PointerEventData eventData)
     {
         isHovered = true;
-        UpdateVisualState(currentState, this.currentLevel);
+        UpdateVisualState(currentState, this.currentLevel, this.prerequisiteTaken);
 
         // Show tooltip
         if (nodeData?.traitData != null && treeUI != null)
@@ -184,7 +189,7 @@ public class TraitNodeUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void OnPointerExit(PointerEventData eventData)
     {
         isHovered = false;
-        UpdateVisualState(currentState, this.currentLevel);
+        UpdateVisualState(currentState, this.currentLevel, this.prerequisiteTaken);
 
         // If the window or tree UI is already disabling, stop here
         if (treeUI == null || !treeUI.gameObject.activeInHierarchy) return;

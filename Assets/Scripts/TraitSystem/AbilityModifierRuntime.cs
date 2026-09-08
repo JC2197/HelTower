@@ -541,8 +541,53 @@ public static class AbilityModifierRuntime
         copy.trapConfig = BuildEffectiveSubConfig(baseConfig.trapConfig, "trapConfig", accumulatedOverrides) ?? copy.trapConfig;
         copy.holdChargeConfig = BuildEffectiveSubConfig(baseConfig.holdChargeConfig, "holdChargeConfig", accumulatedOverrides) ?? copy.holdChargeConfig;
         copy.passiveConfig = BuildEffectiveSubConfig(baseConfig.passiveConfig, "passiveConfig", accumulatedOverrides) ?? copy.passiveConfig;
+        copy.customAbility = BuildEffectiveCustomAbility(baseConfig.customAbility, "customAbility", accumulatedOverrides) ?? copy.customAbility;
 
         ApplyTriggeredAbilityAdditions(copy, accumulatedOverrides);
+
+        return copy;
+    }
+
+    public static CustomAbility BuildEffectiveCustomAbility(
+        CustomAbility baseConfig,
+        string subConfigPath,
+        Dictionary<string, AccumulatedValue> accumulatedOverrides)
+    {
+        if (baseConfig == null) return null;
+        if (accumulatedOverrides == null || accumulatedOverrides.Count == 0) return null;
+
+        string prefix = subConfigPath + ".";
+        bool hasAnyMods = false;
+        foreach (var kvp in accumulatedOverrides)
+        {
+            if (kvp.Key.StartsWith(prefix) && kvp.Value.HasAnyModification)
+            {
+                hasAnyMods = true;
+                break;
+            }
+        }
+        if (!hasAnyMods) return null;
+
+        CustomAbility copy = UnityEngine.Object.Instantiate(baseConfig);
+        Type runtimeType = baseConfig.GetType();
+
+        foreach (var kvp in accumulatedOverrides)
+        {
+            if (!kvp.Key.StartsWith(prefix)) continue;
+            if (!kvp.Value.HasAnyModification) continue;
+
+            string remainder = kvp.Key.Substring(prefix.Length);
+            if (remainder.Contains("."))
+            {
+                ApplyAccumulatedToNestedPath(runtimeType, baseConfig, copy, remainder, kvp.Value);
+                continue;
+            }
+
+            FieldInfo field = FindSerializedInstanceField(runtimeType, remainder);
+            if (field == null) continue;
+
+            ApplyAccumulatedToField(field, baseConfig, copy, kvp.Value, kvp.Key);
+        }
 
         return copy;
     }
@@ -854,6 +899,7 @@ public static class AbilityModifierRuntime
 
         return propertyPath == "cooldownTime"
             || propertyPath == "chargeRechargeTime"
+            || propertyPath == "castLockoutDuration"
             || propertyPath == "holdChargeConfig.barDuration";
     }
 
@@ -1199,7 +1245,7 @@ public static class AbilityModifierRuntime
     // Top-level fields we want to expose for modification
     private static readonly HashSet<string> _topLevelModifiableFields = new HashSet<string>
     {
-        "attackSpeed", "cooldownTime", "energyCost", "maxCharges", "chargeRechargeTime",
+        "attackSpeed", "cooldownTime", "energyCost", "maxCharges", "chargeRechargeTime", "castLockoutDuration",
     "movementBlockDuration", "autocastRange", "autocastTargets", "castAtFeet", "castAtTargets", "castAtFriendlyTargets", "baseCritChance", "baseCritDamageMultiplier",
        "mainhandAnimationName", "precastAnimationName", "retaliationCast"
     };

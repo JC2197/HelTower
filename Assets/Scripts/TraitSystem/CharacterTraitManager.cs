@@ -23,6 +23,12 @@ public class CharacterTraitManager : MonoBehaviour
     [Tooltip("Global list of all TraitData assets. Auto-loaded from Resources/TraitDataList if not assigned.")]
     [SerializeField] private TraitDataList traitDataList;
 
+    [Header("Trait Costs")]
+    [Min(0)]
+    [SerializeField] private int startingCost = 10;
+    [Min(1f)]
+    [SerializeField] private float costMultiplier = 1.5f;
+
     // Map nodeID -> Trait (allows multiple instances of same trait from different nodes)
     private Dictionary<string, Trait> traitLookupByNode = new Dictionary<string, Trait>();
 
@@ -218,15 +224,21 @@ public class CharacterTraitManager : MonoBehaviour
         return new HashSet<string>(traitLookupByNode.Keys);
     }
 
+    public void SetTraitCostSettings(int newStartingCost, float newCostMultiplier)
+    {
+        startingCost = Mathf.Max(0, newStartingCost);
+        costMultiplier = Mathf.Max(1f, newCostMultiplier);
+    }
+
     /// <summary>
-    /// True when the save file holds enough gold to unlock this node. Free nodes always pass.
+    /// True when the player can pay the current unlock cost. Free nodes always pass.
     /// </summary>
     public bool CanAffordNode(TraitNode node)
     {
         if (node == null)
             return false;
 
-        int cost = GetTraitGoldCost(node);
+        int cost = GetTraitCost(node);
         if (cost <= 0)
         {
             Debug.Log(
@@ -307,18 +319,17 @@ public class CharacterTraitManager : MonoBehaviour
         return totalLevels;
     }
 
-    public int GetTraitGoldCost(TraitNode node)
+    public int GetTraitCost(TraitNode node)
     {
         if (node == null || node.traitData == null)
             return 0;
 
         int totalTraitLevels = GetTotalTraitLevels();
 
-        return TraitUtils.GetGoldCost(
-            node,
-            totalTraitLevels
-        );
+        return TraitUtils.GetTraitCost(startingCost, totalTraitLevels, costMultiplier);
     }
+
+    public int GetTraitGoldCost(TraitNode node) => GetTraitCost(node);
 
     /// <summary>
     /// Get all active traits
@@ -515,7 +526,12 @@ public class CharacterTraitManager : MonoBehaviour
         }
         Debug.Log($"[CharacterTraitManager] ========================================");
 
+        GetComponent<CharacterStatConverterManager>()?.RecalculateLiveStats();
         ApplyModifiersToCharacterStats();
+
+        // Swap any equipped abilities that a trait replaces (and restore originals when removed)
+        // before rebuilding modifiers so the newly loaded ability picks up its modifiers too.
+        GetComponent<CharacterAbilityManager>()?.ReapplyAbilityReplacements();
 
         // Rebuild weapon ammo modifiers on all active abilities
         foreach (DataDrivenAbility ability in GetComponents<DataDrivenAbility>())

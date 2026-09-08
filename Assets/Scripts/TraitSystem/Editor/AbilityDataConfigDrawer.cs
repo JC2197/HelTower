@@ -23,6 +23,9 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty attackSpeed;
     private SerializedProperty cooldownTime;
     private SerializedProperty energyCost;
+    private SerializedProperty castLockoutDuration;
+    private SerializedProperty scaleLockoutWithAttackSpeed;
+    private SerializedProperty cancelActions;
     private SerializedProperty baseCritChance;
     private SerializedProperty baseCritDamageMultiplier;
     private SerializedProperty autocast;
@@ -46,7 +49,6 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty mainhandAnimationName;
     private SerializedProperty offhandAnimationName;
     private SerializedProperty weaponIdleAnimationName;
-    private SerializedProperty hasPrecast;
     private SerializedProperty preAnimationName;
     private SerializedProperty activateOnButtonRelease;
     private SerializedProperty holdAnimationName;
@@ -57,7 +59,6 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty chargeRechargeTime;
     private SerializedProperty isCombo;
     private SerializedProperty comboAbilities;
-    private SerializedProperty comboStepDelays;
     private SerializedProperty comboInputWindow;
     private SerializedProperty movementSpeedMultiplierDuringCast;
     private SerializedProperty hasIndicator;
@@ -97,6 +98,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty lingeringEffects;
     private SerializedProperty onExitEffects;
     private SerializedProperty castEffects;
+    private SerializedProperty customAbility;
     private SerializedProperty timedParticles;
 
     // Hit Visual properties
@@ -139,6 +141,9 @@ public class AbilityDataConfigEditor : Editor
         attackSpeed = serializedObject.FindProperty("attackSpeed");
         cooldownTime = serializedObject.FindProperty("cooldownTime");
         energyCost = serializedObject.FindProperty("energyCost");
+        castLockoutDuration = serializedObject.FindProperty("castLockoutDuration");
+        scaleLockoutWithAttackSpeed = serializedObject.FindProperty("scaleLockoutWithAttackSpeed");
+        cancelActions = serializedObject.FindProperty("cancelActions");
         baseCritChance = serializedObject.FindProperty("baseCritChance");
         baseCritDamageMultiplier = serializedObject.FindProperty("baseCritDamageMultiplier");
         autocast = serializedObject.FindProperty("autocast");
@@ -160,7 +165,6 @@ public class AbilityDataConfigEditor : Editor
         characterPrecastAnimationName = serializedObject.FindProperty("characterPrecastAnimationName");
         mainhandAnimationName = serializedObject.FindProperty("mainhandAnimationName");
         offhandAnimationName = serializedObject.FindProperty("offhandAnimationName");
-        hasPrecast = serializedObject.FindProperty("hasPrecast");
         weaponIdleAnimationName = serializedObject.FindProperty("weaponIdleAnimationName");
         preAnimationName = serializedObject.FindProperty("preAnimationName");
         activateOnButtonRelease = serializedObject.FindProperty("activateOnButtonRelease");
@@ -172,7 +176,6 @@ public class AbilityDataConfigEditor : Editor
         chargeRechargeTime = serializedObject.FindProperty("chargeRechargeTime");
         isCombo = serializedObject.FindProperty("isCombo");
         comboAbilities = serializedObject.FindProperty("comboAbilities");
-        comboStepDelays = serializedObject.FindProperty("comboStepDelays");
         comboInputWindow = serializedObject.FindProperty("comboInputWindow");
         movementSpeedMultiplierDuringCast = serializedObject.FindProperty("movementSpeedMultiplierDuringCast");
         hasIndicator = serializedObject.FindProperty("hasIndicator");
@@ -212,6 +215,7 @@ public class AbilityDataConfigEditor : Editor
         lingeringEffects = serializedObject.FindProperty("lingeringEffects");
         onExitEffects = serializedObject.FindProperty("onExitEffects");
         castEffects = serializedObject.FindProperty("castEffects");
+        customAbility = serializedObject.FindProperty("customAbility");
         timedParticles = serializedObject.FindProperty("timedParticles");
 
         // Hit Visuals
@@ -405,6 +409,17 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.PropertyField(energyCost);
 
             EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Cast Lockout", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(castLockoutDuration, new GUIContent("Cast Lockout Duration", "Seconds after this ability's precast ends during which the caster cannot start any other ability. Independent of cooldown. 0 = no lockout."));
+            if (castLockoutDuration.floatValue > 0f && isAttack.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(scaleLockoutWithAttackSpeed, new GUIContent("Scale With Attack Speed", "Divide the lockout by effective attack speed, matching how the cast animation is scaled."));
+                EditorGUI.indentLevel--;
+            }
+            EditorGUILayout.PropertyField(cancelActions, new GUIContent("Cancel Actions", "This ability overrides everything else: it ignores cast lockouts and interrupts whatever the caster is winding up or executing. Cooldown, charges and energy still apply."));
+
+            EditorGUILayout.Space(5);
             EditorGUILayout.LabelField("Crit", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(baseCritChance, new GUIContent("Base Crit Chance", "Base crit chance for this ability (fraction: 0.05 = 5%). Added to the character's CritChance stat and any trait CritChance modifiers."));
             EditorGUILayout.PropertyField(baseCritDamageMultiplier, new GUIContent("Base Crit Damage Multiplier", "Bonus crit damage added on top of the character's CritDamage stat when this ability crits (e.g. 0.5 = +50% crit damage)."));
@@ -459,23 +474,22 @@ public class AbilityDataConfigEditor : Editor
                 }
                 EditorGUILayout.PropertyField(mainhandAnimationName, new GUIContent("Mainhand Animation"));
                 EditorGUILayout.PropertyField(offhandAnimationName, new GUIContent("Offhand Animation"));
-                EditorGUILayout.PropertyField(hasPrecast, new GUIContent("Has Pre-Cast Animation"));
-                if (hasPrecast.boolValue)
+
+                EditorGUILayout.Space(3);
+                EditorGUILayout.LabelField("Pre-Cast", EditorStyles.boldLabel);
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(preAnimationName, new GUIContent("Pre-Cast Animation (Weapon)", "The precast hold lasts as long as this clip, scaled by attack/cast speed."));
+                EditorGUILayout.PropertyField(characterPrecastAnimationName, new GUIContent("Pre-Cast Animation (Character)", "Played on the character animator before firing. Used by enemies and other casters without weapon animators."));
+                EditorGUILayout.PropertyField(activateOnButtonRelease, new GUIContent("Activate On Button Release", "Flow: precast -> hold animation (looping while held) -> release -> cast animation."));
+                if (activateOnButtonRelease.boolValue)
                 {
                     EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(preAnimationName, new GUIContent("Pre-Cast Animation (Weapon)"));
-                    EditorGUILayout.PropertyField(characterPrecastAnimationName, new GUIContent("Pre-Cast Animation (Character)", "Played on the character animator before firing. Used by enemies and other casters without weapon animators."));
-                    EditorGUILayout.PropertyField(activateOnButtonRelease, new GUIContent("Activate On Button Release", "Flow: precast -> hold animation (looping while held) -> release -> cast animation."));
-                    if (activateOnButtonRelease.boolValue)
-                    {
-                        EditorGUI.indentLevel++;
-                        EditorGUILayout.PropertyField(holdAnimationName, new GUIContent("Hold Animation (Weapon)", "Looping animation played on weapon while button is held."));
-                        EditorGUILayout.PropertyField(characterHoldAnimationName, new GUIContent("Hold Animation (Character)", "Looping animation played on the character animator while button is held."));
-                        EditorGUILayout.PropertyField(holdChargeConfig, new GUIContent("Hold Charge Config", "Bar duration, overcharge bars, and per-bar field modifiers. Uses the same property paths as trait ability modifiers."), true);
-                        EditorGUI.indentLevel--;
-                    }
+                    EditorGUILayout.PropertyField(holdAnimationName, new GUIContent("Hold Animation (Weapon)", "Looping animation played on weapon while button is held."));
+                    EditorGUILayout.PropertyField(characterHoldAnimationName, new GUIContent("Hold Animation (Character)", "Looping animation played on the character animator while button is held."));
+                    EditorGUILayout.PropertyField(holdChargeConfig, new GUIContent("Hold Charge Config", "Bar duration, overcharge bars, and per-bar field modifiers. Uses the same property paths as trait ability modifiers."), true);
                     EditorGUI.indentLevel--;
                 }
+                EditorGUI.indentLevel--;
 
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("Indicator", EditorStyles.boldLabel);
@@ -507,11 +521,10 @@ public class AbilityDataConfigEditor : Editor
                 EditorGUI.indentLevel++;
                 EditorGUILayout.HelpBox(
                     "This ability acts as a shell and casts Combo Abilities in order when used. " +
-                    "Combo Step Delays are applied between steps.",
+                    "Each step advances once its own cast and Cast Lockout Duration have elapsed.",
                     MessageType.Info
                 );
                 EditorGUILayout.PropertyField(comboAbilities, new GUIContent("Combo Abilities"), true);
-                EditorGUILayout.PropertyField(comboStepDelays, new GUIContent("Combo Step Delays", "Time to wait after each combo step's animation completes before advancing to the next step (in seconds). Array length should match combo abilities length."), true);
                 EditorGUILayout.PropertyField(comboInputWindow, new GUIContent("Combo Input Window", "How long the player has to trigger the next combo step after a step completes (seconds)."));
                 EditorGUI.indentLevel--;
             }
@@ -818,37 +831,49 @@ public class AbilityDataConfigEditor : Editor
     private void DrawCastEffects()
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        showCastEffects = EditorGUILayout.BeginFoldoutHeaderGroup(showCastEffects, "ABILITY CAST EFFECTS");
+        showCastEffects = EditorGUILayout.BeginFoldoutHeaderGroup(showCastEffects, "CUSTOM ABILITY");
 
         if (showCastEffects)
         {
             EditorGUI.indentLevel++;
 
-            SerializedProperty grantsBuff = castEffects.FindPropertyRelative("grantsBuff");
-            EditorGUILayout.PropertyField(grantsBuff);
-            if (grantsBuff.boolValue)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(castEffects.FindPropertyRelative("customBuffScript"));
-                EditorGUI.indentLevel--;
-            }
+            EditorGUILayout.PropertyField(customAbility, new GUIContent("Custom Ability", "ScriptableObject invoked when this ability is successfully used."));
 
-            SerializedProperty consumesHealth = castEffects.FindPropertyRelative("consumesHealth");
-            EditorGUILayout.PropertyField(consumesHealth);
-            if (consumesHealth.boolValue)
+            if (customAbility != null && customAbility.objectReferenceValue is BuffSelf buffSelf)
             {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(castEffects.FindPropertyRelative("healthCost"));
-                EditorGUI.indentLevel--;
-            }
+                SerializedObject buffObject = new SerializedObject(buffSelf);
+                buffObject.Update();
 
-            SerializedProperty appliesSelfDebuff = castEffects.FindPropertyRelative("appliesSelfDebuff");
-            EditorGUILayout.PropertyField(appliesSelfDebuff);
-            if (appliesSelfDebuff.boolValue)
-            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.LabelField("Buff Self", EditorStyles.boldLabel);
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(castEffects.FindPropertyRelative("customDebuffScript"));
+                EditorGUILayout.PropertyField(buffObject.FindProperty("buffDuration"));
+                EditorGUILayout.PropertyField(buffObject.FindProperty("buffEffect"));
+                EditorGUILayout.PropertyField(buffObject.FindProperty("maxStacks"));
+
+                SerializedProperty nextAttack = buffObject.FindProperty("nextAttack");
+                EditorGUILayout.PropertyField(nextAttack);
+                if (nextAttack.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(buffObject.FindProperty("abilityToCast"));
+                    EditorGUI.indentLevel--;
+                }
+
+                SerializedProperty replaceAttack = buffObject.FindProperty("replaceAttack");
+                EditorGUILayout.PropertyField(replaceAttack);
+                if (replaceAttack.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(buffObject.FindProperty("replacementAbilityToCast"));
+                    EditorGUI.indentLevel--;
+                }
+
+                if (nextAttack.boolValue || replaceAttack.boolValue)
+                    EditorGUILayout.PropertyField(buffObject.FindProperty("triggeredAbilityLifetime"));
+
                 EditorGUI.indentLevel--;
+                buffObject.ApplyModifiedProperties();
             }
 
             EditorGUI.indentLevel--;

@@ -2,22 +2,20 @@ using UnityEngine;
 
 public static class TraitUtils
 {
-    private static float goldCostMultiplier = 1.5f;
-
-    public static int GetGoldCost(TraitNode node, int totalTraitLevels)
+    public static int GetTraitCost(int startingCost, int totalTraitLevels, float costMultiplier)
     {
-        if (node == null || node.traitData == null)
+        if (startingCost <= 0)
             return 0;
 
         float multiplier = Mathf.Pow(
-            goldCostMultiplier,
-            totalTraitLevels
+            Mathf.Max(1f, costMultiplier),
+            Mathf.Max(0, totalTraitLevels)
         );
 
         return Mathf.Max(
             0,
             Mathf.RoundToInt(
-                node.traitData.baseGoldCost * multiplier
+                startingCost * multiplier
             )
         );
     }

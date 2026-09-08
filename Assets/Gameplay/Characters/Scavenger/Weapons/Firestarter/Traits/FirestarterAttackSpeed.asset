@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: FirestarterAttackSpeed
   displayName: Mania
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Increase Firestarter Attack Speed by {v1}%.
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
   weaponTraitTag: 

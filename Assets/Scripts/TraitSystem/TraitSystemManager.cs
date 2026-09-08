@@ -13,6 +13,12 @@ public class TraitSystemManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private TraitTreeUI traitTreeUI;
 
+    [Header("Trait Costs")]
+    [Min(0)]
+    [SerializeField] private int startingCost = 10;
+    [Min(1f)]
+    [SerializeField] private float costMultiplier = 1.5f;
+
     private CharacterTraitManager currentCharacterTraitManager;
     private TraitTree currentTree;
     private List<TraitTree> currentAvailableTrees;
@@ -79,6 +85,7 @@ public class TraitSystemManager : MonoBehaviour
             {
                 currentCharacterTraitManager = localPlayer.gameObject.AddComponent<CharacterTraitManager>();
             }
+            currentCharacterTraitManager.SetTraitCostSettings(startingCost, costMultiplier);
         }
 
         // Resolve active save profile
@@ -181,8 +188,7 @@ public class TraitSystemManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle a node purchase request from the UI. Gold is the only currency: the node's
-    /// goldCost is deducted from the save file, then the trait is unlocked and persisted.
+    /// Handle a node purchase request from the UI.
     /// </summary>
     private void OnTraitUnlockRequested(TraitNode node)
     {
@@ -211,7 +217,7 @@ public class TraitSystemManager : MonoBehaviour
             );
             return;
         }
-        int cost = currentCharacterTraitManager.GetTraitGoldCost(node);
+        int cost = currentCharacterTraitManager.GetTraitCost(node);
 
         PlayerController localPlayer = PlayerController.GetLocalPlayer();
         if (localPlayer == null || !localPlayer.SpendBagGold(cost))
@@ -291,7 +297,7 @@ public class TraitSystemManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Total goldCost of the supplied unlocked nodes across every tree the equipped class exposes
+    /// Total cost of the supplied unlocked nodes across every tree the equipped class exposes
     /// (a node's tab may not be the currently active one).
     /// </summary>
     private int GetSpentGold(HashSet<string> unlockedNodeIDs)
@@ -306,7 +312,7 @@ public class TraitSystemManager : MonoBehaviour
             foreach (TraitNode node in tree.nodes)
             {
                 if (node != null && unlockedNodeIDs.Contains(node.nodeID))
-                    spent += currentCharacterTraitManager.GetTraitGoldCost(node);
+                    spent += currentCharacterTraitManager.GetTraitCost(node);
             }
         }
 

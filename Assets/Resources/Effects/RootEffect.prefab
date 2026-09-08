@@ -287,8 +287,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.4
-      minScalar: 0.3
+      scalar: 1.2
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -664,7 +664,7 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 12
+    type: 20
     angle: 25
     length: 5
     boxThickness: {x: 1, y: 0, z: 0}
@@ -673,7 +673,7 @@ ParticleSystem:
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
-    placementMode: 2
+    placementMode: 1
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
     m_MeshSpawn:
@@ -1487,10 +1487,10 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 4765235319495298241, guid: fe23f08c3ff2eec419922c527f86c9a1, type: 3}
-    - sprite: {fileID: 8865689738196773189, guid: fe23f08c3ff2eec419922c527f86c9a1, type: 3}
-    - sprite: {fileID: -406278421, guid: fe23f08c3ff2eec419922c527f86c9a1, type: 3}
-    - sprite: {fileID: -503764442, guid: fe23f08c3ff2eec419922c527f86c9a1, type: 3}
+    - sprite: {fileID: -6646820325249897699, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -1227417338347808894, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -63078289, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
+    - sprite: {fileID: -341705036, guid: 5ff36b79537181242bf18b08578d6e7e, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:

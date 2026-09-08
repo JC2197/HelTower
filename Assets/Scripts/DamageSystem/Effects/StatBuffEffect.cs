@@ -68,6 +68,11 @@ public class StatBuffEffect : EffectConfig
         }
 
         int targetId = target.GetInstanceID();
+        ApplyModifiers(target, stats, targetId, 1);
+    }
+
+    private void ApplyModifiers(GameObject target, StatContainer stats, int targetId, int stackCount)
+    {
         var state = new AppliedState();
         bool touchedMoveSpeed = false;
 
@@ -86,17 +91,18 @@ public class StatBuffEffect : EffectConfig
             {
                 case ModifierType.Flat:
                 {
-                    stats.ModifyStat(mod.statID, mod.value);
+                    float delta = mod.value * stackCount;
+                    stats.ModifyStat(mod.statID, delta);
                     if (state.additiveDeltas.TryGetValue(mod.statID, out float existingFlat))
-                        state.additiveDeltas[mod.statID] = existingFlat + mod.value;
+                        state.additiveDeltas[mod.statID] = existingFlat + delta;
                     else
-                        state.additiveDeltas[mod.statID] = mod.value;
+                        state.additiveDeltas[mod.statID] = delta;
                     break;
                 }
                 case ModifierType.Percentage:
                 {
                     float current = stats.GetStat(mod.statID);
-                    float delta = current * (mod.value / 100f);
+                    float delta = current * (mod.value / 100f) * stackCount;
                     stats.ModifyStat(mod.statID, delta);
                     if (state.additiveDeltas.TryGetValue(mod.statID, out float existingPct))
                         state.additiveDeltas[mod.statID] = existingPct + delta;
@@ -123,6 +129,22 @@ public class StatBuffEffect : EffectConfig
         }
     }
 
+    public override void OnStackChanged(GameObject target, int oldStacks, int newStacks)
+    {
+        if (target == null)
+            return;
+
+        int targetId = target.GetInstanceID();
+        if (_appliedByTarget.TryGetValue(targetId, out AppliedState state))
+            RemoveAppliedState(target, targetId, state);
+
+        StatContainer stats = ResolveStatContainer(target);
+        if (stats == null)
+            return;
+
+        ApplyModifiers(target, stats, targetId, Mathf.Max(1, newStacks));
+    }
+
     public override void OnUpdate(GameObject target, float deltaTime)
     {
         // No per-frame logic required.
@@ -137,6 +159,11 @@ public class StatBuffEffect : EffectConfig
         if (!_appliedByTarget.TryGetValue(targetId, out AppliedState state))
             return;
 
+        RemoveAppliedState(target, targetId, state);
+    }
+
+    private void RemoveAppliedState(GameObject target, int targetId, AppliedState state)
+    {
         StatContainer stats = ResolveStatContainer(target);
         if (stats == null)
         {

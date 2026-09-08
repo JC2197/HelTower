@@ -15,33 +15,160 @@ MonoBehaviour:
   treeName: Fire Starter
   description: 
   nodeSpacing: 100
-  nodeIconSize: 17
+  nodeIconSize: 34
   nodeIconFrame: {fileID: 0}
-  canvasWidth: 465
+  editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
+  anchorTreeToBottom: 1
+  useLevelZones: 1
+  levelZoneBandCount: 11
+  levelsPerBand: 5
+  defaultZoom: 1
+  allowZoom: 0
+  previewWindowSize: {x: 350, y: 400}
+  connectionLineWidth: 3
+  canvasWidth: 433
   nodes:
   - nodeID: FireStarterBurnChance5_b0e9
     traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
-    position: {x: -32, y: -32}
+    position: {x: -128, y: -0}
     connectedNodeIDs: []
   - nodeID: FirestarterDamage5_b55f
     traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
-    position: {x: -64, y: 0}
+    position: {x: -96, y: 0}
     connectedNodeIDs: []
   - nodeID: FirestarterProjSpeed5_bdd9
     traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
-    position: {x: -96, y: -48}
+    position: {x: -80, y: -64}
     connectedNodeIDs: []
   - nodeID: FirestarterSwipeSize5_894f
     traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
-    position: {x: -144, y: 0}
+    position: {x: -16, y: -64}
     connectedNodeIDs: []
   - nodeID: ExpulsionCooldown_48ef
     traitData: {fileID: 11400000, guid: 4c1dc5246efb45c458e5354154885229, type: 2}
-    position: {x: 32, y: -0}
+    position: {x: 48, y: -0}
+    connectedNodeIDs:
+    - ExpulsionHitDamage_3fbc
+    - ExpulsionHitDamage_f72e
+  - nodeID: FirestarterAttackSpeed_22d5
+    traitData: {fileID: 11400000, guid: 59bf2715d2dae374ba685386324334b5, type: 2}
+    position: {x: -48, y: 0}
+    connectedNodeIDs:
+    - FirestarterProjSpeed5_bdd9
+    - FirestarterSwipeSize5_894f
+  - nodeID: Expulsion Range_67f2
+    traitData: {fileID: 11400000, guid: 188ea88afd668e844a8577b7d63ea976, type: 2}
+    position: {x: 64, y: -128}
     connectedNodeIDs: []
-  canvasHeight: 273
+  - nodeID: ExpulsionHitDamage_3fbc
+    traitData: {fileID: 11400000, guid: 59e14e8111900424990b97ff7055258a, type: 2}
+    position: {x: 64, y: -64}
+    connectedNodeIDs:
+    - Expulsion Range_67f2
+  - nodeID: ExpulsionHitDamage_f72e
+    traitData: {fileID: 11400000, guid: 5a0a8ccf1b14e2f42865cd00b37cfbc5, type: 2}
+    position: {x: 32, y: -64}
+    connectedNodeIDs:
+    - Expulsion Range_67f2
+    - ExpulsionSalvo_76e7
+  - nodeID: ExpulsionSalvo_76e7
+    traitData: {fileID: 11400000, guid: 55d908fb55fb1bc46ac8470133b90d44, type: 2}
+    position: {x: 32, y: -128}
+    connectedNodeIDs: []
+  canvasHeight: 433
   minCanvasWidth: 400
   minCanvasHeight: 225
   autoCanvasSize: 1
   autoCanvasPadding: 80
-  connections: []
+  connections:
+  - connectionID: conn_bd3d073c
+    scale: 1
+    fromNodeIDs:
+    - FirestarterAttackSpeed_22d5
+    toNodeIDs:
+    - FirestarterProjSpeed5_bdd9
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_16237e96
+    scale: 1
+    fromNodeIDs:
+    - FirestarterAttackSpeed_22d5
+    toNodeIDs:
+    - FirestarterSwipeSize5_894f
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_4f453372
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionCooldown_48ef
+    toNodeIDs:
+    - ExpulsionHitDamage_3fbc
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_51343a53
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionHitDamage_3fbc
+    toNodeIDs:
+    - Expulsion Range_67f2
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_cbfb3fe8
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionCooldown_48ef
+    toNodeIDs:
+    - ExpulsionHitDamage_f72e
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_db2d516b
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionHitDamage_f72e
+    toNodeIDs:
+    - Expulsion Range_67f2
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_43ec5ade
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionHitDamage_f72e
+    toNodeIDs:
+    - ExpulsionSalvo_76e7
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 1
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

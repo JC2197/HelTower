@@ -144,6 +144,10 @@ public class CharacterAbilityManager : MonoBehaviour
             return null;
         }
 
+        // Swap to a trait-granted replacement ability if one is active. Callers keep the base
+        // reference, so removing the trait and reloading naturally restores the original ability.
+        abilityRef = ResolveReplacement(abilityRef);
+
         // Add DataDrivenAbility component
         var newAbility = gameObject.AddComponent<DataDrivenAbility>();
         if (newAbility == null)
@@ -512,5 +516,89 @@ public class CharacterAbilityManager : MonoBehaviour
         if (abilityConfig == null) return;
 
         AddTraitAbility(abilityConfig);
+    }
+
+    // ===========================
+    // ABILITY REPLACEMENT (traits)
+    // ===========================
+
+    /// <summary>
+    /// Returns a reference to the trait-granted replacement for <paramref name="baseRef"/>,
+    /// or the original reference if no active trait replaces it.
+    /// </summary>
+    private AbilityReference ResolveReplacement(AbilityReference baseRef)
+    {
+        if (baseRef?.Config == null) return baseRef;
+
+        CharacterTraitManager traitManager = GetComponent<CharacterTraitManager>();
+        if (traitManager == null) return baseRef;
+
+        AbilityConfig replacement = traitManager.GetAbilityReplacement(baseRef.Config);
+        if (replacement != null && replacement != baseRef.Config)
+            return new AbilityReference(replacement);
+
+        return baseRef;
+    }
+
+    /// <summary>
+    /// Re-resolves every equipped ability against the current set of trait ability replacements,
+    /// reloading only the slots whose effective ability changed. Called when traits change so a
+    /// newly granted (or removed) ability-replacement trait swaps the live ability immediately.
+    /// </summary>
+    public void ReapplyAbilityReplacements()
+    {
+        ReapplyCoreSlot(ref weaponAbility, weaponAbilityRef, 0, (r, a) => OnWeaponAbilityChanged?.Invoke(r, a));
+        ReapplyCoreSlot(ref offhandAbility, offhandAbilityRef, 1, (r, a) => OnSecondaryWeaponAbilityChanged?.Invoke(r, a));
+        ReapplyCoreSlot(ref dashAbility, dashAbilityRef, 2, (r, a) => OnDashAbilityChanged?.Invoke(r, a));
+        ReapplyCoreSlot(ref passiveAbility, passiveAbilityRef, -1, (r, a) => OnPassiveAbilityChanged?.Invoke(r, a));
+
+        bool traitAbilitiesChanged = false;
+
+        for (int i = 0; i < activeTraitAbilities.Count; i++)
+        {
+            if (ReapplyListSlot(activeTraitAbilities, activeTraitAbilityRefs, i, 2 + i))
+                traitAbilitiesChanged = true;
+        }
+
+        for (int i = 0; i < passiveTraitAbilities.Count; i++)
+        {
+            if (ReapplyListSlot(passiveTraitAbilities, passiveTraitAbilityRefs, i, -1))
+                traitAbilitiesChanged = true;
+        }
+
+        if (traitAbilitiesChanged)
+            OnTraitAbilitiesChanged?.Invoke();
+    }
+
+    private void ReapplyCoreSlot(ref Ability current, AbilityReference baseRef, int slotIndex, Action<AbilityReference, Ability> notify)
+    {
+        if (baseRef?.Config == null) return;
+
+        AbilityReference resolvedRef = ResolveReplacement(baseRef);
+        if (current != null && current.GetAbilityConfig() == resolvedRef.Config)
+            return;
+
+        if (current != null)
+            Destroy(current);
+
+        current = LoadAbility(baseRef, slotIndex);
+        notify?.Invoke(resolvedRef, current);
+    }
+
+    private bool ReapplyListSlot(List<Ability> abilities, List<AbilityReference> baseRefs, int index, int slotIndex)
+    {
+        AbilityReference baseRef = baseRefs[index];
+        if (baseRef?.Config == null) return false;
+
+        AbilityReference resolvedRef = ResolveReplacement(baseRef);
+        Ability current = abilities[index];
+        if (current != null && current.GetAbilityConfig() == resolvedRef.Config)
+            return false;
+
+        if (current != null)
+            Destroy(current);
+
+        abilities[index] = LoadAbility(baseRef, slotIndex);
+        return true;
     }
 }

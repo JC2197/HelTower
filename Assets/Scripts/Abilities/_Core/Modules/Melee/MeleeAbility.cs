@@ -40,13 +40,14 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     }
 
     /// <summary>
-    /// Instantiates the meleeFX prefab from config at (weapon root + direction * radius),
+    /// Instantiates the meleeFX prefab from config at (spawn origin + direction * radius),
     /// rotated toward the attack direction (0 = right).
-    /// Falls back to owner center when no weapon root exists.
+    /// <paramref name="spawnOrigin"/> is the base position (the equipped weapon's root); when null
+    /// it falls back to the owner center.
     /// <paramref name="firedFromOffhand"/> selects the offhand weapon as the spawn origin
     /// (for alternating dual-wield fire); defaults to mainhand.
     /// </summary>
-    public void PerformAttack(MeleeConfig meleeConfig, Vector2 direction, bool firedFromOffhand = false, bool visualOnly = false)
+    public void PerformAttack(MeleeConfig meleeConfig, Vector2 direction, bool firedFromOffhand = false, bool visualOnly = false, Vector3? spawnOrigin = null)
     {
         config = meleeConfig;
         attackDirection = direction.normalized;
@@ -60,7 +61,8 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
         // 1. Spawning & Positioning Geometry Prefab Shape
         Transform ownerTransform = owner != null ? owner.transform : transform;
-        Vector3 spawnPos = ownerTransform.position + (Vector3)(attackDirection * config.meleeFXRadiusDistance);
+        Vector3 originPos = spawnOrigin ?? ownerTransform.position;
+        Vector3 spawnPos = originPos + (Vector3)(attackDirection * config.meleeFXRadiusDistance);
         float angle = Mathf.Atan2(attackDirection.y, attackDirection.x) * Mathf.Rad2Deg;
         Quaternion spawnRotation = Quaternion.Euler(0f, 0f, angle);
 

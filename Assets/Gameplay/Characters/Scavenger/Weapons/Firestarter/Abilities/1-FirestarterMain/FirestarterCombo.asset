@@ -26,6 +26,9 @@ MonoBehaviour:
   attackSpeed: 1
   cooldownTime: 0
   energyCost: 0
+  castLockoutDuration: 0.5
+  scaleLockoutWithAttackSpeed: 1
+  cancelActions: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
   autocast: 0
@@ -39,6 +42,7 @@ MonoBehaviour:
   disablesMovementDuringCast: 0
   movementBlockDuration: 0.5
   movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringPrecast: 0
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
@@ -46,18 +50,16 @@ MonoBehaviour:
   comboAbilities:
   - {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
   - {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
-  comboStepDelays:
-  - 0
-  comboInputWindow: 0.25
+  comboInputWindow: 0.33
   characterAnimationName: 
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: 
   offhandAnimationName: 
-  hasPrecast: 0
   preAnimationName: 
   activateOnButtonRelease: 0
   holdAnimationName: 
+  characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
@@ -70,6 +72,12 @@ MonoBehaviour:
   flipYOnLeftFacing: 0
   flipXOnLeftFacing: 0
   timedParticles: []
+  hasIndicator: 0
+  indicatorConfig:
+    prefab: {fileID: 0}
+    spawnDelay: 0
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 0
   isAreaAbility: 0
   isConstructAbility: 0
@@ -1480,13 +1488,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
-  castEffects:
-    grantsBuff: 0
-    customBuffScript: {fileID: 0}
-    consumesHealth: 0
-    healthCost: 0
-    appliesSelfDebuff: 0
-    customDebuffScript: {fileID: 0}
+  customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}

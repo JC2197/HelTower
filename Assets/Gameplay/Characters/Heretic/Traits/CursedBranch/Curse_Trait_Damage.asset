@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Curse Hit Damage
   displayName: Curse Damage
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: 
   traitIcon: {fileID: 8999503231653194797, guid: f401507dab44f47468e4e1e9c18b9383, type: 3}
   weaponTraitTag: Curse Staff

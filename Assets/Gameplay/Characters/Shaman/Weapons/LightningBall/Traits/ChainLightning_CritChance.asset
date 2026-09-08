@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ChainLightning_Damage
   displayName: Chain Lightning Damage
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Chain Lightning deals +{v1} damage.
   traitIcon: {fileID: 3402156135608667222, guid: 77696bbe53bf33b4ca413b33fed75299, type: 3}
   weaponTraitTag: 

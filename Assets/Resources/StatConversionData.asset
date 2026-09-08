@@ -14,22 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatConversionData
   conversions:
   - baseStatName: STR
-    derivedStatName: MAXHP
+    derivedStatName: MaxHealth
     conversionRate: 2
-    pointsPerTick: 5
+    pointsPerTick: 4
     isPercentage: 0
   - baseStatName: STR
-    derivedStatName: PHYSICALDAMAGE
+    derivedStatName: Physical
     conversionRate: 1
     pointsPerTick: 5
     isPercentage: 0
   - baseStatName: VIG
-    derivedStatName: healthRegen
+    derivedStatName: MaxHealth
     conversionRate: 1
     pointsPerTick: 5
     isPercentage: 0
-  - baseStatName: VIG
-    derivedStatName: healthRegen
+  - baseStatName: DEX
+    derivedStatName: AttackSpeed
+    conversionRate: 1
+    pointsPerTick: 5
+    isPercentage: 1
+  - baseStatName: INT
+    derivedStatName: Magical
     conversionRate: 1
     pointsPerTick: 5
     isPercentage: 0

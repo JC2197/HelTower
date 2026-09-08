@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
   abilityName: Expulsion
   abilityIcon: {fileID: 0}
-  abilityDescription: No description available.
+  abilityDescription: Pulse out heat energy, dealing {hitbox.damage} {hitbox.damageTypeName}
+    Damage and causing enemies to burn, dealing {hitbox.onHitEffects.burnDamage}
+    over {hitbox.onHitEffects.burnDuration}.
   requiredWeapon: {fileID: 0}
   abilityTags:
     selectedTags: []
@@ -1337,7 +1339,7 @@ MonoBehaviour:
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 3
+      damage: 10
       damageTypeName: Magical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -1373,7 +1375,7 @@ MonoBehaviour:
         bleedApplicationChance: 1
         canBurn: 1
         burnEffect: {fileID: 11400000, guid: eb9cc8e13c05724499f61b108d6aad58, type: 2}
-        burnDamage: 10
+        burnDamage: 5
         burnDuration: 3
         burnApplicationChance: 1
         canPoison: 0
@@ -1430,15 +1432,15 @@ MonoBehaviour:
     singleTargetSearchRadius: 0
     timeDelay: 0
     delayEffectPrefab: {fileID: 0}
-    activationRange: 0.1
+    activationRange: 6
     salvos: 1
     salvoAmount: 0
     multiCastAmount: 0
-    salvoDelay: 0
-    salvoOffset: 0
-    salvoOffsetDistance: 0
+    salvoDelay: 0.5
+    salvoOffset: 1
+    salvoOffsetDistance: 3
     salvoOffsetTarget: 0
-    salvoOffsetMouse: 0
+    salvoOffsetMouse: 1
     salvoRandom: 0
     salvoRadial: 0
   summonConfig:

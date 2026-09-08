@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ChainLightning_Chain
   displayName: Chain Lightning Chain
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Chain Lightning Chains +{v1} time(s).
   traitIcon: {fileID: -6044353383409064944, guid: 1b710adb658c4f64fbe079afcaf84442, type: 3}
   weaponTraitTag: 

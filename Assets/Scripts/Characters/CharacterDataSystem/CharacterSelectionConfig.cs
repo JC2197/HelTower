@@ -76,10 +76,6 @@ public class CharacterSelectionConfig : ScriptableObject
         // Register this runtime character for cleanup tracking
         CharacterSelectionManager.RegisterRuntimeCharacter(newCharacter);
 
-        // STEP 3: Apply stat conversions ONLY to statContainer (not baseStatContainer)
-        if (applyStatConversions)
-            CharacterStatConverter.ApplyConversions(newCharacter);
-
         Debug.Log($"[CharacterSelectionConfig] Created character '{newCharacter.displayName}' from class '{classData.className}'");
         return newCharacter;
     }

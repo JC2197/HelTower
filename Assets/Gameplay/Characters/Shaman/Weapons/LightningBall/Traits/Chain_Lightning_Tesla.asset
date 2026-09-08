@@ -14,18 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: 'Chain_Lightning_Tesla '
   displayName: Tesla Rod
+  baseGoldCost: 8
   description: 'Chain Lightning chains {v3}% times, but fires +{v1} beams '
   traitIcon: {fileID: 3486338951772774361, guid: 87bbcb54dd0e1d34092a9e30f9f1e61b, type: 3}
-  colorTheme: Storm
-  specializedTraitTag1: Storm
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 4
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -37,6 +36,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: beamConfig.beamAmount
       overrideMode: 0
@@ -53,5 +59,4 @@ MonoBehaviour:
       numericValue: -66
       stringValue: 
       objectValue: {fileID: 0}
-  tierLevel: 1
-  tierConfig: {fileID: 0}
+  mutuallyExclusiveWith: []

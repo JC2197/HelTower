@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: LightningStrikeCooldown
   displayName: Stormsurge
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: '{v1}% Cooldown Reduction Rate for Lightning Strike.'
   traitIcon: {fileID: 1413810747667468299, guid: f466ed756bb61e0488850e6309751e39, type: 3}
   weaponTraitTag: 

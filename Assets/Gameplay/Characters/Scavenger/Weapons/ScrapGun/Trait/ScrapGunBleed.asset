@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ScrapGunBleed
   displayName: Razor Blades
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Scrap Gun gains +(v1}% chance to Bleed.
   traitIcon: {fileID: 0}
   weaponTraitTag: Shotgun

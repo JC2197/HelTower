@@ -14,13 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SpearAttackSpeed
   displayName: Swift Sands
-  baseGoldCost: 1
+  baseGoldCost: 8
   description: Spear Attacks gain {v1}% attack speed.
-  traitIcon: {fileID: 0}
+  traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
-  traitType: 3
-  maxLevel: 1
-  statModifiers: []
+  traitType: 0
+  maxLevel: 5
+  statModifiers:
+  - statID: AttackSpeed
+    modifierType: 0
+    value: 0.15
+    customIcon: {fileID: 0}
+    description: 
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
   requiredAbilityLevel: 0
@@ -33,20 +38,5 @@ MonoBehaviour:
   weaponAmmoModifier:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
-  abilityConfigModifiers:
-  - targetAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
-    abilityIcon: {fileID: 0}
-    addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 0}
-      triggerChance: 0
-      triggerTiming: 0
-      legacyTriggersOnDestroy: 0
-    addTriggeredAbilityLegacy: {fileID: 0}
-    addTriggeredAbilityPath: 
-    overrides:
-    - propertyPath: 
-      overrideMode: 0
-      numericValue: 0
-      stringValue: 
-      objectValue: {fileID: 0}
+  abilityConfigModifiers: []
   mutuallyExclusiveWith: []

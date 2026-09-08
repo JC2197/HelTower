@@ -14,18 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Aura
   displayName: Aura
+  baseGoldCost: 8
   description: 
   traitIcon: {fileID: -4714381445611006446, guid: 7776c94cb0857b34ea0330d68dec83a6, type: 3}
-  colorTheme: Defense
-  specializedTraitTag1: Defense
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 3
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -38,5 +37,3 @@ MonoBehaviour:
     reloadTimeDelta: 0
   abilityConfigModifiers: []
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 0}

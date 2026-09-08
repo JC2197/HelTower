@@ -364,6 +364,8 @@ public class EffectManager : NetworkBehaviour
 
     private void StackOrRefreshEffect(ActiveEffect existingEffect, EffectConfig newConfig)
     {
+        int oldStacks = existingEffect.currentStacks;
+
         switch (newConfig.stackingBehavior)
         {
             case StackingBehavior.Stack:
@@ -400,6 +402,9 @@ public class EffectManager : NetworkBehaviour
                 }
                 break;
         }
+
+        if (existingEffect.currentStacks != oldStacks)
+            existingEffect.config.OnStackChanged(gameObject, oldStacks, existingEffect.currentStacks);
     }
 
     private void DisplayDamageFloater(DamageOverTimeConfig dotConfig, ActiveEffect effect)

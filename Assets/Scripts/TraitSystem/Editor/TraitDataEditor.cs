@@ -10,7 +10,6 @@ public class TraitDataEditor : Editor
     private SerializedProperty traitIDProp;
     private SerializedProperty displayNameProp;
     private SerializedProperty descriptionProp;
-    private SerializedProperty baseGoldCostProp;
     private SerializedProperty traitIconProp;
     private SerializedProperty requiredTraitsProp;
     private SerializedProperty maxLevelProp;
@@ -32,7 +31,6 @@ public class TraitDataEditor : Editor
         traitIDProp = serializedObject.FindProperty("traitID");
         displayNameProp = serializedObject.FindProperty("displayName");
         descriptionProp = serializedObject.FindProperty("description");
-        baseGoldCostProp = serializedObject.FindProperty("baseGoldCost");
         traitIconProp = serializedObject.FindProperty("traitIcon");
         weaponTraitTagProp = serializedObject.FindProperty("weaponTraitTag");
         traitTypeProp = serializedObject.FindProperty("traitType");
@@ -115,7 +113,6 @@ public class TraitDataEditor : Editor
         EditorGUILayout.PropertyField(traitIDProp);
         EditorGUILayout.PropertyField(displayNameProp);
         EditorGUILayout.PropertyField(descriptionProp);
-        EditorGUILayout.PropertyField(baseGoldCostProp);
         EditorGUILayout.PropertyField(maxLevelProp);
         EditorGUILayout.Space(8f);
     }

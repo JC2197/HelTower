@@ -93,6 +93,10 @@ public abstract class EffectConfig : ScriptableObject
     /// Called when effect is removed
     /// </summary>
     public abstract void OnRemove(GameObject target);
+
+    public virtual void OnStackChanged(GameObject target, int oldStacks, int newStacks)
+    {
+    }
     
     /// <summary>
     /// Can this effect be applied to the target?

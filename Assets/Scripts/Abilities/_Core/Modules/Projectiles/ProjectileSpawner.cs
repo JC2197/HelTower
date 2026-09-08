@@ -446,15 +446,9 @@ public static class ProjectileSpawner
             // Predictive projectiles don't use passedTime - no lag compensation needed
             projectile.Initialize(spawnPosition, projectileDirection, config.speed, isPredictive ? 0f : passedTime);
 
-            // Lobbed projectiles need a target world position to define the arc.
-            // Use cursor/target position when available, otherwise fall back to a point
-            // projected along the fire direction using lifetime * speed as max range.
-
             if (config.behavior == ProjectileBehavior.Lobbed)
             {
-                Vector3 lobbedTarget = cursorPosition.HasValue
-                    ? cursorPosition.Value
-                    : spawnPosition + projectileDirection * (config.speed * (config.useLifetime ? config.lifetime : 10f));
+                Vector3 lobbedTarget = CalculateLobbedTargetForDirection(config, spawnPosition, projectileDirection, cursorPosition);
                 lobbedTarget.z = 0f;
                 projectile.SetLobbedTarget(lobbedTarget);
             }
@@ -471,6 +465,25 @@ public static class ProjectileSpawner
                 projectile.RpcClientInitialize(spawnPosition, projectileDirection, config.speed, tick);
             }
         }
+    }
+
+    public static Vector3 CalculateLobbedTargetForDirection(
+        ProjectileConfig config,
+        Vector3 spawnPosition,
+        Vector3 projectileDirection,
+        Vector3? cursorPosition)
+    {
+        Vector3 normalizedDirection = projectileDirection.sqrMagnitude > 0.0001f
+            ? projectileDirection.normalized
+            : Vector3.right;
+
+        float targetDistance = config.speed * (config.useLifetime ? config.lifetime : 10f);
+        if (cursorPosition.HasValue)
+        {
+            targetDistance = Vector3.Distance(spawnPosition, cursorPosition.Value);
+        }
+
+        return spawnPosition + normalizedDirection * Mathf.Max(0f, targetDistance);
     }
 
     /// <summary>

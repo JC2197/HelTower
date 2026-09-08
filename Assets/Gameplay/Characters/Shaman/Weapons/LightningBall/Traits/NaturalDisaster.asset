@@ -14,19 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: NaturalDisaster
   displayName: Natural Disaster
+  baseGoldCost: 8
   description: Lightning Strike now deals {v1} Damage. Lightning Strike deals {v2}%
     less damage, but gains {v3}% less cooldown.
   traitIcon: {fileID: -2241515033916126657, guid: 903f8760b8677e24c902e1e5e56a8119, type: 3}
-  colorTheme: Natural
-  specializedTraitTag1: Storm
-  specializedTraitTag2: Natural
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 4
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -38,6 +37,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
     abilityIcon: {fileID: -2241515033916126657, guid: 903f8760b8677e24c902e1e5e56a8119, type: 3}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: explosionConfig.damageTypeName
       overrideMode: 2
@@ -54,5 +60,4 @@ MonoBehaviour:
       numericValue: -25
       stringValue: 
       objectValue: {fileID: 0}
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}
+  mutuallyExclusiveWith: []

@@ -16,13 +16,13 @@ MonoBehaviour:
   weaponName: Crossbow
   weaponType: Crossbow
   grantedTrait: {fileID: 0}
-  weaponTree: {fileID: 11400000, guid: 19e6b171302eeec4985ec7d5bf9ea882, type: 2}
+  weaponTree: {fileID: 11400000, guid: 41e97a5002069a449a7dfa849ca3b091, type: 2}
   weaponPrefab: {fileID: 1356956865304060755, guid: 3bc2953725b7c3b45a22a1c115ccbfac, type: 3}
   weaponDamageMin: 0
   weaponDamageMax: 0
   weaponDamageType: Physical
   offhandWeaponConfig: {fileID: 0}
-  inventorySprite: {fileID: 0}
+  inventorySprite: {fileID: -371653906, guid: a16bf3e363775644298063dc117a2a46, type: 3}
   worldSprite: {fileID: 0}
   overridePositioning: 0
   positioningOverride:
@@ -57,6 +57,7 @@ MonoBehaviour:
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 11400000, guid: 3f1232f3f39d35a4a983fe0b7fcfa60b, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: 1ab1d2241ccc71547b4d4d5bcfa52c0a, type: 2}
+  grantedDashAbility: {fileID: 11400000, guid: c83976d8540efe2469bb549bd761edc7, type: 2}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0

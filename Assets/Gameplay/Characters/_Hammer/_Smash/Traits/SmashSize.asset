@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SmashSize
   displayName: Smash Size
+  baseGoldCost: 8
   description: Increase the radius of Smash by {v1}%
   traitIcon: {fileID: 6269333815379761492, guid: bbe837abdc176c744938ba4a6671a447, type: 3}
-  colorTheme: Combat
-  specializedTraitTag1: Defense
-  specializedTraitTag2: Combat
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
@@ -39,6 +36,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: meleeConfig.hitbox.scaleX
       overrideMode: 1
@@ -51,5 +55,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

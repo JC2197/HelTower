@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponName: Scavenger Spear
   weaponType: Spear
   grantedTrait: {fileID: 0}
-  weaponTree: {fileID: 0}
+  weaponTree: {fileID: 11400000, guid: 34c126fe13a1ee0498b72579fec1d31a, type: 2}
   weaponPrefab: {fileID: 3811736349191059513, guid: 00431bb8f6f7270498ac392e3e268cf1, type: 3}
   weaponDamageMin: 0
   weaponDamageMax: 0
@@ -57,7 +57,7 @@ MonoBehaviour:
     handRotationOffset: 0
   grantedPrimaryAbility: {fileID: 11400000, guid: 9ee9ddb0d13a2794b839f4fe40264614, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: c4dc235d999883a46bb5cc7db42a88bb, type: 2}
-  grantedDashAbility: {fileID: 0}
+  grantedDashAbility: {fileID: 11400000, guid: a58981480910d8744841b91ada4331fa, type: 2}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0

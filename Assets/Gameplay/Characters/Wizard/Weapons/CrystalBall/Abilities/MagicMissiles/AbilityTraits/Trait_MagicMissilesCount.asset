@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissilesProjectileCount
   displayName: More Missiles
+  baseGoldCost: 8
   description: Magic Missiles fires +{v1} projectiles.
   traitIcon: {fileID: 1786895532929179333, guid: 7f3e5fb7478931b439ecba25e5968c8a, type: 3}
   weaponTraitTag: 
   traitType: 0
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}

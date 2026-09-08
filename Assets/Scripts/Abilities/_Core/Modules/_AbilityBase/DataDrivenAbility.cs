@@ -53,6 +53,9 @@ public class DataDrivenAbility : Ability
     private SummonConfig _effectiveSummonConfig;
     private ConstructConfig _effectiveConstructConfig;
     private HoldChargeConfig _effectiveHoldChargeConfig;
+    private CustomAbility _effectiveCustomAbility;
+    private CustomAbility _runtimeCustomAbility;
+    private CustomAbility _runtimeCustomAbilitySource;
     private AbilityDataConfig _effectiveAbilityConfig;
 
     // Icon override from trait ability config modifiers
@@ -69,6 +72,7 @@ public class DataDrivenAbility : Ability
     public SummonConfig EffectiveSummonConfig => _effectiveSummonConfig ?? config?.summonConfig;
     public ConstructConfig EffectiveConstructConfig => _effectiveConstructConfig ?? config?.constructConfig;
     public MovementConfig EffectiveMovementConfig => EffectiveAbilityConfig?.movementConfig;
+    public CustomAbility EffectiveCustomAbility => _effectiveCustomAbility ?? EffectiveAbilityConfig?.customAbility;
     public AbilityDataConfig EffectiveAbilityConfig => _effectiveAbilityConfig ?? config;
 
     private bool isHoldingFire = false;
@@ -83,6 +87,14 @@ public class DataDrivenAbility : Ability
     private float chargeStartTime;
     private Coroutine chargingCoroutine;
     private bool _lastCastSequenceSucceeded = false;
+    private int _abilityLockoutHolds = 0;
+    // Precast clip length is cached per config + animator pair; a weapon swap recomputes it.
+    private AbilityDataConfig _precastCacheConfig;
+    private RuntimeAnimatorController _precastCacheCharacterController;
+    private RuntimeAnimatorController _precastCacheWeaponController;
+    private float _precastCachedClipLength;
+    // True when the cast that is firing actually went through a precast/hold phase.
+    private bool _castHadChargePhase = false;
 
     // Hold charge: 0..maxBars value recorded at button release (0 if no holdChargeConfig)
     private float lastChargeValue = 0f;
@@ -170,6 +182,9 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
+        if (config != null && config.isAttack && ownerAsPlayer != null && ownerAsPlayer.TryReplaceAttackAbility(config))
+            return true;
+
         return TryUseAbility();
     }
 
@@ -207,7 +222,7 @@ public class DataDrivenAbility : Ability
     public bool HasPlayerControl => playerControl; // Simple flag: false = ability controls movement, true = player controls movement
     public bool IsMovementAbilityExecuting => movementAbility != null && movementAbility.IsExecuting;
     // True for the full precast->cast coroutine, independent of whether the ability locks movement (e.g. free-move melee attacks).
-    public bool IsCastSequenceActive => chargingCoroutine != null;
+    public bool IsCastSequenceActive => isCharging;
     public float CooldownTime => GetEffectiveCooldown();
     public float EnergyCost => GetEffectiveEnergyCost();
     public int MaxCharges => GetEffectiveMaxCharges();
@@ -228,6 +243,15 @@ public class DataDrivenAbility : Ability
     public int MaxAmmo => GetActiveAmmoConfig()?.magazineSize ?? 0;
     public float GetRemainingCooldown() => Mathf.Max(0f, (lastUsedTime + GetEffectiveCooldown()) - Time.time);
     public float GetCooldownPercentage() => 1f - (GetRemainingCooldown() / GetEffectiveCooldown());
+    /// <summary>True when this ability interrupts whatever the caster is currently doing.</summary>
+    public bool OverridesOtherAbilities => config != null && config.cancelActions;
+    /// <summary>Cheap gate for held-button re-triggering, so a held key doesn't spam blocked cast attempts every frame.</summary>
+    public bool IsReadyForHeldRetrigger =>
+        config != null
+        && !config.disableCast
+        && !isReloading
+        && (config.hasCharges ? currentCharges > 0 : GetRemainingCooldown() <= 0f)
+        && (config.cancelActions || !(ownerOrganism != null && ownerOrganism.IsAbilityLockedOut));
     public bool IsWeaponDirectionLocked => isWeaponDirectionLocked;
     public float LockedWeaponAngle => lockedWeaponAngle;
     public bool IsMainhandLocked => isMainhandLocked;
@@ -327,6 +351,58 @@ public class DataDrivenAbility : Ability
 
         // Ensure cooldown doesn't go below 0.1 seconds
         return Mathf.Max(0.1f, baseCooldown);
+    }
+
+    // Caster-wide lockout applied when this ability's precast ends (uses Property Path overrides)
+    private float GetEffectiveCastLockout()
+    {
+        if (config == null) return 0f;
+
+        float lockout = config.castLockoutDuration;
+        if (_accumulatedOverrides != null && _accumulatedOverrides.TryGetValue("castLockoutDuration", out var lockAccum))
+        {
+            lockout = ApplyRateDurationModifiers(lockout, lockAccum);
+            if (lockAccum.hasSetOverride) lockout = lockAccum.setNumeric;
+        }
+
+        if (lockout > 0f && config.scaleLockoutWithAttackSpeed && config.isAttack)
+        {
+            float attackSpeed = GetEffectiveAttackSpeed();
+            if (attackSpeed > 0f) lockout /= attackSpeed;
+        }
+
+        return Mathf.Max(0f, lockout);
+    }
+
+    /// <summary>
+    /// Arms the caster-wide lockout. Called at the moment the precast/hold phase ends,
+    /// so the window is measured from the end of precast rather than from cast start.
+    /// </summary>
+    private void ApplyCastLockout()
+    {
+        if (ownerOrganism == null) return;
+        ownerOrganism.ApplyAbilityLockout(GetEffectiveCastLockout());
+    }
+
+    /// <summary>Holds the caster-wide lockout open for the duration of an in-progress cast phase.</summary>
+    private void AcquireLockoutHold()
+    {
+        if (ownerOrganism == null) return;
+        _abilityLockoutHolds++;
+        ownerOrganism.AcquireAbilityLockoutHold();
+    }
+
+    private void ReleaseLockoutHold()
+    {
+        if (_abilityLockoutHolds <= 0) return;
+        _abilityLockoutHolds--;
+        ownerOrganism?.ReleaseAbilityLockoutHold();
+    }
+
+    private void ReleaseAllLockoutHolds()
+    {
+        while (_abilityLockoutHolds > 0)
+            ReleaseLockoutHold();
     }
 
     private float GetEffectiveAttackSpeed()
@@ -636,7 +712,8 @@ public class DataDrivenAbility : Ability
         int token = movementControlLockToken;
         playerControl = false;
 
-        if (rb != null)
+        // Zeroing the body would kill an in-flight dash/teleport that another ability owns.
+        if (rb != null && !IsAnyMovementAbilityExecuting())
             rb.linearVelocity = Vector2.zero;
 
         if (movementControlReleaseCoroutine != null)
@@ -649,6 +726,18 @@ public class DataDrivenAbility : Ability
             movementControlReleaseCoroutine = StartCoroutine(AutoReleaseMovementControl(token, autoReleaseAfterSeconds));
 
         Debug.Log($"[DataDrivenAbility] Movement control acquired: reason={reason}, token={token}, autoRelease={autoReleaseAfterSeconds:F3}s");
+    }
+
+    /// <summary>True while any movement ability on this caster is mid-flight, including other abilities'.</summary>
+    private bool IsAnyMovementAbilityExecuting()
+    {
+        MovementAbility[] movers = GetComponents<MovementAbility>();
+        for (int i = 0; i < movers.Length; i++)
+        {
+            if (movers[i] != null && movers[i].IsExecuting)
+                return true;
+        }
+        return false;
     }
 
     private IEnumerator AutoReleaseMovementControl(int token, float duration)
@@ -903,10 +992,8 @@ public class DataDrivenAbility : Ability
                 }
             }
         }
-        if (ownerAsPlayer)
-        {
-            ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
-        }
+        // The cast sequence owns the terminal Idle transition; writing it here would report
+        // Idle for the rest of the cast, which is what made AbilityState useless as a signal.
     }
 
     /// <summary>
@@ -1262,31 +1349,55 @@ public class DataDrivenAbility : Ability
     }
 
     /// <summary>
-    /// Calculate precast delay from animation clip length, adjusted by attack/cast speed
+    /// Precast hold, taken from the longest configured precast clip and scaled by attack/cast speed.
     /// </summary>
     private float GetPrecastDelay()
     {
         if (config == null)
-        {
             return 0f;
+
+        return GetCachedPrecastClipLength() / GetAnimationSpeed();
+    }
+
+    /// <summary>
+    /// Clip lookup allocates (GetOverrides copies the override table, animationClips allocates an
+    /// array), so the length is cached and only recomputed when the config or a weapon swap
+    /// changes the animators behind it.
+    /// </summary>
+    private float GetCachedPrecastClipLength()
+    {
+        Animator characterAnimator = GetComponent<Animator>();
+        Transform weaponTransform = transform.Find("WeaponHolder/Weapon");
+        Animator weaponAnimator = weaponTransform != null ? GetWeaponAnimator(weaponTransform) : null;
+
+        RuntimeAnimatorController characterController = characterAnimator != null ? characterAnimator.runtimeAnimatorController : null;
+        RuntimeAnimatorController weaponController = weaponAnimator != null ? weaponAnimator.runtimeAnimatorController : null;
+
+        if (ReferenceEquals(_precastCacheConfig, config)
+            && ReferenceEquals(_precastCacheCharacterController, characterController)
+            && ReferenceEquals(_precastCacheWeaponController, weaponController))
+        {
+            return _precastCachedClipLength;
         }
 
-        float animationSpeed = GetAnimationSpeed();
-        float characterDelay = GetAnimationClipLength(GetComponent<Animator>(), config.characterPrecastAnimationName) / animationSpeed;
+        _precastCacheConfig = config;
+        _precastCacheCharacterController = characterController;
+        _precastCacheWeaponController = weaponController;
+        _precastCachedClipLength = ResolvePrecastClipLength(characterAnimator, weaponAnimator);
+
+        return _precastCachedClipLength;
+    }
+
+    private float ResolvePrecastClipLength(Animator characterAnimator, Animator weaponAnimator)
+    {
+        float characterLength = GetAnimationClipLength(characterAnimator, config.characterPrecastAnimationName);
 
         if (string.IsNullOrEmpty(config.preAnimationName))
-            return characterDelay;
+            return characterLength;
 
-        Transform weaponTransform = transform.Find("WeaponHolder/Weapon");
-        if (weaponTransform == null)
-        {
-            return characterDelay;
-        }
-        Animator weaponAnimator = GetWeaponAnimator(weaponTransform);
         if (weaponAnimator == null || weaponAnimator.runtimeAnimatorController == null)
-        {
-            return characterDelay;
-        }
+            return characterLength;
+
         AnimationClip precastClip = null;
         RuntimeAnimatorController controller = weaponAnimator.runtimeAnimatorController;
         if (controller is AnimatorOverrideController overrideController)
@@ -1325,17 +1436,14 @@ public class DataDrivenAbility : Ability
                 }
             }
         }
+
         if (precastClip == null)
         {
-            Debug.LogWarning($"[GetPrecastDelay] Precast animation '{config.preAnimationName}' not found in animator!");
-            return characterDelay;
+            Debug.LogWarning($"[GetPrecastDelay] Precast animation '{config.preAnimationName}' not found in the weapon animator for '{config.abilityName}' — precast falls back to {characterLength:F3}s.");
+            return characterLength;
         }
 
-        // Get base animation length
-        float baseDelay = precastClip.length;
-        // Adjust by animation speed (attack speed or cast speed)
-        float adjustedDelay = baseDelay / animationSpeed;
-        return Mathf.Max(characterDelay, adjustedDelay);
+        return Mathf.Max(characterLength, precastClip.length);
     }
 
     private static float GetAnimationClipLength(Animator animator, string animationName)
@@ -1349,7 +1457,7 @@ public class DataDrivenAbility : Ability
                 return clip.length;
         }
 
-        Debug.LogWarning($"[GetPrecastDelay] Character precast animation '{animationName}' not found in animator!");
+        Debug.LogWarning($"[GetPrecastDelay] Character precast animation '{animationName}' not found in the character animator.");
         return 0f;
     }
 
@@ -1371,7 +1479,6 @@ public class DataDrivenAbility : Ability
             && abilityConfig.isMovementAbility
             && abilityConfig.movementConfig != null
             && abilityConfig.movementConfig.activateAfterPrecast
-            && abilityConfig.hasPrecast
             && HasConfiguredPrecastAnimation(abilityConfig);
     }
 
@@ -1415,79 +1522,6 @@ public class DataDrivenAbility : Ability
         }
     }
 
-    /// <summary>
-    /// <summary>
-    /// Get the actual duration of a character animation, factored by attack/cast speed
-    /// Used for combo timing to wait for animations to complete
-    /// </summary>
-    private float GetCharacterAnimationDuration(AbilityDataConfig abilityConfig)
-    {
-        if (abilityConfig == null || ownerOrganism == null)
-        {
-            Debug.LogWarning("[GetCharacterAnimationDuration] Missing config or owner organism");
-            return 0.5f; // Fallback
-        }
-
-        // Get the character animator
-        Animator characterAnimator = ownerOrganism.GetComponent<Animator>();
-        if (characterAnimator == null || characterAnimator.runtimeAnimatorController == null)
-        {
-            Debug.LogWarning("[GetCharacterAnimationDuration] Character animator not found!");
-            return 0.5f; // Fallback
-        }
-
-        // Determine which animation to check based on aim direction
-        Vector2 aimDirection = GetAimDirection();
-        float aimAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        if (aimAngle < 0) aimAngle += 360;
-
-        // Choose character animation based on angle (same logic as ability execution)
-        string animationName = (aimAngle >= 15f && aimAngle < 165f && !string.IsNullOrEmpty(abilityConfig.characterAnimationUp))
-            ? abilityConfig.characterAnimationUp
-            : abilityConfig.characterAnimationName;
-
-        if (string.IsNullOrEmpty(animationName))
-        {
-            Debug.LogWarning($"[GetCharacterAnimationDuration] No animation name specified for {abilityConfig.abilityName}");
-            return 0.5f; // Fallback
-        }
-
-        // Find the animation clip by name
-        AnimationClip animClip = null;
-        foreach (AnimationClip clip in characterAnimator.runtimeAnimatorController.animationClips)
-        {
-            if (clip.name == animationName)
-            {
-
-                animClip = clip;
-                break;
-            }
-        }
-
-        if (animClip == null)
-        {
-            Debug.LogWarning($"[GetCharacterAnimationDuration] Ability '{config.abilityName}' error");
-            Debug.LogWarning($"[GetCharacterAnimationDuration] Animation '{animationName}' not found in character animator!");
-            return 0.5f; // Fallback
-        }
-
-        // Get base animation length
-        float baseLength = animClip.length;
-
-        // Temporarily swap config to get animation speed for this specific ability
-        AbilityDataConfig originalConfig = config;
-        config = abilityConfig;
-        float animationSpeed = GetAnimationSpeed();
-        config = originalConfig;
-
-        // Calculate actual duration factoring in attack/cast speed
-        float adjustedDuration = baseLength / animationSpeed;
-
-        Debug.Log($"[GetCharacterAnimationDuration] Animation '{animationName}': base={baseLength}s, speed={animationSpeed}x, adjusted={adjustedDuration}s");
-
-        return adjustedDuration;
-    }
-
     private void StartCooldown()
     {
         lastUsedTime = Time.time;
@@ -1501,6 +1535,13 @@ public class DataDrivenAbility : Ability
                 rechargeStartTime = Time.time;
             StartCoroutine(RechargeAbility());
         }
+    }
+
+    /// <summary>Drops an in-progress cooldown so the ability is immediately castable again.</summary>
+    private void RefundCooldown()
+    {
+        lastUsedTime = -999f;
+        lastFireTime = -999f;
     }
 
     private void ConsumeMana()
@@ -1612,6 +1653,7 @@ public class DataDrivenAbility : Ability
         {
             AbilityDataConfig pendingConfig = effectiveConfig;
             isMovementPrecastPending = true;
+            AcquireLockoutHold();
             ApplyPrecastMovementLock(movementPrecastDelay);
             PlayPreAnimation();
             StartCoroutine(ExecuteMovementAfterPrecast(movementPrecastDelay, pendingConfig));
@@ -1638,11 +1680,15 @@ public class DataDrivenAbility : Ability
         isMovementPrecastPending = false;
 
         if (movementConfig == null)
+        {
+            ReleaseLockoutHold();
             yield break;
+        }
 
         AbilityDataConfig originalConfig = config;
         config = movementConfig;
 
+        ApplyCastLockout();
         OnAbilityActivated();
 
         bool success = movementAbility != null && movementAbility.Execute();
@@ -1658,6 +1704,7 @@ public class DataDrivenAbility : Ability
         }
 
         config = originalConfig;
+        ReleaseLockoutHold();
     }
 
     #region Weapon Initialization
@@ -1736,10 +1783,20 @@ public class DataDrivenAbility : Ability
             reason = "config is null";
             return false;
         }
-        // Only players have a cast state machine; enemies gate casts through their AI instead.
-        if (!config.isInstant && ownerAsPlayer != null && (ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Executing || ownerAsPlayer.CurrentAbilityState == PlayerController.AbilityState.Precast))
+        // Self-guard: never run two cast sequences on the same ability, even for callers that are
+        // exempt from the caster-wide lockout (autocast bursts, combo steps).
+        if ((isCharging || isMovementPrecastPending) && !config.cancelActions)
         {
-            reason = $"another ability is {ownerAsPlayer.CurrentAbilityState}";
+            reason = isCharging ? "cast sequence already running" : "movement precast is still pending";
+            return false;
+        }
+        // Single busy gate: an in-progress cast holds the caster-wide lockout open for its whole
+        // precast->postcast run, then leaves the configured recovery tail behind.
+        // Combo steps ride the chain's own pacing, and autocast bursts are exempt like cooldown.
+        if (!config.isInstant && !config.cancelActions && !isComboStep && !_autocastBurstActive
+            && ownerOrganism != null && ownerOrganism.IsAbilityLockedOut)
+        {
+            reason = $"cast lockout active (remaining={ownerOrganism.RemainingAbilityLockout:F2}s)";
             return false;
         }
         if (config.requiredWeaponTypes != null && config.requiredWeaponTypes.Count > 0)
@@ -1758,23 +1815,12 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        // Follow-up combo steps ride the cooldown started by the opening step.
+        // Follow-up combo steps ride the cooldown started by the opening step. Steps themselves are
+        // paced by the shell and their own castLockoutDuration, never by their attack-speed cooldown.
         bool isComboFollowUp = config.isCombo && currentComboIndex > 0 && Time.time <= comboWindowExpiresAt;
-        if (!_autocastBurstActive && !isComboFollowUp && isOnCooldown)
+        if (!_autocastBurstActive && !isComboStep && !isComboFollowUp && isOnCooldown)
         {
             reason = $"on cooldown (remaining={GetRemainingCooldown():F2}s, total={GetEffectiveCooldown():F2}s)";
-            return false;
-        }
-
-        if (isMovementPrecastPending)
-        {
-            reason = "movement precast is still pending";
-            return false;
-        }
-
-        if (isCharging)
-        {
-            reason = "ability is charging/casting";
             return false;
         }
 
@@ -1807,6 +1853,9 @@ public class DataDrivenAbility : Ability
             Debug.Log($"Cannot use ability {abilityName}: {blockedReason}");
             return false;
         }
+
+        if (config.cancelActions)
+            CancelConflictingAbilities();
 
         _movementCastStartingPosition = transform.position;
 
@@ -1858,37 +1907,41 @@ public class DataDrivenAbility : Ability
             }
         }
 
-        bool movementHasDelayedPrecast = GetMovementPrecastDelay(config) > 0f;
-
-        // Immediate/Delayed Sequence path. Enter the cast sequence when there is a weapon cast
-        // animation OR a configured precast — the latter covers weaponless attacks (e.g. enemies)
-        // whose precast would otherwise be skipped by the immediate OnAbilityActivated() path.
-        bool hasPrecastSequence = config.hasPrecast && HasConfiguredPrecastAnimation(config);
-        if (!string.IsNullOrEmpty(config.mainhandAnimationName) || hasPrecastSequence)
+        // Single cast path. Abilities with no precast simply run the sequence to completion
+        // synchronously, so precast/hold/fire/recovery live in exactly one place.
+        Coroutine sequence = StartCoroutine(AbilityCastSequence());
+        if (isCharging)
         {
-            chargingCoroutine = StartCoroutine(AbilityCastSequence());
-
+            chargingCoroutine = sequence;
             return true;
         }
 
-        OnAbilityActivated();
-        if (!isComboStep && !config.activateOnButtonRelease)
-            isHoldingFire = true;
-        bool abilityExecuted = FireAbility();
+        return _lastCastSequenceSucceeded;
+    }
 
-        if (abilityExecuted)
+    private void InvokeCustomAbilityUse()
+    {
+        CustomAbility customAbility = EffectiveCustomAbility;
+        if (customAbility == null) return;
+
+        if (_runtimeCustomAbility == null || _runtimeCustomAbilitySource != customAbility)
         {
-            bool deferredCost = config.isConstructAbility && (config.constructConfig?.holdToPlace ?? false);
-            if (!config.isBeamAbility && !config.isChanneled && !deferredCost && !movementHasDelayedPrecast)
-            {
-                StartCooldown();
-                ConsumeMana();
-                lastFireTime = Time.time;
-            }
+            ReleaseRuntimeCustomAbility();
+            _runtimeCustomAbility = Instantiate(customAbility);
+            _runtimeCustomAbilitySource = customAbility;
         }
 
-        return abilityExecuted;
+        _runtimeCustomAbility.OnAbilityUse(new CustomAbilityContext(gameObject, this, EffectiveAbilityConfig));
+    }
 
+    private void ReleaseRuntimeCustomAbility()
+    {
+        if (_runtimeCustomAbility == null) return;
+
+        _runtimeCustomAbility.OnRuntimeEnd();
+        Destroy(_runtimeCustomAbility);
+        _runtimeCustomAbility = null;
+        _runtimeCustomAbilitySource = null;
     }
 
 
@@ -1991,11 +2044,10 @@ public class DataDrivenAbility : Ability
                 currentComboIndex = isLastStep ? 0 : stepIndex + 1;
                 comboWindowExpiresAt = Time.time + GetConfiguredComboInputWindow(config);
 
-                // Gate the next step behind this step's cast time so a held button
-                // cannot flush the whole chain in a single frame.
-                float stepEndsAt = Time.time + GetComboStepDelay(stepIndex);
-                while (Time.time < stepEndsAt)
-                    yield return null;
+                // Gate the next step behind this step's own cast + lockout so a held button
+                // cannot flush the whole chain in a single frame. Each step's pacing is its
+                // own castLockoutDuration.
+                yield return WaitForStepRecovery(step);
 
                 comboWindowExpiresAt = Time.time + GetConfiguredComboInputWindow(config);
 
@@ -2142,43 +2194,24 @@ public class DataDrivenAbility : Ability
     }
 
     /// <summary>
-    /// Wait time before the next step: the step's own cast time (already scaled by its
-    /// attack/cast speed) plus the authored delay, which attack speed also shortens.
+    /// Wait until a combo step has finished casting and its recovery lockout has expired.
+    /// The timeout is a safety valve against a step that never clears its hold.
     /// </summary>
-    private float GetComboStepDelay(int stepIndex)
+    private IEnumerator WaitForStepRecovery(DataDrivenAbility step)
     {
-        float configuredDelay = 0.3f;
-        if (config.comboStepDelays != null && stepIndex >= 0 && stepIndex < config.comboStepDelays.Length)
-            configuredDelay = Mathf.Max(0f, config.comboStepDelays[stepIndex]);
+        float giveUpAt = Time.time + 10f;
 
-        DataDrivenAbility step = comboSteps != null && stepIndex < comboSteps.Length ? comboSteps[stepIndex] : null;
-        float castDuration = step != null ? step.GetCastDuration() : 0f;
+        while (Time.time < giveUpAt)
+        {
+            bool stepBusy = step != null && step.IsCastSequenceActive;
+            bool casterLocked = ownerOrganism != null && ownerOrganism.IsAbilityLockedOut;
+            if (!stepBusy && !casterLocked)
+                yield break;
 
-        return castDuration + (configuredDelay / GetOwnerAttackSpeedMultiplier());
-    }
+            yield return null;
+        }
 
-    private float GetOwnerAttackSpeedMultiplier()
-    {
-        float bonus = ownerOrganism != null && ownerOrganism.AllStats != null
-            ? ownerOrganism.AllStats.GetStat("AttackSpeed")
-            : 0f;
-        return Mathf.Max(0.01f, 1f + bonus);
-    }
-
-    /// <summary>
-    /// How long this ability takes to resolve its cast, scaled by attack/cast speed.
-    /// </summary>
-    public float GetCastDuration()
-    {
-        if (config == null) return 0f;
-
-        float castTime = GetPrecastDelay() + GetCharacterAnimationDuration(config);
-
-        AbilityDataConfig effective = EffectiveAbilityConfig;
-        if (effective != null && effective.isMovementAbility && effective.movementConfig != null)
-            castTime = Mathf.Max(castTime, effective.movementConfig.duration + GetMovementPrecastDelay(effective));
-
-        return castTime;
+        Debug.LogWarning($"[Combo] {config?.abilityName} timed out waiting for step '{step?.AbilityName}' to recover.");
     }
 
     #endregion
@@ -2193,7 +2226,7 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        float damageMultiplier = isCharging ? config.projectileConfig.chargeDamageMultiplier : 1f;
+        float damageMultiplier = _castHadChargePhase ? config.projectileConfig.chargeDamageMultiplier : 1f;
         if (HasConfiguredCastAnimation(config))
         {
             StartCoroutine(SpawnStandaloneProjectileNextFrame(damageMultiplier));
@@ -2218,14 +2251,15 @@ public class DataDrivenAbility : Ability
     }
 
     /// <summary>
-    /// Unified cast sequence for any ability type that has a precast animation or hold-to-charge config.
-    /// Handles: precast → bar fill → hold phase → charge modifiers → fire → resources.
-    /// Replaces the per-type delayed coroutines (ChargeProjectile, SpawnAreaAbilityDelayed, SpawnMeleeAttackDelayed).
+    /// The one and only cast path: precast → bar fill → hold phase → charge modifiers → fire → recovery.
+    /// Abilities with no precast run straight through without yielding, so they complete synchronously.
+    /// Holds the caster-wide lockout open for the whole run, then leaves the configured recovery tail.
     /// </summary>
     private IEnumerator AbilityCastSequence(bool consumeResourcesAtEnd = true)
     {
         _lastCastSequenceSucceeded = false;
         isCharging = true;
+        AcquireLockoutHold();
         chargeStartTime = Time.time;
         lastChargeValue = 0f;
         if (ownerAsPlayer)
@@ -2238,7 +2272,7 @@ public class DataDrivenAbility : Ability
             _lockedAimDirection = GetAimDirection();
 
         // 1. Precast animation
-        if (config.hasPrecast && HasConfiguredPrecastAnimation(config))
+        if (HasConfiguredPrecastAnimation(config))
             PlayPreAnimation();
 
         // 2. Precast duration — driven by animation clip length.
@@ -2247,6 +2281,7 @@ public class DataDrivenAbility : Ability
         // Hold the precast at least until the telegraph indicator finishes so the attack does
         // not resolve before the indicator's duration has elapsed.
         float precastHoldDuration = Mathf.Max(precastDuration, GetIndicatorHoldDuration());
+        _castHadChargePhase = precastHoldDuration > 0f || config.activateOnButtonRelease;
         if (precastHoldDuration > 0f)
         {
             ApplyPrecastMovementLock(precastHoldDuration);
@@ -2285,7 +2320,7 @@ public class DataDrivenAbility : Ability
             lastChargeValue = precastDuration > 0f ? 1f : 0f;
         }
 
-        if (!isCharging) { _lockedAimDirection = null; yield break; } // Cancelled externally
+        if (!isCharging) { _lockedAimDirection = null; ReleaseLockoutHold(); yield break; } // Cancelled externally
 
         chargeBar?.CompleteCharge();
 
@@ -2311,7 +2346,9 @@ public class DataDrivenAbility : Ability
         // 5. Fire all enabled ability types
         if (ownerAsPlayer)
             ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Executing;
+        ApplyCastLockout();
         OnAbilityActivated();
+        InvokeCustomAbilityUse();
         bool abilityExecuted = FireAbility();
 
         _lastCastSequenceSucceeded = abilityExecuted;
@@ -2324,7 +2361,13 @@ public class DataDrivenAbility : Ability
         _effectiveMeleeConfig = savedMelee;
         _effectiveAreaConfig = savedArea;
 
-        if (consumeResourcesAtEnd)
+        // Beams, channels, hold-to-place constructs and delayed movement casts bill themselves
+        // when their own deferred step resolves.
+        bool deferredCost = config.isConstructAbility && (config.constructConfig?.holdToPlace ?? false);
+        bool defersOwnResources = config.isBeamAbility || config.isChanneled || deferredCost
+                                  || GetMovementPrecastDelay(config) > 0f;
+
+        if (consumeResourcesAtEnd && abilityExecuted && !defersOwnResources)
         {
             ConsumeMana();
             StartCooldown();
@@ -2336,6 +2379,7 @@ public class DataDrivenAbility : Ability
         _lockedAimDirection = null;
         chargeBar?.StopCharge();
         chargingCoroutine = null;
+        ReleaseLockoutHold();
     }
 
     /// <summary>
@@ -2435,6 +2479,10 @@ public class DataDrivenAbility : Ability
                 StopCoroutine(comboChainCoroutine);
                 comboChainCoroutine = null;
             }
+            // The shell bills one full attack cooldown up front for the entire chain and relies on
+            // the combo follow-up exemption to skip it per step. Aborting mid-chain destroys that
+            // exemption, so the unspent cooldown has to go with it.
+            RefundCooldown();
             ResetComboChain();
         }
 
@@ -2449,6 +2497,7 @@ public class DataDrivenAbility : Ability
             }
             isCharging = false;
             _lockedAimDirection = null;
+            ReleaseAllLockoutHolds();
         }
 
         // Cancel any ongoing weapon activation
@@ -2615,6 +2664,16 @@ public class DataDrivenAbility : Ability
                 return autocastDirection.normalized;
         }
 
+        // Fire along the weapon's live launch direction (its animated facing) so swing attacks that
+        // carry the weapon past the cursor still fire where the launcher actually points. For aimed
+        // weapons that track the cursor this direction already matches the cursor.
+        if (!isAutocastProjectile && weaponTransform != null)
+        {
+            Vector3 weaponDirection = WeaponLaunchPoint.GetLaunchDirection(weaponTransform);
+            if (weaponDirection.sqrMagnitude > 0.0001f)
+                return weaponDirection.normalized;
+        }
+
         if (ownerAsPlayer != null && CursorManager.Instance?.TargetedOrganism != null)
         {
             Vector3 targetDirection = CursorManager.Instance.TargetedOrganism.transform.position - spawnPos;
@@ -2730,6 +2789,13 @@ public class DataDrivenAbility : Ability
         proj.InitializeFromConfig(configToUse);
         proj.SetupAsPredictive();
         proj.Initialize(spawnPos, direction, configToUse.speed > 0f ? configToUse.speed : -1f);
+        if (configToUse.behavior == ProjectileBehavior.Lobbed)
+        {
+            Vector3? cursorPosition = ownerAsPlayer != null ? InputUtility.GetMouseWorldPosition() : (Vector3?)null;
+            Vector3 lobbedTarget = ProjectileSpawner.CalculateLobbedTargetForDirection(configToUse, spawnPos, direction, cursorPosition);
+            lobbedTarget.z = 0f;
+            proj.SetLobbedTarget(lobbedTarget);
+        }
     }
 
     /// <summary>
@@ -3248,6 +3314,8 @@ public class DataDrivenAbility : Ability
         _effectiveSummonConfig = null;
         _effectiveConstructConfig = null;
         _effectiveHoldChargeConfig = null;
+        _effectiveCustomAbility = null;
+        ReleaseRuntimeCustomAbility();
         _effectiveAbilityConfig = null;
         _effectiveAbilityIcon = null;
 
@@ -3344,6 +3412,10 @@ public class DataDrivenAbility : Ability
         if (config.holdChargeConfig != null)
             _effectiveHoldChargeConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
                 config.holdChargeConfig, "holdChargeConfig", _accumulatedOverrides);
+
+        if (config.customAbility != null)
+            _effectiveCustomAbility = AbilityModifierRuntime.BuildEffectiveCustomAbility(
+                config.customAbility, "customAbility", _accumulatedOverrides);
 
         Debug.Log($"[DataDrivenAbility] RebuildConfigModifiers {config?.abilityName}: " +
                   $"{_accumulatedOverrides?.Count ?? 0} property overrides, " +
@@ -4601,8 +4673,15 @@ public class DataDrivenAbility : Ability
         Debug.Log($"[DmgPipeline] <{config.abilityName}> Melee, firedFromOffhand={firedFromOffhand}");
         MeleeAbility meleeAbility = gameObject.AddComponent<MeleeAbility>();
         meleeAbility.SetContext(CreateSubAbilityContext());
-        meleeAbility.PerformAttack(meleeConfig, attackDirection, firedFromOffhand, visualOnly);
+        meleeAbility.PerformAttack(meleeConfig, attackDirection, firedFromOffhand, visualOnly, ResolveMeleeSpawnOrigin(firedFromOffhand));
         Debug.Log($"[Melee] MeleeAbility.PerformAttack called successfully");
+    }
+
+    // Melee FX spawns from the equipped weapon's root; falls back to the character center when weaponless.
+    private Vector3 ResolveMeleeSpawnOrigin(bool firedFromOffhand)
+    {
+        Transform weaponTransform = GetActiveWeaponTransform(firedFromOffhand);
+        return weaponTransform != null ? weaponTransform.position : transform.position;
     }
 
     #endregion
@@ -4921,6 +5000,41 @@ public class DataDrivenAbility : Ability
     }
 
     /// <summary>
+    /// Clears the way for a <see cref="AbilityDataConfig.cancelActions"/> cast: interrupts every
+    /// other ability on this caster, drops the shared lockout, and discards this ability's own
+    /// in-flight cast. Combo partners are skipped so a cancelling step can't kill its own chain.
+    /// </summary>
+    private void CancelConflictingAbilities()
+    {
+        DataDrivenAbility[] siblings = GetComponents<DataDrivenAbility>();
+        for (int i = 0; i < siblings.Length; i++)
+        {
+            DataDrivenAbility sibling = siblings[i];
+            if (sibling == null || sibling == this || sibling == comboShell)
+                continue;
+            if (sibling.isComboStep && sibling.comboShell == this)
+                continue;
+
+            sibling.CancelAbility($"overridden by {config.abilityName}");
+        }
+
+        RemoveIndicator();
+        if (chargingCoroutine != null)
+        {
+            StopCoroutine(chargingCoroutine);
+            chargingCoroutine = null;
+        }
+        isCharging = false;
+        isHoldingForRelease = false;
+        chargeBar?.StopCharge();
+        ReleaseAllLockoutHolds();
+
+        ownerOrganism?.ClearAbilityLockout();
+        if (ownerAsPlayer != null)
+            ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
+    }
+
+    /// <summary>
     /// Catch-all interrupt: hard-cancels any in-progress cast/charge on this ability, removes the
     /// telegraph indicator early, and returns the character to a clean, controllable state. Safe to
     /// call on any ability at any time (does nothing meaningful if nothing is active).
@@ -4956,6 +5070,8 @@ public class DataDrivenAbility : Ability
         isWeaponDirectionLocked = false;
         isActivatingWeapon = false;
         isMovementPrecastPending = false;
+        ReleaseAllLockoutHolds();
+        ownerOrganism?.ClearAbilityLockout();
 
         if (ownerAsPlayer != null)
             ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Idle;
@@ -4990,10 +5106,16 @@ public class DataDrivenAbility : Ability
         }
         isActivatingWeapon = false;
         isWeaponDirectionLocked = false;
+        isMovementPrecastPending = false;
+        isCharging = false;
+        ReleaseAllLockoutHolds();
+        ownerOrganism?.ClearAbilityLockout();
     }
 
     private void OnDestroy()
     {
+        ReleaseAllLockoutHolds();
+        ReleaseRuntimeCustomAbility();
         DestroyComboSteps();
 
         // Unsubscribe retaliation handler so the event doesn't fire on a destroyed ability

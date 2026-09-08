@@ -33,6 +33,9 @@ MonoBehaviour:
   attackSpeed: 1
   cooldownTime: 0
   energyCost: 0
+  castLockoutDuration: 0.33
+  scaleLockoutWithAttackSpeed: 1
+  cancelActions: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
   autocast: 0
@@ -44,25 +47,24 @@ MonoBehaviour:
   autocastTargets: 1
   canMulticast: 0
   disablesMovementDuringCast: 1
-  movementBlockDuration: 0.4
-  movementSpeedMultiplierDuringCast: 0.33
+  movementBlockDuration: 0.33
+  movementSpeedMultiplierDuringCast: 0.5
+  disablesMovementDuringPrecast: 0
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
   isCombo: 0
   comboAbilities: []
-  comboStepDelays:
-  - 0.3
   comboInputWindow: 0.75
   characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: ComboCast2
   offhandAnimationName: 
-  hasPrecast: 0
   preAnimationName: ComboPrecast2
   activateOnButtonRelease: 0
   holdAnimationName: Hold
+  characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
@@ -75,6 +77,12 @@ MonoBehaviour:
   flipYOnLeftFacing: 1
   flipXOnLeftFacing: 1
   timedParticles: []
+  hasIndicator: 0
+  indicatorConfig:
+    prefab: {fileID: 0}
+    spawnDelay: 0
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 1
   isAreaAbility: 0
   isConstructAbility: 0
@@ -1485,13 +1493,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
-  castEffects:
-    grantsBuff: 0
-    customBuffScript: {fileID: 0}
-    consumesHealth: 0
-    healthCost: 0
-    appliesSelfDebuff: 0
-    customDebuffScript: {fileID: 0}
+  customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}

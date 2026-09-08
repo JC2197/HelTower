@@ -26,17 +26,29 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
     [SerializeField] private float zoomSpeed = 0.1f;
     [SerializeField] private float minZoom = 1f;
     [SerializeField] private float maxZoom = 5f;
+    [Tooltip("Zoom level the tree opens at (1 = fit-to-window). Driven per-tree by TraitTree.defaultZoom.")]
+    [SerializeField] private float defaultZoom = 1f;
+    [Tooltip("When false, mouse-wheel zoom is disabled and the tree stays at Default Zoom (panning still works).")]
+    [SerializeField] private bool allowZoom = true;
 
     [Header("Pan Settings")]
     [SerializeField] private float panSpeed = 1f;
     [SerializeField] private bool clampPanning = true;
     [SerializeField] private float panBoundsPadding = 300f;
+    [Tooltip("Vertical pan distance per mouse-wheel notch when zoom is disabled.")]
+    [SerializeField] private float scrollPanSpeed = 40f;
+
+    [Header("Bottom Anchor")]
+    [Tooltip("When true, the tree opens pinned to the bottom of the viewport and cannot be panned below its bottom edge; players scroll upward to reveal higher nodes. Driven per-tree by TraitTree.anchorTreeToBottom.")]
+    [SerializeField] private bool anchorToBottom = false;
 
     private float currentZoom = 1f;
     private float baseScale = 1f;
     private bool isPanning = false;
     private Vector2 lastMousePosition;
     private Vector2 contentStartPosition;
+    private Vector2 contentBounds; // explicit unscaled content size; <=0 falls back to contentPanel.rect
+    private float bottomAnchorHalfHeight; // unscaled distance from content centre to the anchor line (canvas bottom); <=0 falls back to content-bounds half height
 
     private void Start()
     {
@@ -56,7 +68,7 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
     }
 
         contentStartPosition = contentPanel.anchoredPosition;
-        currentZoom = Mathf.Clamp(1f, minZoom, maxZoom);
+        currentZoom = Mathf.Clamp(defaultZoom, minZoom, maxZoom);
         contentPanel.localScale = Vector3.one * currentZoom * baseScale;
     }
 
@@ -78,8 +90,80 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
         if (viewport == null)
         viewport = contentPanel.parent as RectTransform;
         contentStartPosition = panel.anchoredPosition;
-        currentZoom = Mathf.Clamp(1f, minZoom, maxZoom);
+        currentZoom = Mathf.Clamp(defaultZoom, minZoom, maxZoom);
         panel.localScale = Vector3.one * currentZoom * baseScale;
+        if (anchorToBottom)
+            panel.anchoredPosition = ClampPosition(BottomAlignedPosition());
+    }
+
+    /// <summary>
+    /// Pin the tree to the bottom of the viewport on open (scroll up to reveal higher nodes,
+    /// no panning past the bottom edge), or restore centered/free panning. Driven per-tree.
+    /// </summary>
+    public void SetAnchorToBottom(bool value)
+    {
+        anchorToBottom = value;
+        if (contentPanel == null || viewport == null) return;
+        contentPanel.anchoredPosition = anchorToBottom
+            ? ClampPosition(BottomAlignedPosition())
+            : ClampPosition(contentPanel.anchoredPosition);
+    }
+
+    /// <summary>Anchored position whose Y aligns the content's bottom edge with the viewport bottom.</summary>
+    private Vector2 BottomAlignedPosition()
+    {
+        Vector2 pos = contentPanel.anchoredPosition;
+        if (viewport == null) return pos;
+        float scale = currentZoom * baseScale;
+        Rect contentRect = contentPanel.rect;
+        float baseH = contentBounds.y > 0f ? contentBounds.y : contentRect.height;
+        float anchorOffset = (bottomAnchorHalfHeight > 0f ? bottomAnchorHalfHeight : baseH * 0.5f) * scale;
+        float viewportHeight = viewport.rect.height;
+        float pivotOffsetY = contentBounds.y > 0f ? 0f : contentRect.center.y * scale;
+        pos.y = contentStartPosition.y + anchorOffset - (viewportHeight * 0.5f) - pivotOffsetY;
+        return pos;
+    }
+
+    /// <summary>
+    /// Provide the tree's real content size (node extents) so panning is clamped to the whole
+    /// tree, not the stretch-filled wrapper. Enables scrolling from the start when the tree is
+    /// larger than the viewport. Re-applies the current clamp/bottom anchor immediately.
+    /// </summary>
+    public void SetContentBounds(Vector2 size)
+    {
+        contentBounds = size;
+        if (contentPanel == null || viewport == null) return;
+        contentPanel.anchoredPosition = anchorToBottom
+            ? ClampPosition(BottomAlignedPosition())
+            : ClampPosition(contentPanel.anchoredPosition);
+    }
+
+    /// <summary>
+    /// Set the unscaled authored canvas height so the bottom anchor pins the tree's canvas-bottom
+    /// line (the editor's orange origin indicator) to the viewport bottom — matching the editor's
+    /// in-game window preview — rather than the outer node-extent bounds. Re-applies immediately.
+    /// </summary>
+    public void SetBottomAnchorReference(float unscaledCanvasHeight)
+    {
+        bottomAnchorHalfHeight = Mathf.Max(0f, unscaledCanvasHeight) * 0.5f;
+        if (contentPanel == null || viewport == null || !anchorToBottom) return;
+        contentPanel.anchoredPosition = ClampPosition(BottomAlignedPosition());
+    }
+
+    /// <summary>
+    /// Set the opening zoom and whether wheel-zoom is allowed. Applies the default zoom
+    /// immediately (re-fitting position, honoring the bottom anchor). Driven per-tree.
+    /// </summary>
+    public void SetZoomSettings(float newDefaultZoom, bool zoomEnabled)
+    {
+        allowZoom = zoomEnabled;
+        if (newDefaultZoom > 0f) defaultZoom = newDefaultZoom;
+        if (contentPanel == null) return;
+        currentZoom = Mathf.Clamp(defaultZoom, minZoom, maxZoom);
+        contentPanel.localScale = Vector3.one * currentZoom * baseScale;
+        contentPanel.anchoredPosition = anchorToBottom
+            ? ClampPosition(BottomAlignedPosition())
+            : ClampPosition(contentPanel.anchoredPosition);
     }
 
     private void Update()
@@ -96,6 +180,14 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
         float scrollDelta = eventData.scrollDelta.y;
 
         if (Mathf.Abs(scrollDelta) < 0.01f) return;
+
+        // When zoom is disabled the wheel scrolls the tree vertically instead.
+        if (!allowZoom)
+        {
+            Vector2 scrolled = contentPanel.anchoredPosition + new Vector2(0f, -scrollDelta * scrollPanSpeed);
+            contentPanel.anchoredPosition = ClampPosition(scrolled);
+            return;
+        }
 
         // Mouse position in local content space before zoom.
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -156,16 +248,25 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
 
     float scale = currentZoom * baseScale;
 
+    // Prefer explicit content bounds (the tree's node extents) over the stretch-filled wrapper
+    // rect, which always matches the viewport and would otherwise disable panning.
+    float baseW = contentBounds.x > 0f ? contentBounds.x : contentRect.width;
+    float baseH = contentBounds.y > 0f ? contentBounds.y : contentRect.height;
+
     // Content dimensions after zoom.
-    float contentWidth = contentRect.width * scale;
-    float contentHeight = contentRect.height * scale;
+    float contentWidth = baseW * scale;
+    float contentHeight = baseH * scale;
+
+    // Distance from content centre to the bottom anchor line (canvas bottom / orange indicator),
+    // after zoom. Falls back to the content half-height when no reference has been supplied.
+    float anchorOffsetScaled = (bottomAnchorHalfHeight > 0f ? bottomAnchorHalfHeight : baseH * 0.5f) * scale;
 
     float viewportWidth = parentRect.width;
     float viewportHeight = parentRect.height;
 
-    // Account for the content pivot.
-    float pivotOffsetX = contentRect.center.x * scale;
-    float pivotOffsetY = contentRect.center.y * scale;
+    // Account for the content pivot. Explicit bounds are centered on the wrapper, so no offset.
+    float pivotOffsetX = contentBounds.x > 0f ? 0f : contentRect.center.x * scale;
+    float pivotOffsetY = contentBounds.y > 0f ? 0f : contentRect.center.y * scale;
 
     // Content pivot position relative to the viewport.
     Vector2 pivotPosition = position;
@@ -209,8 +310,10 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
 
     if (contentHeight <= viewportHeight)
     {
-        // Content is smaller than viewport — keep it centred.
-        pivotPosition.y = contentStartPosition.y - pivotOffsetY;
+        // Content is smaller than viewport — pin to bottom when anchored, else keep it centred.
+        pivotPosition.y = anchorToBottom
+            ? contentStartPosition.y + anchorOffsetScaled - (viewportHeight * 0.5f) - pivotOffsetY
+            : contentStartPosition.y - pivotOffsetY;
     }
     else
     {
@@ -229,10 +332,17 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
             - halfViewportHeight
             - pivotOffsetY;
 
+        // When anchored, the floor is the canvas-bottom line (orange indicator) rather than the
+        // outer node-extent bottom, so the tree opens with its canvas bottom at the viewport bottom
+        // and cannot be scrolled below it.
+        float upperBound = anchorToBottom
+            ? contentStartPosition.y + anchorOffsetScaled - halfViewportHeight - pivotOffsetY
+            : maxY + panBoundsPadding;
+
         pivotPosition.y = Mathf.Clamp(
             position.y,
             minY - panBoundsPadding,
-            maxY + panBoundsPadding
+            upperBound
         );
     }
 
@@ -251,9 +361,11 @@ public class CraftingTreePanZoom : MonoBehaviour, IPointerDownHandler, IPointerU
     /// <summary>Reset to default zoom (1x) and centred position.</summary>
     public void ResetView()
     {
-        currentZoom = Mathf.Clamp(1f, minZoom, maxZoom);
+        currentZoom = Mathf.Clamp(defaultZoom, minZoom, maxZoom);
         contentPanel.localScale = Vector3.one * currentZoom * baseScale;
-        contentPanel.anchoredPosition = contentStartPosition;
+        contentPanel.anchoredPosition = anchorToBottom
+            ? ClampPosition(BottomAlignedPosition())
+            : contentStartPosition;
         isPanning = false;
     }
 }

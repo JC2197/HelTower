@@ -47,7 +47,7 @@ public class ProjectileConfig
     public ProjectileBehavior behavior = ProjectileBehavior.Straight;
 
     [Header("Charge / Precast Modifiers")]
-    [Tooltip("Damage multiplier applied when ability has precast animation (hasPrecast in AbilityDataConfig)")]
+    [Tooltip("Damage multiplier applied when the ability resolved through a precast or hold phase")]
     public float chargeDamageMultiplier = 1f;
 
     [Tooltip("Can cancel precast/charge animation before launching")]

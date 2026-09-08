@@ -54,6 +54,7 @@ public class PlayerController : Organism
     public static event Action<PlayerController, int> OnBagGoldChanged;
 
     /// <summary>Fired when an attack ability executes.</summary>
+    public event Func<AbilityDataConfig, bool> OnBeforeAttackAbilityUse;
     public event Action<AbilityDataConfig> OnAttack;
     public event Action<AbilityDataConfig, GameObject, float, string> OnAttackDamage;
     public Coroutine WeaponIdleReturnCoroutine { get; set; }
@@ -279,14 +280,13 @@ public class PlayerController : Organism
             _currentCharacterData.classData = classData;
             _currentCharacterData.baseStatContainer = classData.baseStatContainer.Clone();
             _currentCharacterData.statContainer = _currentCharacterData.baseStatContainer.Clone();
-            CharacterStatConverter.ApplyConversions(_currentCharacterData);
-            source = _currentCharacterData.statContainer;
         }
 
         StatContainer target = AllStats;
         if (target != null)
         {
             source.CopyToStatContainer(target);
+            GetComponent<CharacterStatConverterManager>()?.RecalculateLiveStats();
 
         }
 
@@ -375,6 +375,20 @@ public class PlayerController : Organism
     public void RequestStatsRecalculation()
     {
         OnStatsRecalculationRequested?.Invoke();
+    }
+
+    public bool TryReplaceAttackAbility(AbilityDataConfig abilityConfig)
+    {
+        if (abilityConfig == null || !abilityConfig.isAttack || OnBeforeAttackAbilityUse == null)
+            return false;
+
+        foreach (Func<AbilityDataConfig, bool> handler in OnBeforeAttackAbilityUse.GetInvocationList())
+        {
+            if (handler.Invoke(abilityConfig))
+                return true;
+        }
+
+        return false;
     }
 
     public void NotifyAttack(AbilityDataConfig abilityConfig)
@@ -515,6 +529,9 @@ public class PlayerController : Organism
     private InputAction _moveAction;
     private InputAction _aimAction;
     private InputAction[] _abilityActions = new InputAction[6];
+    private CharacterAbilityManager _abilityManager;
+    // Slot 2 = dash, 0 = primary, 1 = secondary, 3-5 = trait keybinds.
+    private static readonly int[] AbilitySlotPriority = { 2, 0, 1, 3, 4, 5 };
     private Vector2 _moveInput;
     private Vector2 _aimInput;
 
@@ -1193,24 +1210,38 @@ public class PlayerController : Organism
         if (!isAlive || !InputEnabled || !IsOwner || _rigidbody == null)
             return;
 
+        Vector2 additiveVelocity = Vector2.zero;
+        bool movementAbilityActive = false;
+        MovementAbility[] movementAbilities = GetComponents<MovementAbility>();
+        for (int i = 0; i < movementAbilities.Length; i++)
+        {
+            if (movementAbilities[i] == null)
+                continue;
+
+            additiveVelocity += movementAbilities[i].AdditiveVelocity;
+            movementAbilityActive |= movementAbilities[i].IsExecuting;
+        }
+
+        bool playerDrivesMovement = true;
         DataDrivenAbility[] abilities = GetComponents<DataDrivenAbility>();
         for (int i = 0; i < abilities.Length; i++)
         {
             if (abilities[i] != null && !abilities[i].HasPlayerControl)
-                return;
+            {
+                playerDrivesMovement = false;
+                break;
+            }
         }
+
+        // An ability holding movement control drives the body itself, so leave the rigidbody
+        // alone — unless a dash/teleport is mid-flight, whose velocity still has to land.
+        if (!playerDrivesMovement && !movementAbilityActive)
+            return;
 
         // Use Organism.MoveSpeed so runtime stat modifiers (slow, root, cast penalties)
         // immediately affect player movement without duplicating speed state.
-        float effectiveMoveSpeed = MoveSpeed;
-        Vector2 velocity = _moveInput * effectiveMoveSpeed;
-
-        MovementAbility[] movementAbilities = GetComponents<MovementAbility>();
-        for (int i = 0; i < movementAbilities.Length; i++)
-        {
-            if (movementAbilities[i] != null)
-                velocity += movementAbilities[i].AdditiveVelocity;
-        }
+        Vector2 velocity = playerDrivesMovement ? _moveInput * MoveSpeed : Vector2.zero;
+        velocity += additiveVelocity;
 
         _rigidbody.linearVelocity = velocity;
         UpdateMovementPresentation(velocity);
@@ -1227,24 +1258,59 @@ public class PlayerController : Organism
 
     private void HandleAbilityInput()
     {
-        for (int i = 0; i < _abilityActions.Length; i++)
+        // Fresh presses win, resolved in priority order so simultaneous inputs are deterministic.
+        for (int i = 0; i < AbilitySlotPriority.Length; i++)
         {
-            if (_abilityActions[i] != null && _abilityActions[i].WasPressedThisFrame())
-                TriggerAbility(i);
+            int slot = AbilitySlotPriority[i];
+            if (slot < _abilityActions.Length && _abilityActions[slot] != null && _abilityActions[slot].WasPressedThisFrame())
+            {
+                TriggerAbility(slot);
+                return;
+            }
+        }
+
+        // A press swallowed by a cast lockout or an in-progress cast is otherwise lost. Re-read
+        // still-held buttons once the caster frees up so holding a key keeps the rotation flowing.
+        // The lockout is the single source of truth for "busy"; AbilityState is presentation only.
+        bool casterBusy = IsAbilityLockedOut;
+
+        for (int i = 0; i < AbilitySlotPriority.Length; i++)
+        {
+            int slot = AbilitySlotPriority[i];
+            if (slot >= _abilityActions.Length || _abilityActions[slot] == null || !_abilityActions[slot].IsPressed())
+                continue;
+
+            DataDrivenAbility ability = ResolveAbilityManager()?.GetDataDrivenAbilityAtSlot(slot);
+            if (ability == null || !ability.IsReadyForHeldRetrigger)
+                continue;
+
+            if (casterBusy && !ability.OverridesOtherAbilities)
+                continue;
+
+            if (TriggerAbility(slot))
+                return;
         }
     }
 
-    private void TriggerAbility(int slotIndex)
+    private bool TriggerAbility(int slotIndex)
     {
         if (!InputEnabled || !IsOwner)
-            return;
+            return false;
 
-        DataDrivenAbility ability = GetComponent<CharacterAbilityManager>()?.GetDataDrivenAbilityAtSlot(slotIndex);
+        DataDrivenAbility ability = ResolveAbilityManager()?.GetDataDrivenAbilityAtSlot(slotIndex);
         if (ability == null)
-            return;
+            return false;
 
         ability.SetAbilitySlot(slotIndex);
-        ability.TryUseAbilityManually();
+        return ability.TryUseAbilityManually();
+    }
+
+    private CharacterAbilityManager ResolveAbilityManager()
+    {
+        if (_abilityManager == null)
+            _abilityManager = GetComponent<CharacterAbilityManager>();
+
+        return _abilityManager;
     }
 
     private Animator ResolveBodyAnimator()

@@ -85,7 +85,8 @@ MonoBehaviour:
   enableDamageFlash: 1
   damageFlashColor: {r: 1, g: 1, b: 1, a: 1}
   damageFlashDuration: 0.2
-  damageFlashCount: 2
+  damageFlashCount: 1
+  damageFlashSquash: 0.4
   damageTypeRegistry: []
   forceFieldRegenDelay: 3
   forceFieldRegenDuration: 2
@@ -164,7 +165,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584138902072857759
+  _initializedTimestamp: -8584130746522304451
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -183,7 +184,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 22
+  <PrefabId>k__BackingField: 24
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 9347060783580678034
   SceneId: 0
@@ -621,7 +622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4774154511544963705, guid: af9cd3376f5ff25408ac0e33fad76986, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

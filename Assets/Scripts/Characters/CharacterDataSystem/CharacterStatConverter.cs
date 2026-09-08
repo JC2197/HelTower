@@ -63,4 +63,25 @@ public static class CharacterStatConverter
             Debug.Log($"[CharacterStatConverter] {conversion.baseStatName}={sourceValue} → {conversion.derivedStatName}: base={baseTargetValue} + conversion={convertedValue} = {newTargetValue}");
         }
     }
+
+    public static void ApplyConversions(StatContainer baseStatContainer, StatContainer targetStatContainer, StatConversionData conversionData)
+    {
+        if (baseStatContainer == null || targetStatContainer == null || conversionData == null)
+            return;
+
+        foreach (var conversion in conversionData.conversions)
+        {
+            if (conversion == null || conversion.pointsPerTick <= 0) continue;
+
+            float sourceValue = baseStatContainer.GetStat(conversion.baseStatName);
+            int effectivePoints = Mathf.FloorToInt(sourceValue) / conversion.pointsPerTick;
+            float convertedValue = effectivePoints * conversion.conversionRate;
+            if (conversion.isPercentage)
+                convertedValue *= 0.01f;
+
+            float baseTargetValue = baseStatContainer.GetStat(conversion.derivedStatName);
+            targetStatContainer.SetStat(conversion.derivedStatName, baseTargetValue + convertedValue);
+        }
+    }
 }
+

@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissilesFire
   displayName: Fire Bolts
+  baseGoldCost: 8
   description: 'Magic Missiles now deals {v2} damage and apply burn. '
   traitIcon: {fileID: 4828638856498408670, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
-  colorTheme: Blaze
-  specializedTraitTag1: Magic
-  specializedTraitTag2: Blaze
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 4
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
@@ -41,6 +38,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
     abilityIcon: {fileID: 4828638856498408670, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: projectileConfig.hitbox.prefab
       overrideMode: 2
@@ -58,5 +62,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 0}

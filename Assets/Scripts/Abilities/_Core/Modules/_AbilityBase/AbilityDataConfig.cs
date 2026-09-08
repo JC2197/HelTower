@@ -66,6 +66,15 @@ public class AbilityDataConfig : AbilityConfig
     public float cooldownTime = 0f;
     public float energyCost = 0f;
 
+    [Header("Cast Lockout")]
+    [Tooltip("Seconds after this ability's precast ends during which the caster cannot start any other ability. Covers the cast + recovery window independently of cooldown. 0 = no lockout.")]
+    [Min(0f)]
+    public float castLockoutDuration = 0f;
+    [Tooltip("Scale the lockout by attack speed the same way the cast animation is scaled. Only meaningful for abilities flagged as attacks.")]
+    public bool scaleLockoutWithAttackSpeed = false;
+    [Tooltip("This ability overrides everything else: it ignores cast lockouts and interrupts any ability the caster is currently winding up or executing. Cooldown, charges and energy still apply.")]
+    public bool cancelActions = false;
+
     [Header("Crit")]
     [Tooltip("Base crit chance for this ability (fraction: 0.05 = 5%). Added to the character's CritChance stat and any trait CritChance modifiers.")]
     public float baseCritChance = 0f;
@@ -110,13 +119,9 @@ public class AbilityDataConfig : AbilityConfig
     // Assets authored before the rename still serialize "hasCombo"; without this they silently load as false.
     [UnityEngine.Serialization.FormerlySerializedAs("hasCombo")]
     public bool isCombo = false;
-    [Tooltip("Abilities to execute in order when this shell ability is cast.")]
+    [Tooltip("Abilities to execute in order when this shell ability is cast. Each step's own Cast Lockout Duration paces the chain.")]
     [NonReorderable]
     public AbilityDataConfig[] comboAbilities;
-    [Tooltip("Time to wait after each combo step's animation completes before advancing to the next step (in seconds). Array length should match comboAbilities length.")]
-
-    [NonReorderable]
-    public float[] comboStepDelays = new float[] { 0.3f };
     [Tooltip("How long the player has to trigger the next combo step after a step completes (seconds).")]
     public float comboInputWindow = 0.75f;
 
@@ -131,9 +136,7 @@ public class AbilityDataConfig : AbilityConfig
     public string mainhandAnimationName = "";
     [Tooltip("Animation to play on offhand weapon when ability is activated/fired")]
     public string offhandAnimationName = "";
-    [Tooltip("Play character and/or weapon pre-cast animations before firing? Delay is calculated from the longest configured clip.")]
-    public bool hasPrecast = false;
-    [Tooltip("Animation to play on weapon before firing (pre-cast for spells, draw for attacks). Delay calculated from clip length.")]
+    [Tooltip("Animation to play on weapon before firing (pre-cast for spells, draw for attacks). The precast hold lasts as long as this clip.")]
     public string preAnimationName = "";
     [Tooltip("Activate the ability on button release instead of press. Flow: precast -> hold animation (looping while held) -> release -> cast animation.")]
     public bool activateOnButtonRelease = false;
@@ -255,8 +258,8 @@ public class AbilityDataConfig : AbilityConfig
     public SummonConfig summonConfig = new SummonConfig();
     [Tooltip("Shown if isMovementAbility = true")]
     public MovementConfig movementConfig = new MovementConfig();
-    [Tooltip("Effects applied when ability is cast (buffs/debuffs on caster)")]
-    public AbilityCastEffects castEffects = new AbilityCastEffects();
+    [Tooltip("Optional custom ScriptableObject invoked when this ability is successfully used.")]
+    public CustomAbility customAbility;
 
     [Header("Hit Visuals")]
     [Tooltip("Prefab spawned at the hit position whenever this ability damages a target. Shared across all ability types.")]
@@ -373,25 +376,6 @@ public class AreaEffectData
 
     public bool canCleanse = false;
     public CleanseEffectConfig cleanseConfig = new CleanseEffectConfig();
-}
-
-// ===========================
-// ABILITY CAST EFFECTS
-// ===========================
-
-[Serializable]
-public class AbilityCastEffects
-{
-    public bool grantsBuff = false;
-    [Tooltip("Custom buff script for special behaviors")]
-    public EffectConfig customBuffScript;
-
-    public bool consumesHealth = false;
-    public float healthCost = 0f;
-
-    public bool appliesSelfDebuff = false;
-    [Tooltip("Custom debuff script for special behaviors")]
-    public EffectConfig customDebuffScript;
 }
 
 // ===========================

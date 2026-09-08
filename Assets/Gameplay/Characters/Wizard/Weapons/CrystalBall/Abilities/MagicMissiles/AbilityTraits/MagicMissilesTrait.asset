@@ -14,18 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissiles
   displayName: Magic Missiles
+  baseGoldCost: 8
   description: 
   traitIcon: {fileID: 837182417540574282, guid: 4aabc01262b107c42b79cbb82b719b72, type: 3}
-  colorTheme: Magic
-  specializedTraitTag1: Magic
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 3
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -37,5 +36,4 @@ MonoBehaviour:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
   abilityConfigModifiers: []
-  tierLevel: 1
-  tierConfig: {fileID: 0}
+  mutuallyExclusiveWith: []

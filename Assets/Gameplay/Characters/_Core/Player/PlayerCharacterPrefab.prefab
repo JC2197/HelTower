@@ -187,7 +187,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
+  m_SortingOrder: -10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8114111580381232243, guid: 4bb99d7cfbf598140bd957ca2b142e0a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -278,7 +278,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: -10
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2143944500, guid: 210807b2973169547bd891bdedf4446a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -5298,6 +5298,7 @@ GameObject:
   - component: {fileID: -4821699031212049550}
   - component: {fileID: 7585706307468894951}
   - component: {fileID: 7621106317282464732}
+  - component: {fileID: 3442679929321104817}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5338,7 +5339,7 @@ Animator:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 25b6a9bf61d9e1e4998d30948b4a169e, type: 2}
+  m_Controller: {fileID: 22100000, guid: 5cf2f1641359ba541abe1e9b3b868d51, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5399,7 +5400,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1460292128, guid: 376d467d30d1b1e4eaed93b4da047966, type: 3}
+  m_Sprite: {fileID: 1773983185, guid: b78dc33dde4e8fa45a3744451aa8b3e3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5683,6 +5684,7 @@ MonoBehaviour:
   damageFlashColor: {r: 1, g: 1, b: 1, a: 1}
   damageFlashDuration: 0.2
   damageFlashCount: 2
+  damageFlashSquash: 0
   damageTypeRegistry: []
   forceFieldRegenDelay: 3
   forceFieldRegenDuration: 2
@@ -5781,6 +5783,8 @@ MonoBehaviour:
   saveFileData: {fileID: 0}
   startingTraits: []
   traitDataList: {fileID: 11400000, guid: aec183f6df864fd4ba05c4f53393a7ee, type: 2}
+  startingCost: 10
+  costMultiplier: 1.5
 --- !u!114 &7585706307468894951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5815,7 +5819,21 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   _cameraHolder: {fileID: 939052996780319900}
   _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  _orthographicSize: 5
+  _orthographicSize: 6.5
+--- !u!114 &3442679929321104817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4d7d2417f984c34a8f5367c2f820e2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStatConverterManager
+  conversionData: {fileID: 11400000, guid: c0be075438370944093db643cafedb9d, type: 2}
+  playerController: {fileID: -6323806338761550441}
 --- !u!1 &8250924038244619466
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4956a4a0c51dc4d44819a9fa65d9159d, type: 3}
+  m_Name: Druid_Claws_Tree
+  m_EditorClassIdentifier: Assembly-CSharp::TraitTree
+  treeName: Claws
+  description: 
+  nodeSpacing: 100
+  nodeIconSize: 45
+  nodeIconFrame: {fileID: 0}
+  editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
+  anchorTreeToBottom: 1
+  useLevelZones: 1
+  levelZoneBandCount: 11
+  levelsPerBand: 5
+  defaultZoom: 1
+  allowZoom: 0
+  previewWindowSize: {x: 350, y: 400}
+  connectionLineWidth: 3
+  canvasWidth: 450
+  nodes:
+  - nodeID: Claw_010e
+    traitData: {fileID: 11400000, guid: 5b1cf3f1397547a48aa31300a63dfca4, type: 2}
+    position: {x: -112, y: -48}
+    connectedNodeIDs: []
+  - nodeID: Claw_d089
+    traitData: {fileID: 11400000, guid: 5cc8ab16ba50773478fafa54dc029ede, type: 2}
+    position: {x: 96, y: -48}
+    connectedNodeIDs: []
+  - nodeID: Claw_c883
+    traitData: {fileID: 11400000, guid: 9d354b7b62917dc4cbdbff8b2c646df7, type: 2}
+    position: {x: 48, y: 80}
+    connectedNodeIDs:
+    - Claw_d089
+  - nodeID: Pounce Cooldown_9727
+    traitData: {fileID: 11400000, guid: b9e79fb05e23ab743aedaae5db208d3f, type: 2}
+    position: {x: 128, y: 80}
+    connectedNodeIDs:
+    - Claw_d089
+  - nodeID: AttackSpeed_ff72
+    traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
+    position: {x: -128, y: 80}
+    connectedNodeIDs:
+    - Claw_010e
+  - nodeID: Hop_Charge_68d9
+    traitData: {fileID: 11400000, guid: 30d88ac767e87074fb24e4a32ca06190, type: 2}
+    position: {x: -32, y: 80}
+    connectedNodeIDs: []
+  canvasHeight: 258
+  minCanvasWidth: 400
+  minCanvasHeight: 225
+  autoCanvasSize: 0
+  autoCanvasPadding: 80
+  connections:
+  - connectionID: conn_0d8a5478
+    scale: 1
+    fromNodeIDs:
+    - AttackSpeed_ff72
+    toNodeIDs:
+    - Claw_010e
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_e237461a
+    scale: 1
+    fromNodeIDs:
+    - Claw_c883
+    toNodeIDs:
+    - Claw_d089
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 2
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_9605efe0
+    scale: 1
+    fromNodeIDs:
+    - Pounce Cooldown_9727
+    toNodeIDs:
+    - Claw_d089
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 2
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []

@@ -25,15 +25,25 @@ public class FloorManager : NetworkBehaviour
     [Tooltip("Floor spawned when the server starts. Leave null to pick a random floor from floorListConfig instead.")]
     [SerializeField] private Floor startingFloor;
 
+    [Header("Rewards")]
+    [SerializeField] private float startingGoldScaling = 1f;
+    [SerializeField] private float goldScalingIncreasePerFloor = 1.5f;
+
     private GameObject currentFloorInstance;
     private Floor currentFloor;
     private EnemySpawner enemySpawner;
     public Floor CurrentFloor => currentFloor;
+    
+    private float goldScalingPerFloor;
+    private int floorsCleared;
 
+    public int FloorsCleared => floorsCleared;
+    public float GoldScalingPerFloor => goldScalingPerFloor;
     private void Awake()
     {
         Instance = this;
         enemySpawner = GetComponent<EnemySpawner>();
+        goldScalingPerFloor = CalculateGoldScaling();
     }
 
     public override void OnStartServer()
@@ -47,6 +57,7 @@ public class FloorManager : NetworkBehaviour
             return;
         }
 
+        ApplyGoldScalingToEnemySpawner();
         SpawnFloor(floorToLoad);
         InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
     }
@@ -81,11 +92,28 @@ public class FloorManager : NetworkBehaviour
             Debug.LogError("[FloorManager] floorListConfig has no floors assigned — cannot transition.");
             return;
         }
-
+        floorsCleared++;
+        goldScalingPerFloor = CalculateGoldScaling();
+        ApplyGoldScalingToEnemySpawner();
         DespawnCurrentFloor();
         SpawnFloor(nextFloor);
         RepositionAllPlayers(GetSpawnPoints());
         BeginRound();
+
+    }
+
+    private float CalculateGoldScaling()
+    {
+        return Mathf.Max(0f, startingGoldScaling + floorsCleared * goldScalingIncreasePerFloor);
+    }
+
+    private void ApplyGoldScalingToEnemySpawner()
+    {
+        if (enemySpawner == null)
+            enemySpawner = GetComponent<EnemySpawner>();
+
+        if (enemySpawner != null)
+            enemySpawner.SetGoldScaling(goldScalingPerFloor);
     }
 
     private void SpawnFloor(Floor floor)

@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SmashChargeBars
   displayName: Extra Charge
+  baseGoldCost: 8
   description: Smash can be Charged {v1} time.
   traitIcon: {fileID: 737380194490702222, guid: f94bf698fe052eb4d9a091a0a15a4188, type: 3}
-  colorTheme: Combat
-  specializedTraitTag1: Combat
-  specializedTraitTag2: 
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 4
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
@@ -39,6 +36,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
     abilityIcon: {fileID: 0}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+      legacyTriggersOnDestroy: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: holdChargeConfig.maxBars
       overrideMode: 0
@@ -46,5 +50,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 0}

@@ -230,30 +230,36 @@ public class TraitTooltip : MonoBehaviour
         // Handle different canvas render modes
         if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
         {
-            // For overlay mode, use direct screen position on the CANVAS
-            transformToPosition.pivot = new Vector2(0, 1);
-            
-            transformToPosition.position = mousePos;
-            
-            
-            // Keep within canvas bounds
+            const float margin = 8f;   // keep this far from every screen edge
+            const float gap = 16f;     // distance between cursor and the tooltip edge
+
+            // Grow the tooltip away from the busier side of the screen: above the cursor when it's
+            // in the lower half, below when upper; to the left when in the right half, right otherwise.
+            bool cursorInRightHalf = mousePos.x > Screen.width * 0.5f;
+            bool cursorInLowerHalf = mousePos.y < Screen.height * 0.5f;
+
+            transformToPosition.pivot = new Vector2(
+                cursorInRightHalf ? 1f : 0f,   // anchor edge sits at the cursor; tooltip extends away
+                cursorInLowerHalf ? 0f : 1f);
+            Vector2 offset = new Vector2(
+                cursorInRightHalf ? -gap : gap,
+                cursorInLowerHalf ? gap : -gap);
+            transformToPosition.position = mousePos + offset;
+
+            // Measure the visible tooltip's actual on-screen rect (accounts for canvas scaling/layout).
             Vector3[] corners = new Vector3[4];
-            tooltipRect.GetWorldCorners(corners);
-            
-            // If tooltip goes off right edge, flip to left of cursor
-            if (corners[2].x > Screen.width)
-            {
-                transformToPosition.pivot = new Vector2(1, 1); // Top-right pivot
-                transformToPosition.position = mousePos;
-                tooltipRect.GetWorldCorners(corners);
-            }
-            
-            // If tooltip goes off bottom edge, flip to above cursor
-            if (corners[0].y < 0)
-            {
-                transformToPosition.pivot = new Vector2(transformToPosition.pivot.x, 0); // Keep horizontal pivot, switch to bottom
-                transformToPosition.position = mousePos;
-            }
+            tooltipRect.GetWorldCorners(corners); // 0=BL, 1=TL, 2=TR, 3=BR
+            float minX = corners[0].x, maxX = corners[2].x;
+            float minY = corners[0].y, maxY = corners[1].y;
+
+            // Minimal shift that pulls any off-screen edge back inside the margins.
+            float dx = 0f, dy = 0f;
+            if (minX < margin) dx = margin - minX;
+            else if (maxX > Screen.width - margin) dx = (Screen.width - margin) - maxX;
+            if (minY < margin) dy = margin - minY;
+            else if (maxY > Screen.height - margin) dy = (Screen.height - margin) - maxY;
+
+            transformToPosition.position += new Vector3(dx, dy, 0f);
         }
         else if (canvas.renderMode == RenderMode.ScreenSpaceCamera)
         {
