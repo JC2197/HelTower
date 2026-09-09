@@ -9,6 +9,7 @@ using FishNet;
 /// </summary>
 public class EffectManager : NetworkBehaviour
 {
+    public event System.Action OnActiveEffectsChanged;
     [Header("References")]
     public IDamageable damageable;
 
@@ -126,6 +127,7 @@ public class EffectManager : NetworkBehaviour
 
         ActiveEffect newEffect = new ActiveEffect(config, source);
         activeEffects.Add(newEffect);
+        OnActiveEffectsChanged?.Invoke();
 
         if (config.applySound != null)
         {
@@ -405,6 +407,8 @@ public class EffectManager : NetworkBehaviour
 
         if (existingEffect.currentStacks != oldStacks)
             existingEffect.config.OnStackChanged(gameObject, oldStacks, existingEffect.currentStacks);
+
+        OnActiveEffectsChanged?.Invoke();
     }
 
     private void DisplayDamageFloater(DamageOverTimeConfig dotConfig, ActiveEffect effect)
@@ -435,6 +439,7 @@ public class EffectManager : NetworkBehaviour
 
         string effectID = effect.config.effectID;
         activeEffects.Remove(effect);
+        OnActiveEffectsChanged?.Invoke();
 
         if (IsServerInitialized)
             ObserversRpcStopEffect(effectID); // tells remote clients
@@ -516,4 +521,6 @@ public class EffectManager : NetworkBehaviour
             }
         }
     }
+
+    public IReadOnlyList<ActiveEffect> ActiveEffects => activeEffects;
 }

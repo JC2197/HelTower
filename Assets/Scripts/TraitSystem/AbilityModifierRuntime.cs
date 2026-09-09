@@ -1284,6 +1284,7 @@ public static class AbilityModifierRuntime
         "attackSpeed", "cooldownTime", "energyCost", "maxCharges", "chargeRechargeTime", "castLockoutDuration",
     "movementBlockDuration", "autocastRange", "autocastTargets", "castAtFeet", "castAtTargets", "castAtFriendlyTargets", "baseCritChance", "baseCritDamageMultiplier",
          "mainhandAnimationName", "precastAnimationName", "retaliationCast", "isProjectileAbility", "isAreaAbility", "isMeleeAbility", "isBeamAbility", "isChanneled", "isMovementAbility", "isExplosionAbility", "isConstructAbility", "isSummonAbility", "isTrapAbility", "isPassiveAbility", "isCombo"
+         , "selfEffect"
     };
 
     /// <summary>

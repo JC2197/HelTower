@@ -93,6 +93,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty summonConfig;
     private SerializedProperty movementConfig;
     private SerializedProperty castEffects;
+    private SerializedProperty selfEffect;
     private SerializedProperty customAbility;
     private SerializedProperty timedParticles;
 
@@ -205,6 +206,7 @@ public class AbilityDataConfigEditor : Editor
         passiveConfig = serializedObject.FindProperty("passiveConfig");
         movementConfig = serializedObject.FindProperty("movementConfig");
         castEffects = serializedObject.FindProperty("castEffects");
+        selfEffect = serializedObject.FindProperty("selfEffect");
         customAbility = serializedObject.FindProperty("customAbility");
         timedParticles = serializedObject.FindProperty("timedParticles");
 
@@ -821,50 +823,14 @@ public class AbilityDataConfigEditor : Editor
     private void DrawCastEffects()
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        showCastEffects = EditorGUILayout.BeginFoldoutHeaderGroup(showCastEffects, "CUSTOM ABILITY");
+        showCastEffects = EditorGUILayout.BeginFoldoutHeaderGroup(showCastEffects, "CAST EFFECTS");
 
         if (showCastEffects)
         {
             EditorGUI.indentLevel++;
 
-            EditorGUILayout.PropertyField(customAbility, new GUIContent("Custom Ability", "ScriptableObject invoked when this ability is successfully used."));
-
-            if (customAbility != null && customAbility.objectReferenceValue is BuffSelf buffSelf)
-            {
-                SerializedObject buffObject = new SerializedObject(buffSelf);
-                buffObject.Update();
-
-                EditorGUILayout.Space(4);
-                EditorGUILayout.LabelField("Buff Self", EditorStyles.boldLabel);
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(buffObject.FindProperty("buffDuration"));
-                EditorGUILayout.PropertyField(buffObject.FindProperty("buffEffect"));
-                EditorGUILayout.PropertyField(buffObject.FindProperty("maxStacks"));
-
-                SerializedProperty nextAttack = buffObject.FindProperty("nextAttack");
-                EditorGUILayout.PropertyField(nextAttack);
-                if (nextAttack.boolValue)
-                {
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(buffObject.FindProperty("abilityToCast"));
-                    EditorGUI.indentLevel--;
-                }
-
-                SerializedProperty replaceAttack = buffObject.FindProperty("replaceAttack");
-                EditorGUILayout.PropertyField(replaceAttack);
-                if (replaceAttack.boolValue)
-                {
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.PropertyField(buffObject.FindProperty("replacementAbilityToCast"));
-                    EditorGUI.indentLevel--;
-                }
-
-                if (nextAttack.boolValue || replaceAttack.boolValue)
-                    EditorGUILayout.PropertyField(buffObject.FindProperty("triggeredAbilityLifetime"));
-
-                EditorGUI.indentLevel--;
-                buffObject.ApplyModifiedProperties();
-            }
+            EditorGUILayout.PropertyField(selfEffect, new GUIContent("Self Effect", "Effect applied to the caster when this ability is used."));
+            EditorGUILayout.PropertyField(customAbility, new GUIContent("Custom Ability", "Optional custom ScriptableObject invoked when this ability is successfully used."));
 
             EditorGUI.indentLevel--;
         }

@@ -253,6 +253,8 @@ public class AbilityDataConfig : AbilityConfig
     public SummonConfig summonConfig = new SummonConfig();
     [Tooltip("Shown if isMovementAbility = true")]
     public MovementConfig movementConfig = new MovementConfig();
+    [Tooltip("Effect applied to this ability's caster when it is used.")]
+    public EffectConfig selfEffect;
     [Tooltip("Optional custom ScriptableObject invoked when this ability is successfully used.")]
     public CustomAbility customAbility;
 

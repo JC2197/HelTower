@@ -16,6 +16,7 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     
     private AbilityReference abilityReference;
     private Ability abilityComponent;
+    private EffectManager.ActiveEffect effect;
     private bool hasAbility;
     private CharacterTraitManager traitManager;
     private bool isTooltipShowing;
@@ -38,6 +39,7 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         abilityReference = reference;
         abilityComponent = ability;
+        effect = null;
         ResetCooldownVisuals();
         
         if (reference != null && reference.Config != null)
@@ -83,6 +85,29 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
     }
 
+    public void SetEffect(EffectManager.ActiveEffect activeEffect)
+    {
+        abilityReference = null;
+        abilityComponent = null;
+        effect = activeEffect;
+        ResetCooldownVisuals();
+        hasAbility = activeEffect?.config != null;
+
+        if (!hasAbility)
+            return;
+
+        if (iconImage != null)
+        {
+            Sprite icon = activeEffect.config.icon;
+            iconImage.sprite = icon;
+            iconImage.enabled = icon != null;
+            if (cooldownOverlay != null)
+                cooldownOverlay.sprite = icon;
+        }
+
+        SetKeybindText(string.Empty);
+    }
+
     private void ResetCooldownVisuals()
     {
         if (cooldownOverlay != null)
@@ -112,10 +137,37 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     
     void Update()
     {
+        if (effect?.config != null)
+        {
+            UpdateEffectDurationDisplay();
+            return;
+        }
+
         if (hasAbility && abilityComponent != null)
         {
             UpdateCooldownDisplay();
         }
+    }
+
+    private void UpdateEffectDurationDisplay()
+    {
+        if (cooldownText != null)
+            cooldownText.enabled = false;
+        if (chargeCountText != null)
+        {
+            bool showStacks = effect.currentStacks > 1;
+            chargeCountText.enabled = showStacks;
+            if (showStacks)
+                chargeCountText.text = effect.currentStacks.ToString();
+        }
+        if (cooldownOverlay == null)
+            return;
+
+        float duration = effect.config.duration;
+        cooldownOverlay.enabled = duration > 0f;
+        cooldownOverlay.fillAmount = duration > 0f
+            ? Mathf.Clamp01(effect.remainingDuration / duration)
+            : 0f;
     }
     
     void UpdateCooldownDisplay()

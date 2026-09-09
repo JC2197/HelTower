@@ -20,7 +20,7 @@ MonoBehaviour:
   canTargetSelf: 1
   duration: 1
   stackingBehavior: 0
-  maxStacks: 99
+  maxStacks: 20
   refreshDurationOnStack: 1
   maxDuration: 5
   particleEffect: {fileID: 0}

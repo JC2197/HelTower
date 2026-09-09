@@ -18,7 +18,7 @@ MonoBehaviour:
   canTargetAllies: 0
   canTargetEnemies: 0
   canTargetSelf: 1
-  duration: 0.75
+  duration: 0.5
   stackingBehavior: 1
   maxStacks: 99
   refreshDurationOnStack: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
   particleEffect: {fileID: 0}
   particleOffset: {x: 0, y: 0, z: 0}
   entityTint: {r: 1, g: 1, b: 1, a: 1}
-  icon: {fileID: 0}
+  icon: {fileID: 2019340827, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   applySound: {fileID: 0}
   expireSound: {fileID: 0}
   canBeCleansed: 1
@@ -35,4 +35,4 @@ MonoBehaviour:
   statModifiers:
   - statID: MoveSpeed
     modifierType: 1
-    value: 150
+    value: 250

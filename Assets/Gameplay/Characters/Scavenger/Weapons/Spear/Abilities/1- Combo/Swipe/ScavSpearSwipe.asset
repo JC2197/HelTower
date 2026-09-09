@@ -95,34 +95,56 @@ MonoBehaviour:
   passiveScript: {fileID: 0}
   usesAmmo: 0
   beamConfig:
-    beamRendererPrefab: {fileID: 0}
+    hitbox:
+      prefab: {fileID: 0}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 6
+      damage: 20
+      damageTypeName: Physical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        effects: []
+        triggeredAbilities: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      positiveHealing: 0
+      onHitBuffEffects:
+        effects: []
+        triggeredAbilities: []
+      effects:
+        hitEffectPrefab: {fileID: 0}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     targetingMode: 0
     fallbackToCursorWhenNoEnemy: 1
     singleShotDuration: 0.35
     beamWidth: 0.5
     beamColor: {r: 1, g: 1, b: 1, a: 1}
     maxBeamDistance: 20
+    fixedDistance: 0
     beamAmount: 1
     multiBeamAngle: 15
     chain: 0
     chainAmount: 0
-    value: 50
-    canHeal: 0
-    healTargets:
-      serializedVersion: 2
-      m_Bits: 0
     hitsPerSecond: 2
-    damageTypeName: Energy
-    hitLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    onHitEffects:
-      effects: []
-      triggeredAbilities: []
-    lifeSteal:
-      enabled: 0
-      type: 1
-      amount: 5
     canHoldToFire: 1
     channelCostPerSecond: 5
     trackingRadius: 3
@@ -137,7 +159,6 @@ MonoBehaviour:
     impactParticlePrefab: {fileID: 0}
     beamSound: {fileID: 0}
     impactSound: {fileID: 0}
-    hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   channelConfig:
     unlockRotation: 1
     orbitalRadius: 0.4
@@ -559,6 +580,12 @@ MonoBehaviour:
         - abilityConfig: {fileID: 11400000, guid: 5ff9bc16b6721ae499285ef486e1c68f, type: 2}
           triggerChance: 0
           triggerTiming: 0
+        - abilityConfig: {fileID: 11400000, guid: 5ff9bc16b6721ae499285ef486e1c68f, type: 2}
+          triggerChance: 0
+          triggerTiming: 0
+        - abilityConfig: {fileID: 11400000, guid: 5ff9bc16b6721ae499285ef486e1c68f, type: 2}
+          triggerChance: 0
+          triggerTiming: 0
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2
@@ -577,7 +604,7 @@ MonoBehaviour:
     flipMeleeFXY: 1
     stickToCharacter: 1
     allowMultiHit: 0
-    meleeSound: {fileID: 0}
+    meleeSound: {fileID: 8300000, guid: beed454f47d22ca4f9cb9a3e56222c3a, type: 3}
   weaponData:
     weaponType: 0
     weaponPrefab: {fileID: 0}
@@ -1169,6 +1196,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 3240179893309576959, guid: 0227922c6bcce51409415de237b1bbdd, type: 3}
   hitVisualSound: {fileID: 0}

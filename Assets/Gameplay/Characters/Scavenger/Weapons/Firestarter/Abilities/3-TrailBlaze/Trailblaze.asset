@@ -840,7 +840,8 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
-  customAbility: {fileID: 11400000, guid: fe6a4dc71bb074946b02538477a42618, type: 2}
+  selfEffect: {fileID: 11400000, guid: d8d5748feda61e94a98932fadb162a57, type: 2}
+  customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}

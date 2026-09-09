@@ -112,9 +112,9 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: -5593765858030677724}
   _networkObjectCache: {fileID: -5593765858030677724}
-  overrideHitEffects: 0
+  overrideHitEffects: 1
   hitVisualPrefabOverride: {fileID: 0}
-  hitSoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
+  hitSoundOverride: {fileID: 8300000, guid: 2073e3f79d960c54bb16f56758cea4f4, type: 3}
   hitFlashColorOverride: {r: 1, g: 0.24822445, b: 0, a: 1}
   overrideDestroyEffects: 0
   destroyVisualPrefabOverride: {fileID: 0}
@@ -129,37 +129,8 @@ MonoBehaviour:
   muzzleLightDurationOverride: 0.1
   overrideStatusEffects: 0
   onHitEffectsOverride:
-    canRoot: 0
-    rootEffect: {fileID: 0}
-    rootDuration: 0
-    rootApplicationChance: 1
-    canSlow: 0
-    slowEffect: {fileID: 0}
-    slowDuration: 0
-    slowApplicationChance: 1
-    canStun: 0
-    stunEffect: {fileID: 0}
-    stunDuration: 0
-    stunApplicationChance: 1
-    canBleed: 0
-    bleedEffect: {fileID: 0}
-    bleedDamage: 5
-    bleedDuration: 3
-    bleedApplicationChance: 1
-    canBurn: 0
-    burnEffect: {fileID: 0}
-    burnDamage: 10
-    burnDuration: 3
-    burnApplicationChance: 1
-    canPoison: 0
-    poisonEffect: {fileID: 0}
-    poisonDamage: 3
-    poisonDuration: 5
-    poisonApplicationChance: 1
-    canApplyStatBuffs: 0
-    statBuffApplications: []
-    canTriggerAbility: 0
-    triggeredAbilityConfigs: []
+    effects: []
+    triggeredAbilities: []
 --- !u!50 &6439390211293539281
 Rigidbody2D:
   serializedVersion: 5

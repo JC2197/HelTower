@@ -245,7 +245,7 @@ MonoBehaviour:
     flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
-    meleeSound: {fileID: 0}
+    meleeSound: {fileID: 8300000, guid: 8d77e1839ee23e447b32f781a335e958, type: 3}
   weaponData:
     weaponType: 0
     weaponPrefab: {fileID: 0}
@@ -837,6 +837,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}

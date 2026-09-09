@@ -1963,6 +1963,25 @@ public class DataDrivenAbility : Ability
         _runtimeCustomAbilitySource = null;
     }
 
+    private bool ApplySelfEffect()
+    {
+        EffectConfig effect = EffectiveAbilityConfig?.selfEffect;
+        if (effect == null || !effect.CanTarget(gameObject, gameObject))
+            return false;
+
+        EffectManager effectManager = GetComponent<EffectManager>();
+        if (effectManager == null)
+            effectManager = GetComponentInChildren<EffectManager>();
+        if (effectManager == null)
+        {
+            Debug.LogWarning($"[DataDrivenAbility] Cannot apply self effect '{effect.effectName}': no EffectManager on {gameObject.name}.");
+            return false;
+        }
+
+        effectManager.ApplyEffect(Instantiate(effect), gameObject);
+        return true;
+    }
+
 
 
 
@@ -2369,8 +2388,12 @@ public class DataDrivenAbility : Ability
             ownerAsPlayer.CurrentAbilityState = PlayerController.AbilityState.Executing;
         ApplyCastLockout();
         OnAbilityActivated();
-        InvokeCustomAbilityUse();
-        bool abilityExecuted = FireAbility();
+        bool selfEffectApplied = ApplySelfEffect();
+        bool customAbilityExecuted = EffectiveCustomAbility != null;
+        if (customAbilityExecuted)
+            InvokeCustomAbilityUse();
+
+        bool abilityExecuted = FireAbility() || selfEffectApplied || customAbilityExecuted;
 
         _lastCastSequenceSucceeded = abilityExecuted;
 

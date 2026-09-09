@@ -14,16 +14,19 @@ public class PlayerAbilityDisplay : MonoBehaviour
     [Header("Dynamic Layout")]
     [Tooltip("Parent RectTransform with a HorizontalLayoutGroup component.")]
     [SerializeField] private RectTransform abilityContainer;
+    [SerializeField] private RectTransform buffContainer;
     [Tooltip("Prefab with an AbilitySlotUI component. Instantiated once per active ability.")]
     [SerializeField] private AbilitySlotUI abilityIconPrefab;
 
     private PlayerController player;
     private CharacterAbilityManager subscribedManager;
+    private EffectManager subscribedEffectManager;
     private AbilitySlotUI primaryAbilitySlot;
     private DataDrivenAbility displayedPrimaryAbility;
 
     // Track spawned icons so we can rebuild when abilities change
     private readonly List<AbilitySlotUI> spawnedIcons = new List<AbilitySlotUI>();
+    private readonly List<AbilitySlotUI> spawnedBuffIcons = new List<AbilitySlotUI>();
 
     void OnEnable()
     {
@@ -35,6 +38,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
     {
         PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
         UnsubscribeFromAbilityEvents();
+        UnsubscribeFromEffectEvents();
     }
 
     private void Update()
@@ -52,6 +56,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
 
         player = newPlayer;
         SubscribeToAbilityEvents();
+        SubscribeToEffectEvents();
         RebuildIcons();
         Debug.Log("[PlayerAbilityDisplay] Player spawned, ability icons built");
     }
@@ -64,6 +69,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
         if (player != null)
         {
             SubscribeToAbilityEvents();
+            SubscribeToEffectEvents();
             RebuildIcons();
         }
         else
@@ -209,6 +215,29 @@ public class PlayerAbilityDisplay : MonoBehaviour
         displayedPrimaryAbility = null;
     }
 
+    private void RebuildBuffIcons()
+    {
+        foreach (AbilitySlotUI icon in spawnedBuffIcons)
+        {
+            if (icon != null)
+                Destroy(icon.gameObject);
+        }
+        spawnedBuffIcons.Clear();
+
+        if (buffContainer == null || abilityIconPrefab == null || subscribedEffectManager == null)
+            return;
+
+        foreach (EffectManager.ActiveEffect effect in subscribedEffectManager.ActiveEffects)
+        {
+            if (effect?.config == null || !effect.config.isBuff)
+                continue;
+
+            AbilitySlotUI icon = Instantiate(abilityIconPrefab, buffContainer);
+            icon.SetEffect(effect);
+            spawnedBuffIcons.Add(icon);
+        }
+    }
+
     private void RefreshPrimaryComboStep()
     {
         if (primaryAbilitySlot == null || player == null)
@@ -239,6 +268,26 @@ public class PlayerAbilityDisplay : MonoBehaviour
             subscribedManager.OnPassiveAbilityChanged += OnAbilityChanged;
             subscribedManager.OnTraitAbilitiesChanged += OnTraitAbilitiesChanged;
             subscribedManager.OnAbilitiesLoaded += OnAbilitiesLoaded;
+        }
+    }
+
+    private void SubscribeToEffectEvents()
+    {
+        UnsubscribeFromEffectEvents();
+        subscribedEffectManager = player != null ? player.GetComponent<EffectManager>() : null;
+        if (subscribedEffectManager == null)
+            return;
+
+        subscribedEffectManager.OnActiveEffectsChanged += RebuildBuffIcons;
+        RebuildBuffIcons();
+    }
+
+    private void UnsubscribeFromEffectEvents()
+    {
+        if (subscribedEffectManager != null)
+        {
+            subscribedEffectManager.OnActiveEffectsChanged -= RebuildBuffIcons;
+            subscribedEffectManager = null;
         }
     }
 
