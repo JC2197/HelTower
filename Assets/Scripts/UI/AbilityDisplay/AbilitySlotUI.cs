@@ -111,9 +111,24 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         DataDrivenAbility dataDrivenAbility = abilityComponent as DataDrivenAbility;
         if (dataDrivenAbility == null) return;
         
-        // Skip cooldown/overlay display for attacks
         var abilityConfig = dataDrivenAbility.GetAbilityConfig();
-        if (abilityConfig != null && abilityConfig.isAttack) return;
+        if (abilityConfig != null && abilityConfig.isAttack)
+        {
+            if (chargeCountText != null)
+                chargeCountText.enabled = false;
+
+            if (cooldownText != null)
+                cooldownText.enabled = false;
+
+            if (cooldownOverlay != null)
+            {
+                float attackTimeRemaining = dataDrivenAbility.GetRemainingAttackTime();
+                cooldownOverlay.enabled = attackTimeRemaining > 0f;
+                cooldownOverlay.fillAmount = 1f - dataDrivenAbility.GetAttackProgress();
+            }
+
+            return;
+        }
         
         float remainingCooldown = dataDrivenAbility.GetRemainingCooldown();
         bool hasCharges = dataDrivenAbility.MaxCharges > 0;

@@ -68,8 +68,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
     /// <summary>Reload the ability display - call after weapon swaps or ability changes.</summary>
     public void RefreshAbilityDisplay()
     {
-        if (player != null)
-            RebuildIcons();
+        RebuildIcons();
     }
 
     // -- Icon building --
@@ -89,7 +88,11 @@ public class PlayerAbilityDisplay : MonoBehaviour
         }
 
         CharacterAbilityManager abilityManager = player?.GetComponent<CharacterAbilityManager>();
-        if (abilityManager == null) return;
+        if (abilityManager == null)
+        {
+            BuildSelectedCharacterIcons();
+            return;
+        }
 
         // Weapon ability (Slot 0 = LMB)
         var weaponRef = abilityManager.GetPrimaryAbilityRef();
@@ -144,6 +147,33 @@ public class PlayerAbilityDisplay : MonoBehaviour
         Debug.Log($"[PlayerAbilityDisplay] Built {spawnedIcons.Count} ability icons (including {passiveRefs.Count} autocast)");
     }
 
+    private void BuildSelectedCharacterIcons()
+    {
+        CharacterAbilityLoadout loadout = CharacterSelectionManager.SelectedCharacter?.abilityLoadout;
+        if (loadout == null)
+            return;
+
+        SpawnSelectedCharacterIcon(loadout.WeaponAbility, 0);
+        SpawnSelectedCharacterIcon(loadout.SecondaryWeaponAbility, 1);
+        SpawnSelectedCharacterIcon(loadout.DashAbility, 2);
+        SpawnSelectedCharacterIcon(loadout.PassiveAbility, -1);
+
+        List<AbilityReference> activeTraits = loadout.GetActiveTraitAbilities();
+        for (int i = 0; i < activeTraits.Count; i++)
+            SpawnSelectedCharacterIcon(activeTraits[i], 3 + i);
+
+        foreach (AbilityReference passiveTrait in loadout.GetPassiveTraitAbilities())
+            SpawnSelectedCharacterIcon(passiveTrait, -1);
+
+        Debug.Log($"[PlayerAbilityDisplay] Built {spawnedIcons.Count} selected-character ability icons");
+    }
+
+    private void SpawnSelectedCharacterIcon(AbilityReference reference, int slotIndex)
+    {
+        if (reference?.Config != null)
+            SpawnIcon(reference, null, slotIndex);
+    }
+
     private void SpawnIcon(AbilityReference reference, Ability ability, int slotIndex)
     {
         AbilitySlotUI icon = Instantiate(abilityIconPrefab, abilityContainer);
@@ -181,6 +211,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
             subscribedManager.OnDashAbilityChanged += OnAbilityChanged;
             subscribedManager.OnPassiveAbilityChanged += OnAbilityChanged;
             subscribedManager.OnTraitAbilitiesChanged += OnTraitAbilitiesChanged;
+            subscribedManager.OnAbilitiesLoaded += OnAbilitiesLoaded;
         }
     }
 
@@ -193,6 +224,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
             subscribedManager.OnDashAbilityChanged -= OnAbilityChanged;
             subscribedManager.OnPassiveAbilityChanged -= OnAbilityChanged;
             subscribedManager.OnTraitAbilitiesChanged -= OnTraitAbilitiesChanged;
+            subscribedManager.OnAbilitiesLoaded -= OnAbilitiesLoaded;
             subscribedManager = null;
         }
     }
@@ -208,5 +240,11 @@ public class PlayerAbilityDisplay : MonoBehaviour
     {
         RebuildIcons();
         Debug.Log("[PlayerAbilityDisplay] Rebuilt icons after trait abilities changed");
+    }
+
+    private void OnAbilitiesLoaded()
+    {
+        RebuildIcons();
+        Debug.Log("[PlayerAbilityDisplay] Rebuilt icons after character ability loadout changed");
     }
 }

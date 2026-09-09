@@ -15,7 +15,7 @@ MonoBehaviour:
   traitID: Expulsion Range
   displayName: Expulsion Range
   description: Expulsion can now be cast at a maxmum of {v1} range.
-  traitIcon: {fileID: 0}
+  traitIcon: {fileID: 2019340827, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
   traitType: 0
   maxLevel: 1
@@ -45,6 +45,11 @@ MonoBehaviour:
     - propertyPath: castAtFeet
       overrideMode: 2
       numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: castAtTargets
+      overrideMode: 2
+      numericValue: 1
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

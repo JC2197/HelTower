@@ -3,9 +3,9 @@ using UnityEngine;
 /// <summary>
 /// Applies configured bonus damage whenever an attack ability successfully deals damage.
 /// </summary>
-public class EnflamePassive : PassiveAbility
+public class AddDamagePassive : PassiveAbility
 {
-    private EnflamePassiveConfig enflameConfig;
+    private AddDamagePassiveConfig addDamageConfig;
 
     private PlayerController player;
 
@@ -17,10 +17,10 @@ public class EnflamePassive : PassiveAbility
     {
         base.Initialize(abilityConfig, source, runtimePassiveConfig, runtimePassiveAsset);
 
-        enflameConfig = runtimePassiveAsset as EnflamePassiveConfig;
-        if (enflameConfig == null)
+        addDamageConfig = runtimePassiveAsset as AddDamagePassiveConfig;
+        if (addDamageConfig == null)
         {
-            Debug.LogError("[EnflamePassive] Missing or wrong passive asset. Expected EnflamePassiveConfig.");
+            Debug.LogError("[AddDamagePassive] Missing or wrong passive asset. Expected AddDamagePassiveConfig.");
             enabled = false;
         }
     }
@@ -30,7 +30,7 @@ public class EnflamePassive : PassiveAbility
         player = GetComponent<PlayerController>();
         if (player == null)
         {
-            Debug.LogError($"[EnflamePassive] No PlayerController component found on {gameObject.name}! Enflame requires PlayerController.");
+            Debug.LogError($"[AddDamagePassive] No PlayerController component found on {gameObject.name}! AddDamage requires PlayerController.");
             enabled = false;
             return;
         }
@@ -38,7 +38,7 @@ public class EnflamePassive : PassiveAbility
 
     private void HandleAttackDamageDealt(AbilityDataConfig abilityConfig, GameObject target, float damageAmount, string damageType)
     {
-        if (enflameConfig == null)
+        if (addDamageConfig == null)
             return;
 
         if (target == null)
@@ -48,10 +48,10 @@ public class EnflamePassive : PassiveAbility
         if (damageable == null)
             return;
 
-        damageable.TakeDamage(enflameConfig.DamageDealt, enflameConfig.DamageType);
-        if (enflameConfig.EnflameOnhitEffectPrefab != null)
+        damageable.TakeDamage(addDamageConfig.DamageDealt, addDamageConfig.DamageType);
+        if (addDamageConfig.OnHitEffectPrefab != null)
         {
-            GameObject effectInstance = Instantiate(enflameConfig.EnflameOnhitEffectPrefab, target.transform.position, Quaternion.identity);
+            GameObject effectInstance = Instantiate(addDamageConfig.OnHitEffectPrefab, target.transform.position, Quaternion.identity);
             Destroy(effectInstance, 2f);
         }
     }

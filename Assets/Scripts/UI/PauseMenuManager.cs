@@ -21,6 +21,7 @@ public class PauseMenuManager : MonoBehaviour
     [SerializeField] private CharacterSelectionConfig characterSelectionConfig;
     [Tooltip("Container that holds the generated class buttons (toggled by 'Change Character').")]
     [SerializeField] private GameObject classListPanel;
+    [SerializeField] private GameObject weaponListPanel;
     [Tooltip("Button template instantiated once per available class.")]
     [SerializeField] private Button classButtonPrefab;
     [Header("Scene Names")]
@@ -185,7 +186,8 @@ public class PauseMenuManager : MonoBehaviour
 
         if (classListPanel != null)
             classListPanel.SetActive(false);
-
+        if(weaponListPanel != null)
+            weaponListPanel.SetActive(false);
         if (firstPanel != null)
             firstPanel.SetActive(true);
 
@@ -260,7 +262,7 @@ public class PauseMenuManager : MonoBehaviour
                 label.text = classData.className;
 
             ClassData captured = classData;
-            button.onClick.AddListener(() => SwitchToClass(captured));
+            button.onClick.AddListener(() => OnClassButtonClicked(captured));
         }
 
         // Hide the source template so it isn't shown next to the generated copies.
@@ -268,9 +270,23 @@ public class PauseMenuManager : MonoBehaviour
         _classButtonsBuilt = true;
     }
 
-    private void SwitchToClass(ClassData classData)
+    private void OnClassButtonClicked(ClassData classData)
     {
-        if (classData == null)
+        if (weaponListPanel == null)
+        {
+            Debug.LogWarning("[PauseMenuManager] No weaponListPanel assigned \u2014 cannot show class list.");
+            return;
+        }
+        classListPanel.SetActive(false);
+        bool show = !weaponListPanel.activeSelf;
+        if (show)
+            BuildClassWeaponButtons(classData);
+
+        weaponListPanel.SetActive(show);
+    }
+    private void SwitchToClassWeapon(ClassData classData, WeaponConfig weaponConfig)
+    {
+        if (classData == null || weaponConfig == null)
             return;
 
         PlayerController player = PlayerController.GetLocalPlayer();
@@ -280,11 +296,56 @@ public class PauseMenuManager : MonoBehaviour
             return;
         }
 
-        if (!player.ApplyClassAnimator(classData))
+        if (!player.ApplyClassAnimator(classData, weaponConfig))
             return;
-
+        
         ResumeGame();
         Debug.Log($"[PauseMenuManager] Switched to class '{classData.className}'.");
+    }
+
+    private void BuildClassWeaponButtons(ClassData classData)
+    {
+        if (classButtonPrefab == null)
+        {
+            Debug.LogWarning("[PauseMenuManager] Missing classButtonPrefab — cannot build weapon buttons.");
+            return;
+        }
+        if (classData == null)
+            return;
+
+        WeaponConfig[] configs = classData.availableWeapons;
+        if (configs == null || configs.Length == 0)
+        {
+            Debug.LogWarning($"[PauseMenuManager] Class '{classData.className}' has no available weapons.");
+            return;
+        }
+
+        Transform parent = weaponListPanel.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            if (parent.GetChild(i) != classButtonPrefab.transform)
+                Destroy(parent.GetChild(i).gameObject);
+        }
+
+        foreach (WeaponConfig config in configs)
+        {
+            if (config == null)
+                continue;
+
+            Button button = Instantiate(classButtonPrefab, parent);
+            button.gameObject.SetActive(true);
+
+            TextMeshProUGUI label = button.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+                label.text = config.weaponName;
+
+            ClassData captured = classData;
+            WeaponConfig capturedWeapon = config;
+            button.onClick.AddListener(() => SwitchToClassWeapon(captured, capturedWeapon));
+        }
+
+        // Hide the source template so it isn't shown next to the generated copies.
+        classButtonPrefab.gameObject.SetActive(false);
     }
 
     public void OnQuitToMainMenuClicked()
@@ -363,6 +424,9 @@ public class PauseMenuManager : MonoBehaviour
     {
         if (classListPanel != null)
             classListPanel.SetActive(false);
+
+        if (weaponListPanel != null)
+            weaponListPanel.SetActive(false);
 
         if (firstPanel != null)
             firstPanel.SetActive(true);

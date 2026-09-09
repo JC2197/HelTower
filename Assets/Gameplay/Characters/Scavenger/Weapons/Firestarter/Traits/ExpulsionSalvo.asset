@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ExpulsionSalvo
   displayName: Scorched Earth
-  baseGoldCost: 8
   description: Explosions now salvo +{v1} times in the target direction.
-  traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
+  traitIcon: {fileID: 1203822227, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
   traitType: 0
   maxLevel: 1
@@ -40,7 +39,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

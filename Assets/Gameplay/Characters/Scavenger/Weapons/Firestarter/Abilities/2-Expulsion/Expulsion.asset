@@ -30,12 +30,12 @@ MonoBehaviour:
   energyCost: 0
   castLockoutDuration: 0.5
   scaleLockoutWithAttackSpeed: 0
-  cancelActions: 1
+  cancelActions: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
   autocast: 0
   retaliationCast: 0
-  castAtFeet: 0
+  castAtFeet: 1
   castAtTargets: 0
   castAtFriendlyTargets: 0
   autocastRange: 0
@@ -97,34 +97,56 @@ MonoBehaviour:
   passiveScript: {fileID: 0}
   usesAmmo: 0
   beamConfig:
-    beamRendererPrefab: {fileID: 0}
+    hitbox:
+      prefab: {fileID: 0}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 6
+      damage: 20
+      damageTypeName: Physical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        effects: []
+        triggeredAbilities: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      positiveHealing: 0
+      onHitBuffEffects:
+        effects: []
+        triggeredAbilities: []
+      effects:
+        hitEffectPrefab: {fileID: 0}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     targetingMode: 0
     fallbackToCursorWhenNoEnemy: 1
     singleShotDuration: 0.35
     beamWidth: 0.5
     beamColor: {r: 1, g: 1, b: 1, a: 1}
     maxBeamDistance: 20
+    fixedDistance: 0
     beamAmount: 1
     multiBeamAngle: 15
     chain: 0
     chainAmount: 0
-    value: 50
-    canHeal: 0
-    healTargets:
-      serializedVersion: 2
-      m_Bits: 0
     hitsPerSecond: 2
-    damageTypeName: Energy
-    hitLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    onHitEffects:
-      effects: []
-      triggeredAbilities: []
-    lifeSteal:
-      enabled: 0
-      type: 1
-      amount: 5
     canHoldToFire: 1
     channelCostPerSecond: 5
     trackingRadius: 3
@@ -139,7 +161,6 @@ MonoBehaviour:
     impactParticlePrefab: {fileID: 0}
     beamSound: {fileID: 0}
     impactSound: {fileID: 0}
-    hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   channelConfig:
     unlockRotation: 1
     orbitalRadius: 0.4
@@ -730,8 +751,8 @@ MonoBehaviour:
         amount: 5
       knockback:
         enabled: 1
-        force: 3
-        directionality: 0.51
+        force: 30
+        directionality: 0.495
       pull:
         enabled: 0
         force: 5

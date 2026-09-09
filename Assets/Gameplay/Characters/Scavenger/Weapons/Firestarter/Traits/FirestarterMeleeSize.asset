@@ -15,7 +15,7 @@ MonoBehaviour:
   traitID: FirestarterSwipeSize5
   displayName: Wild Swings
   description: The Melee swing of Firestarter gains increased size.
-  traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
+  traitIcon: {fileID: 1961319169, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
   traitType: 0
   maxLevel: 3

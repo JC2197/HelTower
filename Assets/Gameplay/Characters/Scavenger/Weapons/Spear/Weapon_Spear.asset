@@ -55,7 +55,7 @@ MonoBehaviour:
     handBehindOnSE: 0
     handBehindOnSW: 0
     handRotationOffset: 0
-  grantedPrimaryAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
+  grantedPrimaryAbility: {fileID: 11400000, guid: c143ddfd8ea09d246a1b9d7f8ba3c73f, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: c4dc235d999883a46bb5cc7db42a88bb, type: 2}
   grantedDashAbility: {fileID: 11400000, guid: a58981480910d8744841b91ada4331fa, type: 2}
   grantedPassiveAbility: {fileID: 0}
@@ -78,34 +78,5 @@ MonoBehaviour:
   hitFlashColorOverride: {r: 1, g: 1, b: 1, a: 1}
   overrideStatusEffects: 0
   onHitEffectsOverride:
-    canRoot: 0
-    rootEffect: {fileID: 0}
-    rootDuration: 0
-    rootApplicationChance: 1
-    canSlow: 0
-    slowEffect: {fileID: 0}
-    slowDuration: 0
-    slowApplicationChance: 1
-    canStun: 0
-    stunEffect: {fileID: 0}
-    stunDuration: 0
-    stunApplicationChance: 1
-    canBleed: 0
-    bleedEffect: {fileID: 0}
-    bleedDamage: 5
-    bleedDuration: 3
-    bleedApplicationChance: 1
-    canBurn: 0
-    burnEffect: {fileID: 0}
-    burnDamage: 10
-    burnDuration: 3
-    burnApplicationChance: 1
-    canPoison: 0
-    poisonEffect: {fileID: 0}
-    poisonDamage: 3
-    poisonDuration: 5
-    poisonApplicationChance: 1
-    canApplyStatBuffs: 0
-    statBuffApplications: []
-    canTriggerAbility: 0
-    triggeredAbilityConfigs: []
+    effects: []
+    triggeredAbilities: []

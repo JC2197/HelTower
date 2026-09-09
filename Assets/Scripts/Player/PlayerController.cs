@@ -209,11 +209,23 @@ public class PlayerController : Organism
 
     public bool ApplyClassAnimator(ClassData classData)
     {
+        return ApplyClassAnimator(classData, GetRandomWeaponForClass(classData));
+    }
+
+    public bool ApplyClassAnimator(ClassData classData, WeaponConfig selectedWeapon)
+    {
         if (classData == null)
         {
             Debug.LogWarning("[PlayerController] ApplyClassAnimator called with null class data.");
             return false;
         }
+
+        if (selectedWeapon != null && (classData.availableWeapons == null || !Array.Exists(classData.availableWeapons, weapon => weapon == selectedWeapon)))
+        {
+            Debug.LogWarning($"[PlayerController] Weapon '{selectedWeapon.weaponName}' is not available for class '{classData.className}'.");
+            return false;
+        }
+
         var characterData = GetCurrentCharacterData();
         if (characterData != null)
         {
@@ -225,19 +237,21 @@ public class PlayerController : Organism
 
         ApplyClassBaseStats(classData);
 
-        WeaponConfig defaultWeapon = GetRandomWeaponForClass(classData);
+        WeaponConfig selectedClassWeapon = selectedWeapon != null
+            ? selectedWeapon
+            : GetRandomWeaponForClass(classData);
         if (characterData != null)
         {
-            characterData.hasDualWeapons = defaultWeapon != null && defaultWeapon.offhandWeaponConfig != null;
-            characterData.mainHandWeaponConfig = defaultWeapon;
-            characterData.offHandWeaponConfig = defaultWeapon != null ? defaultWeapon.offhandWeaponConfig : null;
+            characterData.hasDualWeapons = selectedClassWeapon != null && selectedClassWeapon.offhandWeaponConfig != null;
+            characterData.mainHandWeaponConfig = selectedClassWeapon;
+            characterData.offHandWeaponConfig = selectedClassWeapon != null ? selectedClassWeapon.offhandWeaponConfig : null;
             characterData.accessoryConfigs = classData.availableAccessories != null
                 ? new List<AccessoryConfig>(classData.availableAccessories)
                 : new List<AccessoryConfig>();
-            characterData.abilityLoadout = CreateBaseAbilityLoadout(defaultWeapon);
+            characterData.abilityLoadout = CreateBaseAbilityLoadout(selectedClassWeapon);
         }
 
-        EquipMainHandWeapon(defaultWeapon);
+        EquipMainHandWeapon(selectedClassWeapon);
     EquipOffhandWeapon(characterData?.offHandWeaponConfig);
         EquipAccessories(characterData?.accessoryConfigs);
         GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(characterData);
@@ -848,7 +862,20 @@ public class PlayerController : Organism
         }
 
         if (IsOwner && IsClientStarted)
+        {
             ServerRpcEquipOffhandWeaponByName(weaponConfig.weaponName);
+            return;
+        }
+
+        WeaponSettings settings = weaponConfig.ToWeaponSettings();
+        if (settings.weaponPrefab == null)
+            return;
+
+        OffHandWeaponHolder weaponHolder = GetComponent<OffHandWeaponHolder>();
+        if (weaponHolder == null)
+            weaponHolder = gameObject.AddComponent<OffHandWeaponHolder>();
+
+        weaponHolder.EquipWeapon(settings.weaponPrefab);
     }
 
     private void UnequipOffhandWeapon()

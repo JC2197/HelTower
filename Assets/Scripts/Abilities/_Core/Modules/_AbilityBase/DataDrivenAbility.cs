@@ -244,6 +244,9 @@ public class DataDrivenAbility : Ability
     public int MaxAmmo => GetActiveAmmoConfig()?.magazineSize ?? 0;
     public float GetRemainingCooldown() => Mathf.Max(0f, (lastUsedTime + GetEffectiveCooldown()) - Time.time);
     public float GetCooldownPercentage() => 1f - (GetRemainingCooldown() / GetEffectiveCooldown());
+    public float AttackDuration => 1f / GetEffectiveAttackSpeed();
+    public float GetRemainingAttackTime() => Mathf.Max(0f, (lastUsedTime + AttackDuration) - Time.time);
+    public float GetAttackProgress() => 1f - (GetRemainingAttackTime() / AttackDuration);
     /// <summary>True when this ability interrupts whatever the caster is currently doing.</summary>
     public bool OverridesOtherAbilities => config != null && config.cancelActions;
     /// <summary>Cheap gate for held-button re-triggering, so a held key doesn't spam blocked cast attempts every frame.</summary>
@@ -410,6 +413,8 @@ public class DataDrivenAbility : Ability
 
     private float GetEffectiveAttackSpeed()
     {
+        if (config == null) return 0.001f;
+
         float effectiveAttackSpeed = config.attackSpeed;
         if (_accumulatedOverrides != null && _accumulatedOverrides.TryGetValue("attackSpeed", out var asAccum))
         {

@@ -21,6 +21,8 @@ public class CharacterAbilityManager : MonoBehaviour
     
     /// <summary>Fired when trait abilities list changes (add/remove/clear).</summary>
     public event Action OnTraitAbilitiesChanged;
+    /// <summary>Fired after all runtime abilities have been replaced from a character loadout.</summary>
+    public event Action OnAbilitiesLoaded;
     
     // === Core Abilities ===
     private Ability primaryAbility;    
@@ -127,6 +129,8 @@ public class CharacterAbilityManager : MonoBehaviour
                 }
             }
         }
+
+        OnAbilitiesLoaded?.Invoke();
     }
 
     private Ability LoadAbility(AbilityReference abilityRef, int slotIndex)
@@ -153,6 +157,7 @@ public class CharacterAbilityManager : MonoBehaviour
 
         newAbility.SetAbilityReference(abilityRef);
         newAbility.SetAbilitySlot(slotIndex);
+        newAbility.InitializeAbility();
         
         string slotName = slotIndex switch
         {
