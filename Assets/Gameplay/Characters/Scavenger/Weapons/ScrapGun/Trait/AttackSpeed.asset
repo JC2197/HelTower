@@ -14,16 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: AttackSpeed
   displayName: Attack Speed
-  baseGoldCost: 8
   description: Your character gains +{v1}% attack speed.
   traitIcon: {fileID: 5508174528185312710, guid: 95bee76456d3e904da1212fef92be7ff, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 5
+  maxLevel: 3
   statModifiers:
   - statID: AttackSpeed
     modifierType: 0
-    value: 0.15
+    value: 0.25
     customIcon: {fileID: 0}
     description: 
   effectScript: {fileID: 0}

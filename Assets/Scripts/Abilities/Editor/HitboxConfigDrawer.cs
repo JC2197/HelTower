@@ -17,7 +17,9 @@ public class HitboxConfigDrawer : PropertyDrawer
 
     private static readonly string[] TrailingFields =
     {
-        "lifeSteal", "knockback", "pull", "onHitEffects", "positiveHealing", "onHitBuffEffects", "effects"
+        "lifeSteal", "knockback", "pull", "forcedMovementPreference",
+        "onHitEffects", "triggerOneTriggeredAbilityOnDestroy",
+        "positiveHealing", "onHitBuffEffects", "effects"
     };
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -35,7 +37,8 @@ public class HitboxConfigDrawer : PropertyDrawer
             foreach (string field in AlwaysFields)
                 yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative(field), position, yPos, true);
 
-            if (property.FindPropertyRelative("useWeaponDamage").boolValue)
+            SerializedProperty useWeaponDamage = property.FindPropertyRelative("useWeaponDamage");
+            if (useWeaponDamage != null && useWeaponDamage.boolValue)
                 yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("percentWeaponDamage"), position, yPos);
 
             foreach (string field in TrailingFields)
@@ -55,13 +58,14 @@ public class HitboxConfigDrawer : PropertyDrawer
         float height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
         foreach (string field in AlwaysFields)
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative(field), true) + EditorGUIUtility.standardVerticalSpacing;
+            height += DrawerUtil.SafePropertyHeight(property.FindPropertyRelative(field));
 
-        if (property.FindPropertyRelative("useWeaponDamage").boolValue)
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("percentWeaponDamage")) + EditorGUIUtility.standardVerticalSpacing;
+        SerializedProperty useWeaponDamage = property.FindPropertyRelative("useWeaponDamage");
+        if (useWeaponDamage != null && useWeaponDamage.boolValue)
+            height += DrawerUtil.SafePropertyHeight(property.FindPropertyRelative("percentWeaponDamage"), false);
 
         foreach (string field in TrailingFields)
-            height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative(field), true) + EditorGUIUtility.standardVerticalSpacing;
+            height += DrawerUtil.SafePropertyHeight(property.FindPropertyRelative(field));
 
         return height;
     }

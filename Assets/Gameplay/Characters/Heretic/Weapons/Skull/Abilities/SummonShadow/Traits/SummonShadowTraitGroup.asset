@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4847edb348e11b54da26d42562dd7d43, type: 3}
+  m_Name: SummonShadowTraitGroup
+  m_EditorClassIdentifier: Assembly-CSharp::TraitGroup
+  traits:
+  - {fileID: 11400000, guid: 3ce41b9073916224eba88cac4c4fed0b, type: 2}
+  - {fileID: 11400000, guid: 315d07d2c5376b747ae0448198a71821, type: 2}
+  - {fileID: 11400000, guid: e69dd2eb79340894c9c394552ee63438, type: 2}
+  - {fileID: 11400000, guid: ee3588872bde4a74abbecd651c980f3f, type: 2}
+  - {fileID: 11400000, guid: 7b09ccd47cffde64189c7e764ed45163, type: 2}
+  - {fileID: 11400000, guid: 4dcae87e22803ab428030d01957bd633, type: 2}
+  - {fileID: 11400000, guid: 05989bb372856fb4b9566282489bb943, type: 2}

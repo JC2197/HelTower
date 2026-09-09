@@ -17,12 +17,12 @@ MonoBehaviour:
     aimingRadius: 0.45
     isMainHand: 1
     is2Handed: 0
-    northEastOffset: {x: 0.1, y: 0}
-    northWestOffset: {x: -0.1, y: 0}
-    southEastOffset: {x: 0.1, y: 0}
-    southWestOffset: {x: -0.1, y: 0}
-    weaponBehindOnNE: 1
-    weaponBehindOnNW: 1
+    northEastOffset: {x: 0.1, y: -0.4}
+    northWestOffset: {x: -0.1, y: -0.4}
+    southEastOffset: {x: 0.1, y: -0.4}
+    southWestOffset: {x: -0.1, y: -0.4}
+    weaponBehindOnNE: 0
+    weaponBehindOnNW: 0
     weaponBehindOnSE: 0
     weaponBehindOnSW: 0
     isOffhand: 0
@@ -30,11 +30,11 @@ MonoBehaviour:
     offhandNorthWestOffset: {x: 0, y: 0}
     offhandSouthEastOffset: {x: 0, y: 0}
     offhandSouthWestOffset: {x: 0, y: 0}
-    offhandWeaponBehindOnNE: 1
-    offhandWeaponBehindOnNW: 1
+    offhandWeaponBehindOnNE: 0
+    offhandWeaponBehindOnNW: 0
     offhandWeaponBehindOnSE: 0
     offhandWeaponBehindOnSW: 0
-    lockTo2Directions: 0
+    lockTo2Directions: 1
     flipWeaponOnTurn: 1
     flipWeaponOnYAxis: 1
     flipWeaponOnXAxis: 0

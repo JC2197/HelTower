@@ -1125,7 +1125,7 @@ public class PlayerController : Organism
     {
         CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
         abilityManager?.SetWeaponAbility(weaponConfig != null ? weaponConfig.grantedPrimaryAbility : null);
-        abilityManager?.SetSecondaryWeaponAbility(weaponConfig != null ? weaponConfig.grantedSecondaryAbility : null);
+        abilityManager?.SetSecondaryAbility(weaponConfig != null ? weaponConfig.grantedSecondaryAbility : null);
         abilityManager?.SetDashAbility(weaponConfig != null ? weaponConfig.grantedDashAbility : null);
         abilityManager?.SetPassiveAbility(weaponConfig != null ? weaponConfig.grantedPassiveAbility : null);
 

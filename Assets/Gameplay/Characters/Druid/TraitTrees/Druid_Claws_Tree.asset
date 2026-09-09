@@ -15,7 +15,7 @@ MonoBehaviour:
   treeName: Claws
   description: 
   nodeSpacing: 100
-  nodeIconSize: 45
+  nodeIconSize: 34
   nodeIconFrame: {fileID: 0}
   editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
   anchorTreeToBottom: 1
@@ -26,38 +26,38 @@ MonoBehaviour:
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
   connectionLineWidth: 3
-  canvasWidth: 450
+  canvasWidth: 350
   nodes:
   - nodeID: Claw_010e
     traitData: {fileID: 11400000, guid: 5b1cf3f1397547a48aa31300a63dfca4, type: 2}
-    position: {x: -112, y: -48}
+    position: {x: -72, y: 64}
     connectedNodeIDs: []
   - nodeID: Claw_d089
     traitData: {fileID: 11400000, guid: 5cc8ab16ba50773478fafa54dc029ede, type: 2}
-    position: {x: 96, y: -48}
+    position: {x: 104, y: 64}
     connectedNodeIDs: []
   - nodeID: Claw_c883
     traitData: {fileID: 11400000, guid: 9d354b7b62917dc4cbdbff8b2c646df7, type: 2}
-    position: {x: 48, y: 80}
+    position: {x: 56, y: 152}
     connectedNodeIDs:
     - Claw_d089
   - nodeID: Pounce Cooldown_9727
     traitData: {fileID: 11400000, guid: b9e79fb05e23ab743aedaae5db208d3f, type: 2}
-    position: {x: 128, y: 80}
+    position: {x: 136, y: 152}
     connectedNodeIDs:
     - Claw_d089
   - nodeID: AttackSpeed_ff72
     traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
-    position: {x: -128, y: 80}
+    position: {x: -120, y: 152}
     connectedNodeIDs:
     - Claw_010e
   - nodeID: Hop_Charge_68d9
     traitData: {fileID: 11400000, guid: 30d88ac767e87074fb24e4a32ca06190, type: 2}
-    position: {x: -32, y: 80}
+    position: {x: -24, y: 152}
     connectedNodeIDs: []
-  canvasHeight: 258
-  minCanvasWidth: 400
-  minCanvasHeight: 225
+  canvasHeight: 400
+  minCanvasWidth: 350
+  minCanvasHeight: 400
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections:

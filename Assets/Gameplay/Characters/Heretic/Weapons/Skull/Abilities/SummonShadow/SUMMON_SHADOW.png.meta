@@ -1,0 +1,952 @@
+fileFormatVersion: 2
+guid: 03ff91a202d96314f859bea590906a32
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8560072231465399528
+    second: SUMMON_SHADOW_0
+  - first:
+      213: -6505640977684158352
+    second: SUMMON_SHADOW_1
+  - first:
+      213: -4274348991715949582
+    second: SUMMON_SHADOW_2
+  - first:
+      213: -5771726035006821048
+    second: SUMMON_SHADOW_3
+  - first:
+      213: 1630836516800916610
+    second: SUMMON_SHADOW_4
+  - first:
+      213: 2890695283780904349
+    second: SUMMON_SHADOW_5
+  - first:
+      213: -2103529027569437204
+    second: SUMMON_SHADOW_6
+  - first:
+      213: -2004025287532557394
+    second: SUMMON_SHADOW_7
+  - first:
+      213: 8482238087062293349
+    second: SUMMON_SHADOW_8
+  - first:
+      213: -3911698073680372829
+    second: SUMMON_SHADOW_9
+  - first:
+      213: 8974005455688251395
+    second: SUMMON_SHADOW_10
+  - first:
+      213: 2203655007835784004
+    second: SUMMON_SHADOW_11
+  - first:
+      213: 358553294595187469
+    second: SUMMON_SHADOW_12
+  - first:
+      213: 1467639200863175384
+    second: SUMMON_SHADOW_13
+  - first:
+      213: 240577052400169711
+    second: SUMMON_SHADOW_14
+  - first:
+      213: -5069704915050127345
+    second: SUMMON_SHADOW_15
+  - first:
+      213: -5495410378645900608
+    second: SUMMON_SHADOW_16
+  - first:
+      213: 5255304679113917306
+    second: SUMMON_SHADOW_17
+  - first:
+      213: 4905781191829350543
+    second: SUMMON_SHADOW_18
+  - first:
+      213: -6566346761629820793
+    second: SUMMON_SHADOW_19
+  - first:
+      213: -5583755367378625121
+    second: SUMMON_SHADOW_20
+  - first:
+      213: 688215827977464061
+    second: SUMMON_SHADOW_21
+  - first:
+      213: 190019459923045347
+    second: SUMMON_SHADOW_22
+  - first:
+      213: 735617615804054044
+    second: SUMMON_SHADOW_23
+  - first:
+      213: -4106597110812439084
+    second: SUMMON_SHADOW_24
+  - first:
+      213: -4463760814228172154
+    second: SUMMON_SHADOW_25
+  - first:
+      213: -1810803207206748594
+    second: SUMMON_SHADOW_26
+  - first:
+      213: 1068481321020423075
+    second: SUMMON_SHADOW_27
+  - first:
+      213: 974185729719565473
+    second: SUMMON_SHADOW_28
+  - first:
+      213: 2743930542170766531
+    second: SUMMON_SHADOW_29
+  - first:
+      213: -2720219763118715471
+    second: SUMMON_SHADOW_30
+  - first:
+      213: -5898189728191122782
+    second: SUMMON_SHADOW_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_0
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e43e20675c7bc670800000000000000
+      internalID: 8560072231465399528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_1
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07829e8cff157b5a0800000000000000
+      internalID: -6505640977684158352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_2
+      rect:
+        serializedVersion: 2
+        x: 109
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f3c8be0d367ea4c0800000000000000
+      internalID: -4274348991715949582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_3
+      rect:
+        serializedVersion: 2
+        x: 157
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84d6b8640c5b6efa0800000000000000
+      internalID: -5771726035006821048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_4
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 2
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28c67a6eb25e1a610800000000000000
+      internalID: 1630836516800916610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_5
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9568a78b00dd1820800000000000000
+      internalID: 2890695283780904349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_6
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce530019e73cec2e0800000000000000
+      internalID: -2103529027569437204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_7
+      rect:
+        serializedVersion: 2
+        x: 349
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eabc8b76e954034e0800000000000000
+      internalID: -2004025287532557394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_8
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56b03af6996f6b570800000000000000
+      internalID: 8482238087062293349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_9
+      rect:
+        serializedVersion: 2
+        x: 445
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ab93b9b35bd6b9c0800000000000000
+      internalID: -3911698073680372829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_10
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30837b66a621a8c70800000000000000
+      internalID: 8974005455688251395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_11
+      rect:
+        serializedVersion: 2
+        x: 541
+        y: 4
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 443009ddd84f49e10800000000000000
+      internalID: 2203655007835784004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_12
+      rect:
+        serializedVersion: 2
+        x: 589
+        y: 2
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d03646d5256d9f400800000000000000
+      internalID: 358553294595187469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_13
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d243e9c31a1e5410800000000000000
+      internalID: 1467639200863175384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_14
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe23c65fd83b65300800000000000000
+      internalID: 240577052400169711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_15
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 1
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f00a26e7d3ac4a9b0800000000000000
+      internalID: -5069704915050127345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_16
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c2f0d560616cb3b0800000000000000
+      internalID: -5495410378645900608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_17
+      rect:
+        serializedVersion: 2
+        x: 833
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a73880903c79ee840800000000000000
+      internalID: 5255304679113917306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_18
+      rect:
+        serializedVersion: 2
+        x: 879
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f88e7c48006d41440800000000000000
+      internalID: 4905781191829350543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_19
+      rect:
+        serializedVersion: 2
+        x: 927
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78894090966afd4a0800000000000000
+      internalID: -6566346761629820793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_20
+      rect:
+        serializedVersion: 2
+        x: 975
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d57bec3148282b0800000000000000
+      internalID: -5583755367378625121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_21
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df8e56336a80d8900800000000000000
+      internalID: 688215827977464061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_22
+      rect:
+        serializedVersion: 2
+        x: 1067
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ebef1921b513a200800000000000000
+      internalID: 190019459923045347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_23
+      rect:
+        serializedVersion: 2
+        x: 1113
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1a3588f250753a00800000000000000
+      internalID: 735617615804054044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_24
+      rect:
+        serializedVersion: 2
+        x: 1168
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dd01667faf6207c0800000000000000
+      internalID: -4106597110812439084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_25
+      rect:
+        serializedVersion: 2
+        x: 1217
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6821f9180398d02c0800000000000000
+      internalID: -4463760814228172154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_26
+      rect:
+        serializedVersion: 2
+        x: 1263
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4ebd4cb31cbed6e0800000000000000
+      internalID: -1810803207206748594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_27
+      rect:
+        serializedVersion: 2
+        x: 1311
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3abff84b91204de00800000000000000
+      internalID: 1068481321020423075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_28
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ac703d72c0058d00800000000000000
+      internalID: 974185729719565473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_29
+      rect:
+        serializedVersion: 2
+        x: 1407
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ccfe664a46641620800000000000000
+      internalID: 2743930542170766531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_30
+      rect:
+        serializedVersion: 2
+        x: 1451
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bdcf4ca986df3ad0800000000000000
+      internalID: -2720219763118715471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SUMMON_SHADOW_31
+      rect:
+        serializedVersion: 2
+        x: 1497
+        y: 3
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a27f4131bb652ea0800000000000000
+      internalID: -5898189728191122782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b8872f486a7a53f48b9c016a5192f0ab
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      SUMMON_SHADOW_0: 8560072231465399528
+      SUMMON_SHADOW_1: -6505640977684158352
+      SUMMON_SHADOW_10: 8974005455688251395
+      SUMMON_SHADOW_11: 2203655007835784004
+      SUMMON_SHADOW_12: 358553294595187469
+      SUMMON_SHADOW_13: 1467639200863175384
+      SUMMON_SHADOW_14: 240577052400169711
+      SUMMON_SHADOW_15: -5069704915050127345
+      SUMMON_SHADOW_16: -5495410378645900608
+      SUMMON_SHADOW_17: 5255304679113917306
+      SUMMON_SHADOW_18: 4905781191829350543
+      SUMMON_SHADOW_19: -6566346761629820793
+      SUMMON_SHADOW_2: -4274348991715949582
+      SUMMON_SHADOW_20: -5583755367378625121
+      SUMMON_SHADOW_21: 688215827977464061
+      SUMMON_SHADOW_22: 190019459923045347
+      SUMMON_SHADOW_23: 735617615804054044
+      SUMMON_SHADOW_24: -4106597110812439084
+      SUMMON_SHADOW_25: -4463760814228172154
+      SUMMON_SHADOW_26: -1810803207206748594
+      SUMMON_SHADOW_27: 1068481321020423075
+      SUMMON_SHADOW_28: 974185729719565473
+      SUMMON_SHADOW_29: 2743930542170766531
+      SUMMON_SHADOW_3: -5771726035006821048
+      SUMMON_SHADOW_30: -2720219763118715471
+      SUMMON_SHADOW_31: -5898189728191122782
+      SUMMON_SHADOW_4: 1630836516800916610
+      SUMMON_SHADOW_5: 2890695283780904349
+      SUMMON_SHADOW_6: -2103529027569437204
+      SUMMON_SHADOW_7: -2004025287532557394
+      SUMMON_SHADOW_8: 8482238087062293349
+      SUMMON_SHADOW_9: -3911698073680372829
+      Skeleton_0: -377044884
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

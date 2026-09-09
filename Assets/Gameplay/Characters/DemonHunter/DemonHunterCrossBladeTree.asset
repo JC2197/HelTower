@@ -26,27 +26,27 @@ MonoBehaviour:
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
   connectionLineWidth: 3
-  canvasWidth: 400
+  canvasWidth: 350
   nodes:
   - nodeID: CrossbowDamage_05a9
     traitData: {fileID: 11400000, guid: 2d57e422af1fe2b458909af905b290a7, type: 2}
-    position: {x: -48, y: 64}
+    position: {x: -40, y: 152}
     connectedNodeIDs: []
   - nodeID: PierceShotDamage_7ddd
     traitData: {fileID: 11400000, guid: bb9651bc7d34637498a5a9ca86717dc8, type: 2}
-    position: {x: -112, y: 64}
+    position: {x: -112, y: 152}
     connectedNodeIDs: []
   - nodeID: CrossbowAttackSpeed_2d06
     traitData: {fileID: 11400000, guid: d290222d5a0bd0c4ead2e35f3b19a35e, type: 2}
-    position: {x: 32, y: 64}
+    position: {x: 40, y: 152}
     connectedNodeIDs: []
   - nodeID: PiercingBaseCrit_e0db
     traitData: {fileID: 11400000, guid: a715d556a5d2bb3409c34800eb32dbf5, type: 2}
-    position: {x: 112, y: 64}
+    position: {x: 120, y: 152}
     connectedNodeIDs: []
-  canvasHeight: 225
-  minCanvasWidth: 400
-  minCanvasHeight: 225
+  canvasHeight: 400
+  minCanvasWidth: 350
+  minCanvasHeight: 400
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections: []

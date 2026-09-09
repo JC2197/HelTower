@@ -51,7 +51,7 @@ MonoBehaviour:
     - statId: MaxHealth
       displayName: Maximum HP
       categoryId: Active
-      currentValue: 400
+      currentValue: 0
     - statId: Physical
       displayName: Physical Damage Bonus
       categoryId: Active
@@ -84,31 +84,19 @@ MonoBehaviour:
   isSimpleEnemy: 0
   actions:
   - actionType: 4
-    minDistance: 0
-    maxDistance: 0
     healthPercentThreshold: 0
     movementSpeedMultiplier: 0
-    movementDuration: 0
     strafeDistance: 0
     strafeClockwise: 0
     patrolRadius: 0
     patrolWaitTime: 0
-    attackCooldownMin: 0
-    attackCooldownMax: 0
-    abilityIndex: 0
   - actionType: 4
-    minDistance: 0
-    maxDistance: 0
     healthPercentThreshold: 0
     movementSpeedMultiplier: 0
-    movementDuration: 0
     strafeDistance: 0
     strafeClockwise: 0
     patrolRadius: 0
     patrolWaitTime: 0
-    attackCooldownMin: 0
-    attackCooldownMax: 0
-    abilityIndex: 0
   canMove: 1
   continuousMovement: 1
   movementTime: 1

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public enum BeamTargetingMode
 {
@@ -15,9 +14,8 @@ public enum BeamTargetingMode
 public class BeamAbilityConfig
 {
     [Header("Beam Rendering")]
-    [Tooltip("Prefab with a BeamRenderer component used for beam visuals.")]
-    public GameObject beamRendererPrefab;
-
+    [Tooltip("Shared hitbox configuration for the beam renderer prefab, target layers, damage, and hit effects.")]
+    public HitboxConfig hitbox = new HitboxConfig();
     [Tooltip("How beam endpoint is chosen.")]
     public BeamTargetingMode targetingMode = BeamTargetingMode.Cursor;
 
@@ -38,6 +36,9 @@ public class BeamAbilityConfig
     [Tooltip("Maximum distance the beam can reach")]
     public float maxBeamDistance = 20f;
 
+    [Tooltip("Keep the beam at max distance instead of ending at the cursor or target. Enemy colliders are ignored, but other blockers still stop it.")]
+    public bool fixedDistance = false;
+
     [Tooltip("Number of simultaneous beams emitted per activation")]
     [Min(1)]
     public int beamAmount = 1;
@@ -52,33 +53,8 @@ public class BeamAbilityConfig
     [Min(0)]
     public int chainAmount = 0;
 
-    [Tooltip("Value applied each time the beam hits (single-shot: once, channeled: each tick)")]
-    [FormerlySerializedAs("damagePerSecond")]
-    public float value = 50f;
-
-    [Tooltip("If enabled, targets on Heal Targets layer mask are healed instead of damaged")]
-    public bool canHeal = false;
-
-    [Tooltip("Targets on these layers receive healing when Can Heal is enabled")]
-    public LayerMask healTargets = 0;
-
     [Tooltip("How many hit ticks occur per second for channeled beams")]
     public float hitsPerSecond = 2f;
-
-    [Tooltip("Type of damage dealt")]
-    [DamageTypeDropdown]
-    public string damageTypeName = "Energy";
-
-    [Tooltip("Layers the beam can hit")]
-    public LayerMask hitLayers = -1;
-
-    [Header("On Hit Status Effects")]
-    [Tooltip("Effects applied to targets whenever this beam lands a hit tick")]
-    public EffectData onHitEffects = new EffectData();
-
-    [Header("Life Steal")]
-    [Tooltip("Heal the ability owner on each beam hit tick.")]
-    public LifeStealConfig lifeSteal = new LifeStealConfig();
 
     [Header("Hold to Fire")]
     [Tooltip("Can hold button to continuously fire beam")]
@@ -130,6 +106,4 @@ public class BeamAbilityConfig
     [Tooltip("Sound effect on impact")]
     public AudioClip impactSound;
 
-    [Tooltip("Flash color when hitting enemies (requires DamageFlash material on enemy sprite)")]
-    public Color hitFlashColor = Color.white;
 }

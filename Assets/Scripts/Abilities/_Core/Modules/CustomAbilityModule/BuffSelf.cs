@@ -150,7 +150,11 @@ public class BuffSelf : CustomAbility
         if (effectManager == null)
             effectManager = context.owner.GetComponentInChildren<EffectManager>();
 
-        if (effectManager == null) return;
+        if (effectManager == null)
+        {
+            Debug.LogWarning($"[BuffSelf] '{name}' cannot apply {buffEffect.effectName}: {context.owner.name} has no EffectManager component.");
+            return;
+        }
 
         EffectConfig runtimeEffect = Object.Instantiate(buffEffect);
         runtimeEffect.duration = buffDuration;

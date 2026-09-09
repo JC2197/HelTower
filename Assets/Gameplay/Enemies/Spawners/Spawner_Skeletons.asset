@@ -14,28 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnGroup
   GroupName: Skeletons
   waves:
-  - enemyCountRange: {x: 2, y: 3}
+  - enemyCountRange: {x: 100, y: 200}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 100
-      spawnDelay: 0
-  - enemyCountRange: {x: 3, y: 5}
+      spawnDelay: 0.5
+  - enemyCountRange: {x: 13, y: 15}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 2
-      spawnDelay: 0
+      spawnDelay: 0.1
     - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
       spawnWeight: 1
-      spawnDelay: 0
-  - enemyCountRange: {x: 5, y: 7}
+      spawnDelay: 0.1
+  - enemyCountRange: {x: 17, y: 20}
     enemies:
     - enemyPrefab: {fileID: 558853963702316885, guid: cf22687fc5f92054d939e79e3f37d769, type: 3}
       spawnWeight: 1
-      spawnDelay: 0
+      spawnDelay: 0.1
     - enemyPrefab: {fileID: 558853963702316885, guid: abf35bddf1dc92d47aa9f4b0af2f136d, type: 3}
-      spawnWeight: 1
-      spawnDelay: 0
+      spawnWeight: 2
+      spawnDelay: 0.1
     - enemyPrefab: {fileID: 558853963702316885, guid: dc1739a36e98b3e4f8531f06181f7488, type: 3}
-      spawnWeight: 1
-      spawnDelay: 0
-  spawnRadius: 12
+      spawnWeight: 2
+      spawnDelay: 0.1
+  spawnRadius: 8

@@ -19,6 +19,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     private bool isBeamActive;
     private float energyConsumptionTimer;
     private float beamLifetime;
+    private float beamDamageTimer;
 
     private GameObject activeBeamGO;
     private BeamRenderer activeBeamRenderer;
@@ -33,14 +34,13 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private Vector3 beamEndPosition;
 
-    private readonly Dictionary<Organism, float> organismHitTimers = new Dictionary<Organism, float>();
-
     private ParticleSystem muzzleFlash;
     private GameObject muzzleFlashLight;
 
     private GameObject impactEffect;
     private Animator impactAnimator;
     private GameObject impactParticles;
+    private System.Func<bool> holdChecker;
 
     private void Awake()
     {
@@ -51,6 +51,11 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     {
         parentConfig = context.parentConfig;
         statOwner = context.statOwner;
+    }
+
+    public void SetHoldChecker(System.Func<bool> checker)
+    {
+        holdChecker = checker;
     }
 
     public void Initialize(AbilityDataConfig config)
@@ -117,7 +122,9 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         UpdateImpactParticles(beamEndPosition, direction);
         ApplyBeamDamage(start, beamEndPosition, direction);
 
-        if (beamConfig.channelCostPerSecond > 0f && beamConfig.canHoldToFire)
+        bool isChanneled = beamConfig.canHoldToFire && !IsAutocast;
+
+        if (beamConfig.channelCostPerSecond > 0f && isChanneled)
         {
             energyConsumptionTimer += Time.deltaTime;
             float energyToConsume = beamConfig.channelCostPerSecond * energyConsumptionTimer;
@@ -137,8 +144,6 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             }
         }
 
-        bool isChanneled = beamConfig.canHoldToFire;
-
         if (isChanneled)
         {
             // If it's a channeled/hold ability, shut down when the player lets go
@@ -154,68 +159,68 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             {
                 StopBeam("Single-shot duration reached.");
             }
-            else if (beamConfig.beamRendererPrefab != null && activeBeamGO == null && !HasActiveChainRenderers() && beamLifetime > 0.05f)
+            else if (beamConfig.hitbox?.prefab != null && activeBeamGO == null && !HasActiveChainRenderers() && beamLifetime > 0.05f)
             {
                 StopBeam("BeamRenderer visual completed execution.");
             }
         }
     }
 
-     private void StartBeam() 
-    { 
-        if (launchZone == null) 
-            launchZone = WeaponLaunchPoint.FindLaunchZone(transform); 
+    private void StartBeam()
+    {
+        if (launchZone == null)
+            launchZone = WeaponLaunchPoint.FindLaunchZone(transform);
 
-        isBeamActive = true; 
-        energyConsumptionTimer = 0f; 
-        beamLifetime = 0f; 
-        organismHitTimers.Clear(); 
+        isBeamActive = true;
+        energyConsumptionTimer = 0f;
+        beamLifetime = 0f;
+        beamDamageTimer = 0f;
 
-        if (!_isExtraBeam) lockedTarget = null; 
-        hasLockedEndpoint = _isExtraBeam && lockedTarget != null; 
-        singleShotDamageDealt = false; 
+        if (!_isExtraBeam) lockedTarget = null;
+        hasLockedEndpoint = _isExtraBeam && lockedTarget != null;
+        singleShotDamageDealt = false;
 
-        Vector3 start = GetBeamStartPosition(); 
-        Enemy initialEnemy = null; 
-        Vector3 initialTarget; 
+        Vector3 start = GetBeamStartPosition();
+        Enemy initialEnemy = null;
+        Vector3 initialTarget;
 
         // 1. Resolve Target exactly once
-        if (IsAutocast) 
-        { 
-            if (lockedTarget == null) 
-                initialEnemy = FindAutoTargetEnemy(start, start); 
-            else 
-                initialEnemy = lockedTarget; 
-            initialTarget = initialEnemy != null ? initialEnemy.transform.position : start; 
-        } 
-        else 
-        { 
-            initialTarget = ResolveDesiredTarget(start, out initialEnemy); 
-        } 
+        if (IsAutocast)
+        {
+            if (lockedTarget == null)
+                initialEnemy = FindAutoTargetEnemy(start, start);
+            else
+                initialEnemy = lockedTarget;
+            initialTarget = initialEnemy != null ? initialEnemy.transform.position : start;
+        }
+        else
+        {
+            initialTarget = ResolveDesiredTarget(start, out initialEnemy);
+        }
 
         // 2. Lock target references safely for single-shot tracking snapshots
-        if (initialEnemy != null) 
-        { 
-            lockedTarget = initialEnemy; 
-            lockedEndpoint = initialTarget; 
-            hasLockedEndpoint = true; 
-            LogDebug($"StartBeam locked to target={lockedTarget.name}"); 
-        } 
+        if (initialEnemy != null)
+        {
+            lockedTarget = initialEnemy;
+            lockedEndpoint = initialTarget;
+            hasLockedEndpoint = true;
+            LogDebug($"StartBeam locked to target={lockedTarget.name}");
+        }
 
         // 3. FIXED: Run physics calculations BEFORE spawning visuals to prevent wall-piercing layout flashes
         ComputeBeamEndpoint(start, initialTarget, initialEnemy, out Vector3 finalVisualEnd, out Vector3 direction);
         beamEndPosition = finalVisualEnd;
 
-        LogDebug($"StartBeam start={start} initialTarget={initialTarget} finalVisualEnd={beamEndPosition} direction={direction}"); 
+        LogDebug($"StartBeam start={start} initialTarget={initialTarget} finalVisualEnd={beamEndPosition} direction={direction}");
 
         // 4. Initialize visual layers correctly
-        SpawnActiveRenderer(start, beamEndPosition, IsAutocast); 
-        InitializeMuzzleFlash(start, direction); 
-        EnableMuzzleFlash(); 
+        SpawnActiveRenderer(start, beamEndPosition, IsAutocast);
+        InitializeMuzzleFlash(start, direction);
+        EnableMuzzleFlash();
 
         // 5. Fire extra multi-beam paths if autocast condition metrics require it
-        if (IsAutocast && !_isExtraBeam && beamConfig.beamAmount > 1) 
-            SpawnExtraBeams(start); 
+        if (IsAutocast && !_isExtraBeam && beamConfig.beamAmount > 1)
+            SpawnExtraBeams(start);
     }
 
     private void StopBeam(string reason = "")
@@ -229,7 +234,6 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             LogDebug("StopBeam called.");
 
         isBeamActive = false;
-        organismHitTimers.Clear();
         lockedTarget = null;
         hasLockedEndpoint = false;
 
@@ -278,7 +282,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         bool fullCircle = beamConfig.multiBeamAngle >= 360f;
         float halfAngle = beamConfig.multiBeamAngle * 0.5f;
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(start, beamConfig.maxBeamDistance, beamConfig.hitLayers);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(start, beamConfig.maxBeamDistance, GetBeamTargetMask());
         List<Enemy> candidates = new List<Enemy>();
         for (int i = 0; i < hits.Length; i++)
         {
@@ -374,13 +378,13 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     private Enemy FindAutoTargetEnemy(Vector3 cursorWorld, Vector3 start)
     {
         float radius = Mathf.Max(0.1f, beamConfig.trackingRadius);
-        Collider2D[] nearCursor = Physics2D.OverlapCircleAll(cursorWorld, radius, beamConfig.hitLayers);
+        Collider2D[] nearCursor = Physics2D.OverlapCircleAll(cursorWorld, radius, GetBeamTargetMask());
 
         Enemy best = PickClosestLivingEnemy(nearCursor, cursorWorld);
         if (best != null)
             return best;
 
-        Collider2D[] nearStart = Physics2D.OverlapCircleAll(start, beamConfig.maxBeamDistance, beamConfig.hitLayers);
+        Collider2D[] nearStart = Physics2D.OverlapCircleAll(start, beamConfig.maxBeamDistance, GetBeamTargetMask());
         return PickClosestLivingEnemy(nearStart, start);
     }
 
@@ -417,17 +421,35 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         direction = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector3.right;
 
         float desiredDistance = toTarget.magnitude;
-        float beamReach = Mathf.Min(desiredDistance, beamConfig.maxBeamDistance);
+        float beamReach = beamConfig.fixedDistance
+            ? beamConfig.maxBeamDistance
+            : Mathf.Min(desiredDistance, beamConfig.maxBeamDistance);
 
         // Exclude the caster's own layer so the raycast does not immediately
         // hit the player's own collider from the LaunchZone origin.
-        LayerMask castMask = beamConfig.hitLayers & ~(1 << gameObject.layer);
-        RaycastHit2D hit = Physics2D.Raycast(start, direction, beamReach, castMask);
+        LayerMask castMask = GetBeamTargetMask() & ~(1 << gameObject.layer);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(start, direction, beamReach, castMask);
+        RaycastHit2D hit = default;
+        bool hasBlockingHit = false;
 
-        if (hit.collider != null)
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Enemy hitEnemy = hits[i].collider != null
+                ? hits[i].collider.GetComponentInParent<Enemy>()
+                : null;
+
+            if (beamConfig.fixedDistance && hitEnemy != null)
+                continue;
+
+            hit = hits[i];
+            hasBlockingHit = true;
+            break;
+        }
+
+        if (hasBlockingHit)
         {
             Enemy hitEnemy = hit.collider.GetComponentInParent<Enemy>();
-            if (autoTargetEnemy != null && hitEnemy == autoTargetEnemy)
+            if (!beamConfig.fixedDistance && autoTargetEnemy != null && hitEnemy == autoTargetEnemy)
                 end = autoTargetEnemy.transform.position;
             else
                 end = hit.point;
@@ -443,18 +465,22 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private void SpawnActiveRenderer(Vector3 start, Vector3 end, bool isAutocast)
     {
-        if (beamConfig.beamRendererPrefab == null)
+        if (beamConfig.hitbox?.prefab == null)
             return;
 
         bool shouldLoop = beamConfig.canHoldToFire && !isAutocast;
 
-        activeBeamGO = Instantiate(beamConfig.beamRendererPrefab, end, Quaternion.identity);
+        activeBeamGO = Instantiate(beamConfig.hitbox.prefab, end, Quaternion.identity);
+        AutoDestroyEffect autoDestroy = activeBeamGO.GetComponent<AutoDestroyEffect>();
+        if (autoDestroy != null)
+            Destroy(autoDestroy);
+
         activeBeamRenderer = activeBeamGO.GetComponent<BeamRenderer>()
                           ?? activeBeamGO.GetComponentInChildren<BeamRenderer>(true);
 
         if (activeBeamRenderer == null)
         {
-            Debug.LogWarning("[beamrenderer] beamRendererPrefab has no BeamRenderer component.", this);
+            Debug.LogWarning("[beamrenderer] beamConfig.hitbox.prefab has no BeamRenderer component.", this);
             Destroy(activeBeamGO);
             activeBeamGO = null;
             return;
@@ -505,14 +531,14 @@ public class BeamAbility : MonoBehaviour, ISubAbility
             for (int i = 0; i < chainResult.targets.Count; i++)
             {
                 Organism target = chainResult.targets[i];
-                LogDebug($"Single-shot chain hit -> {target.name}, value={beamConfig.value:F2}");
-                DealBeamHit(target, beamConfig.value);
+                LogDebug($"Single-shot chain hit -> {target.name}, value={beamConfig.hitbox.damage:F2}");
+                DealBeamHit(target, beamConfig.hitbox.damage);
             }
             return;
         }
 
-        LogDebug($"Single-shot hit -> {lockedTarget.name}, value={beamConfig.value:F2}");
-        DealBeamHit(lockedTarget, beamConfig.value);
+        LogDebug($"Single-shot hit -> {lockedTarget.name}, value={beamConfig.hitbox.damage:F2}");
+        DealBeamHit(lockedTarget, beamConfig.hitbox.damage);
     }
 
     private bool ShouldChain()
@@ -629,7 +655,8 @@ public class BeamAbility : MonoBehaviour, ISubAbility
     {
         float deltaTime = Time.deltaTime;
         float timeBetweenHits = 1f / Mathf.Max(0.1f, beamConfig.hitsPerSecond);
-        float valuePerTick = beamConfig.value;
+        float valuePerTick = beamConfig.hitbox.damage;
+        beamDamageTimer += deltaTime;
 
         float beamLength = Vector3.Distance(start, end);
         Vector3 center = (start + end) * 0.5f;
@@ -640,17 +667,15 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         float primaryDist = float.MaxValue;
 
         LayerMask boxCastMask = GetBeamTargetMask() & ~(1 << gameObject.layer);
-        RaycastHit2D[] hits = Physics2D.BoxCastAll(
+        Collider2D[] hits = Physics2D.OverlapBoxAll(
             center,
             new Vector2(Mathf.Max(0.01f, beamLength), Mathf.Max(0.01f, beamConfig.beamWidth)),
             angle,
-            Vector2.zero,
-            0f,
             boxCastMask);
 
         for (int i = 0; i < hits.Length; i++)
         {
-            Organism organism = hits[i].collider != null ? hits[i].collider.GetComponentInParent<Organism>() : null;
+            Organism organism = hits[i] != null ? hits[i].GetComponentInParent<Organism>() : null;
             if (organism == null || !organism.IsAlive)
                 continue;
 
@@ -681,34 +706,18 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         else
             ClearChainRenderers();
 
+        if (beamDamageTimer < timeBetweenHits)
+            return;
+
+        beamDamageTimer -= timeBetweenHits;
+
         foreach (Organism organism in currentHits)
         {
             if (organism == null || !organism.IsAlive)
                 continue;
 
-            // Start new targets at 0 so first hit occurs after one normal tick interval.
-            // This keeps damage timing visually aligned with beam startup animation.
-            float timer = organismHitTimers.TryGetValue(organism, out float existing) ? existing : 0f;
-            timer += deltaTime;
-
-            if (timer >= timeBetweenHits)
-            {
-                DealBeamHit(organism, valuePerTick);
-                timer = 0f;
-            }
-
-            organismHitTimers[organism] = timer;
+            DealBeamHit(organism, valuePerTick);
         }
-
-        List<Organism> toRemove = new List<Organism>();
-        foreach (Organism tracked in organismHitTimers.Keys)
-        {
-            if (!currentHits.Contains(tracked))
-                toRemove.Add(tracked);
-        }
-
-        for (int i = 0; i < toRemove.Count; i++)
-            organismHitTimers.Remove(toRemove[i]);
     }
 
     private void DealBeamHit(Organism organism, float value)
@@ -716,90 +725,43 @@ public class BeamAbility : MonoBehaviour, ISubAbility
         if (organism == null || !organism.IsAlive)
             return;
 
-        if (ShouldHealTarget(organism))
-        {
-            organism.Heal(value);
-            LogVerbose($"Beam tick -> heal target={organism.name}, value={value:F2}");
-            ApplyBeamOnHitEffects(organism);
-            SpawnBeamHitVisual(organism);
-            return;
-        }
-
-        IDamageable damageable = organism;
-        if (damageable == null)
-            return;
-
-        DamageContext damageContext = DamageCalculator.CalculateDamageWithTraitEffects(
-            value,
-            beamConfig.damageTypeName,
-            parentConfig?.abilityName,
-            parentConfig?.abilityTags?.GetAllTags(),
-            gameObject,
-            organism.gameObject,
-            organism.transform.position,
-            parentConfig
-        );
-
-        damageable.TakeDamage(
-            damageContext.FinalDamage,
-            beamConfig.damageTypeName,
-            organism.transform.position,
-            beamConfig.hitFlashColor,
-            gameObject,
-            damageContext.CritMultiplier);
-
-        PlayerController attackerPlayer = (statOwner ?? gameObject).GetComponent<PlayerController>();
-        attackerPlayer?.NotifyAttackDamage(parentConfig, organism.gameObject, damageContext.FinalDamage, beamConfig.damageTypeName);
-
-        // Life steal — use statOwner (player) when fired by a summon, otherwise this gameObject
-        LifeStealProcessor.Apply(beamConfig.lifeSteal, damageContext.FinalDamage, statOwner ?? gameObject);
-
-        LogVerbose($"Beam tick -> damage target={organism.name}, value={value:F2}, final={damageContext.FinalDamage:F2}, critMult={damageContext.CritMultiplier:F2}");
-
-        ApplyBeamOnHitEffects(organism);
-        SpawnBeamHitVisual(organism);
-    }
-
-    private void ApplyBeamOnHitEffects(Organism organism)
-    {
-        if (beamConfig?.onHitEffects == null || organism == null)
-            return;
-
-        beamConfig.onHitEffects.ApplyEffects(organism.gameObject, gameObject, gameObject);
-    }
-
-    private void SpawnBeamHitVisual(Organism organism)
-    {
-        if (organism == null)
-            return;
-
+        HitboxConfig hitbox = beamConfig.hitbox;
         Collider2D targetCollider = organism.GetComponent<Collider2D>();
         if (targetCollider == null)
             targetCollider = organism.GetComponentInChildren<Collider2D>();
+        if (hitbox == null || targetCollider == null)
+            return;
 
-        HitVisualHelper.SpawnHitVisual(parentConfig, organism.transform.position, targetCollider);
+        GameObject statAttacker = statOwner ?? gameObject;
+        GameObject damageAttacker = gameObject;
+        Vector3 hitPosition = organism.transform.position;
+        string abilityName = parentConfig?.abilityName;
+        List<string> abilityTags = parentConfig?.abilityTags?.GetAllTags();
+
+        if (hitbox.IsPositiveTarget(organism.gameObject))
+        {
+            hitbox.ApplyHealing(targetCollider, statAttacker, damageAttacker, statAttacker,
+                hitPosition, abilityName, abilityTags, parentConfig);
+        }
+
+        if (hitbox.IsNegativeTarget(organism.gameObject))
+        {
+            hitbox.ApplyDamage(targetCollider, statAttacker, damageAttacker, statAttacker,
+                hitPosition, abilityName, abilityTags, parentConfig);
+            hitbox.ApplyOnHitEffects(organism.gameObject, gameObject, damageAttacker);
+        }
+
+        hitbox.SpawnHitFeedback(hitPosition, parentConfig, targetCollider);
     }
 
     private LayerMask GetBeamTargetMask()
     {
-        LayerMask combined = beamConfig.hitLayers;
-        if (beamConfig.canHeal)
-            combined |= beamConfig.healTargets;
-
-        return combined;
-    }
-
-    private bool ShouldHealTarget(Organism organism)
-    {
-        if (organism == null || !beamConfig.canHeal)
-            return false;
-
-        return (beamConfig.healTargets.value & (1 << organism.gameObject.layer)) != 0;
+        return beamConfig.hitbox != null ? beamConfig.hitbox.GetCombinedHitLayers() : 0;
     }
 
     private void RenderSingleShotChainVisuals(List<ChainLink> chainLinks)
     {
-        if (beamConfig == null || beamConfig.beamRendererPrefab == null)
+        if (beamConfig == null || beamConfig.hitbox?.prefab == null)
             return;
 
         if (chainLinks == null || chainLinks.Count == 0)
@@ -820,7 +782,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private void SyncChainedRenderers(List<ChainLink> chainLinks, bool shouldLoop)
     {
-        if (beamConfig == null || beamConfig.beamRendererPrefab == null)
+        if (beamConfig == null || beamConfig.hitbox?.prefab == null)
             return;
 
         CompactChainRendererLists();
@@ -850,7 +812,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private void SpawnChainRenderer(Vector3 start, Vector3 end, bool shouldLoop)
     {
-        GameObject go = Instantiate(beamConfig.beamRendererPrefab, end, Quaternion.identity);
+        GameObject go = Instantiate(beamConfig.hitbox.prefab, end, Quaternion.identity);
         BeamRenderer renderer = go.GetComponent<BeamRenderer>()
                               ?? go.GetComponentInChildren<BeamRenderer>(true);
 
@@ -921,7 +883,7 @@ public class BeamAbility : MonoBehaviour, ISubAbility
 
     private bool IsAbilityButtonHeld()
     {
-        return InputHelper.GetMouseButton(0);
+        return holdChecker != null && holdChecker();
     }
 
     public void HandleBeamTriggerStay(Collider2D other)

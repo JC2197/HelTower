@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SpearAddSlash
   displayName: SpearAddSlash
-  baseGoldCost: 8
   description: Add a Slash to your Spear Combo
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
@@ -26,7 +25,7 @@ MonoBehaviour:
   requiredAbilityLevel: 0
   requiredTraits: []
   abilityReplacement:
-    requiredAbility: {fileID: 11400000, guid: 9ee9ddb0d13a2794b839f4fe40264614, type: 2}
+    requiredAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
     newAbilityConfig: {fileID: 11400000, guid: c143ddfd8ea09d246a1b9d7f8ba3c73f, type: 2}
     description: 
   unlockedAbilities: []

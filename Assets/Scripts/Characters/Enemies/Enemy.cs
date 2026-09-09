@@ -1055,6 +1055,8 @@ public class Enemy : Organism
     // Add this public method
     public virtual void ApplyKnockback(Vector2 force)
     {
+
+        CancelAllAbilities();
         if (rb != null)
         {
             isKnockedBack = true;

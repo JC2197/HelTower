@@ -49,8 +49,10 @@ public class HitboxConfig
     [Tooltip("Pull (vacuum) applied to hit targets.")]
     public PullModule pull = new PullModule();
     public ForcedMovementPreference forcedMovementPreference = ForcedMovementPreference.fromAbilityPosition;
+    
     [Header("On Hit Effects")]
     [Tooltip("Negative on-hit effects (CC/DoT/debuffs) applied to targets in Hit Layers.")]
+    [NonReorderable]
     public EffectData onHitEffects = new EffectData();
 
     [Tooltip("If enabled, fire one random Triggered Ability (marked 'triggersOnDestroy') when this hitbox owner is destroyed.")]

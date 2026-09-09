@@ -26,7 +26,7 @@ MonoBehaviour:
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
   connectionLineWidth: 3
-  canvasWidth: 400
+  canvasWidth: 350
   nodes:
   - nodeID: ConstructTurretCount_c35e
     traitData: {fileID: 11400000, guid: cb79ef5b496532a42b00371110ca53c1, type: 2}
@@ -71,9 +71,9 @@ MonoBehaviour:
     traitData: {fileID: 11400000, guid: cb79ef5b496532a42b00371110ca53c1, type: 2}
     position: {x: -136, y: -176}
     connectedNodeIDs: []
-  canvasHeight: 397
-  minCanvasWidth: 400
-  minCanvasHeight: 225
+  canvasHeight: 400
+  minCanvasWidth: 350
+  minCanvasHeight: 400
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections:

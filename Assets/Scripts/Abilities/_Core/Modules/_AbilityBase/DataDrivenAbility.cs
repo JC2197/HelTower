@@ -84,6 +84,7 @@ public class DataDrivenAbility : Ability
 
     // Charging state for projectile launch delay
     private bool isCharging = false;
+
     private float chargeStartTime;
     private Coroutine chargingCoroutine;
     private bool _lastCastSequenceSucceeded = false;
@@ -250,6 +251,8 @@ public class DataDrivenAbility : Ability
         config != null
         && !config.disableCast
         && !isReloading
+        && !isCharging
+        && !isMovementPrecastPending
         && (config.hasCharges ? currentCharges > 0 : GetRemainingCooldown() <= 0f)
         && (config.cancelActions || !(ownerOrganism != null && ownerOrganism.IsAbilityLockedOut));
     public bool IsWeaponDirectionLocked => isWeaponDirectionLocked;
@@ -1725,6 +1728,8 @@ public class DataDrivenAbility : Ability
             Debug.Log("[DataDrivenAbility] BeamAbility component found");
         }
 
+        beamAbility.SetHoldChecker(() => IsAbilityButtonHeld());
+
         // Initialize BeamAbility with effective config/context
         if (beamAbility != null && config != null)
         {
@@ -1783,9 +1788,9 @@ public class DataDrivenAbility : Ability
             reason = "config is null";
             return false;
         }
-        // Self-guard: never run two cast sequences on the same ability, even for callers that are
-        // exempt from the caster-wide lockout (autocast bursts, combo steps).
-        if ((isCharging || isMovementPrecastPending) && !config.cancelActions)
+        // Self-guard: never run two cast sequences on the same ability. cancelActions overrides
+        // OTHER abilities, never itself, so no caller is exempt from this.
+        if (isCharging || isMovementPrecastPending)
         {
             reason = isCharging ? "cast sequence already running" : "movement precast is still pending";
             return false;
@@ -2353,8 +2358,13 @@ public class DataDrivenAbility : Ability
 
         _lastCastSequenceSucceeded = abilityExecuted;
 
-        if (abilityExecuted && !isComboStep && !config.activateOnButtonRelease)
+        if (abilityExecuted &&
+            !isComboStep &&
+            !config.activateOnButtonRelease &&
+            !config.isBeamAbility)
+        {
             isHoldingFire = true;
+        }
 
         // 6. Restore sub-configs and consume resources
         _effectiveProjectileConfig = savedProjectile;
@@ -5001,8 +5011,8 @@ public class DataDrivenAbility : Ability
 
     /// <summary>
     /// Clears the way for a <see cref="AbilityDataConfig.cancelActions"/> cast: interrupts every
-    /// other ability on this caster, drops the shared lockout, and discards this ability's own
-    /// in-flight cast. Combo partners are skipped so a cancelling step can't kill its own chain.
+    /// other ability on this caster and drops the shared lockout. Combo partners are skipped so a
+    /// cancelling step can't kill its own chain.
     /// </summary>
     private void CancelConflictingAbilities()
     {
@@ -5017,17 +5027,6 @@ public class DataDrivenAbility : Ability
 
             sibling.CancelAbility($"overridden by {config.abilityName}");
         }
-
-        RemoveIndicator();
-        if (chargingCoroutine != null)
-        {
-            StopCoroutine(chargingCoroutine);
-            chargingCoroutine = null;
-        }
-        isCharging = false;
-        isHoldingForRelease = false;
-        chargeBar?.StopCharge();
-        ReleaseAllLockoutHolds();
 
         ownerOrganism?.ClearAbilityLockout();
         if (ownerAsPlayer != null)

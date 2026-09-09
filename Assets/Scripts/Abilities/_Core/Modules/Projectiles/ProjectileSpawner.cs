@@ -212,7 +212,7 @@ public static class ProjectileSpawner
         var abilityManager = character.GetComponent<CharacterAbilityManager>();
         if (abilityManager == null) return null;
 
-        var primaryAbility = abilityManager.GetWeaponAbility();
+        var primaryAbility = abilityManager.GetPrimaryAbility();
         if (primaryAbility == null) return null;
 
         var tags = primaryAbility.Tags;
@@ -226,59 +226,12 @@ public static class ProjectileSpawner
     /// </summary>
     private static void CopyEffectData(EffectData source, EffectData destination)
     {
-        // Copy bleed
-        destination.canBleed = source.canBleed;
-        destination.bleedEffect = source.bleedEffect;
-        destination.bleedDamage = source.bleedDamage;
-        destination.bleedDuration = source.bleedDuration;
-        destination.bleedApplicationChance = source.bleedApplicationChance;
+        if (source == null || destination == null)
+            return;
 
-        // Copy burn
-        destination.canBurn = source.canBurn;
-        destination.burnEffect = source.burnEffect;
-        destination.burnDamage = source.burnDamage;
-        destination.burnDuration = source.burnDuration;
-        destination.burnApplicationChance = source.burnApplicationChance;
-
-        // Copy poison
-        destination.canPoison = source.canPoison;
-        destination.poisonEffect = source.poisonEffect;
-        destination.poisonDamage = source.poisonDamage;
-        destination.poisonDuration = source.poisonDuration;
-        destination.poisonApplicationChance = source.poisonApplicationChance;
-
-        // Copy root
-        destination.canRoot = source.canRoot;
-        destination.rootEffect = source.rootEffect;
-        destination.rootDuration = source.rootDuration;
-        destination.rootApplicationChance = source.rootApplicationChance;
-
-        // Copy slow
-        destination.canSlow = source.canSlow;
-        destination.slowEffect = source.slowEffect;
-        destination.slowDuration = source.slowDuration;
-        destination.slowApplicationChance = source.slowApplicationChance;
-
-        // Copy stun
-        destination.canStun = source.canStun;
-        destination.stunEffect = source.stunEffect;
-        destination.stunDuration = source.stunDuration;
-        destination.stunApplicationChance = source.stunApplicationChance;
-
-        // Copy triggered ability
-        destination.canTriggerAbility = source.canTriggerAbility;
-        foreach (var triggeredAbility in source.triggeredAbilityConfigs)
-        {
-            var newTriggeredAbility = new EffectData.TriggeredAbilityConfig
-            {
-                abilityConfig = triggeredAbility.abilityConfig,
-                triggerChance = triggeredAbility.triggerChance,
-                triggerTiming = triggeredAbility.triggerTiming
-            };
-            destination.triggeredAbilityConfigs = destination.triggeredAbilityConfigs ?? new EffectData.TriggeredAbilityConfig[0];
-            System.Array.Resize(ref destination.triggeredAbilityConfigs, destination.triggeredAbilityConfigs.Length + 1);
-            destination.triggeredAbilityConfigs[destination.triggeredAbilityConfigs.Length - 1] = newTriggeredAbility;
-        }
+        EffectData copy = source.Clone();
+        destination.effects = copy.effects;
+        destination.triggeredAbilities = copy.triggeredAbilities;
     }
 
     /// <summary>
@@ -292,7 +245,7 @@ public static class ProjectileSpawner
         var abilityManager = character.GetComponent<CharacterAbilityManager>();
         if (abilityManager != null)
         {
-            var primaryAbility = abilityManager.GetWeaponAbility();
+            var primaryAbility = abilityManager.GetPrimaryAbility();
             if (primaryAbility != null)
             {
                 return primaryAbility.AbilityName;

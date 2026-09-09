@@ -19,7 +19,7 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
             float yPos = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
             // Rendering
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("beamRendererPrefab"), position, yPos);
+            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("hitbox"), position, yPos, true);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("targetingMode"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("fallbackToCursorWhenNoEnemy"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("singleShotDuration"), position, yPos);
@@ -28,6 +28,7 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
 
             // Beam behavior
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("maxBeamDistance"), position, yPos);
+            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("fixedDistance"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("beamAmount"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("multiBeamAngle"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("chain"), position, yPos);
@@ -35,16 +36,7 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
             if (chain != null && chain.boolValue)
                 yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("chainAmount"), position, yPos);
 
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("value"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("hitsPerSecond"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("damageTypeName"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("hitLayers"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("onHitEffects"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("lifeSteal"), position, yPos, true);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("canHeal"), position, yPos);
-            SerializedProperty canHeal = property.FindPropertyRelative("canHeal");
-            if (canHeal != null && canHeal.boolValue)
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("healTargets"), position, yPos);
 
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("canHoldToFire"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("channelCostPerSecond"), position, yPos);
@@ -70,7 +62,6 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("impactParticlePrefab"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("beamSound"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("impactSound"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("hitFlashColor"), position, yPos);
 
             EditorGUI.indentLevel--;
         }
@@ -85,13 +76,14 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
 
         float height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-        height += GetPropertyHeight(property, "beamRendererPrefab");
+        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("hitbox"), true) + EditorGUIUtility.standardVerticalSpacing;
         height += GetPropertyHeight(property, "targetingMode");
         height += GetPropertyHeight(property, "fallbackToCursorWhenNoEnemy");
         height += GetPropertyHeight(property, "singleShotDuration");
         height += GetPropertyHeight(property, "beamWidth");
         height += GetPropertyHeight(property, "beamColor");
         height += GetPropertyHeight(property, "maxBeamDistance");
+        height += GetPropertyHeight(property, "fixedDistance");
         height += GetPropertyHeight(property, "beamAmount");
         height += GetPropertyHeight(property, "multiBeamAngle");
         height += GetPropertyHeight(property, "chain");
@@ -99,16 +91,7 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
         if (chain != null && chain.boolValue)
             height += GetPropertyHeight(property, "chainAmount");
 
-        height += GetPropertyHeight(property, "value");
         height += GetPropertyHeight(property, "hitsPerSecond");
-        height += GetPropertyHeight(property, "damageTypeName");
-        height += GetPropertyHeight(property, "hitLayers");
-        height += GetPropertyHeight(property, "onHitEffects");
-        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("lifeSteal"), true) + EditorGUIUtility.standardVerticalSpacing;
-        height += GetPropertyHeight(property, "canHeal");
-        SerializedProperty canHeal = property.FindPropertyRelative("canHeal");
-        if (canHeal != null && canHeal.boolValue)
-            height += GetPropertyHeight(property, "healTargets");
 
         height += GetPropertyHeight(property, "canHoldToFire");
         height += GetPropertyHeight(property, "channelCostPerSecond");
@@ -129,7 +112,6 @@ public class BeamAbilityConfigDrawer : PropertyDrawer
         height += GetPropertyHeight(property, "impactParticlePrefab");
         height += GetPropertyHeight(property, "beamSound");
         height += GetPropertyHeight(property, "impactSound");
-        height += GetPropertyHeight(property, "hitFlashColor");
 
         return height;
     }

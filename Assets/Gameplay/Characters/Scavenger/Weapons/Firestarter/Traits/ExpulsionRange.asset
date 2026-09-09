@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Expulsion Range
   displayName: Expulsion Range
-  baseGoldCost: 8
   description: Expulsion can now be cast at a maxmum of {v1} range.
   traitIcon: {fileID: 0}
   weaponTraitTag: 
@@ -40,7 +39,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
@@ -48,25 +46,5 @@ MonoBehaviour:
       overrideMode: 2
       numericValue: 0
       stringValue: 
-      objectValue: {fileID: 0}
-  - targetAbility: {fileID: 11400000, guid: 9bcefc2aaaa9e9346b43cdbefae3d95b, type: 2}
-    abilityIcon: {fileID: 0}
-    addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 0}
-      triggerChance: 0
-      triggerTiming: 0
-      legacyTriggersOnDestroy: 0
-    addTriggeredAbilityLegacy: {fileID: 0}
-    addTriggeredAbilityPath: 
-    overrides:
-    - propertyPath: explosionConfig.activationRange
-      overrideMode: 2
-      numericValue: 5
-      stringValue: 
-      objectValue: {fileID: 0}
-    - propertyPath: mainhandAnimationName
-      overrideMode: 2
-      numericValue: 0
-      stringValue: Cast1
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

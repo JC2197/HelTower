@@ -697,7 +697,7 @@ public static class AbilityModifierRuntime
             AppendTriggeredAbility(config.explosionConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
 
         if (config.isBeamAbility && config.beamConfig != null)
-            AppendTriggeredAbility(config.beamConfig.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
+            AppendTriggeredAbility(config.beamConfig.hitbox.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
 
         if (config.isChanneled && config.channelConfig != null)
             AppendTriggeredAbility(config.channelConfig.onHitEffects, triggeredAbility, triggerChance, triggerTiming);
@@ -720,24 +720,17 @@ public static class AbilityModifierRuntime
         float triggerChance,
         TriggeredAbilityTriggerTiming triggerTiming)
     {
-        if (effectData == null || triggeredAbility == null)
-            return;
+        effectData?.AddTriggeredAbility(triggeredAbility, triggerChance, triggerTiming);
+    }
 
-        EffectData.TriggeredAbilityConfig[] existing = effectData.triggeredAbilityConfigs ?? Array.Empty<EffectData.TriggeredAbilityConfig>();
-        var appended = new EffectData.TriggeredAbilityConfig[existing.Length + 1];
-
-        for (int i = 0; i < existing.Length; i++)
-            appended[i] = existing[i];
-
-        appended[existing.Length] = new EffectData.TriggeredAbilityConfig
-        {
-            abilityConfig = triggeredAbility,
-            triggerChance = Mathf.Clamp01(triggerChance),
-            triggerTiming = triggerTiming
-        };
-
-        effectData.canTriggerAbility = true;
-        effectData.triggeredAbilityConfigs = appended;
+    private static void AppendEffect(
+        EffectData effectData,
+        EffectConfig effect,
+        float applicationChance,
+        float durationOverride,
+        float damageOverride)
+    {
+        effectData?.AddEffect(effect, applicationChance, durationOverride, damageOverride);
     }
 
     private static bool HasPathModification(Dictionary<string, AccumulatedValue> accumulatedOverrides, string propertyPath)
@@ -905,7 +898,7 @@ public static class AbilityModifierRuntime
 
     /// <summary>
     /// Applies an accumulated override to a nested field path on a copied sub-config.
-    /// Supports arbitrary depth (e.g., "meleeConfig.onHitEffects.canBurn").
+    /// Supports arbitrary depth (e.g., "meleeConfig.onHitEffects.effects[0].applicationChance").
     /// </summary>
     private static void ApplyAccumulatedToNestedPath(Type rootType, object baseRoot, object copyRoot, string nestedPath, AccumulatedValue accum)
     {
@@ -1282,9 +1275,8 @@ public static class AbilityModifierRuntime
             }
             if (config.isBeamAbility && config.beamConfig != null)
             {
+                AddHitboxConfigFields("beamConfig.hitbox.", result, config.beamConfig.hitbox);
                 AddFieldsFromType(typeof(BeamAbilityConfig), "beamConfig.", result);
-                AddEffectDataFields("beamConfig.onHitEffects.", result, config.beamConfig.onHitEffects);
-                AddLifeStealConfigFields("beamConfig.lifeSteal.", result);
             }
             if (config.isChanneled && config.channelConfig != null)
             {
@@ -1348,8 +1340,8 @@ public static class AbilityModifierRuntime
         if (config.isExplosionAbility && config.explosionConfig?.hitbox != null)
             result.Add("explosionConfig.hitbox.onHitEffects");
 
-        if (config.isBeamAbility && config.beamConfig != null)
-            result.Add("beamConfig.onHitEffects");
+        if (config.isBeamAbility && config.beamConfig?.hitbox != null)
+            result.Add("beamConfig.hitbox.onHitEffects");
 
         if (config.isChanneled && config.channelConfig != null)
             result.Add("channelConfig.onHitEffects");
@@ -1438,15 +1430,31 @@ public static class AbilityModifierRuntime
             }
         }
 
-        AddTriggeredAbilityConfigFields(prefix + "triggeredAbilityConfigs", result, effectData);
+        AddEffectApplicationFields(prefix + "effects", result, effectData);
+        AddTriggeredAbilityConfigFields(prefix + "triggeredAbilities", result, effectData);
+    }
+
+    private static void AddEffectApplicationFields(string arrayPathPrefix, List<string> result, EffectData effectData)
+    {
+        if (effectData?.effects == null)
+            return;
+
+        for (int i = 0; i < effectData.effects.Count; i++)
+        {
+            string entryPrefix = $"{arrayPathPrefix}[{i}].";
+            result.Add(entryPrefix + "effect");
+            result.Add(entryPrefix + "applicationChance");
+            result.Add(entryPrefix + "durationOverride");
+            result.Add(entryPrefix + "damageOverride");
+        }
     }
 
     private static void AddTriggeredAbilityConfigFields(string arrayPathPrefix, List<string> result, EffectData effectData)
     {
-        if (effectData?.triggeredAbilityConfigs == null)
+        if (effectData?.triggeredAbilities == null)
             return;
 
-        for (int i = 0; i < effectData.triggeredAbilityConfigs.Length; i++)
+        for (int i = 0; i < effectData.triggeredAbilities.Count; i++)
         {
             string entryPrefix = $"{arrayPathPrefix}[{i}].";
             result.Add(entryPrefix + "abilityConfig");

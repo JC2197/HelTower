@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SrapGunDamage
   displayName: Shrapnel
-  baseGoldCost: 8
   description: Scrap Gun bullets deal +{v1} damage.
   traitIcon: {fileID: 0}
   weaponTraitTag: Shotgun
   traitType: 0
-  maxLevel: 5
+  maxLevel: 3
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -40,7 +39,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

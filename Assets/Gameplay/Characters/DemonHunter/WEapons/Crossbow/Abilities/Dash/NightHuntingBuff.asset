@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e3bf3e9387fc854fb349b85eb5cf85f, type: 3}
+  m_Name: NightHuntingBuff
+  m_EditorClassIdentifier: Assembly-CSharp::StatBuffEffect
+  effectName: Night Hunting
+  effectID: Night_Hunting
+  isBuff: 1
+  canTargetAllies: 0
+  canTargetEnemies: 0
+  canTargetSelf: 1
+  duration: 1
+  stackingBehavior: 0
+  maxStacks: 99
+  refreshDurationOnStack: 1
+  maxDuration: 5
+  particleEffect: {fileID: 0}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 1, g: 1, b: 1, a: 1}
+  icon: {fileID: 0}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  buffIcon: {fileID: 0}
+  statModifiers:
+  - statID: AttackSpeed
+    modifierType: 0
+    value: 0.1

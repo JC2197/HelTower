@@ -440,7 +440,12 @@ public class EffectManager : NetworkBehaviour
             ObserversRpcStopEffect(effectID); // tells remote clients
 
         if (!IsNetworkActive || IsServerInitialized)
-            StopEffectVisualsLocal(effectID); // shows locally (offline or host)
+        {
+            // Unwind through the instance that applied the effect. A registry lookup returns the
+            // shared asset, whose per-target deltas are empty, so stat buffs would never reverse.
+            effect.config.OnRemove(gameObject);
+            DestroyEffectParticles(effectID);
+        }
 
         if (effect.config.expireSound != null)
         {
@@ -457,14 +462,18 @@ public class EffectManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Destroys the effect's particle and runs the config's remove hook (e.g. clear burning tint).
-    /// Runs on every machine that should see the effect end.
+    /// Remote-client teardown: only the effect ID crosses the wire, so the shared asset is the
+    /// best available handle. Local/server teardown goes through <see cref="RemoveEffect"/>.
     /// </summary>
     private void StopEffectVisualsLocal(string effectID)
     {
         EffectConfig config = effectRegistry != null ? effectRegistry.Get(effectID) : null;
         config?.OnRemove(gameObject);
+        DestroyEffectParticles(effectID);
+    }
 
+    private void DestroyEffectParticles(string effectID)
+    {
         if (activeParticles.TryGetValue(effectID, out GameObject particles))
         {
             if (particles != null) Destroy(particles);

@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ScrapGunBleed
   displayName: Razor Blades
-  baseGoldCost: 8
   description: Scrap Gun gains +(v1}% chance to Bleed.
   traitIcon: {fileID: 0}
   weaponTraitTag: Shotgun
   traitType: 0
-  maxLevel: 5
+  maxLevel: 3
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -40,13 +39,12 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
-    - propertyPath: projectileConfig.hitbox.onHitEffects.bleedApplicationChance
+    - propertyPath: projectileConfig.hitbox.onHitEffects.effects[0].applicationChance
       overrideMode: 0
-      numericValue: 0.1
+      numericValue: 0.2
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

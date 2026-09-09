@@ -14,8 +14,8 @@ public class CharacterAbilityManager : MonoBehaviour
 {
     // === Events ===
     /// <summary>Fired when weapon ability changes (weapon swap).</summary>
-    public event Action<AbilityReference, Ability> OnWeaponAbilityChanged;
-    public event Action<AbilityReference, Ability> OnSecondaryWeaponAbilityChanged;
+    public event Action<AbilityReference, Ability> OnPrimaryAbilityChanged;
+    public event Action<AbilityReference, Ability> OnSecondaryAbilityChanged;
     public event Action<AbilityReference, Ability> OnDashAbilityChanged;
     public event Action<AbilityReference, Ability> OnPassiveAbilityChanged;
     
@@ -23,11 +23,13 @@ public class CharacterAbilityManager : MonoBehaviour
     public event Action OnTraitAbilitiesChanged;
     
     // === Core Abilities ===
-    private Ability weaponAbility;    
-    private AbilityReference weaponAbilityRef;
+    private Ability primaryAbility;    
+    private AbilityReference primaryAbilityRef;
+    // Secondary weapon ability occupies slot 1 (RMB).
+    private Ability secondaryAbility;
+    private AbilityReference secondaryAbilityRef;
     private Ability dashAbility;
     private AbilityReference dashAbilityRef;
-    
     private Ability passiveAbility;
     private AbilityReference passiveAbilityRef;
 
@@ -40,9 +42,7 @@ public class CharacterAbilityManager : MonoBehaviour
     private readonly List<Ability> passiveTraitAbilities = new List<Ability>();
     private readonly List<AbilityReference> passiveTraitAbilityRefs = new List<AbilityReference>();
     
-    // Secondary weapon ability occupies slot 1 (RMB).
-    private Ability offhandAbility;
-    private AbilityReference offhandAbilityRef;
+    
 
     private PlayerController playerController;
 
@@ -71,15 +71,15 @@ public class CharacterAbilityManager : MonoBehaviour
         // Load Weapon Ability (Slot 0 = LMB)
         if (loadout.WeaponAbility?.Config != null)
         {
-            weaponAbilityRef = loadout.WeaponAbility;
-            weaponAbility = LoadAbility(weaponAbilityRef, 0);
+            primaryAbilityRef = loadout.WeaponAbility;
+            primaryAbility = LoadAbility(primaryAbilityRef, 0);
         }
 
         // Load Secondary Weapon Ability (Slot 1 = RMB)
         if (loadout.SecondaryWeaponAbility?.Config != null)
         {
-            offhandAbilityRef = loadout.SecondaryWeaponAbility;
-            offhandAbility = LoadAbility(offhandAbilityRef, 1);
+            secondaryAbilityRef = loadout.SecondaryWeaponAbility;
+            secondaryAbility = LoadAbility(secondaryAbilityRef, 1);
         }
 
         if (loadout.DashAbility?.Config != null)
@@ -127,11 +127,6 @@ public class CharacterAbilityManager : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log($"[CharacterAbilityManager] Loaded abilities:");
-        Debug.Log($"  Weapon: {weaponAbility?.AbilityName ?? "None"}");
-        Debug.Log($"  Secondary Weapon: {offhandAbility?.AbilityName ?? "None"}");
-        Debug.Log($"  Active Traits: {activeTraitAbilities.Count}");
     }
 
     private Ability LoadAbility(AbilityReference abilityRef, int slotIndex)
@@ -197,10 +192,10 @@ public class CharacterAbilityManager : MonoBehaviour
                 Destroy(ability);
         }
 
-        weaponAbility = null;
-        weaponAbilityRef = null;
-        offhandAbility = null;
-        offhandAbilityRef = null;
+        primaryAbility = null;
+        primaryAbilityRef = null;
+        secondaryAbility = null;
+        secondaryAbilityRef = null;
         activeTraitAbilities.Clear();
         activeTraitAbilityRefs.Clear();
         passiveTraitAbilities.Clear();
@@ -212,9 +207,17 @@ public class CharacterAbilityManager : MonoBehaviour
     // GETTERS
     // ===========================
     
-    public Ability GetWeaponAbility() => weaponAbility;
-    public AbilityReference GetWeaponAbilityRef() => weaponAbilityRef;
-    
+    public Ability GetPrimaryAbility() => primaryAbility;
+    public AbilityReference GetPrimaryAbilityRef() => primaryAbilityRef;
+
+    public Ability GetSecondaryAbility() => secondaryAbility;
+    public AbilityReference GetSecondaryAbilityRef() => secondaryAbilityRef;
+
+    public Ability GetDashAbility() => dashAbility;
+    public AbilityReference GetDashAbilityRef() => dashAbilityRef;
+
+    public Ability GetPassiveAbility() => passiveAbility;
+    public AbilityReference GetPassiveAbilityRef() => passiveAbilityRef;
     public List<Ability> GetActiveTraitAbilities() => new List<Ability>(activeTraitAbilities);
     public List<AbilityReference> GetActiveTraitAbilityRefs() => new List<AbilityReference>(activeTraitAbilityRefs);
     
@@ -235,11 +238,9 @@ public class CharacterAbilityManager : MonoBehaviour
             return activeTraitAbilities[index];
         return null;
     }
-    
-    public Ability GetOffhandAbility() => offhandAbility;
-    public AbilityReference GetOffhandAbilityRef() => offhandAbilityRef;
-    public Ability GetSecondaryWeaponAbility() => offhandAbility;
-    public AbilityReference GetSecondaryWeaponAbilityRef() => offhandAbilityRef;
+
+    public Ability GetSecondaryWeaponAbility() => secondaryAbility;
+    public AbilityReference GetSecondaryWeaponAbilityRef() => secondaryAbilityRef;
 
     /// <summary>
     /// Get ability by slot index:
@@ -249,8 +250,8 @@ public class CharacterAbilityManager : MonoBehaviour
     {
         return slot switch
         {
-            0 => weaponAbility as DataDrivenAbility,
-            1 => offhandAbility as DataDrivenAbility,
+            0 => primaryAbility as DataDrivenAbility,
+            1 => secondaryAbility as DataDrivenAbility,
             _ when slot >= 2 && slot - 2 < activeTraitAbilities.Count => activeTraitAbilities[slot - 2] as DataDrivenAbility,
             -1 when passiveTraitAbilities.Count == 1 => passiveTraitAbilities[0] as DataDrivenAbility,
             _ => null
@@ -298,52 +299,52 @@ public class CharacterAbilityManager : MonoBehaviour
     /// <summary>Set weapon ability (called when weapons are equipped).</summary>
     public void SetWeaponAbility(AbilityConfig abilityConfig)
     {
-        if (weaponAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+        if (primaryAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
             GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
 
         // Remove existing
-        if (weaponAbility != null)
+        if (primaryAbility != null)
         {
-            Destroy(weaponAbility);
-            weaponAbility = null;
+            Destroy(primaryAbility);
+            primaryAbility = null;
         }
-        weaponAbilityRef = null;
+        primaryAbilityRef = null;
 
         if (abilityConfig == null)
         {
             Debug.Log("[CharacterAbilityManager] Cleared weapon ability");
-            OnWeaponAbilityChanged?.Invoke(null, null);
+            OnPrimaryAbilityChanged?.Invoke(null, null);
             return;
         }
 
-        weaponAbilityRef = new AbilityReference(abilityConfig);
-        weaponAbility = LoadAbility(weaponAbilityRef, 0);
+        primaryAbilityRef = new AbilityReference(abilityConfig);
+        primaryAbility = LoadAbility(primaryAbilityRef, 0);
         
-        OnWeaponAbilityChanged?.Invoke(weaponAbilityRef, weaponAbility);
+        OnPrimaryAbilityChanged?.Invoke(primaryAbilityRef, primaryAbility);
     }
-    public void SetSecondaryWeaponAbility(AbilityConfig abilityConfig)
+    public void SetSecondaryAbility(AbilityConfig abilityConfig)
     {
-        if (offhandAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
+        if (secondaryAbilityRef?.Config is AbilityDataConfig previousConfig && previousConfig.areaConfig?.isAura == true)
             GetComponent<PlayerAuraManager>().ClearAura(previousConfig);
 
-        if (offhandAbility != null)
+        if (secondaryAbility != null)
         {
-            Destroy(offhandAbility);
-            offhandAbility = null;
+            Destroy(secondaryAbility);
+            secondaryAbility = null;
         }
-        offhandAbilityRef = null;
+        secondaryAbilityRef = null;
 
         if (abilityConfig == null)
         {
-            Debug.Log("[CharacterAbilityManager] Cleared secondary weapon ability");
-            OnSecondaryWeaponAbilityChanged?.Invoke(null, null);
+            Debug.Log("[CharacterAbilityManager] Cleared secondary ability");
+            OnSecondaryAbilityChanged?.Invoke(null, null);
             return;
         }
 
-        offhandAbilityRef = new AbilityReference(abilityConfig);
-        offhandAbility = LoadAbility(offhandAbilityRef, 1);
+        secondaryAbilityRef = new AbilityReference(abilityConfig);
+        secondaryAbility = LoadAbility(secondaryAbilityRef, 1);
         
-        OnSecondaryWeaponAbilityChanged?.Invoke(offhandAbilityRef, offhandAbility);
+        OnSecondaryAbilityChanged?.Invoke(secondaryAbilityRef, secondaryAbility);
     }
     public void SetDashAbility(AbilityConfig abilityConfig)
     {
@@ -496,18 +497,6 @@ public class CharacterAbilityManager : MonoBehaviour
         }
     }
 
-    
-    // Legacy events - redirect to new events
-    public event Action<AbilityReference, Ability> OnPrimaryAbilityChanged
-    {
-        add => OnWeaponAbilityChanged += value;
-        remove => OnWeaponAbilityChanged -= value;
-    }
-    public event Action<AbilityReference, Ability> OnSecondaryAbilityChanged
-    {
-        add => OnSecondaryWeaponAbilityChanged += value;
-        remove => OnSecondaryWeaponAbilityChanged -= value;
-    }
     /// <summary>
     /// Add an ability to the next available trait slot.
     /// </summary>
@@ -547,8 +536,8 @@ public class CharacterAbilityManager : MonoBehaviour
     /// </summary>
     public void ReapplyAbilityReplacements()
     {
-        ReapplyCoreSlot(ref weaponAbility, weaponAbilityRef, 0, (r, a) => OnWeaponAbilityChanged?.Invoke(r, a));
-        ReapplyCoreSlot(ref offhandAbility, offhandAbilityRef, 1, (r, a) => OnSecondaryWeaponAbilityChanged?.Invoke(r, a));
+        ReapplyCoreSlot(ref primaryAbility, primaryAbilityRef, 0, (r, a) => OnPrimaryAbilityChanged?.Invoke(r, a));
+        ReapplyCoreSlot(ref secondaryAbility, secondaryAbilityRef, 1, (r, a) => OnSecondaryAbilityChanged?.Invoke(r, a));
         ReapplyCoreSlot(ref dashAbility, dashAbilityRef, 2, (r, a) => OnDashAbilityChanged?.Invoke(r, a));
         ReapplyCoreSlot(ref passiveAbility, passiveAbilityRef, -1, (r, a) => OnPassiveAbilityChanged?.Invoke(r, a));
 

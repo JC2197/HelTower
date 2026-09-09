@@ -33,11 +33,11 @@
       "hash": "25f5123d1e31358e204a330aba1999f201ab84e9"
     },
     "com.joe-conticello.visual-effects": {
-      "version": "https://github.com/JC2197/unity-2D-visual-effects.git#v1.0.2",
+      "version": "https://github.com/JC2197/unity-2D-visual-effects.git#v0.1.10",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "1098272be0a1ae0d2cb36c05c287084b8f0fb2bd"
+      "hash": "dc4a8df42b9a197eb2f5e978393a482a8f561a37"
     },
     "com.joeconticello.characters2d": {
       "version": "https://github.com/JC2197/unity-2D-characters.git?path=/packages/com.joeconticello.characters2d#main",

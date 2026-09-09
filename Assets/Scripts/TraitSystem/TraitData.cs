@@ -391,7 +391,7 @@ public class AbilityConfigModifier
     public AbilityDataConfig targetAbility;
     public Sprite abilityIcon;
     [Tooltip("Appends this triggered-ability config to applicable on-hit triggered-ability arrays on the target ability at runtime.")]
-    public EffectData.TriggeredAbilityConfig addTriggeredAbilityConfig = new EffectData.TriggeredAbilityConfig();
+    public TriggeredAbilityConfig addTriggeredAbilityConfig = new TriggeredAbilityConfig();
     [FormerlySerializedAs("addTriggeredAbility")]
     [HideInInspector]
     public AbilityDataConfig addTriggeredAbilityLegacy;

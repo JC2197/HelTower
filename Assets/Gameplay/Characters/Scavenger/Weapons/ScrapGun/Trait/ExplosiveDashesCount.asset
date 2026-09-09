@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ExplosiveDashesCount
   displayName: Excitement
-  baseGoldCost: 8
   description: +{v1} total Dash Charges.
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
   weaponTraitTag: 
   traitType: 4
-  maxLevel: 5
+  maxLevel: 3
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: d1bdd485290243d40bbdb9d7570c3fa2, type: 2}
@@ -42,7 +41,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

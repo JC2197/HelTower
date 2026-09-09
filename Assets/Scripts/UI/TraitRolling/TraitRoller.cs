@@ -162,8 +162,8 @@ public class TraitRoller : MonoBehaviour
         CharacterAbilityManager abilityManager = GetComponent<CharacterAbilityManager>();
         if (abilityManager != null)
         {
-            if (abilityManager.GetWeaponAbilityRef()?.Config == required) return true;
-            if (abilityManager.GetOffhandAbilityRef()?.Config == required) return true;
+            if (abilityManager.GetPrimaryAbilityRef()?.Config == required) return true;
+            if (abilityManager.GetSecondaryAbilityRef()?.Config == required) return true;
 
             foreach (var abilityRef in abilityManager.GetActiveTraitAbilityRefs())
                 if (abilityRef?.Config == required) return true;

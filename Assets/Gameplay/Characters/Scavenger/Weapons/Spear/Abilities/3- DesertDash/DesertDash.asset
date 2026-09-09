@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DesertDash
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
   abilityName: Dash
-  abilityIcon: {fileID: -7848039375673857549, guid: 8db9fe0aa44842643ae83bddb3c4b3a9, type: 3}
+  abilityIcon: {fileID: 1179187539, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   abilityDescription: 'Consume a Stamina Charge to dash a short distance. You evade
     attacks while dashing. '
   requiredWeapon: {fileID: 0}
@@ -127,37 +127,8 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 4294967295
     onHitEffects:
-      canRoot: 0
-      rootEffect: {fileID: 0}
-      rootDuration: 0
-      rootApplicationChance: 1
-      canSlow: 0
-      slowEffect: {fileID: 0}
-      slowDuration: 0
-      slowApplicationChance: 1
-      canStun: 0
-      stunEffect: {fileID: 0}
-      stunDuration: 0
-      stunApplicationChance: 1
-      canBleed: 0
-      bleedEffect: {fileID: 0}
-      bleedDamage: 5
-      bleedDuration: 3
-      bleedApplicationChance: 1
-      canBurn: 0
-      burnEffect: {fileID: 0}
-      burnDamage: 10
-      burnDuration: 3
-      burnApplicationChance: 1
-      canPoison: 0
-      poisonEffect: {fileID: 0}
-      poisonDamage: 3
-      poisonDuration: 5
-      poisonApplicationChance: 1
-      canApplyStatBuffs: 0
-      statBuffApplications: []
-      canTriggerAbility: 0
-      triggeredAbilityConfigs: []
+      effects: []
+      triggeredAbilities: []
     lifeSteal:
       enabled: 0
       type: 1
@@ -205,37 +176,8 @@ MonoBehaviour:
     channelEndSound: {fileID: 0}
     hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     onHitEffects:
-      canRoot: 0
-      rootEffect: {fileID: 0}
-      rootDuration: 0
-      rootApplicationChance: 1
-      canSlow: 0
-      slowEffect: {fileID: 0}
-      slowDuration: 0
-      slowApplicationChance: 1
-      canStun: 0
-      stunEffect: {fileID: 0}
-      stunDuration: 0
-      stunApplicationChance: 1
-      canBleed: 0
-      bleedEffect: {fileID: 0}
-      bleedDamage: 5
-      bleedDuration: 3
-      bleedApplicationChance: 1
-      canBurn: 0
-      burnEffect: {fileID: 0}
-      burnDamage: 10
-      burnDuration: 3
-      burnApplicationChance: 1
-      canPoison: 0
-      poisonEffect: {fileID: 0}
-      poisonDamage: 3
-      poisonDuration: 5
-      poisonApplicationChance: 1
-      canApplyStatBuffs: 0
-      statBuffApplications: []
-      canTriggerAbility: 0
-      triggeredAbilityConfigs: []
+      effects: []
+      triggeredAbilities: []
     lifeSteal:
       enabled: 0
       type: 1
@@ -265,74 +207,16 @@ MonoBehaviour:
         force: 5
       forcedMovementPreference: 0
       onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2
         m_Bits: 0
       positiveHealing: 0
       onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
@@ -375,74 +259,16 @@ MonoBehaviour:
         force: 5
       forcedMovementPreference: 0
       onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2
         m_Bits: 0
       positiveHealing: 0
       onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
@@ -530,96 +356,6 @@ MonoBehaviour:
     muzzleLightRange: 2
     muzzleLightDuration: 0.1
     localMuzzle: 0
-  onHitEffects:
-    canRoot: 0
-    rootConfig:
-      applicationChance: 1
-      duration: 2
-    canSlow: 0
-    slowConfig:
-      applicationChance: 1
-      duration: 2
-      slowAmount: 0.5
-    canStun: 0
-    stunConfig:
-      applicationChance: 1
-      duration: 1
-    canBleed: 0
-    bleedConfig:
-      applicationChance: 1
-      damagePerTick: 5
-      tickInterval: 1
-      duration: 3
-      bloodParticlePrefab: {fileID: 0}
-    canBurn: 0
-    burnConfig:
-      applicationChance: 1
-      damagePerTick: 10
-      tickInterval: 0.5
-      duration: 3
-      fireParticlePrefab: {fileID: 0}
-    canPoison: 0
-    poisonConfig:
-      applicationChance: 1
-      damagePerTick: 3
-      tickInterval: 1
-      duration: 5
-      poisonParticlePrefab: {fileID: 0}
-    canKnockback: 0
-    knockbackConfig:
-      applicationChance: 1
-      force: 10
-    canExplode: 0
-    explosionConfig:
-      applicationChance: 1
-      radius: 3
-      damage: 50
-      explosionPrefab: {fileID: 0}
-  onKillEffects:
-    canRoot: 0
-    rootConfig:
-      applicationChance: 1
-      duration: 2
-    canSlow: 0
-    slowConfig:
-      applicationChance: 1
-      duration: 2
-      slowAmount: 0.5
-    canStun: 0
-    stunConfig:
-      applicationChance: 1
-      duration: 1
-    canBleed: 0
-    bleedConfig:
-      applicationChance: 1
-      damagePerTick: 5
-      tickInterval: 1
-      duration: 3
-      bloodParticlePrefab: {fileID: 0}
-    canBurn: 0
-    burnConfig:
-      applicationChance: 1
-      damagePerTick: 10
-      tickInterval: 0.5
-      duration: 3
-      fireParticlePrefab: {fileID: 0}
-    canPoison: 0
-    poisonConfig:
-      applicationChance: 1
-      damagePerTick: 3
-      tickInterval: 1
-      duration: 5
-      poisonParticlePrefab: {fileID: 0}
-    canKnockback: 0
-    knockbackConfig:
-      applicationChance: 1
-      force: 10
-    canExplode: 0
-    explosionConfig:
-      applicationChance: 1
-      radius: 3
-      damage: 50
-      explosionPrefab: {fileID: 0}
   areaConfig:
     hitbox:
       prefab: {fileID: 0}
@@ -645,74 +381,16 @@ MonoBehaviour:
         force: 5
       forcedMovementPreference: 0
       onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2
         m_Bits: 0
       positiveHealing: 0
       onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
@@ -741,129 +419,6 @@ MonoBehaviour:
     lightRadius: 5
     enabled: 1
     offset: {x: 0, y: 0}
-  onEnterEffects:
-    canRoot: 0
-    rootConfig:
-      applicationChance: 1
-      duration: 2
-    canSlow: 0
-    slowConfig:
-      applicationChance: 1
-      duration: 2
-      slowAmount: 0.5
-    canStun: 0
-    stunConfig:
-      applicationChance: 1
-      duration: 1
-    canBurn: 0
-    burnConfig:
-      applicationChance: 1
-      damagePerTick: 10
-      tickInterval: 0.5
-      duration: 3
-      fireParticlePrefab: {fileID: 0}
-    canPoison: 0
-    poisonConfig:
-      applicationChance: 1
-      damagePerTick: 3
-      tickInterval: 1
-      duration: 5
-      poisonParticlePrefab: {fileID: 0}
-    canHeal: 0
-    healConfig:
-      healPerTick: 5
-      healsAllies: 1
-      healsSelf: 1
-    canKnockback: 0
-    knockbackConfig:
-      applicationChance: 1
-      force: 10
-    canCleanse: 0
-    cleanseConfig:
-      cleansesDebuffs: 1
-      cleansesDoTs: 1
-  lingeringEffects:
-    canRoot: 0
-    rootConfig:
-      applicationChance: 1
-      duration: 2
-    canSlow: 0
-    slowConfig:
-      applicationChance: 1
-      duration: 2
-      slowAmount: 0.5
-    canStun: 0
-    stunConfig:
-      applicationChance: 1
-      duration: 1
-    canBurn: 0
-    burnConfig:
-      applicationChance: 1
-      damagePerTick: 10
-      tickInterval: 0.5
-      duration: 3
-      fireParticlePrefab: {fileID: 0}
-    canPoison: 0
-    poisonConfig:
-      applicationChance: 1
-      damagePerTick: 3
-      tickInterval: 1
-      duration: 5
-      poisonParticlePrefab: {fileID: 0}
-    canHeal: 0
-    healConfig:
-      healPerTick: 5
-      healsAllies: 1
-      healsSelf: 1
-    canKnockback: 0
-    knockbackConfig:
-      applicationChance: 1
-      force: 10
-    canCleanse: 0
-    cleanseConfig:
-      cleansesDebuffs: 1
-      cleansesDoTs: 1
-  onExitEffects:
-    canRoot: 0
-    rootConfig:
-      applicationChance: 1
-      duration: 2
-    canSlow: 0
-    slowConfig:
-      applicationChance: 1
-      duration: 2
-      slowAmount: 0.5
-    canStun: 0
-    stunConfig:
-      applicationChance: 1
-      duration: 1
-    canBurn: 0
-    burnConfig:
-      applicationChance: 1
-      damagePerTick: 10
-      tickInterval: 0.5
-      duration: 3
-      fireParticlePrefab: {fileID: 0}
-    canPoison: 0
-    poisonConfig:
-      applicationChance: 1
-      damagePerTick: 3
-      tickInterval: 1
-      duration: 5
-      poisonParticlePrefab: {fileID: 0}
-    canHeal: 0
-    healConfig:
-      healPerTick: 5
-      healsAllies: 1
-      healsSelf: 1
-    canKnockback: 0
-    knockbackConfig:
-      applicationChance: 1
-      force: 10
-    canCleanse: 0
-    cleanseConfig:
-      cleansesDebuffs: 1
-      cleansesDoTs: 1
   constructConfig:
     constructPrefab: {fileID: 0}
     maxRange: 10
@@ -945,74 +500,16 @@ MonoBehaviour:
           force: 5
         forcedMovementPreference: 0
         onHitEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         triggerOneTriggeredAbilityOnDestroy: 0
         positiveHitLayers:
           serializedVersion: 2
           m_Bits: 0
         positiveHealing: 0
         onHitBuffEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         effects:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
@@ -1066,74 +563,16 @@ MonoBehaviour:
           force: 5
         forcedMovementPreference: 0
         onHitEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         triggerOneTriggeredAbilityOnDestroy: 0
         positiveHitLayers:
           serializedVersion: 2
           m_Bits: 0
         positiveHealing: 0
         onHitBuffEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         effects:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
@@ -1248,74 +687,16 @@ MonoBehaviour:
           force: 5
         forcedMovementPreference: 0
         onHitEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         triggerOneTriggeredAbilityOnDestroy: 0
         positiveHitLayers:
           serializedVersion: 2
           m_Bits: 0
         positiveHealing: 0
         onHitBuffEffects:
-          canRoot: 0
-          rootEffect: {fileID: 0}
-          rootDuration: 0
-          rootApplicationChance: 1
-          canSlow: 0
-          slowEffect: {fileID: 0}
-          slowDuration: 0
-          slowApplicationChance: 1
-          canStun: 0
-          stunEffect: {fileID: 0}
-          stunDuration: 0
-          stunApplicationChance: 1
-          canBleed: 0
-          bleedEffect: {fileID: 0}
-          bleedDamage: 5
-          bleedDuration: 3
-          bleedApplicationChance: 1
-          canBurn: 0
-          burnEffect: {fileID: 0}
-          burnDamage: 10
-          burnDuration: 3
-          burnApplicationChance: 1
-          canPoison: 0
-          poisonEffect: {fileID: 0}
-          poisonDamage: 3
-          poisonDuration: 5
-          poisonApplicationChance: 1
-          canApplyStatBuffs: 0
-          statBuffApplications: []
-          canTriggerAbility: 0
-          triggeredAbilityConfigs: []
+          effects: []
+          triggeredAbilities: []
         effects:
           hitEffectPrefab: {fileID: 0}
           hitSound: {fileID: 0}
@@ -1364,74 +745,16 @@ MonoBehaviour:
         force: 5
       forcedMovementPreference: 0
       onHitEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:
         serializedVersion: 2
         m_Bits: 0
       positiveHealing: 0
       onHitBuffEffects:
-        canRoot: 0
-        rootEffect: {fileID: 0}
-        rootDuration: 0
-        rootApplicationChance: 1
-        canSlow: 0
-        slowEffect: {fileID: 0}
-        slowDuration: 0
-        slowApplicationChance: 1
-        canStun: 0
-        stunEffect: {fileID: 0}
-        stunDuration: 0
-        stunApplicationChance: 1
-        canBleed: 0
-        bleedEffect: {fileID: 0}
-        bleedDamage: 5
-        bleedDuration: 3
-        bleedApplicationChance: 1
-        canBurn: 0
-        burnEffect: {fileID: 0}
-        burnDamage: 10
-        burnDuration: 3
-        burnApplicationChance: 1
-        canPoison: 0
-        poisonEffect: {fileID: 0}
-        poisonDamage: 3
-        poisonDuration: 5
-        poisonApplicationChance: 1
-        canApplyStatBuffs: 0
-        statBuffApplications: []
-        canTriggerAbility: 0
-        triggeredAbilityConfigs: []
+        effects: []
+        triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}

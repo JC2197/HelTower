@@ -82,8 +82,6 @@ public class AbilityDataConfigEditor : Editor
     // Data properties
     private SerializedProperty weaponData;
     private SerializedProperty projectileConfig;
-    private SerializedProperty onHitEffects;
-    private SerializedProperty onKillEffects;
     private SerializedProperty areaConfig;
     private SerializedProperty beamConfig;
     private SerializedProperty channelConfig;
@@ -94,9 +92,6 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty passiveConfig;
     private SerializedProperty summonConfig;
     private SerializedProperty movementConfig;
-    private SerializedProperty onEnterEffects;
-    private SerializedProperty lingeringEffects;
-    private SerializedProperty onExitEffects;
     private SerializedProperty castEffects;
     private SerializedProperty customAbility;
     private SerializedProperty timedParticles;
@@ -199,8 +194,6 @@ public class AbilityDataConfigEditor : Editor
         // Data
         weaponData = serializedObject.FindProperty("weaponData");
         projectileConfig = serializedObject.FindProperty("projectileConfig");
-        onHitEffects = serializedObject.FindProperty("onHitEffects");
-        onKillEffects = serializedObject.FindProperty("onKillEffects");
         areaConfig = serializedObject.FindProperty("areaConfig");
         beamConfig = serializedObject.FindProperty("beamConfig");
         channelConfig = serializedObject.FindProperty("channelConfig");
@@ -211,9 +204,6 @@ public class AbilityDataConfigEditor : Editor
         summonConfig = serializedObject.FindProperty("summonConfig");
         passiveConfig = serializedObject.FindProperty("passiveConfig");
         movementConfig = serializedObject.FindProperty("movementConfig");
-        onEnterEffects = serializedObject.FindProperty("onEnterEffects");
-        lingeringEffects = serializedObject.FindProperty("lingeringEffects");
-        onExitEffects = serializedObject.FindProperty("onExitEffects");
         castEffects = serializedObject.FindProperty("castEffects");
         customAbility = serializedObject.FindProperty("customAbility");
         timedParticles = serializedObject.FindProperty("timedParticles");
@@ -899,21 +889,5 @@ public class AbilityDataConfigEditor : Editor
 
         EditorGUILayout.EndFoldoutHeaderGroup();
         EditorGUILayout.EndVertical();
-    }
-
-    private void DrawEffectToggle(SerializedProperty parent, string toggleName, string configName, string label)
-    {
-        SerializedProperty toggle = parent.FindPropertyRelative(toggleName);
-        EditorGUILayout.PropertyField(toggle, new GUIContent(label));
-
-        if (toggle.boolValue)
-        {
-            EditorGUI.indentLevel++;
-            SerializedProperty config = parent.FindPropertyRelative(configName);
-        }
-        else
-        {
-            EditorGUILayout.EndFoldoutHeaderGroup();
-        }
     }
 }

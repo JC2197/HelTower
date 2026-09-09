@@ -26,31 +26,31 @@ MonoBehaviour:
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
   connectionLineWidth: 3
-  canvasWidth: 400
+  canvasWidth: 350
   nodes:
   - nodeID: SpearAddSlash_3722
     traitData: {fileID: 11400000, guid: cf560e85430c6b24fa9ecac553bb5d3a, type: 2}
-    position: {x: -0, y: -16}
+    position: {x: 0, y: -8}
     connectedNodeIDs: []
   - nodeID: SpearAttackSpeed_1de6
     traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
-    position: {x: -48, y: 152}
+    position: {x: -48, y: 160}
     connectedNodeIDs:
     - SpearAddSlash_3722
     - StabAttackSpeed_e45b
   - nodeID: SpearAttackSpeed_976d
     traitData: {fileID: 11400000, guid: 1c8bba8be5a5b5649b8df2ee4c05d6d4, type: 2}
-    position: {x: -128, y: 152}
+    position: {x: -128, y: 160}
     connectedNodeIDs:
     - SpearAddSlash_3722
     - StabAttackSpeed_e45b
   - nodeID: StabAttackSpeed_e45b
     traitData: {fileID: 11400000, guid: c32ba2349e127314e94900444776d636, type: 2}
-    position: {x: -112, y: -16}
+    position: {x: -112, y: -8}
     connectedNodeIDs: []
-  canvasHeight: 401
-  minCanvasWidth: 400
-  minCanvasHeight: 225
+  canvasHeight: 400
+  minCanvasWidth: 350
+  minCanvasHeight: 400
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections:

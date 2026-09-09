@@ -16,6 +16,7 @@ MonoBehaviour:
   weaponName: Curse Staff
   weaponType: Curse Staff
   grantedTrait: {fileID: 0}
+  weaponTree: {fileID: 0}
   weaponPrefab: {fileID: 7280395599968806902, guid: c6f08f2aeb4dfe74cbe02a9b5e197801, type: 3}
   weaponDamageMin: 3
   weaponDamageMax: 4
@@ -54,8 +55,9 @@ MonoBehaviour:
     handBehindOnSE: 0
     handBehindOnSW: 0
     handRotationOffset: 0
-  grantedPrimaryAbility: {fileID: 11400000, guid: dc40b9cb98849c14991289e6ae7d7968, type: 2}
+  grantedPrimaryAbility: {fileID: 11400000, guid: 3030547a9d678984e8097f97b5627d53, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: 843ece6da9bb8954895f202d7be8d60a, type: 2}
+  grantedDashAbility: {fileID: 0}
   grantedPassiveAbility: {fileID: 0}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0
@@ -76,34 +78,5 @@ MonoBehaviour:
   hitFlashColorOverride: {r: 1, g: 1, b: 1, a: 1}
   overrideStatusEffects: 0
   onHitEffectsOverride:
-    canRoot: 0
-    rootEffect: {fileID: 0}
-    rootDuration: 0
-    rootApplicationChance: 1
-    canSlow: 0
-    slowEffect: {fileID: 0}
-    slowDuration: 0
-    slowApplicationChance: 1
-    canStun: 0
-    stunEffect: {fileID: 0}
-    stunDuration: 0
-    stunApplicationChance: 1
-    canBleed: 0
-    bleedEffect: {fileID: 0}
-    bleedDamage: 5
-    bleedDuration: 3
-    bleedApplicationChance: 1
-    canBurn: 0
-    burnEffect: {fileID: 0}
-    burnDamage: 10
-    burnDuration: 3
-    burnApplicationChance: 1
-    canPoison: 0
-    poisonEffect: {fileID: 0}
-    poisonDamage: 3
-    poisonDuration: 5
-    poisonApplicationChance: 1
-    canApplyStatBuffs: 0
-    statBuffApplications: []
-    canTriggerAbility: 0
-    triggeredAbilityConfigs: []
+    effects: []
+    triggeredAbilities: []

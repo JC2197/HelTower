@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: FirestarterAttackSpeed
   displayName: Mania
-  baseGoldCost: 8
   description: Increase Firestarter Attack Speed by {v1}%.
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 5
+  maxLevel: 3
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
@@ -40,7 +39,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
@@ -55,7 +53,6 @@ MonoBehaviour:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
