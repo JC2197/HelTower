@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: FirestarterMeleeOnly
   displayName: In The Mix
-  description: Replace Firestarter with Fire Swings - gaining a much larger melee
-    range and damage, but no longer firing a projectile.
+  description: Transform each Firestarter combo bolt into a wider, \nstronger melee
+    swing that no longer fires a projectile. \n\nFirestarter swings deal +{v3}% damage.
   traitIcon: {fileID: 1961319169, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
-  traitType: 3
+  traitType: 0
   maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
@@ -26,12 +26,62 @@ MonoBehaviour:
   requiredAbilityLevel: 0
   requiredTraits: []
   abilityReplacement:
-    requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
-    newAbilityConfig: {fileID: 11400000, guid: ba44f03820081a84682ddc3746f6f8ca, type: 2}
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
     description: 
   unlockedAbilities: []
   weaponAmmoModifier:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
-  abilityConfigModifiers: []
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: meleeConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 3240179893309576959, guid: 0fc7e65f1b0b79f4c9615527df5729d0, type: 3}
+    - propertyPath: isProjectileAbility
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.damage
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
+  - targetAbility: {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: meleeConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 3240179893309576959, guid: bd58a0dbdfa2af94faa45d13956afaa5, type: 3}
+    - propertyPath: isProjectileAbility
+      overrideMode: 2
+      numericValue: 0
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.damage
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

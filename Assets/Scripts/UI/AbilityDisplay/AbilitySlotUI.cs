@@ -37,12 +37,8 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void SetAbility(AbilityReference reference, Ability ability = null)
     {
         abilityReference = reference;
-        abilityComponent = ability;        
-        if (reference != null)
-        {
-            Debug.Log($"[AbilitySlotUI] Reference.Config is null: {reference.Config == null}");
-
-        }
+        abilityComponent = ability;
+        ResetCooldownVisuals();
         
         if (reference != null && reference.Config != null)
         {
@@ -61,7 +57,8 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                     iconImage.sprite = icon;
                     iconImage.color = Color.white;
                     iconImage.enabled = true;
-                    cooldownOverlay.sprite = icon;
+                    if (cooldownOverlay != null)
+                        cooldownOverlay.sprite = icon;
                 }
                 else
                 {
@@ -84,6 +81,21 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             if (levelText != null)
                 levelText.enabled = false;
         }
+    }
+
+    private void ResetCooldownVisuals()
+    {
+        if (cooldownOverlay != null)
+        {
+            cooldownOverlay.enabled = false;
+            cooldownOverlay.fillAmount = 0f;
+        }
+
+        if (cooldownText != null)
+            cooldownText.enabled = false;
+
+        if (chargeCountText != null)
+            chargeCountText.enabled = false;
     }
 
     /// <summary>

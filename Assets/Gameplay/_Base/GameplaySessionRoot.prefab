@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TraitSystemManager
   traitTreeUI: {fileID: 6523739479899663809}
-  startingCost: 5
+  startingCost: 0
   costMultiplier: 1.5
 --- !u!114 &7383503608580930243
 MonoBehaviour:

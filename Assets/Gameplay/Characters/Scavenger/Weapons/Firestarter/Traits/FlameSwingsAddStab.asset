@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: FlameSwingsAddStab
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: FirestarterAddStab
+  displayName: Flame Jab
+  description: Add a Flame Jab to your Flame Swings Combo, dealing heavy damage and
+    burning foes.
+  traitIcon: {fileID: 1961319169, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
+  weaponTraitTag: 
+  traitType: 0
+  maxLevel: 1
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 0}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 11400000, guid: ac039422661fe474aa325b90a648dd48, type: 2}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides: []
+  mutuallyExclusiveWith:
+  - {fileID: 0}

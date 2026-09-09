@@ -15,6 +15,7 @@ public static class AbilityModifierRuntime
 {
     private const float MinRateDenominator = 0.01f;
     private const string TriggeredAbilityAddPathPrefix = "__addTriggeredAbility";
+    private const string ComboAbilitiesPath = "__comboAbilities";
     private const string TriggeredAbilityAddPathSeparator = "|";
     private const string TriggeredAbilityAddMetadataSeparator = "#";
     private const BindingFlags SerializableInstanceFieldFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -158,6 +159,7 @@ public static class AbilityModifierRuntime
         public float setNumeric = 0f;
         public string setString = null;
         public UnityEngine.Object setObject = null;
+        public AbilityDataConfig[] setComboAbilities = null;
 
         public void Reset()
         {
@@ -167,6 +169,7 @@ public static class AbilityModifierRuntime
             setNumeric = 0f;
             setString = null;
             setObject = null;
+            setComboAbilities = null;
         }
 
         public void Apply(AbilityPropertyOverride o)
@@ -283,8 +286,31 @@ public static class AbilityModifierRuntime
             {
                 AddTriggeredAbilityAccumulatedEntry(result, abilityConfig, triggerChance, triggerTiming, pair.modifier.addTriggeredAbilityPath);
             }
+            if (pair.modifier.comboAbilities != null)
+            {
+                if (!result.TryGetValue(ComboAbilitiesPath, out var comboAccumulator))
+                {
+                    comboAccumulator = new AccumulatedValue { hasSetOverride = true };
+                    result[ComboAbilitiesPath] = comboAccumulator;
+                }
+
+                comboAccumulator.setComboAbilities = MergeComboStepPatches(
+                    comboAccumulator.setComboAbilities,
+                    pair.modifier.comboAbilities);
+            }
         }
         return result;
+    }
+
+    private static AbilityDataConfig[] MergeComboStepPatches(AbilityDataConfig[] current, AbilityDataConfig[] next)
+    {
+        int length = Mathf.Max(current?.Length ?? 0, next?.Length ?? 0);
+        var merged = new AbilityDataConfig[length];
+        for (int i = 0; i < length; i++)
+            merged[i] = i < (next?.Length ?? 0) && next[i] != null
+                ? next[i]
+                : i < (current?.Length ?? 0) ? current[i] : null;
+        return merged;
     }
 
     private static bool TryGetTriggeredAddition(
@@ -522,6 +548,12 @@ public static class AbilityModifierRuntime
             if (kvp.Key.Contains(".") || !kvp.Value.HasAnyModification)
                 continue;
 
+            if (kvp.Key == ComboAbilitiesPath)
+            {
+                copy.comboAbilities = ApplyComboStepPatch(baseConfig.comboAbilities, kvp.Value.setComboAbilities);
+                continue;
+            }
+
             var field = typeof(AbilityDataConfig).GetField(kvp.Key, BindingFlags.Public | BindingFlags.Instance);
             if (field == null)
                 continue;
@@ -546,6 +578,17 @@ public static class AbilityModifierRuntime
         ApplyTriggeredAbilityAdditions(copy, accumulatedOverrides);
 
         return copy;
+    }
+
+    private static AbilityDataConfig[] ApplyComboStepPatch(AbilityDataConfig[] baseSteps, AbilityDataConfig[] patch)
+    {
+        int length = Mathf.Max(baseSteps?.Length ?? 0, patch?.Length ?? 0);
+        var effectiveSteps = new AbilityDataConfig[length];
+        for (int i = 0; i < length; i++)
+            effectiveSteps[i] = i < (patch?.Length ?? 0) && patch[i] != null
+                ? patch[i]
+                : i < (baseSteps?.Length ?? 0) ? baseSteps[i] : null;
+        return effectiveSteps;
     }
 
     public static CustomAbility BuildEffectiveCustomAbility(
@@ -1240,7 +1283,7 @@ public static class AbilityModifierRuntime
     {
         "attackSpeed", "cooldownTime", "energyCost", "maxCharges", "chargeRechargeTime", "castLockoutDuration",
     "movementBlockDuration", "autocastRange", "autocastTargets", "castAtFeet", "castAtTargets", "castAtFriendlyTargets", "baseCritChance", "baseCritDamageMultiplier",
-       "mainhandAnimationName", "precastAnimationName", "retaliationCast"
+         "mainhandAnimationName", "precastAnimationName", "retaliationCast", "isProjectileAbility", "isAreaAbility", "isMeleeAbility", "isBeamAbility", "isChanneled", "isMovementAbility", "isExplosionAbility", "isConstructAbility", "isSummonAbility", "isTrapAbility", "isPassiveAbility", "isCombo"
     };
 
     /// <summary>

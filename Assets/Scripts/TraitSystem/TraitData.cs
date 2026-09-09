@@ -390,6 +390,8 @@ public class AbilityConfigModifier
 {
     public AbilityDataConfig targetAbility;
     public Sprite abilityIcon;
+    [Tooltip("Patches the target ability's combo steps at runtime. None preserves the existing step at that index; add entries after the existing steps to append new ones.")]
+    public AbilityDataConfig[] comboAbilities;
     [Tooltip("Appends this triggered-ability config to applicable on-hit triggered-ability arrays on the target ability at runtime.")]
     public TriggeredAbilityConfig addTriggeredAbilityConfig = new TriggeredAbilityConfig();
     [FormerlySerializedAs("addTriggeredAbility")]
@@ -404,6 +406,7 @@ public class AbilityConfigModifier
         get
         {
             if (targetAbility == null) return true;
+            if (comboAbilities != null) return false;
             bool hasTriggeredAddition = (addTriggeredAbilityConfig != null && addTriggeredAbilityConfig.abilityConfig != null)
                 || addTriggeredAbilityLegacy != null;
             if (hasTriggeredAddition) return false;

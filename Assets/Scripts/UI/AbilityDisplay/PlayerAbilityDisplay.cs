@@ -19,6 +19,8 @@ public class PlayerAbilityDisplay : MonoBehaviour
 
     private PlayerController player;
     private CharacterAbilityManager subscribedManager;
+    private AbilitySlotUI primaryAbilitySlot;
+    private DataDrivenAbility displayedPrimaryAbility;
 
     // Track spawned icons so we can rebuild when abilities change
     private readonly List<AbilitySlotUI> spawnedIcons = new List<AbilitySlotUI>();
@@ -33,6 +35,11 @@ public class PlayerAbilityDisplay : MonoBehaviour
     {
         PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
         UnsubscribeFromAbilityEvents();
+    }
+
+    private void Update()
+    {
+        RefreshPrimaryComboStep();
     }
 
     // -- Player wiring --
@@ -98,7 +105,10 @@ public class PlayerAbilityDisplay : MonoBehaviour
         var weaponRef = abilityManager.GetPrimaryAbilityRef();
         if (weaponRef?.Config != null)
         {
-            SpawnIcon(weaponRef, abilityManager.GetPrimaryAbility(), 0);
+            DataDrivenAbility primaryAbility = abilityManager.GetPrimaryAbility() as DataDrivenAbility;
+            displayedPrimaryAbility = primaryAbility?.GetDisplayAbility() ?? primaryAbility;
+            AbilityReference displayedReference = displayedPrimaryAbility?.GetAbilityReference() ?? weaponRef;
+            primaryAbilitySlot = SpawnIcon(displayedReference, displayedPrimaryAbility, 0);
         }
 
         // Secondary weapon ability (Slot 1 = RMB)
@@ -174,7 +184,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
             SpawnIcon(reference, null, slotIndex);
     }
 
-    private void SpawnIcon(AbilityReference reference, Ability ability, int slotIndex)
+    private AbilitySlotUI SpawnIcon(AbilityReference reference, Ability ability, int slotIndex)
     {
         AbilitySlotUI icon = Instantiate(abilityIconPrefab, abilityContainer);
         icon.SetAbility(reference, ability);
@@ -184,6 +194,7 @@ public class PlayerAbilityDisplay : MonoBehaviour
         icon.SetKeybindText(keybind);
         
         spawnedIcons.Add(icon);
+        return icon;
     }
 
     private void ClearIcons()
@@ -194,6 +205,22 @@ public class PlayerAbilityDisplay : MonoBehaviour
                 Destroy(icon.gameObject);
         }
         spawnedIcons.Clear();
+        primaryAbilitySlot = null;
+        displayedPrimaryAbility = null;
+    }
+
+    private void RefreshPrimaryComboStep()
+    {
+        if (primaryAbilitySlot == null || player == null)
+            return;
+
+        DataDrivenAbility primaryAbility = player.GetComponent<CharacterAbilityManager>()?.GetPrimaryAbility() as DataDrivenAbility;
+        DataDrivenAbility nextDisplayAbility = primaryAbility?.GetDisplayAbility();
+        if (nextDisplayAbility == null || nextDisplayAbility == displayedPrimaryAbility)
+            return;
+
+        displayedPrimaryAbility = nextDisplayAbility;
+        primaryAbilitySlot.SetAbility(nextDisplayAbility.GetAbilityReference(), nextDisplayAbility);
     }
 
     // -- Ability-change event wiring --

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FirestarterRange
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: FirestarterProjSpeed
-  displayName: Wrist Flicker
+  displayName: Fire Bolts
   description: Your Firestarter projectiles gain +{v1}% projectile speed
   traitIcon: {fileID: 2019340827, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
@@ -35,6 +35,7 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 0
@@ -49,6 +50,7 @@ MonoBehaviour:
       objectValue: {fileID: 0}
   - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 0

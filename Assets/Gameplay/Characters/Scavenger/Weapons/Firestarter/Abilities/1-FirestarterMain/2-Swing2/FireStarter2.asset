@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: FireMelee1
+  m_Name: FireStarter2
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Flame Swing
+  abilityName: Firestarter 2
   abilityIcon: {fileID: 1961319169, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   abilityDescription: 'Fire a basic magic bolt at the Target for {hitbox.percentWeaponDamage}%
     weapon damage. '
@@ -59,7 +59,7 @@ MonoBehaviour:
   characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: ComboCast1
+  mainhandAnimationName: ComboCast2
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
     spawnDelay: 0
     duration: 0
     offset: {x: 0, y: 0, z: 0}
-  isProjectileAbility: 0
+  isProjectileAbility: 1
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
@@ -202,14 +202,14 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 3240179893309576959, guid: 0fc7e65f1b0b79f4c9615527df5729d0, type: 3}
+      prefab: {fileID: 3240179893309576959, guid: 9c29ab21d16015b47828e8363417ca3b, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
         m_Bits: 64
-      damage: 20
-      damageTypeName: Magical
+      damage: 5
+      damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
       lifeSteal:
@@ -218,7 +218,7 @@ MonoBehaviour:
         amount: 5
       knockback:
         enabled: 1
-        force: 2
+        force: 3
         directionality: 0
       pull:
         enabled: 0
@@ -236,11 +236,11 @@ MonoBehaviour:
         effects: []
         triggeredAbilities: []
       effects:
-        hitEffectPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
+        hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 1
-    meleeFXSpeed: 0.2
+    meleeFXRadiusDistance: 0.5
+    meleeFXSpeed: 0
     flipMeleeFX: 0
     flipMeleeFXY: 1
     stickToCharacter: 0
@@ -288,7 +288,7 @@ MonoBehaviour:
         effects: []
         triggeredAbilities: []
       effects:
-        hitEffectPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
+        hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 1

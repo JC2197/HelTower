@@ -23,6 +23,7 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
         if (!property.isExpanded) return LH;
 
         var overridesProp = property.FindPropertyRelative("overrides");
+        var comboAbilitiesProp = property.FindPropertyRelative("comboAbilities");
         var addTriggeredAbilityConfigProp = property.FindPropertyRelative("addTriggeredAbilityConfig");
         var addTriggeredAbilityAbilityProp = addTriggeredAbilityConfigProp?.FindPropertyRelative("abilityConfig");
         int overrideCount = overridesProp?.arraySize ?? 0;
@@ -31,6 +32,8 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
         totalHeight += LH + VS; // foldout
         totalHeight += LH + VS; // target ability
         totalHeight += LH + VS; // ability icon
+        if (comboAbilitiesProp != null)
+            totalHeight += EditorGUI.GetPropertyHeight(comboAbilitiesProp, true) + VS;
 
         if (addTriggeredAbilityConfigProp != null)
             totalHeight += EditorGUI.GetPropertyHeight(addTriggeredAbilityConfigProp, true) + VS;
@@ -55,6 +58,7 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
         var targetProp = property.FindPropertyRelative("targetAbility");
         var target = targetProp.objectReferenceValue as AbilityDataConfig;
         var overridesProp = property.FindPropertyRelative("overrides");
+        var comboAbilitiesProp = property.FindPropertyRelative("comboAbilities");
 
         // Foldout header
         string foldLabel = target != null ? $"→ {target.abilityName}" : "Ability Config Modifier";
@@ -71,13 +75,26 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
         float y = position.y + LH + VS;
 
         // Target ability field
+        EditorGUI.BeginChangeCheck();
         EditorGUI.PropertyField(new Rect(position.x, y, position.width, LH), targetProp);
+        if (EditorGUI.EndChangeCheck())
+        {
+            target = targetProp.objectReferenceValue as AbilityDataConfig;
+            PopulateComboStepsFromTarget(comboAbilitiesProp, target);
+        }
         y += LH + VS;
 
         // Ability icon override field
         var abilityIconProp = property.FindPropertyRelative("abilityIcon");
         EditorGUI.PropertyField(new Rect(position.x, y, position.width, LH), abilityIconProp, new GUIContent("Ability Icon Override"));
         y += LH + VS;
+
+        if (comboAbilitiesProp != null)
+        {
+            float comboHeight = EditorGUI.GetPropertyHeight(comboAbilitiesProp, true);
+            EditorGUI.PropertyField(new Rect(position.x, y, position.width, comboHeight), comboAbilitiesProp, new GUIContent("Combo Steps Override"), true);
+            y += comboHeight + VS;
+        }
 
         // Direct triggered-ability append helper field (full config)
         var addTriggeredAbilityConfigProp = property.FindPropertyRelative("addTriggeredAbilityConfig");
@@ -174,6 +191,16 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
 
         EditorGUI.indentLevel--;
         EditorGUI.EndProperty();
+    }
+
+    private static void PopulateComboStepsFromTarget(SerializedProperty comboAbilitiesProp, AbilityDataConfig target)
+    {
+        if (comboAbilitiesProp == null || target?.comboAbilities == null)
+            return;
+
+        comboAbilitiesProp.arraySize = target.comboAbilities.Length;
+        for (int i = 0; i < target.comboAbilities.Length; i++)
+            comboAbilitiesProp.GetArrayElementAtIndex(i).objectReferenceValue = null;
     }
 
     /// <summary>

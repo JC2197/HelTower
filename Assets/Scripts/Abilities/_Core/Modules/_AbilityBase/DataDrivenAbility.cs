@@ -247,6 +247,15 @@ public class DataDrivenAbility : Ability
     public float AttackDuration => 1f / GetEffectiveAttackSpeed();
     public float GetRemainingAttackTime() => Mathf.Max(0f, (lastUsedTime + AttackDuration) - Time.time);
     public float GetAttackProgress() => 1f - (GetRemainingAttackTime() / AttackDuration);
+    public DataDrivenAbility GetDisplayAbility()
+    {
+        if (EffectiveAbilityConfig == null || !EffectiveAbilityConfig.isCombo || comboSteps == null || comboSteps.Length == 0)
+            return this;
+
+        return comboSteps[Mathf.Clamp(currentComboIndex, 0, comboSteps.Length - 1)] ?? this;
+    }
+
+    public AbilityReference GetAbilityReference() => abilityReference;
     /// <summary>True when this ability interrupts whatever the caster is currently doing.</summary>
     public bool OverridesOtherAbilities => config != null && config.cancelActions;
     /// <summary>Cheap gate for held-button re-triggering, so a held key doesn't spam blocked cast attempts every frame.</summary>
@@ -498,7 +507,7 @@ public class DataDrivenAbility : Ability
             currentCharges = GetEffectiveMaxCharges();
         }
 
-        if (config.isCombo)
+        if (EffectiveAbilityConfig.isCombo)
         {
             BuildComboSteps();
         }
@@ -1827,7 +1836,7 @@ public class DataDrivenAbility : Ability
 
         // Follow-up combo steps ride the cooldown started by the opening step. Steps themselves are
         // paced by the shell and their own castLockoutDuration, never by their attack-speed cooldown.
-        bool isComboFollowUp = config.isCombo && currentComboIndex > 0 && Time.time <= comboWindowExpiresAt;
+        bool isComboFollowUp = EffectiveAbilityConfig.isCombo && currentComboIndex > 0 && Time.time <= comboWindowExpiresAt;
         if (!_autocastBurstActive && !isComboStep && !isComboFollowUp && isOnCooldown)
         {
             reason = $"on cooldown (remaining={GetRemainingCooldown():F2}s, total={GetEffectiveCooldown():F2}s)";
@@ -1875,7 +1884,7 @@ public class DataDrivenAbility : Ability
             return false;
         }
 
-        if (config.isCombo)
+        if (EffectiveAbilityConfig.isCombo)
         {
             if (isExecutingCombo || comboSteps == null || comboSteps.Length == 0)
             {
@@ -1962,57 +1971,58 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private bool FireAbility()
     {
+        AbilityDataConfig effectiveConfig = EffectiveAbilityConfig;
         bool abilityExecuted = false;
         // 8. Standalone Projectile (no weapon)
 
-        if (config.isProjectileAbility)
+        if (effectiveConfig.isProjectileAbility)
         {
             abilityExecuted = ExecuteStandaloneProjectile() || abilityExecuted;
         }
-        if (config.isMovementAbility)
+        if (effectiveConfig.isMovementAbility)
         {
             abilityExecuted = ExecuteMovementAbility() || abilityExecuted;
         }
         // 3. Channeling Ability
-        if (config.isChanneled)
+        if (effectiveConfig.isChanneled)
         {
             abilityExecuted = ExecuteChanneledAbility() || abilityExecuted;
         }
 
         // 4. Beam Ability
-        if (config.isBeamAbility)
+        if (effectiveConfig.isBeamAbility)
         {
             abilityExecuted = ExecuteBeamAbility() || abilityExecuted;
         }
 
         // 5. Area Spell
-        if (config.isAreaAbility)
+        if (effectiveConfig.isAreaAbility)
         {
             abilityExecuted = ExecuteAreaAbility() || abilityExecuted;
         }
 
         // 6. Construct/Summon Ability
-        if (config.isConstructAbility)
+        if (effectiveConfig.isConstructAbility)
         {
             abilityExecuted = ExecuteConstructAbility() || abilityExecuted;
         }
         // 7. Trap Ability
-        if (config.isTrapAbility)
+        if (effectiveConfig.isTrapAbility)
         {
             abilityExecuted = ExecuteTrapAbility() || abilityExecuted;
         }
         // 9. Explosion Ability
-        if (config.isExplosionAbility)
+        if (effectiveConfig.isExplosionAbility)
         {
             abilityExecuted = ExecuteExplosionAbility() || abilityExecuted;
         }
         // 10. Melee Ability
-        if (config.isMeleeAbility)
+        if (effectiveConfig.isMeleeAbility)
         {
             abilityExecuted = ExecuteMeleeAbility() || abilityExecuted;
         }
         // 11. Summon Ability
-        if (config.isSummonAbility)
+        if (effectiveConfig.isSummonAbility)
         {
             abilityExecuted = ExecuteSummonAbility() || abilityExecuted;
         }
@@ -2151,21 +2161,22 @@ public class DataDrivenAbility : Ability
     /// </summary>
     private void BuildComboSteps()
     {
-        if (config.comboAbilities == null || config.comboAbilities.Length == 0)
+        AbilityDataConfig effectiveConfig = EffectiveAbilityConfig;
+        if (effectiveConfig == null || effectiveConfig.comboAbilities == null || effectiveConfig.comboAbilities.Length == 0)
             return;
 
-        comboSteps = new DataDrivenAbility[config.comboAbilities.Length];
+        comboSteps = new DataDrivenAbility[effectiveConfig.comboAbilities.Length];
 
-        for (int i = 0; i < config.comboAbilities.Length; i++)
+        for (int i = 0; i < effectiveConfig.comboAbilities.Length; i++)
         {
-            AbilityDataConfig stepConfig = config.comboAbilities[i];
+            AbilityDataConfig stepConfig = effectiveConfig.comboAbilities[i];
             if (stepConfig == null)
             {
                 Debug.LogWarning($"[Combo] '{config.abilityName}' has a null combo step at index {i}.");
                 continue;
             }
 
-            if (stepConfig == config || stepConfig.isCombo)
+            if (stepConfig == effectiveConfig || stepConfig.isCombo)
             {
                 Debug.LogError($"[Combo] Step {i} of '{config.abilityName}' points at a combo shell ('{stepConfig.abilityName}'); nested/self-referencing combos are not supported.");
                 continue;
@@ -3387,6 +3398,14 @@ public class DataDrivenAbility : Ability
 
         _effectiveAbilityConfig = AbilityModifierRuntime.BuildEffectiveAbilityConfig(config, _accumulatedOverrides);
 
+        DestroyComboSteps();
+        ResetComboChain();
+        if (EffectiveAbilityConfig.isCombo)
+        {
+            BuildComboSteps();
+            RebuildComboStepModifiers();
+        }
+
         if (movementAbility != null && config.isMovementAbility)
             movementAbility.Initialize(_effectiveAbilityConfig);
 
@@ -3436,6 +3455,21 @@ public class DataDrivenAbility : Ability
                   $"{_accumulatedOverrides?.Count ?? 0} property overrides, " +
                   $"effectiveProj={_effectiveProjectileConfig != null}, " +
                   $"effectiveArea={_effectiveAreaConfig != null}");
+    }
+
+    private void RebuildComboStepModifiers()
+    {
+        if (comboSteps == null)
+            return;
+
+        foreach (DataDrivenAbility step in comboSteps)
+        {
+            if (step == null)
+                continue;
+
+            step.RebuildAmmoModifiers();
+            step.RebuildConfigModifiers();
+        }
     }
 
 

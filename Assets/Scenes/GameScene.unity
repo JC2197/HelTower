@@ -499,7 +499,7 @@ MonoBehaviour:
   floorListConfig: {fileID: 11400000, guid: 04d41f960d728304982d60234a75aec6, type: 2}
   startingFloor: {fileID: 11400000, guid: 5a82d946bb62c6e44bec01928cc0bab3, type: 2}
   startingGoldScaling: 1
-  goldScalingIncreasePerFloor: 1.5
+  goldScalingIncreasePerFloor: 2
 --- !u!4 &336761090
 Transform:
   m_ObjectHideFlags: 0

@@ -5786,8 +5786,8 @@ MonoBehaviour:
   saveFileData: {fileID: 0}
   startingTraits: []
   traitDataList: {fileID: 11400000, guid: aec183f6df864fd4ba05c4f53393a7ee, type: 2}
-  startingCost: 10
-  costMultiplier: 1.5
+  startingCost: 0
+  costMultiplier: 1
 --- !u!114 &7585706307468894951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5822,7 +5822,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 8054363077136831453}
   _cameraHolder: {fileID: 939052996780319900}
   _backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  _orthographicSize: 6.5
+  _orthographicSize: 9
 --- !u!114 &3442679929321104817
 MonoBehaviour:
   m_ObjectHideFlags: 0

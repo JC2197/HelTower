@@ -20,8 +20,8 @@ MonoBehaviour:
   editorBackgroundSprite: {fileID: 21300000, guid: 2acb5cd8324f95648aba820944f5fe9a, type: 3}
   anchorTreeToBottom: 1
   useLevelZones: 1
-  levelZoneBandCount: 7
-  levelsPerBand: 3
+  levelZoneBandCount: 11
+  levelsPerBand: 4
   defaultZoom: 1
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
@@ -30,60 +30,94 @@ MonoBehaviour:
   nodes:
   - nodeID: FireStarterBurnChance5_b0e9
     traitData: {fileID: 11400000, guid: 6358cf758839a6d489bf6d351dadbd25, type: 2}
-    position: {x: 0, y: 120}
-    connectedNodeIDs: []
+    position: {x: -144, y: 168}
+    connectedNodeIDs:
+    - FirestarterSwipeSize5_894f
   - nodeID: FirestarterDamage5_b55f
     traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
-    position: {x: 0, y: 168}
-    connectedNodeIDs: []
+    position: {x: -48, y: 168}
+    connectedNodeIDs:
+    - FirestarterProjSpeed5_bdd9
   - nodeID: FirestarterProjSpeed5_bdd9
     traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
-    position: {x: -144, y: 120}
+    position: {x: -64, y: 96}
     connectedNodeIDs:
     - FirestarterProjSpeed_fa92
+    - Expulsion Range_67f2
   - nodeID: FirestarterSwipeSize5_894f
     traitData: {fileID: 11400000, guid: 07e417573b691cf4a97c2bde137a64b3, type: 2}
-    position: {x: -80, y: 120}
+    position: {x: -128, y: 96}
     connectedNodeIDs:
     - FirestarterMeleeOnly_71fb
   - nodeID: ExpulsionCooldown_48ef
     traitData: {fileID: 11400000, guid: 4c1dc5246efb45c458e5354154885229, type: 2}
-    position: {x: 112, y: 168}
+    position: {x: 16, y: 168}
     connectedNodeIDs:
     - ExpulsionHitDamage_f72e
     - ExpulsionBurnDamage_1134
   - nodeID: Expulsion Range_67f2
     traitData: {fileID: 11400000, guid: 188ea88afd668e844a8577b7d63ea976, type: 2}
-    position: {x: 112, y: 16}
+    position: {x: -8, y: 24}
     connectedNodeIDs:
     - ExpulsionSalvo_76e7
+    - Fireballs_518e
   - nodeID: ExpulsionHitDamage_f72e
     traitData: {fileID: 11400000, guid: 5a0a8ccf1b14e2f42865cd00b37cfbc5, type: 2}
-    position: {x: 72, y: 72}
+    position: {x: 24, y: 96}
     connectedNodeIDs:
     - Expulsion Range_67f2
     - ExpulsionSalvo_76e7
   - nodeID: ExpulsionSalvo_76e7
     traitData: {fileID: 11400000, guid: 55d908fb55fb1bc46ac8470133b90d44, type: 2}
-    position: {x: 72, y: -80}
-    connectedNodeIDs: []
+    position: {x: 48, y: 24}
+    connectedNodeIDs:
+    - ExpulsionSalvo_1faa
   - nodeID: AttackSpeed_e186
     traitData: {fileID: 11400000, guid: 7da782fba94706f4a91cdc338389e924, type: 2}
-    position: {x: -112, y: 168}
+    position: {x: -96, y: 168}
     connectedNodeIDs:
     - FirestarterProjSpeed5_bdd9
     - FirestarterSwipeSize5_894f
   - nodeID: ExpulsionBurnDamage_1134
     traitData: {fileID: 11400000, guid: 59e14e8111900424990b97ff7055258a, type: 2}
-    position: {x: 136, y: 72}
-    connectedNodeIDs: []
+    position: {x: 72, y: 96}
+    connectedNodeIDs:
+    - ExpulsionSalvo_76e7
   - nodeID: FirestarterProjSpeed_fa92
     traitData: {fileID: 11400000, guid: b955032f70b1ba24990d5b074fbf7a74, type: 2}
-    position: {x: -144, y: 16}
+    position: {x: -64, y: -40}
     connectedNodeIDs: []
   - nodeID: FirestarterMeleeOnly_71fb
     traitData: {fileID: 11400000, guid: faffe4b8f80a03a438315cde9e82cb7b, type: 2}
-    position: {x: -80, y: 24}
+    position: {x: -128, y: 32}
+    connectedNodeIDs:
+    - FirestarterAddStab_77c2
+  - nodeID: ExpulsionCooldown_4568
+    traitData: {fileID: 11400000, guid: b3f5b917f36c4134193f2a9a631662d5, type: 2}
+    position: {x: 80, y: 168}
+    connectedNodeIDs:
+    - ExpulsionBurnDamage_1134
+  - nodeID: TrailblazeDuration_378b
+    traitData: {fileID: 11400000, guid: e4de51044644c3a42883795a5ae67330, type: 2}
+    position: {x: 136, y: 168}
+    connectedNodeIDs: []
+  - nodeID: ExpulsionSalvo_1faa
+    traitData: {fileID: 11400000, guid: 55d908fb55fb1bc46ac8470133b90d44, type: 2}
+    position: {x: 48, y: -40}
+    connectedNodeIDs: []
+  - nodeID: FirestarterAddStab_77c2
+    traitData: {fileID: 11400000, guid: 8c5340e898d9a5b40b1fffb23698da63, type: 2}
+    position: {x: -128, y: -40}
+    connectedNodeIDs:
+    - FirestarterDamage_b9be
+  - nodeID: Fireballs_518e
+    traitData: {fileID: 11400000, guid: 08d3761d870effd45829b62a0be07b91, type: 2}
+    position: {x: -8, y: -40}
+    connectedNodeIDs:
+    - FirestarterDamage_b9be
+  - nodeID: FirestarterDamage_b9be
+    traitData: {fileID: 11400000, guid: 73713e7a0f0df6244b3f28107105939f, type: 2}
+    position: {x: -64, y: -104}
     connectedNodeIDs: []
   canvasHeight: 400
   minCanvasWidth: 350
@@ -97,19 +131,6 @@ MonoBehaviour:
     - ExpulsionCooldown_48ef
     toNodeIDs:
     - ExpulsionHitDamage_f72e
-    fromBubbleDir: 0
-    toBubbleDir: 1
-    curveAmount: 4
-    lineWidth: 3
-    lineColor: {r: 1, g: 1, b: 1, a: 1}
-    useDrawnPath: 0
-    paintedPixels: []
-  - connectionID: conn_db2d516b
-    scale: 1
-    fromNodeIDs:
-    - ExpulsionHitDamage_f72e
-    toNodeIDs:
-    - Expulsion Range_67f2
     fromBubbleDir: 0
     toBubbleDir: 1
     curveAmount: 4
@@ -156,19 +177,6 @@ MonoBehaviour:
     lineColor: {r: 1, g: 1, b: 1, a: 1}
     useDrawnPath: 0
     paintedPixels: []
-  - connectionID: conn_4cc3e9a9
-    scale: 1
-    fromNodeIDs:
-    - Expulsion Range_67f2
-    toNodeIDs:
-    - ExpulsionSalvo_76e7
-    fromBubbleDir: 0
-    toBubbleDir: 1
-    curveAmount: 4
-    lineWidth: 3
-    lineColor: {r: 1, g: 1, b: 1, a: 1}
-    useDrawnPath: 0
-    paintedPixels: []
   - connectionID: conn_032495ff
     scale: 1
     fromNodeIDs:
@@ -178,7 +186,7 @@ MonoBehaviour:
     fromBubbleDir: 0
     toBubbleDir: 1
     curveAmount: 4
-    lineWidth: 1
+    lineWidth: 3
     lineColor: {r: 1, g: 1, b: 1, a: 1}
     useDrawnPath: 0
     paintedPixels: []
@@ -191,7 +199,137 @@ MonoBehaviour:
     fromBubbleDir: 0
     toBubbleDir: 1
     curveAmount: 4
-    lineWidth: 1
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_34f102fc
+    scale: 1
+    fromNodeIDs:
+    - FirestarterProjSpeed5_bdd9
+    toNodeIDs:
+    - Expulsion Range_67f2
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_34129c65
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionBurnDamage_1134
+    toNodeIDs:
+    - ExpulsionSalvo_76e7
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_ed33f079
+    scale: 1
+    fromNodeIDs:
+    - FirestarterDamage5_b55f
+    toNodeIDs:
+    - FirestarterProjSpeed5_bdd9
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_a6e397f1
+    scale: 1
+    fromNodeIDs:
+    - FireStarterBurnChance5_b0e9
+    toNodeIDs:
+    - FirestarterSwipeSize5_894f
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_e11e7707
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionCooldown_4568
+    toNodeIDs:
+    - ExpulsionBurnDamage_1134
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_cae4ab8e
+    scale: 1
+    fromNodeIDs:
+    - ExpulsionSalvo_76e7
+    toNodeIDs:
+    - ExpulsionSalvo_1faa
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_09c2b4b4
+    scale: 1
+    fromNodeIDs:
+    - FirestarterAddStab_77c2
+    toNodeIDs:
+    - FirestarterDamage_b9be
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_53aae5a3
+    scale: 1
+    fromNodeIDs:
+    - Fireballs_518e
+    toNodeIDs:
+    - FirestarterDamage_b9be
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_92653228
+    scale: 1
+    fromNodeIDs:
+    - FirestarterMeleeOnly_71fb
+    toNodeIDs:
+    - FirestarterAddStab_77c2
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_869aebff
+    scale: 1
+    fromNodeIDs:
+    - Expulsion Range_67f2
+    toNodeIDs:
+    - Fireballs_518e
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
     lineColor: {r: 1, g: 1, b: 1, a: 1}
     useDrawnPath: 0
     paintedPixels: []

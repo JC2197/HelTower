@@ -46,8 +46,8 @@ MonoBehaviour:
   movementSpeedMultiplierDuringCast: 1
   disablesMovementDuringPrecast: 0
   hasCharges: 0
-  maxCharges: 2
-  chargeRechargeTime: 2
+  maxCharges: 1
+  chargeRechargeTime: 1
   isCombo: 0
   comboAbilities: []
   comboInputWindow: 0.75
@@ -90,7 +90,7 @@ MonoBehaviour:
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
-  isMovementAbility: 1
+  isMovementAbility: 0
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
@@ -840,7 +840,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
-  customAbility: {fileID: 0}
+  customAbility: {fileID: 11400000, guid: fe6a4dc71bb074946b02538477a42618, type: 2}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}

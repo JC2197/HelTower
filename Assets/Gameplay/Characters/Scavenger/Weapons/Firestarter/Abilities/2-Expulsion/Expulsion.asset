@@ -761,8 +761,8 @@ MonoBehaviour:
         effects:
         - effect: {fileID: 11400000, guid: eb9cc8e13c05724499f61b108d6aad58, type: 2}
           applicationChance: 1
-          durationOverride: 0
-          damageOverride: 0
+          durationOverride: 3
+          damageOverride: 5
         triggeredAbilities: []
       triggerOneTriggeredAbilityOnDestroy: 0
       positiveHitLayers:

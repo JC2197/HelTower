@@ -10,16 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
-  m_Name: FireMeleeCombo
+  m_Name: FireStarter1
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Firestarter
+  abilityName: Firestarter 1
   abilityIcon: {fileID: 1101298345, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
-  abilityDescription: Replace Firestarter with Flame Swings, gaining larger melee
-    range dealing more damage, but no longer firing a projectile.
+  abilityDescription: 'Fire a basic magic bolt at the Target for {hitbox.percentWeaponDamage}%
+    weapon damage. '
   requiredWeapon: {fileID: 0}
   abilityTags:
-    selectedTags: []
-    selectedDamageTypes: []
+    selectedTags:
+    - Projectile
+    - Dark
+    - Attack
+    - Magic
+    - Combat
+    selectedDamageTypes:
+    - {fileID: 0}
   disableCast: 0
   isAttack: 1
   isInstant: 0
@@ -27,8 +33,8 @@ MonoBehaviour:
   attackSpeed: 1
   cooldownTime: 0
   energyCost: 0
-  castLockoutDuration: 0.1
-  scaleLockoutWithAttackSpeed: 0
+  castLockoutDuration: 0.5
+  scaleLockoutWithAttackSpeed: 1
   cancelActions: 0
   baseCritChance: 0
   baseCritDamageMultiplier: 0
@@ -40,38 +46,36 @@ MonoBehaviour:
   autocastRange: 0
   autocastTargets: 1
   canMulticast: 0
-  disablesMovementDuringCast: 0
-  movementBlockDuration: 0.5
-  movementSpeedMultiplierDuringCast: 1
+  disablesMovementDuringCast: 1
+  movementBlockDuration: 0.33
+  movementSpeedMultiplierDuringCast: 0.5
   disablesMovementDuringPrecast: 0
   hasCharges: 0
   maxCharges: 1
   chargeRechargeTime: 1
-  isCombo: 1
-  comboAbilities:
-  - {fileID: 11400000, guid: d311d7f8048af884daf41c583170747b, type: 2}
-  - {fileID: 11400000, guid: e91b216599ab58242ae7f77baaa8a7c2, type: 2}
-  comboInputWindow: 0.15
-  characterAnimationName: 
+  isCombo: 0
+  comboAbilities: []
+  comboInputWindow: 0.75
+  characterAnimationName: Attack
   characterAnimationUp: 
   characterPrecastAnimationName: 
-  mainhandAnimationName: 
+  mainhandAnimationName: ComboCast1
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
-  holdAnimationName: 
+  holdAnimationName: Hold
   characterHoldAnimationName: 
   holdChargeConfig:
     barDuration: 1
     maxBars: 1
     modifiers: []
-  weaponIdleAnimationName: StaffIdle
+  weaponIdleAnimationName: 
   unlockWeaponDirections: 0
   lockWeaponDirections: 0
-  rotationLockDuration: 0
+  rotationLockDuration: 5
   continueRotatingDuringUnlock: 0
-  flipYOnLeftFacing: 0
-  flipXOnLeftFacing: 0
+  flipYOnLeftFacing: 1
+  flipXOnLeftFacing: 1
   timedParticles: []
   hasIndicator: 0
   indicatorConfig:
@@ -79,7 +83,7 @@ MonoBehaviour:
     spawnDelay: 0
     duration: 0
     offset: {x: 0, y: 0, z: 0}
-  isProjectileAbility: 0
+  isProjectileAbility: 1
   isAreaAbility: 0
   isConstructAbility: 0
   isTrapAbility: 0
@@ -87,7 +91,7 @@ MonoBehaviour:
   areaFollowsProjectile: 0
   isChanneled: 0
   isBeamAbility: 0
-  isMeleeAbility: 0
+  isMeleeAbility: 1
   isExplosionAbility: 0
   isSummonAbility: 0
   isPassiveAbility: 0
@@ -165,13 +169,13 @@ MonoBehaviour:
   channelConfig:
     unlockRotation: 1
     orbitalRadius: 0.4
-    flipWeaponOnYAxis: 1
+    flipWeaponOnYAxis: 0
     energyPerSecond: 5
     energyTickRate: 0.25
     channelObjectPrefab: {fileID: 0}
     scale: 1
     damage: 10
-    damageType: Physical
+    damageType: Piercing
     damageTickRate: 0.25
     hitLayers:
       serializedVersion: 2
@@ -198,13 +202,13 @@ MonoBehaviour:
       amount: 5
   meleeConfig:
     hitbox:
-      prefab: {fileID: 0}
+      prefab: {fileID: 3240179893309576959, guid: d5b1524be0c4b714f86699823e3cd6f0, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 6
-      damage: 20
+        m_Bits: 64
+      damage: 5
       damageTypeName: Physical
       useWeaponDamage: 0
       percentWeaponDamage: 100
@@ -213,9 +217,9 @@ MonoBehaviour:
         type: 1
         amount: 5
       knockback:
-        enabled: 0
-        force: 5
-        directionality: 1
+        enabled: 1
+        force: 3
+        directionality: 0
       pull:
         enabled: 0
         force: 5
@@ -232,13 +236,13 @@ MonoBehaviour:
         effects: []
         triggeredAbilities: []
       effects:
-        hitEffectPrefab: {fileID: 0}
+        hitEffectPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     meleeFXRadiusDistance: 0.5
     meleeFXSpeed: 0
     flipMeleeFX: 0
-    flipMeleeFXY: 0
+    flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
     meleeSound: {fileID: 0}
@@ -250,14 +254,14 @@ MonoBehaviour:
     canHoldToFire: 0
   projectileConfig:
     hitbox:
-      prefab: {fileID: 0}
+      prefab: {fileID: 956519983054772351, guid: dabaa842c2f97104196f6e99f6c85092, type: 3}
       scaleX: 1
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 6
-      damage: 20
-      damageTypeName: Physical
+        m_Bits: 64
+      damage: 5
+      damageTypeName: Magic
       useWeaponDamage: 0
       percentWeaponDamage: 100
       lifeSteal:
@@ -284,36 +288,36 @@ MonoBehaviour:
         effects: []
         triggeredAbilities: []
       effects:
-        hitEffectPrefab: {fileID: 0}
+        hitEffectPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    allowOverride: 0
+    allowOverride: 1
     dealsDamageOverTime: 0
     damagePerTick: 5
     dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
-    speed: 15
+    dotDuration: 10
+    dotParticleEffectPrefab: {fileID: 1453896073370234718, guid: 4581ab15889ccd4478819dac74b25815, type: 3}
+    startParticlesFromFeet: 1
+    speed: 8
     useLifetime: 1
-    lifetime: 3
-    maxRange: 0
+    lifetime: 0.25
+    maxRange: 3
     behavior: 0
     chargeDamageMultiplier: 1
-    canCancelCharge: 1
-    hasMultiShot: 0
+    canCancelCharge: 0
+    hasMultiShot: 1
     projectileCount: 1
-    spreadAngle: 15
-    spreadAnglePerProjectile: 0
+    spreadAngle: 0
+    spreadAnglePerProjectile: 5
     salvoSize: 1
     salvoInterval: 0.15
     salvoAngle: 0
-    hasPierce: 0
-    pierceCount: 0
-    hasChaining: 0
+    hasPierce: 1
+    pierceCount: 99
+    hasChaining: 1
     chainRange: 10
     maxChains: 0
-    homingStrength: 5
+    homingStrength: 1000
     waveAmplitude: 1
     waveFrequency: 2
     spiralRadius: 1
@@ -356,14 +360,14 @@ MonoBehaviour:
     spinSpeed: 0
     canPierceLayers:
       serializedVersion: 2
-      m_Bits: 0
+      m_Bits: 64
     destroyOnLayers:
       serializedVersion: 2
-      m_Bits: 4294967295
-    destroyVisualPrefab: {fileID: 0}
+      m_Bits: 640
+    destroyVisualPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 0}
+    muzzleFlashSound: {fileID: 8300000, guid: 3a0940eaa8c213e44924c264e8203df2, type: 3}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -377,7 +381,7 @@ MonoBehaviour:
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 6
+        m_Bits: 4294967295
       damage: 20
       damageTypeName: Physical
       useWeaponDamage: 0
@@ -416,7 +420,7 @@ MonoBehaviour:
     followCaster: 1
     auraDelay: 0
     duration: 3
-    damageInterval: 0.5
+    damageInterval: 0
     hasDamageTick: 0
     dealsDamageOverTime: 0
     damagePerSecond: 5
@@ -496,7 +500,7 @@ MonoBehaviour:
         scaleY: 1
         hitLayers:
           serializedVersion: 2
-          m_Bits: 6
+          m_Bits: 4294967295
         damage: 20
         damageTypeName: Physical
         useWeaponDamage: 0
@@ -559,7 +563,7 @@ MonoBehaviour:
         scaleY: 1
         hitLayers:
           serializedVersion: 2
-          m_Bits: 6
+          m_Bits: 4294967295
         damage: 20
         damageTypeName: Physical
         useWeaponDamage: 0
@@ -683,7 +687,7 @@ MonoBehaviour:
         scaleY: 1
         hitLayers:
           serializedVersion: 2
-          m_Bits: 6
+          m_Bits: 4294967295
         damage: 20
         damageTypeName: Physical
         useWeaponDamage: 0
@@ -741,7 +745,7 @@ MonoBehaviour:
       scaleY: 1
       hitLayers:
         serializedVersion: 2
-        m_Bits: 6
+        m_Bits: 4294967295
       damage: 20
       damageTypeName: Physical
       useWeaponDamage: 0
@@ -822,12 +826,12 @@ MonoBehaviour:
     deathEffectPrefab: {fileID: 0}
   movementConfig:
     movementType: 1
-    lerp: 0
+    lerp: 1
     speed: 10
-    distance: 5
-    duration: 0.5
+    distance: 0.4
+    duration: 0.2
     activateAfterPrecast: 0
-    towardMouse: 0
+    towardMouse: 1
     awayFromMouse: 0
     isDashing: 0
     teleportAnimationPrefab: {fileID: 0}

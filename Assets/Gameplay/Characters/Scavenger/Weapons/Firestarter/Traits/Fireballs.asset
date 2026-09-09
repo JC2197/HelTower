@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Fireballs
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Fireballs
+  displayName: Fireballs
+  description: Throw Fireballs instead, greatly increasing the size and damage of
+    your Fire Bolts.
+  traitIcon: {fileID: 1101298345, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
+  weaponTraitTag: 
+  traitType: 0
+  maxLevel: 1
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: projectileConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 15
+      stringValue: 
+      objectValue: {fileID: 956519983054772351, guid: b93c7d7652080924eb3617b1f9a00a9f, type: 3}
+    - propertyPath: projectileConfig.hitbox.damage
+      overrideMode: 1
+      numericValue: 50
+      stringValue: 
+      objectValue: {fileID: 0}
+  - targetAbility: {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: projectileConfig.hitbox.prefab
+      overrideMode: 2
+      numericValue: 15
+      stringValue: 
+      objectValue: {fileID: 956519983054772351, guid: b93c7d7652080924eb3617b1f9a00a9f, type: 3}
+    - propertyPath: projectileConfig.hitbox.damage
+      overrideMode: 1
+      numericValue: 50
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

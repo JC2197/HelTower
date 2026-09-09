@@ -47,7 +47,7 @@ MonoBehaviour:
       numericValue: -2
       stringValue: 
       objectValue: {fileID: 0}
-    - propertyPath: explosionConfig.hitbox.onHitEffects.burnDamage
+    - propertyPath: explosionConfig.hitbox.onHitEffects.effects[0].damageOverride
       overrideMode: 0
       numericValue: 3
       stringValue: 
