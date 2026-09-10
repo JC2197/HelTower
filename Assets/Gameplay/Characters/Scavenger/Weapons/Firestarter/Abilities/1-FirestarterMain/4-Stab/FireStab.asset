@@ -26,7 +26,7 @@ MonoBehaviour:
   attackSpeed: 1
   cooldownTime: 0
   energyCost: 0
-  castLockoutDuration: 0.5
+  castLockoutDuration: 1
   scaleLockoutWithAttackSpeed: 1
   cancelActions: 0
   baseCritChance: 0

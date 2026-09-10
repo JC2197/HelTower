@@ -54,6 +54,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     protected bool isRegeneratingForceField = false;
 
     public static event Action<Organism> OnOrganismDeath;
+    public static event Action<GameObject, Organism> OnOrganismKilled;
     public static event Action<Organism, float> OnHealthChanged;
     public static event Action<Organism, float> OnEnergyChanged;
     public static event Action<Organism, float> OnEnergySpent;
@@ -62,6 +63,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     // Event invoked when this organism takes damage (for reactive effects like Thorns)
     // Parameters: (victim, damage, damageTypeName, attackerPosition, attackerObject)
     public event Action<Organism, float, string, Vector3, GameObject> OnDamageTaken;
+    public event Action<Organism, float> OnHealed;
     // Evade/Block system - invulnerability during dash/dodge
     protected bool _isEvading = false;
     public event Action<IDamageable, float, string, Vector3, GameObject> OnEvade;
@@ -378,6 +380,8 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         ModifyHealth(Mathf.Abs(amount));
         float healed = _syncCurrentHealth.Value - before;
         if (healed <= 0f) return;
+
+        OnHealed?.Invoke(this, healed);
 
         if (IsNetworkActive)
         {
@@ -811,6 +815,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         // Notify attacker-side listeners (passive on-hit abilities)
         if (attacker != null)
             OnDamageDealt?.Invoke(attacker, finalDamage, damageTypeName, gameObject);
+
+        if (damageToHealth > 0f && !isAlive && attacker != null)
+            OnOrganismKilled?.Invoke(attacker, this);
 
         // Show floater and flash - use RPC in networked mode, local in single-player
         // Only show if not suppressed (for smooth DoT damage application)

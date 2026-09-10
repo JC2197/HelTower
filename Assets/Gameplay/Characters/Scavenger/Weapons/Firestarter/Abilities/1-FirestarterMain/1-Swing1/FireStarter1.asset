@@ -60,6 +60,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: ComboCast1
+  castSound: {fileID: 0}
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -237,7 +238,7 @@ MonoBehaviour:
         triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
-        hitSound: {fileID: 0}
+        hitSound: {fileID: 8300000, guid: 25fa6ab185e4515469bfc396df8d6c52, type: 3}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     meleeFXRadiusDistance: 0.5
     meleeFXSpeed: 0
@@ -245,7 +246,7 @@ MonoBehaviour:
     flipMeleeFXY: 1
     stickToCharacter: 0
     allowMultiHit: 0
-    meleeSound: {fileID: 8300000, guid: 8d77e1839ee23e447b32f781a335e958, type: 3}
+    meleeSound: {fileID: 8300000, guid: 28868a494cdd285468c3cc812e979f59, type: 3}
   weaponData:
     weaponType: 0
     weaponPrefab: {fileID: 0}
@@ -271,7 +272,7 @@ MonoBehaviour:
       knockback:
         enabled: 0
         force: 5
-        directionality: 1
+        directionality: 0.5
       pull:
         enabled: 0
         force: 5
@@ -367,7 +368,6 @@ MonoBehaviour:
     destroyVisualPrefab: {fileID: 3240179893309576959, guid: 416c1acc8b8d7dd4dab6c92fcd0f3f97, type: 3}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 8300000, guid: 3a0940eaa8c213e44924c264e8203df2, type: 3}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -671,7 +671,6 @@ MonoBehaviour:
       destroyVisualPrefab: {fileID: 0}
       destroySound: {fileID: 0}
       muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
       enableMuzzleLight: 0
       muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       muzzleLightIntensity: 3

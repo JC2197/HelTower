@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Add a Slash to your Spear Combo
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
-  traitType: 3
+  traitType: 0
   maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
@@ -25,12 +25,25 @@ MonoBehaviour:
   requiredAbilityLevel: 0
   requiredTraits: []
   abilityReplacement:
-    requiredAbility: {fileID: 11400000, guid: 9ee9ddb0d13a2794b839f4fe40264614, type: 2}
-    newAbilityConfig: {fileID: 11400000, guid: c143ddfd8ea09d246a1b9d7f8ba3c73f, type: 2}
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
     description: 
   unlockedAbilities: []
   weaponAmmoModifier:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
-  abilityConfigModifiers: []
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 9ee9ddb0d13a2794b839f4fe40264614, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 11400000, guid: 2736e7a4f10588d4387771740932a4cc, type: 2}
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides: []
   mutuallyExclusiveWith: []

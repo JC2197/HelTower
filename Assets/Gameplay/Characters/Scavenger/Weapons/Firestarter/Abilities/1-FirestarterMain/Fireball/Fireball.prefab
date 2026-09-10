@@ -121,7 +121,6 @@ MonoBehaviour:
   destroySoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
   overrideMuzzleFlash: 0
   muzzleFlashPrefabOverride: {fileID: 0}
-  muzzleFlashSoundOverride: {fileID: 0}
   overrideMuzzleLight: 0
   muzzleLightColorOverride: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   muzzleLightIntensityOverride: 3
@@ -416,7 +415,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.25
+      scalar: 0.6
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -469,7 +468,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2
+      scalar: 0.5
       minScalar: 5
       maxCurve:
         serializedVersion: 2

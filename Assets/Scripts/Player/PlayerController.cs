@@ -57,6 +57,7 @@ public class PlayerController : Organism
     public event Func<AbilityDataConfig, bool> OnBeforeAttackAbilityUse;
     public event Action<AbilityDataConfig> OnAttack;
     public event Action<AbilityDataConfig, GameObject, float, string> OnAttackDamage;
+    public event Action<AbilityDataConfig> OnAbilityCast;
     public Coroutine WeaponIdleReturnCoroutine { get; set; }
     private int weaponAnimationSequence;
     public int BeginWeaponAnimation() => ++weaponAnimationSequence;
@@ -411,6 +412,12 @@ public class PlayerController : Organism
             return;
 
         OnAttack?.Invoke(abilityConfig);
+    }
+
+    public void NotifyAbilityCast(AbilityDataConfig abilityConfig)
+    {
+        if (abilityConfig != null)
+            OnAbilityCast?.Invoke(abilityConfig);
     }
 
     public void NotifyAttackDamage(AbilityDataConfig abilityConfig, GameObject target, float damage, string damageType)

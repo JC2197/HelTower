@@ -18,7 +18,7 @@ MonoBehaviour:
   traitIcon: {fileID: 2019340827, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 3
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: ef31b038ce0c1484cb9bdb82a151c51d, type: 2}
@@ -45,7 +45,7 @@ MonoBehaviour:
     overrides:
     - propertyPath: projectileConfig.speed
       overrideMode: 1
-      numericValue: 15
+      numericValue: 75
       stringValue: 
       objectValue: {fileID: 0}
   - targetAbility: {fileID: 11400000, guid: fd87343ccb0a64941a5a4d9f60b50b1b, type: 2}
@@ -60,7 +60,7 @@ MonoBehaviour:
     overrides:
     - propertyPath: projectileConfig.speed
       overrideMode: 1
-      numericValue: 15
+      numericValue: 75
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

@@ -15,7 +15,7 @@ MonoBehaviour:
   traitID: Fireballs
   displayName: Fireballs
   description: Throw Fireballs instead, greatly increasing the size and damage of
-    your Fire Bolts.
+    your Fire Bolts. Fireballs deal {v2}% increased damage and knock back enemies.
   traitIcon: {fileID: 1101298345, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   weaponTraitTag: 
   traitType: 0
@@ -54,6 +54,16 @@ MonoBehaviour:
       numericValue: 50
       stringValue: 
       objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.knockback.enabled
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.knockback.force
+      overrideMode: 0
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
   - targetAbility: {fileID: 11400000, guid: 7301540356dd97d4b984ddd4815061f5, type: 2}
     abilityIcon: {fileID: 0}
     comboAbilities: []
@@ -72,6 +82,16 @@ MonoBehaviour:
     - propertyPath: projectileConfig.hitbox.damage
       overrideMode: 1
       numericValue: 50
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.knockback.enabled
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: projectileConfig.hitbox.knockback.force
+      overrideMode: 0
+      numericValue: 25
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

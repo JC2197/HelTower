@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
   m_Name: Hunt
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Dash
-  abilityIcon: {fileID: -7848039375673857549, guid: 8db9fe0aa44842643ae83bddb3c4b3a9, type: 3}
+  abilityName: Hunt
+  abilityIcon: {fileID: 7083499335977332664, guid: 149ee1a1821133044b03017839a748ea, type: 3}
   abilityDescription: 'Consume a Stamina Charge to dash a short distance. You evade
     attacks while dashing. '
   requiredWeapon: {fileID: 0}

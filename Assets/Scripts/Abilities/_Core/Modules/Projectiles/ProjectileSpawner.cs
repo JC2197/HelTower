@@ -454,11 +454,6 @@ public static class ProjectileSpawner
             weaponTransform = character.transform.Find("WeaponHolder/Weapon");
         }
 
-        if (config.muzzleFlashSound != null)
-        {
-            AudioManager.Instance.PlaySpatialSound(config.muzzleFlashSound, position, 1f, Random.Range(0.9f, 1.1f));
-        }
-
         // Spawn muzzle flash particles
         if (config.muzzleFlashPrefab != null)
         {

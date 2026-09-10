@@ -45,7 +45,7 @@ public class PassiveAbility : MonoBehaviour, ISubAbility
         organism = GetComponent<Organism>();
         if (organism == null)
         {
-            Debug.LogError($"[ThornsPassive] No Organism component found on {gameObject.name}! Thorns requires Organism.");
+            Debug.LogError($"[PassiveAbility] No Organism component found on {gameObject.name}.");
             enabled = false;
             return;
         }

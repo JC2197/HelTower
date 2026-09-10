@@ -140,7 +140,6 @@ public class ProjectileConfig
     [Header("Muzzle Flash Effects")]
     [Tooltip("Particle effect to spawn at fire point when projectile is created")]
     public GameObject muzzleFlashPrefab;
-    public AudioClip muzzleFlashSound;
     [Tooltip("Enable muzzle flash light")]
     public bool enableMuzzleLight = false;
 

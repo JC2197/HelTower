@@ -195,7 +195,7 @@ public class AbilitySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
         
         float remainingCooldown = dataDrivenAbility.GetRemainingCooldown();
-        bool hasCharges = dataDrivenAbility.MaxCharges > 0;
+        bool hasCharges = abilityConfig != null && abilityConfig.hasCharges;
         
         // Update charge counter if ability uses charges
         if (hasCharges)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
   m_Name: Sweep
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Sweep
+  abilityName: Sand Sweep
   abilityIcon: {fileID: 1179187539, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
@@ -53,6 +53,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: Swipe
+  castSound: {fileID: 0}
   offhandAnimationName: 
   preAnimationName: PreSweep
   activateOnButtonRelease: 0
@@ -360,7 +361,6 @@ MonoBehaviour:
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -664,7 +664,6 @@ MonoBehaviour:
       destroyVisualPrefab: {fileID: 0}
       destroySound: {fileID: 0}
       muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
       enableMuzzleLight: 0
       muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       muzzleLightIntensity: 3
@@ -830,6 +829,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 3240179893309576959, guid: 0227922c6bcce51409415de237b1bbdd, type: 3}
   hitVisualSound: {fileID: 0}

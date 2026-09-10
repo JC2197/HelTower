@@ -18,20 +18,20 @@ MonoBehaviour:
   canTargetAllies: 0
   canTargetEnemies: 0
   canTargetSelf: 1
-  duration: 1
+  duration: 3
   stackingBehavior: 0
   maxStacks: 20
   refreshDurationOnStack: 1
-  maxDuration: 5
+  maxDuration: 3
   particleEffect: {fileID: 0}
   particleOffset: {x: 0, y: 0, z: 0}
   entityTint: {r: 1, g: 1, b: 1, a: 1}
-  icon: {fileID: 0}
+  icon: {fileID: 888901343, guid: b153cf5c7d7f0964aaf27cb982e98d2a, type: 3}
   applySound: {fileID: 0}
   expireSound: {fileID: 0}
   canBeCleansed: 1
   cleansePriority: 0
-  buffIcon: {fileID: 0}
+  buffIcon: {fileID: 888901343, guid: b153cf5c7d7f0964aaf27cb982e98d2a, type: 3}
   statModifiers:
   - statID: AttackSpeed
     modifierType: 0

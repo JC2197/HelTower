@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: StabAttackSpeed
   displayName: Piercing Winds
-  baseGoldCost: 8
   description: Stab gains {v1}% Attack Speed and {v2}% range.
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 5
+  maxLevel: 2
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:
@@ -51,37 +50,12 @@ MonoBehaviour:
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.scaleY
       overrideMode: 0
-      numericValue: 0.15
+      numericValue: 0.25
       stringValue: 
       objectValue: {fileID: 0}
     - propertyPath: meleeConfig.hitbox.scaleX
       overrideMode: 0
-      numericValue: 0.075
-      stringValue: 
-      objectValue: {fileID: 0}
-  - targetAbility: {fileID: 11400000, guid: 2736e7a4f10588d4387771740932a4cc, type: 2}
-    abilityIcon: {fileID: 0}
-    addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 11400000, guid: 5ff9bc16b6721ae499285ef486e1c68f, type: 2}
-      triggerChance: 0
-      triggerTiming: 0
-      legacyTriggersOnDestroy: 0
-    addTriggeredAbilityLegacy: {fileID: 0}
-    addTriggeredAbilityPath: 
-    overrides: []
-  - targetAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
-    abilityIcon: {fileID: 0}
-    addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 0}
-      triggerChance: 0
-      triggerTiming: 0
-      legacyTriggersOnDestroy: 0
-    addTriggeredAbilityLegacy: {fileID: 0}
-    addTriggeredAbilityPath: 
-    overrides:
-    - propertyPath: 
-      overrideMode: 0
-      numericValue: 0
+      numericValue: 0.125
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

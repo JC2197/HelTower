@@ -58,7 +58,7 @@ MonoBehaviour:
   grantedPrimaryAbility: {fileID: 11400000, guid: 3f1232f3f39d35a4a983fe0b7fcfa60b, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: 1ab1d2241ccc71547b4d4d5bcfa52c0a, type: 2}
   grantedDashAbility: {fileID: 11400000, guid: c83976d8540efe2469bb549bd761edc7, type: 2}
-  grantedPassiveAbility: {fileID: 0}
+  grantedPassiveAbility: {fileID: 11400000, guid: 0cfc191f7733f0c44a86736da6db1ecd, type: 2}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0
   ammoConfig:
@@ -78,34 +78,5 @@ MonoBehaviour:
   hitFlashColorOverride: {r: 1, g: 1, b: 1, a: 1}
   overrideStatusEffects: 0
   onHitEffectsOverride:
-    canRoot: 0
-    rootEffect: {fileID: 0}
-    rootDuration: 0
-    rootApplicationChance: 1
-    canSlow: 0
-    slowEffect: {fileID: 0}
-    slowDuration: 0
-    slowApplicationChance: 1
-    canStun: 0
-    stunEffect: {fileID: 0}
-    stunDuration: 0
-    stunApplicationChance: 1
-    canBleed: 0
-    bleedEffect: {fileID: 0}
-    bleedDamage: 5
-    bleedDuration: 3
-    bleedApplicationChance: 1
-    canBurn: 0
-    burnEffect: {fileID: 0}
-    burnDamage: 10
-    burnDuration: 3
-    burnApplicationChance: 1
-    canPoison: 0
-    poisonEffect: {fileID: 0}
-    poisonDamage: 3
-    poisonDuration: 5
-    poisonApplicationChance: 1
-    canApplyStatBuffs: 0
-    statBuffApplications: []
-    canTriggerAbility: 0
-    triggeredAbilityConfigs: []
+    effects: []
+    triggeredAbilities: []

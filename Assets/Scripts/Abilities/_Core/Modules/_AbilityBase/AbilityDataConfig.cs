@@ -134,6 +134,8 @@ public class AbilityDataConfig : AbilityConfig
     public string characterPrecastAnimationName = "";
     [Tooltip("Animation to play on mainhand weapon when ability is activated/fired")]
     public string mainhandAnimationName = "";
+    [Tooltip("Sound played once when this ability fires projectile volleys.")]
+    public AudioClip castSound;
     [Tooltip("Animation to play on offhand weapon when ability is activated/fired")]
     public string offhandAnimationName = "";
     [Tooltip("Animation to play on weapon before firing (pre-cast for spells, draw for attacks). The precast hold lasts as long as this clip.")]

@@ -57,6 +57,7 @@ public class DataDrivenAbility : Ability
     private CustomAbility _runtimeCustomAbility;
     private CustomAbility _runtimeCustomAbilitySource;
     private AbilityDataConfig _effectiveAbilityConfig;
+    private PassiveAbility _runtimePassiveAbility;
 
     // Icon override from trait ability config modifiers
     private Sprite _effectiveAbilityIcon;
@@ -625,6 +626,7 @@ public class DataDrivenAbility : Ability
             return;
         }
 
+        _runtimePassiveAbility = passiveAbility;
         passiveAbility.Initialize(config, this, runtimePassiveConfig, passiveAsset);
 
     }
@@ -2395,6 +2397,9 @@ public class DataDrivenAbility : Ability
 
         bool abilityExecuted = FireAbility() || selfEffectApplied || customAbilityExecuted;
 
+        if (abilityExecuted)
+            ownerAsPlayer?.NotifyAbilityCast(EffectiveAbilityConfig);
+
         _lastCastSequenceSucceeded = abilityExecuted;
 
         if (abilityExecuted &&
@@ -2615,6 +2620,7 @@ public class DataDrivenAbility : Ability
         {
             spawnPos = WeaponLaunchPoint.GetLaunchPosition(weaponTransform);
         }
+        PlayCastSound(spawnPos);
 
         Vector3 direction = ResolveProjectileFireDirection(spawnPos, weaponTransform, effectiveProjectileConfig, isAutocastProjectile);
 
@@ -2702,6 +2708,13 @@ public class DataDrivenAbility : Ability
                     salvoDirection => SpawnProjectileLocally(spawnPos, salvoDirection, damageMultiplier, projectileOverride, weaponConfig),
                     direction, salvoSizeLocal, salvoIntervalLocal, salvoAngleLocal, (uint)Time.frameCount));
         }
+    }
+
+    private void PlayCastSound(Vector3 position)
+    {
+        AudioClip castSound = EffectiveAbilityConfig?.castSound;
+        if (castSound != null)
+            AudioManager.Instance?.PlaySpatialSound(castSound, position, 1f, Random.Range(0.9f, 1.1f));
     }
 
     private Vector3 ResolveProjectileFireDirection(Vector3 spawnPos, Transform weaponTransform, ProjectileConfig projectileConfig, bool isAutocastProjectile)
@@ -5178,6 +5191,9 @@ public class DataDrivenAbility : Ability
         ReleaseAllLockoutHolds();
         ReleaseRuntimeCustomAbility();
         DestroyComboSteps();
+
+        if (_runtimePassiveAbility != null)
+            Destroy(_runtimePassiveAbility);
 
         // Unsubscribe retaliation handler so the event doesn't fire on a destroyed ability
         if (config != null && config.retaliationCast && ownerOrganism != null)

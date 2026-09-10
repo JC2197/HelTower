@@ -57,6 +57,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty hasCharges;
     private SerializedProperty maxCharges;
     private SerializedProperty chargeRechargeTime;
+    private SerializedProperty castSound;
     private SerializedProperty isCombo;
     private SerializedProperty comboAbilities;
     private SerializedProperty comboInputWindow;
@@ -170,6 +171,7 @@ public class AbilityDataConfigEditor : Editor
         hasCharges = serializedObject.FindProperty("hasCharges");
         maxCharges = serializedObject.FindProperty("maxCharges");
         chargeRechargeTime = serializedObject.FindProperty("chargeRechargeTime");
+        castSound = serializedObject.FindProperty("castSound");
         isCombo = serializedObject.FindProperty("isCombo");
         comboAbilities = serializedObject.FindProperty("comboAbilities");
         comboInputWindow = serializedObject.FindProperty("comboInputWindow");
@@ -506,6 +508,7 @@ public class AbilityDataConfigEditor : Editor
                 EditorGUI.indentLevel--;
             }
             EditorGUILayout.PropertyField(movementSpeedMultiplierDuringCast, new GUIContent("Movement Speed Multiplier During Cast", "Multiplier applied to movement speed while casting this ability."));
+            EditorGUILayout.PropertyField(castSound, new GUIContent("Cast Sound", "Sound played once when this ability fires projectile volleys."));
             EditorGUILayout.Space(5);
             EditorGUILayout.PropertyField(isCombo, new GUIContent("Has Combo Chain"));
             if (isCombo.boolValue)

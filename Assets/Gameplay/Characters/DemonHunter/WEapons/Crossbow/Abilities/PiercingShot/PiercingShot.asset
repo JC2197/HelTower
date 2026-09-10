@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PiercingShot
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
   abilityName: Piercing Shot
-  abilityIcon: {fileID: 0}
+  abilityIcon: {fileID: 1409864175, guid: 9138caafed1ce5e4283e9d979070e4c8, type: 3}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
   abilityTags:
@@ -53,6 +53,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: Shoot
+  castSound: {fileID: 0}
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -95,34 +96,56 @@ MonoBehaviour:
   passiveScript: {fileID: 0}
   usesAmmo: 0
   beamConfig:
-    beamRendererPrefab: {fileID: 0}
+    hitbox:
+      prefab: {fileID: 0}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 6
+      damage: 20
+      damageTypeName: Physical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        effects: []
+        triggeredAbilities: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      positiveHealing: 0
+      onHitBuffEffects:
+        effects: []
+        triggeredAbilities: []
+      effects:
+        hitEffectPrefab: {fileID: 0}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     targetingMode: 0
     fallbackToCursorWhenNoEnemy: 1
     singleShotDuration: 0.35
     beamWidth: 0.5
     beamColor: {r: 1, g: 1, b: 1, a: 1}
     maxBeamDistance: 20
+    fixedDistance: 0
     beamAmount: 1
     multiBeamAngle: 15
     chain: 0
     chainAmount: 0
-    value: 50
-    canHeal: 0
-    healTargets:
-      serializedVersion: 2
-      m_Bits: 0
     hitsPerSecond: 2
-    damageTypeName: Energy
-    hitLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    onHitEffects:
-      effects: []
-      triggeredAbilities: []
-    lifeSteal:
-      enabled: 0
-      type: 1
-      amount: 5
     canHoldToFire: 1
     channelCostPerSecond: 5
     trackingRadius: 3
@@ -137,7 +160,6 @@ MonoBehaviour:
     impactParticlePrefab: {fileID: 0}
     beamSound: {fileID: 0}
     impactSound: {fileID: 0}
-    hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   channelConfig:
     unlockRotation: 1
     orbitalRadius: 0.4
@@ -261,7 +283,7 @@ MonoBehaviour:
         triggeredAbilities: []
       effects:
         hitEffectPrefab: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
-        hitSound: {fileID: 0}
+        hitSound: {fileID: 8300000, guid: 423adf8adf90f5f448f4892a6bdaa9ad, type: 3}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0
     dealsDamageOverTime: 0
@@ -339,7 +361,6 @@ MonoBehaviour:
     destroyVisualPrefab: {fileID: 2441138507130290986, guid: 8aa7cd53eebd6dd448196077bac06fce, type: 3}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 2441138507130290986, guid: ba5be86fb2f3e96439f5a392471d5490, type: 3}
-    muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -643,7 +664,6 @@ MonoBehaviour:
       destroyVisualPrefab: {fileID: 0}
       destroySound: {fileID: 0}
       muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
       enableMuzzleLight: 0
       muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       muzzleLightIntensity: 3
@@ -809,6 +829,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}

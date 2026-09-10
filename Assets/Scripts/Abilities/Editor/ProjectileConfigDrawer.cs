@@ -176,9 +176,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
             SerializedProperty muzzleFlashPrefab = property.FindPropertyRelative("muzzleFlashPrefab");
             EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(muzzleFlashPrefab)), muzzleFlashPrefab);
             yPos += EditorGUI.GetPropertyHeight(muzzleFlashPrefab) + EditorGUIUtility.standardVerticalSpacing;
-            SerializedProperty muzzleFlashSound = property.FindPropertyRelative("muzzleFlashSound");
-            EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(muzzleFlashSound)), muzzleFlashSound);
-            yPos += EditorGUI.GetPropertyHeight(muzzleFlashSound) + EditorGUIUtility.standardVerticalSpacing;
             SerializedProperty localMuzzle = property.FindPropertyRelative("localMuzzle");
             EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(localMuzzle)), localMuzzle);
             yPos += EditorGUI.GetPropertyHeight(localMuzzle) + EditorGUIUtility.standardVerticalSpacing;
@@ -380,7 +377,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
 
         // Muzzle Flash Effects
         SerializedProperty muzzleFlashPrefab = property.FindPropertyRelative("muzzleFlashPrefab");
-        SerializedProperty muzzleFlashSound = property.FindPropertyRelative("muzzleFlashSound");
         SerializedProperty enableMuzzleLight = property.FindPropertyRelative("enableMuzzleLight");
         SerializedProperty muzzleLightColor = property.FindPropertyRelative("muzzleLightColor");
         SerializedProperty muzzleLightIntensity = property.FindPropertyRelative("muzzleLightIntensity");
@@ -388,7 +384,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
         SerializedProperty muzzleLightDuration = property.FindPropertyRelative("muzzleLightDuration");
         SerializedProperty localMuzzle = property.FindPropertyRelative("localMuzzle");
         height += EditorGUI.GetPropertyHeight(muzzleFlashPrefab) + EditorGUIUtility.standardVerticalSpacing;
-        height += EditorGUI.GetPropertyHeight(muzzleFlashSound) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(localMuzzle) + EditorGUIUtility.standardVerticalSpacing;
         height += EditorGUI.GetPropertyHeight(enableMuzzleLight) + EditorGUIUtility.standardVerticalSpacing;
         if (enableMuzzleLight.boolValue)
