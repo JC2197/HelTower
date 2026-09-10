@@ -1021,7 +1021,7 @@ public class Enemy : Organism
     }
 
     /// <summary>
-    /// Finds the nearest valid target (Player, Construct, Ally, or Companion) within detection range
+    /// Finds the nearest valid target (Player, Ally, or Companion) within detection range
     /// </summary>
     protected virtual Transform FindNearestTarget()
     {

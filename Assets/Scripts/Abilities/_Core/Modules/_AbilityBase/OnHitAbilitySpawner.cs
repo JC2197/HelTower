@@ -132,7 +132,8 @@ public static class OnHitAbilitySpawner
             areaAbilityGO.transform.localScale *= sizeMultiplier;
         }
 
-        areaAbilityComponent.Activate();
+        if (!areaConfig.isAura)
+            areaAbilityComponent.Activate();
         return true;
     }
 

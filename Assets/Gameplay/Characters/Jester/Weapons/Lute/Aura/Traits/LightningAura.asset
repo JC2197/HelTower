@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: LightningAura
   displayName: Lightning Aura
-  baseGoldCost: 8
   description: Aura now deals {v1} Damage and has a 25% chance of stunning enemies.
   traitIcon: {fileID: -7027815850616021409, guid: a9113d62f29ce174daadfe8c7236457d, type: 3}
   weaponTraitTag: 
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
     abilityIcon: {fileID: -7027815850616021409, guid: a9113d62f29ce174daadfe8c7236457d, type: 3}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

@@ -120,7 +120,6 @@ MonoBehaviour:
   destroySoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
   overrideMuzzleFlash: 0
   muzzleFlashPrefabOverride: {fileID: 0}
-  muzzleFlashSoundOverride: {fileID: 0}
   overrideMuzzleLight: 0
   muzzleLightColorOverride: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   muzzleLightIntensityOverride: 3
@@ -128,37 +127,8 @@ MonoBehaviour:
   muzzleLightDurationOverride: 0.1
   overrideStatusEffects: 0
   onHitEffectsOverride:
-    canRoot: 0
-    rootEffect: {fileID: 0}
-    rootDuration: 0
-    rootApplicationChance: 1
-    canSlow: 0
-    slowEffect: {fileID: 0}
-    slowDuration: 0
-    slowApplicationChance: 1
-    canStun: 0
-    stunEffect: {fileID: 0}
-    stunDuration: 0
-    stunApplicationChance: 1
-    canBleed: 0
-    bleedEffect: {fileID: 0}
-    bleedDamage: 5
-    bleedDuration: 3
-    bleedApplicationChance: 1
-    canBurn: 0
-    burnEffect: {fileID: 0}
-    burnDamage: 10
-    burnDuration: 3
-    burnApplicationChance: 1
-    canPoison: 0
-    poisonEffect: {fileID: 0}
-    poisonDamage: 3
-    poisonDuration: 5
-    poisonApplicationChance: 1
-    canApplyStatBuffs: 0
-    statBuffApplications: []
-    canTriggerAbility: 0
-    triggeredAbilityConfigs: []
+    effects: []
+    triggeredAbilities: []
 --- !u!50 &6439390211293539281
 Rigidbody2D:
   serializedVersion: 5
@@ -264,7 +234,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584138902072857759
+  _initializedTimestamp: -8584125957928621947
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -283,7 +253,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 27
+  <PrefabId>k__BackingField: 36
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 12431742587284598128
   SceneId: 0

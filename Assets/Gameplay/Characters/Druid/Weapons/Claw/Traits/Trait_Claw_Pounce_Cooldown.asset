@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Pounce Cooldown
   displayName: 
-  baseGoldCost: 8
   description: Pounce gains +{v1}% cooldown recovery rate.
   traitIcon: {fileID: 0}
   weaponTraitTag: Claws
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: cd161a05ebc874a4c93a192a6190d4ba, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

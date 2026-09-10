@@ -16,13 +16,9 @@ MonoBehaviour:
   displayName: The Claws that Rip
   description: Shadows Attacks apply Bleed, dealing {v1} damage per second per stack.
   traitIcon: {fileID: 9186143671818822594, guid: b590a2f1cc5ccf744ae4b6dd76b58fa2, type: 3}
-  colorTheme: Shadow
-  specializedTraitTag1: Shadow
-  specializedTraitTag2: Command
-  specializedTraitTag3: Combat
   weaponTraitTag: 
   traitType: 4
-  requiredTag: 
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
@@ -39,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
     addTriggeredAbilityPath: summonConfig.meleeConfig.hitbox.onHitEffects
     overrides:
@@ -58,5 +54,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 9192743333955537081, guid: 561a59e616285c1458d77f3dc6cad869, type: 3}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

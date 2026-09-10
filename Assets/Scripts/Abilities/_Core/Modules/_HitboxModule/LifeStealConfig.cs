@@ -14,8 +14,8 @@ public enum LifeStealType
 /// Attach this to any sub-ability config (MeleeConfig, ProjectileConfig, etc.) to
 /// grant healing to the ability owner whenever a hit connects.
 ///
-/// For summons and constructs the healing always targets the player who owns the
-/// ability, not the summon/construct itself.
+/// For summons the healing always targets the player who owns the
+/// ability, not the summon itself.
 /// </summary>
 [System.Serializable]
 public class LifeStealConfig
@@ -40,7 +40,7 @@ public static class LifeStealProcessor
     /// Apply life steal healing to <paramref name="healTarget"/> based on
     /// <paramref name="damageDone"/> and the supplied <paramref name="config"/>.
     /// Pass the player-owner as <paramref name="healTarget"/> to ensure that
-    /// summon/construct damage heals the player, not the summon/construct.
+    /// Summon damage heals the player, not the summon.
     /// </summary>
     public static void Apply(LifeStealConfig config, float damageDone, GameObject healTarget)
     {

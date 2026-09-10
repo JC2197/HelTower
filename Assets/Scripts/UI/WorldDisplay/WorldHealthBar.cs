@@ -4,7 +4,7 @@ public class WorldHealthBar : MonoBehaviour
 {
     [SerializeField] private Image fillImage;
     [SerializeField] private Canvas canvas;
-    [SerializeField] private Image forceFieldImage;
+    [SerializeField] private Image shieldImage;
     [SerializeField] private float hideDelay = 3f;
     [SerializeField] private float yOffset = 1.5f;
 
@@ -46,11 +46,19 @@ public class WorldHealthBar : MonoBehaviour
     void OnEnable()
     {
         Organism.OnHealthChanged += HandleHealthChanged;
+        Organism.OnShieldChanged += HandleShieldChanged;
     }
     
     void OnDisable()
     {
         Organism.OnHealthChanged -= HandleHealthChanged;
+        Organism.OnShieldChanged -= HandleShieldChanged;
+    }
+
+    void HandleShieldChanged(Organism changedOrganism, float newShield)
+    {
+        if (changedOrganism == organism)
+            UpdateShield();
     }
     
     void HandleHealthChanged(Organism changedOrganism, float newHealth)
@@ -121,26 +129,18 @@ public class WorldHealthBar : MonoBehaviour
             fillImage.fillAmount = organism.GetHealthPercentage();
     }
 
-    void UpdateForceField()
+    void UpdateShield()
     {
-        if (forceFieldImage != null)
+        if (shieldImage != null)
         {
-            if (organism.CurrentForceField > 0)
+            if (organism.CurrentShield > 0)
             {
-                forceFieldImage.enabled = true;
-                float forceFieldRatio = organism.CurrentForceField / organism.MaxHealth;
-                if (forceFieldRatio >= 1f)
-                {
-                    forceFieldImage.fillAmount = 1f;
-                }
-                else
-                {
-                    forceFieldImage.fillAmount = forceFieldRatio;   
-                }
+                shieldImage.enabled = true;
+                shieldImage.fillAmount = Mathf.Clamp01(organism.CurrentShield / organism.MaxHealth);
             }
             else
             {
-                forceFieldImage.enabled = false;
+                shieldImage.enabled = false;
             }
         }
     }

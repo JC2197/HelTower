@@ -45,7 +45,8 @@ public static class HitVisualHelper
         bool disableColliders = false,
         Collider2D sortAndSizeTarget = null,
         AudioClip sound = null,
-        bool autoDestroy = true)
+        bool autoDestroy = true,
+        SpriteRenderer spriteSizeTarget = null)
     {
         if (prefab == null) return null;
         GameObject effect = parent != null
@@ -62,7 +63,11 @@ public static class HitVisualHelper
             }
         }
 
-        if (sortAndSizeTarget != null)
+        if (spriteSizeTarget != null)
+        {
+            SortAndSizeEffect(effect, spriteSizeTarget);
+        }
+        else if (sortAndSizeTarget != null)
         {
             SortAndSizeEffect(effect, sortAndSizeTarget);
         }
@@ -121,6 +126,44 @@ public static class HitVisualHelper
             }
         }
 
+    }
+
+    private static void SortAndSizeEffect(GameObject effect, SpriteRenderer targetRenderer)
+    {
+        if (targetRenderer == null || targetRenderer.sprite == null)
+            return;
+
+        string sortingLayer = targetRenderer.sortingLayerName;
+        int sortingOrder = targetRenderer.sortingOrder;
+        SpriteRenderer effectRenderer = effect.GetComponent<SpriteRenderer>();
+        if (effectRenderer != null)
+        {
+            effectRenderer.sortingLayerName = sortingLayer;
+            effectRenderer.sortingOrder = sortingOrder;
+        }
+
+        Bounds targetBounds = targetRenderer.bounds;
+        foreach (ParticleSystem ps in effect.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ParticleSystemRenderer particleRenderer = ps.GetComponent<ParticleSystemRenderer>();
+            if (particleRenderer != null)
+            {
+                particleRenderer.sortingLayerName = sortingLayer;
+                particleRenderer.sortingOrder = sortingOrder + 10000;
+            }
+
+            var shape = ps.shape;
+            if (!shape.enabled)
+                continue;
+
+            if (shape.shapeType == ParticleSystemShapeType.SingleSidedEdge)
+                shape.scale = new Vector3(targetBounds.size.x, targetBounds.size.y, 1f);
+            else
+            {
+                shape.shapeType = ParticleSystemShapeType.Sprite;
+                shape.sprite = targetRenderer.sprite;
+            }
+        }
     }
 
 }

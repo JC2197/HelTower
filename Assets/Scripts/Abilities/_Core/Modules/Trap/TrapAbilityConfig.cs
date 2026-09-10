@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Configuration for trap abilities - dormant objects that trigger when enemies enter range
-/// Similar to constructs but inanimate and trigger-based
+/// Similar to summons but inanimate and trigger-based
 /// </summary>
 [System.Serializable]
 public class TrapAbilityConfig

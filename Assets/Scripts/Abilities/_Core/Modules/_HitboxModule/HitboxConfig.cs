@@ -38,7 +38,7 @@ public class HitboxConfig
     public float percentWeaponDamage = 100f;
 
     [Header("Life Steal")]
-    [Tooltip("Heal the ability owner on hit. For summons/constructs, heals the player owner.")]
+    [Tooltip("Heal the ability owner on hit. For summons, heals the player owner.")]
     public LifeStealConfig lifeSteal = new LifeStealConfig();
 
     [Header("Knockback")]
@@ -98,7 +98,7 @@ public class HitboxConfig
     /// Returns the final damage dealt (0 if the target is not damageable or no damage is configured).
     /// </summary>
     /// <param name="statAttacker">Whose stats/traits apply to the damage calculation (the player owner for summons).</param>
-    /// <param name="damageAttacker">Who is credited as the attacker on the damage event (the summon/construct itself, if any).</param>
+    /// <param name="damageAttacker">Who is credited as the attacker on the damage event (the summon itself, if any).</param>
     /// <param name="healTarget">Who receives life steal healing (the player owner).</param>
     public float ApplyDamage(Collider2D target, GameObject statAttacker, GameObject damageAttacker, GameObject healTarget,
         Vector3 hitPosition, string abilityName, List<string> abilityTags, AbilityDataConfig parentConfig,

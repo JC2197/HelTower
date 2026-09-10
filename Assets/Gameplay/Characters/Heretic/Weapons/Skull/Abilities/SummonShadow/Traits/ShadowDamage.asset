@@ -16,16 +16,14 @@ MonoBehaviour:
   displayName: ShadowDamage
   description: Shadow attacks deal +{v1} damage.
   traitIcon: {fileID: 9186143671818822594, guid: b590a2f1cc5ccf744ae4b6dd76b58fa2, type: 3}
-  colorTheme: Shadow
-  specializedTraitTag1: Shadow
-  specializedTraitTag2: Command
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -37,6 +35,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: summonConfig.damage
       overrideMode: 0
@@ -44,5 +49,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 11400000, guid: 410371441a49c7345a4003be698751c2, type: 2}

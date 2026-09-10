@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Manages loading screen display between arena transitions.
@@ -22,7 +23,7 @@ public class LoadingScreen : MonoBehaviour
     [SerializeField] private Animator anim;
     [Header("Loading Screen Settings")]
     [SerializeField] private float fadeSpeed = 2f;
-    [SerializeField] private float minimumDisplayTime = 5f;
+    [SerializeField] private float minimumDisplayTime = 3f;
     [SerializeField] private float sceneLoadHideFallbackDelay = 2f;
     private static LoadingScreen instance;
     private bool isLoading = false;
@@ -34,6 +35,7 @@ public class LoadingScreen : MonoBehaviour
     private bool suppressSceneLoadFallback = false;
     private float lastHideRequestTime = -10f;
     private const float HIDE_REQUEST_DEBOUNCE_SECONDS = 0.1f;
+    private const float TransitionFadeDuration = 0.25f;
 
     public static LoadingScreen Instance => instance;
     // Typewriter removed; always report complete so old wait loops fall through immediately.
@@ -64,6 +66,8 @@ public class LoadingScreen : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+
+            EnsureRuntimeVisuals();
 
             // LoadingScreen lives in its own additive scene loaded by UISceneManager
             // at startup, before networking starts. DontDestroyOnLoad keeps it alive
@@ -102,6 +106,86 @@ public class LoadingScreen : MonoBehaviour
         }
     }
 
+    private void EnsureRuntimeVisuals()
+    {
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas == null)
+            canvas = gameObject.AddComponent<Canvas>();
+
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 32000;
+
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+
+        if (loadingPanel != null)
+            return;
+
+        GameObject panel = new GameObject("LoadingPanel", typeof(RectTransform), typeof(Image));
+        panel.transform.SetParent(transform, false);
+        RectTransform rect = panel.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        panel.GetComponent<Image>().color = Color.black;
+        loadingPanel = panel;
+    }
+
+    public IEnumerator ShowAndWait()
+    {
+        Debug.Log($"[LoadingScreen] Fade-in requested at t={Time.realtimeSinceStartup:F3}s.");
+        suppressSceneLoadFallback = true;
+        Show("", "", "");
+        yield return FadeCanvas(0f, 1f);
+        Debug.Log($"[LoadingScreen] Fade-in complete at t={Time.realtimeSinceStartup:F3}s.");
+    }
+
+    public IEnumerator HideAndWait()
+    {
+        if (!isLoading)
+        {
+            Debug.Log("[LoadingScreen] Fade-out ignored because the screen is not loading.");
+            yield break;
+        }
+
+        float elapsed = Time.realtimeSinceStartup - loadingStartTime;
+        float remaining = Mathf.Max(0f, minimumDisplayTime - elapsed);
+        Debug.Log($"[LoadingScreen] Fade-out requested at t={Time.realtimeSinceStartup:F3}s; displayed={elapsed:F3}s, minimum={minimumDisplayTime:F3}s, remaining={remaining:F3}s.");
+
+        if (remaining > 0f)
+        {
+            Debug.Log($"[LoadingScreen] Waiting {remaining:F3}s before fade-out.");
+            yield return new WaitForSecondsRealtime(remaining);
+        }
+
+        yield return FadeCanvas(canvasGroup != null ? canvasGroup.alpha : 1f, 0f);
+        Hide(true);
+        suppressSceneLoadFallback = false;
+        Debug.Log($"[LoadingScreen] Fade-out complete at t={Time.realtimeSinceStartup:F3}s.");
+    }
+
+    private IEnumerator FadeCanvas(float from, float to)
+    {
+        EnsureVisible();
+        if (canvasGroup == null)
+        {
+            Debug.LogWarning("[LoadingScreen] Cannot fade because CanvasGroup is missing.");
+            yield break;
+        }
+
+        canvasGroup.alpha = from;
+        float elapsed = 0f;
+        while (elapsed < TransitionFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / TransitionFadeDuration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = to;
+    }
+
     private void OnDestroy()
     {
         if (instance == this)
@@ -132,6 +216,7 @@ public class LoadingScreen : MonoBehaviour
 
         isLoading = true;
         loadingStartTime = Time.realtimeSinceStartup;
+        Debug.Log($"[LoadingScreen] State=Loading at t={loadingStartTime:F3}s.");
 
         EnsureVisible();
         Debug.Log($"[TIMING] [LoadingScreen] Panel activated at {Time.realtimeSinceStartup:F3}s");
@@ -361,6 +446,11 @@ public class LoadingScreen : MonoBehaviour
             }
             DisableCanvas();
 
+            // The immediate path is also used by HideAndWait, so it must restore
+            // the same gameplay state as the animated/fade-out paths.
+            PlayerController.InputEnabled = true;
+            Enemy.ActionsEnabled = true;
+
             if (anim != null && anim.HasState(0, Animator.StringToHash(IdleStateName)))
             {
                 anim.Play(IdleStateName, 0, 0f);
@@ -500,29 +590,16 @@ public class LoadingScreen : MonoBehaviour
     {
         instance = FindAnyExistingInstance();
         if (instance != null)
+        {
+            Debug.Log("[LoadingScreen] Existing instance is ready.");
             yield break;
-
-        //string loadingSceneName = ResolveLoadingSceneName();
-        string loadingSceneName = "LoadingScreen";
-        Scene loadingScene = SceneManager.GetSceneByName(loadingSceneName);
-
-        if (!loadingScene.isLoaded)
-        {
-            Debug.LogWarning($"[LoadingScreen] Instance missing. Loading scene '{loadingSceneName}' additively.");
-            SceneManager.LoadSceneAsync(loadingSceneName, LoadSceneMode.Additive);
         }
 
-        float start = Time.realtimeSinceStartup;
-        while (instance == null && (Time.realtimeSinceStartup - start) < timeoutSeconds)
-        {
-            instance = FindAnyExistingInstance();
-            yield return null;
-        }
-
-        if (instance == null)
-        {
-            Debug.LogError($"[LoadingScreen] Failed to create instance within {timeoutSeconds:F1}s.");
-        }
+        Debug.Log("[LoadingScreen] Creating runtime fallback instance.");
+        GameObject fallback = new GameObject("LoadingScreen");
+        fallback.AddComponent<LoadingScreen>();
+        instance = fallback.GetComponent<LoadingScreen>();
+        yield return null;
     }
 
     private static LoadingScreen FindAnyExistingInstance()

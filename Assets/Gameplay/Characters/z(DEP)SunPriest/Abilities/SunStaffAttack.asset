@@ -75,7 +75,6 @@ MonoBehaviour:
   timedParticles: []
   isProjectileAbility: 1
   isAreaAbility: 0
-  isConstructAbility: 0
   isTrapAbility: 0
   isMovementAbility: 0
   areaFollowsProjectile: 0
@@ -851,44 +850,6 @@ MonoBehaviour:
     cleanseConfig:
       cleansesDebuffs: 1
       cleansesDoTs: 1
-  constructConfig:
-    constructPrefab: {fileID: 0}
-    maxRange: 10
-    spawnAtCaster: 0
-    spawnAtCasterRadius: 0
-    spawnAtMouse: 1
-    maxConstructs: 3
-    limitBehavior: 0
-    lifetime: 30
-    destroyOnLifetimeEnd: 1
-    spawnAnimationName: Spawn
-    activeAnimationName: Idle
-    destructionAnimationName: Destroy
-    fireAnimationName: Fire
-    activationDelay: 0
-    applySpawnKnockback: 0
-    spawnKnockbackForce: 10
-    spawnKnockbackRadius: 1.5
-    collisionRadius: 0.5
-    blockMovement: 1
-    maxHealth: 100
-    healthBarPrefab: {fileID: 0}
-    attackSpeed: 1
-    constructAbilities: []
-    prefabName: 
-    resourcesPath: Prefabs/Constructs/
-    holdToPlace: 0
-    ghostAlpha: 0.45
-    use8WayPlacement: 0
-    directionalPrefabs:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
   trapConfig:
     trapPrefab: {fileID: 0}
     maxRange: 10

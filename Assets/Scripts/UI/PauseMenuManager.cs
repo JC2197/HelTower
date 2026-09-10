@@ -76,7 +76,11 @@ public class PauseMenuManager : MonoBehaviour
 
     private void HandlePlayerSpawned(PlayerController newPlayer)
     {
+        if (newPlayer == null || ((newPlayer.IsServerStarted || newPlayer.IsClientStarted) && !newPlayer.IsOwner))
+            return;
+
         BindMenuAction();
+        Debug.Log($"[PauseMenuManager] Bound local player pause input for '{newPlayer.name}'.");
     }
 
     private void BindMenuAction()

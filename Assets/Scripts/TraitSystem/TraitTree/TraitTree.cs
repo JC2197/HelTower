@@ -57,7 +57,7 @@ public class TraitTree : ScriptableObject
     public List<TraitTreeConnection> connections = new List<TraitTreeConnection>();
 
     /// <summary>Height of a single level band in tree units: Node Icon Size / 2 * Levels Per Band.</summary>
-    public float LevelBandHeight => Mathf.Max(1, nodeIconSize) * 0.5f * Mathf.Max(1, levelsPerBand);
+    public float LevelBandHeight => Mathf.Max(1, nodeIconSize) * 1f * Mathf.Max(1, levelsPerBand);
 
     /// <summary>
     /// Band index a node position falls in, measured from the canvas bottom edge upward.

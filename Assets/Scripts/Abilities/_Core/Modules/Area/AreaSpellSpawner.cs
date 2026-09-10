@@ -20,12 +20,13 @@ public static class AreaAbilitySpawner
             return;
         }
         GameObject spellObj;
+        PlayerController auraOwner = null;
         if (config.isAura)
         {
-            PlayerController player = PlayerUtil.GetPlayer();
-            if (player != null)
+            auraOwner = PlayerUtil.GetPlayer();
+            if (auraOwner != null)
             {
-                spawnPosition = player.transform.position;
+                spawnPosition = auraOwner.transform.position;
             }
             else
             {
@@ -58,17 +59,13 @@ public static class AreaAbilitySpawner
                 isPointBlank = config.isPointBlank,
                 range = config.range,
                 isAura = config.isAura,
+                followCaster = config.followCaster,
+                auraDelay = config.auraDelay,
                 duration = config.duration,
 
                 // Damage
                 damageInterval = config.damageInterval,
-                dealsDamageOverTime = config.dealsDamageOverTime,
-                damagePerSecond = config.damagePerSecond,
-                dotInterval = config.dotInterval,
-                dotDuration = config.dotDuration,
-                dotParticleEffectPrefab = config.dotParticleEffectPrefab,
-                startParticlesFromFeet = config.startParticlesFromFeet,
-
+                hasDamageTick = config.hasDamageTick,
                 hasFadeIn = config.hasFadeIn,
                 fadeInDuration = config.fadeInDuration,
 
@@ -87,11 +84,14 @@ public static class AreaAbilitySpawner
             // Configure spell from config
             spell.InitializeFromConfig(tempConfig);
 
+            if (auraOwner != null)
+                spell.SetCaster(auraOwner.transform);
+
             // Configure particles to match area shape
             spell.ConfigureParticles(tempConfig);
 
-            // Activate the spell
-            spell.Activate();
+            if (!tempConfig.isAura)
+                spell.Activate();
         }
         else
         {

@@ -36,6 +36,7 @@ public class FloorManager : NetworkBehaviour
     
     private float goldScalingPerFloor;
     private int floorsCleared;
+    private bool allPlayersDeadSignaled;
 
     public int FloorsCleared => floorsCleared;
     public float GoldScalingPerFloor => goldScalingPerFloor;
@@ -49,6 +50,8 @@ public class FloorManager : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
+        Organism.OnOrganismDeath += HandleOrganismDeath;
+        StartCoroutine(MarkSceneReadyNextFrame());
 
         Floor floorToLoad = startingFloor != null ? startingFloor : floorListConfig?.GetRandomFloor();
         if (floorToLoad == null)
@@ -62,10 +65,81 @@ public class FloorManager : NetworkBehaviour
         InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
     }
 
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        StartCoroutine(MarkSceneReadyNextFrame());
+    }
+
+    private IEnumerator MarkSceneReadyNextFrame()
+    {
+        float deadline = Time.realtimeSinceStartup + 10f;
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            bool playersReady = players.Length > 0;
+            foreach (PlayerController player in players)
+            {
+                if (player.NetworkObject == null || !player.NetworkObject.IsSpawned || !player.IsAlive || player.CurrentHealth <= 0f)
+                {
+                    playersReady = false;
+                    break;
+                }
+            }
+
+            if (playersReady)
+                break;
+
+            yield return null;
+        }
+
+        PlayerController[] readyPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        Debug.Log($"[FloorManager] Scene readiness signal: scene={gameObject.scene.name}, server={IsServerStarted}, client={IsClientStarted}, players={readyPlayers.Length}, states={string.Join(", ", System.Array.ConvertAll(readyPlayers, player => $"{player.name}:{player.CurrentHealth}/{player.MaxHealth}/{player.IsAlive}"))}.");
+        SceneTransitionCoordinator.Instance?.MarkReady();
+    }
+
     public override void OnStopServer()
     {
+        Organism.OnOrganismDeath -= HandleOrganismDeath;
         InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
         base.OnStopServer();
+    }
+
+    private void HandleOrganismDeath(Organism organism)
+    {
+        if (organism is not PlayerController)
+            return;
+
+        StartCoroutine(CheckAllPlayersDeadNextFrame());
+    }
+
+    private IEnumerator CheckAllPlayersDeadNextFrame()
+    {
+        yield return null;
+
+        if (allPlayersDeadSignaled)
+            yield break;
+
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        if (players.Length == 0)
+            yield break;
+
+        foreach (PlayerController player in players)
+        {
+            if (player.IsAlive)
+                yield break;
+        }
+
+        allPlayersDeadSignaled = true;
+        Debug.Log($"[FloorManager] All players are dead ({players.Length}); broadcasting end screen.");
+        EndScreenUI.Instance?.ShowEndScreen(10);
+        ShowEndScreenObserversRpc(10);
+    }
+
+    [ObserversRpc(ExcludeServer = true)]
+    private void ShowEndScreenObserversRpc(int goldEarned)
+    {
+        EndScreenUI.Instance?.ShowEndScreen(goldEarned);
     }
 
     private void OnSceneLoadEnd(SceneLoadEndEventArgs sceneLoadEnd)
@@ -188,7 +262,15 @@ public class FloorManager : NetworkBehaviour
         PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         foreach (PlayerController player in players)
-            player.transform.position = spawnPositions.Length > 0 ? spawnPositions[Random.Range(0, spawnPositions.Length)].position : Vector3.zero;
+        {
+            Vector3 position = spawnPositions.Length > 0
+                ? spawnPositions[Random.Range(0, spawnPositions.Length)].position
+                : Vector3.zero;
+
+            player.transform.position = position;
+            player.SyncSpawnPosition(position);
+            Debug.Log($"[FloorManager] Repositioned '{player.name}' to {position}; health={player.CurrentHealth}/{player.MaxHealth}, alive={player.IsAlive}.");
+        }
     }
 
     private Transform[] GetSpawnPoints()

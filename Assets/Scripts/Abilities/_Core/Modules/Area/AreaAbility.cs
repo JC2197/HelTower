@@ -15,16 +15,10 @@ public class AreaAbility : MonoBehaviour, ISubAbility
     protected float damage;
     protected string damageTypeName;
     protected float damageInterval;
-    protected bool dealsDamageOverTime;
-    protected float damagePerSecond;
-    protected float dotInterval;
-    protected float dotDuration;
     protected bool hasDamageTick;
-    protected ParticleSystem dotParticleEffectPrefab;
     protected GameObject hitEffectPrefab;
     protected AudioClip spawnSound;
     protected AudioClip hitSound;
-    protected bool startParticlesFromFeet = false;
     protected Color hitFlashColor = Color.white;
 
     // Effects system
@@ -57,6 +51,7 @@ public class AreaAbility : MonoBehaviour, ISubAbility
     private Collider2D spellCollider;
     private float spawnTime;
     private float nextDamageTime;
+    private bool activationStarted;
     private bool isDestroying = false;
     private bool destroyTriggersApplied = false;
     private HashSet<Collider2D> affectedTargets = new HashSet<Collider2D>();
@@ -121,12 +116,6 @@ public class AreaAbility : MonoBehaviour, ISubAbility
         damageTypeName = config.hitbox.damageTypeName;
         damageInterval = config.damageInterval;
         hasDamageTick = config.hasDamageTick;
-        dealsDamageOverTime = config.dealsDamageOverTime;
-        damagePerSecond = config.damagePerSecond;
-        dotInterval = config.dotInterval;
-        dotDuration = config.dotDuration;
-        dotParticleEffectPrefab = config.dotParticleEffectPrefab;
-        startParticlesFromFeet = config.startParticlesFromFeet;
         hitEffectPrefab = config.hitbox.effects != null ? config.hitbox.effects.hitEffectPrefab : null;
         spawnSound = config.spawnSound;
         hitSound = config.hitbox.effects != null ? config.hitbox.effects.hitSound : null;
@@ -233,6 +222,10 @@ public class AreaAbility : MonoBehaviour, ISubAbility
     public void Activate()
     {
 
+        if (activationStarted)
+            return;
+
+        activationStarted = true;
         spawnTime = Time.time;
 
         // Initialize fade-in if enabled (independent of aura delay)
@@ -293,11 +286,23 @@ public class AreaAbility : MonoBehaviour, ISubAbility
     public void SetCaster(Transform caster)
     {
         casterTransform = caster;
+        if (owner == null && caster != null)
+            owner = caster.gameObject;
     }
 
     protected virtual void Update()
     {
         if (isDestroying) return;
+
+        if (isAura && owner == null && casterTransform == null)
+        {
+            DestroySpell();
+            return;
+        }
+
+        // Auras are passive; start them automatically after their runtime setup is complete.
+        if (isAura && !activationStarted)
+            Activate();
 
         // Follow caster if this is an aura and followCaster is enabled
         if (isAura && followCaster && casterTransform != null)
@@ -516,15 +521,6 @@ public class AreaAbility : MonoBehaviour, ISubAbility
         {
             hitbox.ApplyDamage(target, attacker, attacker, owner ?? attacker, transform.position,
                 parentConfig?.abilityName, parentConfig?.abilityTags?.GetAllTags(), parentConfig);
-
-            if (dealsDamageOverTime && damagePerSecond > 0)
-            {
-                // Create new DoT effect object (allows multiple DoTs to stack)
-                GameObject dotObject = new GameObject($"DoT_{damageTypeName}");
-                dotObject.transform.SetParent(target.transform);
-                DotEffect dotEffect = dotObject.AddComponent<DotEffect>();
-                dotEffect.Initialize(damageable, gameObject, damageTypeName, damagePerSecond, dotInterval, dotDuration, dotParticleEffectPrefab, startParticlesFromFeet);
-            }
 
             // Reusable knockback (radial — away from the area center) and pull (toward center).
             Vector2 dir = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;

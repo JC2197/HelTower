@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using FishNet;
 using FishNet.Object;
 using FishNet.Managing.Scened;
@@ -50,7 +51,27 @@ public class CampDoor : Interactable
             ReplaceScenes = ReplaceOption.All,
             MovedNetworkObjects = GetSpawnedPlayerObjects()
         };
-        InstanceFinder.SceneManager.LoadGlobalScenes(sld);
+        StartCoroutine(BeginSceneTransition(sld));
+    }
+
+    private IEnumerator BeginSceneTransition(SceneLoadData sceneLoadData)
+    {
+        ShowLoadingScreenRpc();
+
+        SceneTransitionCoordinator coordinator = SceneTransitionCoordinator.Instance;
+        if (coordinator != null)
+        {
+            yield return coordinator.Begin(() => InstanceFinder.SceneManager.LoadGlobalScenes(sceneLoadData));
+            yield break;
+        }
+
+        InstanceFinder.SceneManager.LoadGlobalScenes(sceneLoadData);
+    }
+
+    [ObserversRpc(ExcludeServer = true)]
+    private void ShowLoadingScreenRpc()
+    {
+        SceneTransitionCoordinator.Instance?.ShowForRemoteTransition();
     }
 
     private static NetworkObject[] GetSpawnedPlayerObjects()

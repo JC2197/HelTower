@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ChainLightning_Chain
   displayName: Chain Lightning Chain
-  baseGoldCost: 8
   description: Chain Lightning Chains +{v1} time(s).
   traitIcon: {fileID: -6044353383409064944, guid: 1b710adb658c4f64fbe079afcaf84442, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 5
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

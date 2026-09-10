@@ -62,7 +62,7 @@ public class EffectManager : NetworkBehaviour
             effect.config.OnUpdate(gameObject, Time.deltaTime);
 
             // Handle DoT ticking with smooth damage accumulation
-            if (effect.config is DamageOverTimeConfig dotConfig)
+            if (effect.config is DebuffEffect debuff)
             {
                 // Accumulate smooth damage
                 effect.smoothDamageAccumulator += Time.deltaTime;
@@ -71,15 +71,15 @@ public class EffectManager : NetworkBehaviour
                 const float SMOOTH_INTERVAL = 0.1f;
                 if (effect.smoothDamageAccumulator >= SMOOTH_INTERVAL)
                 {
-                    float damagePerSecond = dotConfig.damagePerTick / dotConfig.tickInterval;
+                    float damagePerSecond = debuff.damagePerTick / debuff.tickInterval;
                     float smoothDamage = damagePerSecond * effect.smoothDamageAccumulator * effect.currentStacks;
                     // Apply source attacker's damage-type bonus (e.g. BleedingDamageBonus)
-                    float finalSmooth = DamageCalculator.CalculateFinalDamage(smoothDamage, dotConfig.damageTypeName, effect.source);
+                    float finalSmooth = DamageCalculator.CalculateFinalDamage(smoothDamage, debuff.damageTypeName, effect.source);
 
                     // Apply damage WITHOUT floater (silent damage for smooth HP bar animation)
                     if (damageable != null)
                     {
-                        damageable.TakeDamage(finalSmooth, dotConfig.damageTypeName, suppressFloater: true);
+                        damageable.TakeDamage(finalSmooth, debuff.damageTypeName, suppressFloater: true);
                     }
 
                     effect.smoothDamageAccumulator = 0f;
@@ -90,8 +90,8 @@ public class EffectManager : NetworkBehaviour
                 if (effect.tickTimer <= 0f)
                 {
                     // Display floater at tick interval
-                    DisplayDamageFloater(dotConfig, effect);
-                    effect.tickTimer = dotConfig.tickInterval;
+                    DisplayDamageFloater(debuff, effect);
+                    effect.tickTimer = debuff.tickInterval;
                 }
             }
 
@@ -174,10 +174,22 @@ public class EffectManager : NetworkBehaviour
         if (config.particleEffect == null || activeParticles.ContainsKey(config.effectID))
             return;
 
+        SpriteRenderer targetSprite = GetComponent<SpriteRenderer>();
+        if (targetSprite == null)
+            targetSprite = GetComponentInParent<SpriteRenderer>();
+        if (targetSprite == null)
+            targetSprite = GetComponentInChildren<SpriteRenderer>(true);
+
+        if (targetSprite == null || targetSprite.sprite == null)
+        {
+            Debug.Log($"[EffectManager] Skipping particle effect '{config.effectID}' on '{name}': target has no valid SpriteRenderer.");
+            return;
+        }
+
         GameObject particles = HitVisualHelper.SpawnEffect(
             config.particleEffect, transform.position, Quaternion.identity,
             parent: transform, localOffset: config.particleOffset,
-            sortAndSizeTarget: GetComponent<Collider2D>(), autoDestroy: false);
+            autoDestroy: false, spriteSizeTarget: targetSprite);
         activeParticles[config.effectID] = particles;
     }
 
@@ -191,6 +203,24 @@ public class EffectManager : NetworkBehaviour
         {
             RemoveEffect(effect);
         }
+    }
+
+    public void ConsumeEffectStack(string effectID)
+    {
+        ActiveEffect effect = activeEffects.FirstOrDefault(e => e.config.effectID == effectID);
+        if (effect == null)
+            return;
+
+        int oldStacks = effect.currentStacks;
+        effect.currentStacks--;
+        if (effect.currentStacks <= 0)
+        {
+            RemoveEffect(effect);
+            return;
+        }
+
+        effect.config.OnStackChanged(gameObject, oldStacks, effect.currentStacks);
+        OnActiveEffectsChanged?.Invoke();
     }
 
     /// <summary>
@@ -411,16 +441,16 @@ public class EffectManager : NetworkBehaviour
         OnActiveEffectsChanged?.Invoke();
     }
 
-    private void DisplayDamageFloater(DamageOverTimeConfig dotConfig, ActiveEffect effect)
+    private void DisplayDamageFloater(DebuffEffect debuff, ActiveEffect effect)
     {
         // Only display floater and particles, damage is already being applied smoothly
         if (damageable != null)
         {
-            float rawTick = dotConfig.damagePerTick * effect.currentStacks;
-            float displayDamage = DamageCalculator.CalculateFinalDamage(rawTick, dotConfig.damageTypeName, effect.source);
-            DamageTypeData damageType = dotConfig.GetDamageType();
+            float rawTick = debuff.damagePerTick * effect.currentStacks;
+            float displayDamage = DamageCalculator.CalculateFinalDamage(rawTick, debuff.damageTypeName, effect.source);
+            DamageTypeData damageType = debuff.GetDamageType();
 
-            Debug.Log($"[EffectManager] Showing DoT floater: {displayDamage} damage (interval: {dotConfig.tickInterval}s, stacks: {effect.currentStacks})");
+            Debug.Log($"[EffectManager] Showing debuff floater: {displayDamage} damage (interval: {debuff.tickInterval}s, stacks: {effect.currentStacks})");
 
             // Show floater with the tick damage amount (even though damage was applied smoothly)
             if (damageable is IDamageFloaterSource floaterSource)
@@ -429,7 +459,7 @@ public class EffectManager : NetworkBehaviour
             }
 
             // Notify the DoT config that a damage tick occurred (for particles)
-            dotConfig.OnDamageTick(gameObject, displayDamage);
+            debuff.OnDamageTick(gameObject, displayDamage);
         }
     }
 
@@ -515,9 +545,9 @@ public class EffectManager : NetworkBehaviour
             this.remainingDuration = config.duration;
             this.currentStacks = 1;
 
-            if (config is DamageOverTimeConfig dotConfig)
+            if (config is DebuffEffect debuff)
             {
-                this.tickTimer = dotConfig.tickInterval;
+                this.tickTimer = debuff.tickInterval;
             }
         }
     }

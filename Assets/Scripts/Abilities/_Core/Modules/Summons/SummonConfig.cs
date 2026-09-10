@@ -21,8 +21,6 @@ public class SummonConfig
     public StatContainer statContainer;
     public GameObject healthBarPrefab;
     public Vector3 spawnOffset = Vector3.zero;
-    public bool isConstruct = false;
-
     [Header("AI & Rotational Movement Tracking")]
     public bool seekBehavior = false;
     public float followDistance = 3f;

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: NaturalDisaster
   displayName: Natural Disaster
-  baseGoldCost: 8
   description: Lightning Strike now deals {v1} Damage. Lightning Strike deals {v2}%
     less damage, but gains {v3}% less cooldown.
   traitIcon: {fileID: -2241515033916126657, guid: 903f8760b8677e24c902e1e5e56a8119, type: 3}
@@ -37,11 +36,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: aa5f60abed357ec469399173a950c8c7, type: 2}
     abilityIcon: {fileID: -2241515033916126657, guid: 903f8760b8677e24c902e1e5e56a8119, type: 3}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

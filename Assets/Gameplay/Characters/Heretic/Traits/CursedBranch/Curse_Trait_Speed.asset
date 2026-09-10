@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Curse Speed
   displayName: Curse Speed
-  baseGoldCost: 8
   description: 
   traitIcon: {fileID: 8999503231653194797, guid: f401507dab44f47468e4e1e9c18b9383, type: 3}
   weaponTraitTag: Curse Staff
   traitType: 0
-  maxLevel: 5
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: dc40b9cb98849c14991289e6ae7d7968, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 0
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

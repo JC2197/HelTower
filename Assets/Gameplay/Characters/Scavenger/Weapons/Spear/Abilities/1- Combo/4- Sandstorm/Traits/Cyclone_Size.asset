@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Cyclone_Size
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Cyclone_Size
+  displayName: Cyclone Size
+  description: '{v1}% increased size of Cyclone.'
+  traitIcon: {fileID: 2588570552757787107, guid: 370a91bbb99513a4fbe037b26e0af2ea, type: 3}
+  weaponTraitTag: 
+  traitType: 0
+  maxLevel: 1
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 6312d1f92d162d24babdb0a59a52f5a7, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 6312d1f92d162d24babdb0a59a52f5a7, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: areaConfig.hitbox.scaleX
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.scaleY
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

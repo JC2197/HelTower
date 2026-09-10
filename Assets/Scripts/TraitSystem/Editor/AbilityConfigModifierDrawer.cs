@@ -114,7 +114,7 @@ public class AbilityConfigModifierDrawer : PropertyDrawer
             y += LH + VS;
         }
 
-        // Optional target source path (summon/construct sub-ability selection)
+        // Optional target source path for summon sub-ability selection
         var addTriggeredAbilityPathProp = property.FindPropertyRelative("addTriggeredAbilityPath");
         bool hasTriggeredAbility = addTriggeredAbilityAbilityProp != null && addTriggeredAbilityAbilityProp.objectReferenceValue != null;
         if (hasTriggeredAbility)

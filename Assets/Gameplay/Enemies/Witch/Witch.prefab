@@ -86,6 +86,7 @@ MonoBehaviour:
   damageFlashColor: {r: 1, g: 1, b: 1, a: 1}
   damageFlashDuration: 0.2
   damageFlashCount: 2
+  damageFlashSquash: 0.6
   damageTypeRegistry: []
   forceFieldRegenDelay: 3
   forceFieldRegenDuration: 2
@@ -164,7 +165,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584138902072857759
+  _initializedTimestamp: -8584125957928621947
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -183,7 +184,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 9
+  <PrefabId>k__BackingField: 32
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 11284438896154616623
   SceneId: 0

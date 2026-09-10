@@ -88,6 +88,9 @@ public class AbilityDataConfig : AbilityConfig
     public bool retaliationCast = false;
     [Tooltip("When autocasting, cast at the player's feet instead of at enemy position. Useful for auras and self-buffs.")]
     public bool castAtFeet = false;
+    [Tooltip("Maximum distance from the caster for resolved target positions. 0 = unlimited.")]
+    [Min(0f)]
+    public float maxRange = 0f;
     public bool castAtTargets = false;
     public bool castAtFriendlyTargets = false;
     [Tooltip("Range to search for enemies when autocasting. Uses projectile maxRange if 0.")]
@@ -179,8 +182,6 @@ public class AbilityDataConfig : AbilityConfig
     public bool isProjectileAbility = false;
     [Tooltip("Does this ability create an area effect?")]
     public bool isAreaAbility = false;
-    [Tooltip("Does this ability spawn constructs (pylons, turrets, totems)?")]
-    public bool isConstructAbility = false;
     [Tooltip("Does this ability place traps that trigger when enemies enter range?")]
     public bool isTrapAbility = false;
     [Tooltip("Is this ability focused on movement (dash, teleport, blink)?")]
@@ -245,8 +246,6 @@ public class AbilityDataConfig : AbilityConfig
     public ProjectileConfig projectileConfig;
     [Tooltip("Shown if isAreaAbility = true")]
     public AreaConfig areaConfig;
-    [Tooltip("Shown if isConstructAbility = true")]
-    public ConstructConfig constructConfig = new ConstructConfig();
     [Tooltip("Shown if isTrapAbility = true")]
     public TrapAbilityConfig trapConfig = new TrapAbilityConfig();
     [Tooltip("Shown if isExplosionAbility = true")]

@@ -180,7 +180,8 @@ public class TrapAbility : MonoBehaviour, ISubAbility
             areaAbility.SetContext(new SubAbilityContext { parentConfig = parentConfig, owner = owner, statOwner = statOwner });
             areaAbility.InitializeFromConfig(config.areaConfig);
             areaAbility.ConfigureParticles(config.areaConfig);
-            areaAbility.Activate();
+            if (!config.areaConfig.isAura)
+                areaAbility.Activate();
         }
         
         Debug.Log($"[TrapAbility] Spawned area ability at trap location");

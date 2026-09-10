@@ -14,18 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SpearAttackSpeed
   displayName: Swift Sands
-  baseGoldCost: 8
-  description: Spear Attacks gain {v1}% attack speed.
+  description: Stabs gain {v1}% attack speed and +{v2} size.
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 5
-  statModifiers:
-  - statID: AttackSpeed
-    modifierType: 0
-    value: 0.15
-    customIcon: {fileID: 0}
-    description: 
+  maxLevel: 1
+  statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
   requiredAbilityLevel: 0
@@ -38,5 +32,30 @@ MonoBehaviour:
   weaponAmmoModifier:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
-  abilityConfigModifiers: []
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
+    abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
+      triggerChance: 0
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: attackSpeed
+      overrideMode: 1
+      numericValue: 15
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: meleeConfig.hitbox.scaleY
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: meleeConfig.hitbox.scaleX
+      overrideMode: 1
+      numericValue: 7.5
+      stringValue: 
+      objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

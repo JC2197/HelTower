@@ -5301,6 +5301,7 @@ GameObject:
   - component: {fileID: 3442679929321104817}
   - component: {fileID: 4999308996956882955}
   - component: {fileID: 5428746167378682971}
+  - component: {fileID: -5880996567682403481}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5553,7 +5554,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584127292823825424
+  _initializedTimestamp: -8584125247099307632
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -5572,7 +5573,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 45
+  <PrefabId>k__BackingField: 53
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 17036934021626112618
   SceneId: 0
@@ -5689,8 +5690,6 @@ MonoBehaviour:
   damageFlashCount: 2
   damageFlashSquash: 0
   damageTypeRegistry: []
-  forceFieldRegenDelay: 3
-  forceFieldRegenDuration: 2
   _rigidbody: {fileID: 6066638730956382958}
   _moveSpeed: 5
   _visualTransform: {fileID: 102942654033116495}
@@ -5866,6 +5865,25 @@ SortingGroup:
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
+--- !u!114 &-5880996567682403481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979735782993668707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e08bb003fce297d4086cf8cba5aa459a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Managing.Predicting.PredictionManager
+  _reduceReconcilesWithFramerate: 1
+  _minimumClientReconcileFramerate: 50
+  _createLocalStates: 1
+  _stateInterpolation: 2
+  _stateOrder: 1
+  _dropExcessiveReplicates: 1
+  _maximumServerReplicates: 15
 --- !u!1 &8250924038244619466
 GameObject:
   m_ObjectHideFlags: 0

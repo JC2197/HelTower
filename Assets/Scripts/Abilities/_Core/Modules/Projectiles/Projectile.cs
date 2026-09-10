@@ -34,12 +34,6 @@ public abstract class Projectile : NetworkBehaviour
     protected float percentWeaponDamage;
     protected float damage;
     protected string damageTypeName;
-    protected bool dealsDamageOverTime;
-    protected float damagePerTick;
-    protected float dotInterval;
-    protected float dotDuration;
-    protected ParticleSystem dotParticleEffectPrefab;
-    protected bool startParticlesFromFeet = false;
     protected float homingStrength;
     protected Transform homingTarget;
     protected bool homingTargetAcquired = false; // Track if we've attempted to find a homing target
@@ -924,14 +918,6 @@ public abstract class Projectile : NetworkBehaviour
         {
             hitbox.ApplyDamage(target, owner, owner, owner, transform.position, abilityName, abilityTags, parentConfig,
                 damage * damageMultiplier, effectiveDamageType);
-        }
-
-        if (damageable != null && dealsDamageOverTime && damagePerTick > 0)
-        {
-            GameObject dotObject = new GameObject($"DoT_{effectiveDamageType}");
-            dotObject.transform.SetParent(target.transform);
-            DotEffect dotEffect = dotObject.AddComponent<DotEffect>();
-            dotEffect.Initialize(damageable, gameObject, effectiveDamageType, damagePerTick, dotInterval, dotDuration, dotParticleEffectPrefab, startParticlesFromFeet);
         }
 
         // Reusable on-hit status effects (pass owner so triggered abilities are attributed correctly)

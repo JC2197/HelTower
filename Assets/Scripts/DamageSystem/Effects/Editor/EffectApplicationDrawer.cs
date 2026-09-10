@@ -49,7 +49,7 @@ public class EffectApplicationDrawer : PropertyDrawer
 
     private static bool IsDamageOverTime(SerializedProperty effect)
     {
-        return effect != null && effect.objectReferenceValue is DamageOverTimeConfig;
+        return effect != null && effect.objectReferenceValue is DebuffEffect;
     }
 
     private static string DescribeEffect(SerializedProperty effect)

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: ScrapGunAttackSpeed
   displayName: Turret Tuning
-  baseGoldCost: 8
   description: Turrets attack {v1}% faster.
   traitIcon: {fileID: -6323971847628488457, guid: ca4bc5534dc2244448b8fefcc17da814, type: 3}
   weaponTraitTag: 
@@ -38,11 +37,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: d1bdd485290243d40bbdb9d7570c3fa2, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

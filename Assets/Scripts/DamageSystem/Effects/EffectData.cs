@@ -38,11 +38,11 @@ public class EffectApplication
         if (effect == null)
             return null;
 
-        if (effect is DamageOverTimeConfig dot && (damageOverride > 0f || durationOverride > 0f))
+        if (effect is DebuffEffect debuff && (damageOverride > 0f || durationOverride > 0f))
         {
-            float damage = damageOverride > 0f ? damageOverride : dot.damagePerTick;
-            float duration = durationOverride > 0f ? durationOverride : dot.duration;
-            return dot.WithDamageAndDuration(damage, duration);
+            float damage = damageOverride > 0f ? damageOverride : debuff.damagePerTick;
+            float duration = durationOverride > 0f ? durationOverride : debuff.duration;
+            return debuff.WithDamageAndDuration(damage, duration);
         }
 
         return durationOverride > 0f ? effect.WithDuration(durationOverride) : effect;

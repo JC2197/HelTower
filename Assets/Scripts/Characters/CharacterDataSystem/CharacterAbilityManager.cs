@@ -282,6 +282,41 @@ public class CharacterAbilityManager : MonoBehaviour
         return bySlot;
     }
 
+    public AbilityDataConfig FindAbilityConfigByName(string abilityName)
+    {
+        if (string.IsNullOrEmpty(abilityName))
+            return null;
+
+        CharacterData data = playerController?.GetCurrentCharacterData();
+        if (data?.abilityLoadout == null)
+            return null;
+
+        foreach (AbilityReference abilityReference in EnumerateAbilityReferences(data.abilityLoadout))
+        {
+            if (abilityReference?.Config is AbilityDataConfig config
+                && string.Equals(config.abilityName, abilityName, StringComparison.OrdinalIgnoreCase))
+            {
+                return config;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<AbilityReference> EnumerateAbilityReferences(CharacterAbilityLoadout loadout)
+    {
+        yield return loadout.WeaponAbility;
+        yield return loadout.SecondaryWeaponAbility;
+        yield return loadout.DashAbility;
+        yield return loadout.PassiveAbility;
+
+        foreach (AbilityReference abilityReference in loadout.TraitAbilities)
+            yield return abilityReference;
+
+        foreach (AbilityReference abilityReference in loadout.TriggeredAbilities)
+            yield return abilityReference;
+    }
+
     /// <summary>
     /// Resolves a triggered-only ability config for this character.
     /// If the character has <paramref name="config"/> in their triggeredAbilities loadout slot,

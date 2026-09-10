@@ -14,13 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PassiveBehaviorConfig
   passiveVisualsPrefab: {fileID: 0}
   passiveRuntimeScript: {fileID: 0}
-  trigger: 0
+  trigger: 1
   triggerCount: 1
   requiredAbility: {fileID: 0}
   requiredDamageType: 
-  actionTarget: 1
+  actionTarget: 0
   effects:
-    effects: []
+    effects:
+    - effect: {fileID: 11400000, guid: f8ec1bb17786dbf4ca5567be1866b4c4, type: 2}
+      applicationChance: 1
+      durationOverride: 0
+      damageOverride: 0
     triggeredAbilities: []
   damage: 0
   damageType: Physical

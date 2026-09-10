@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Aura
   displayName: Aura
-  baseGoldCost: 8
   description: 
   traitIcon: {fileID: -4714381445611006446, guid: 7776c94cb0857b34ea0330d68dec83a6, type: 3}
   weaponTraitTag: 

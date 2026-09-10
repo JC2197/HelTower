@@ -6,7 +6,7 @@ using JoeConticello.VisualEffects;
 
 /// <summary>
 /// Manages spawning and lifecycle of summoned pets.
-/// Follows the same pattern as ConstructAbility for limit enforcement and network spawning.
+/// Handles summon limit enforcement and network spawning.
 /// </summary>
 public class SummonAbility : MonoBehaviour, ISubAbility
 {

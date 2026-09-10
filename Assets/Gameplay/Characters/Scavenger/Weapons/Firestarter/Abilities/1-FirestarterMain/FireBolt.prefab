@@ -121,7 +121,6 @@ MonoBehaviour:
   destroySoundOverride: {fileID: 8300000, guid: a1a81ba5451c50b46a9dbd41cc2efdc4, type: 3}
   overrideMuzzleFlash: 0
   muzzleFlashPrefabOverride: {fileID: 0}
-  muzzleFlashSoundOverride: {fileID: 0}
   overrideMuzzleLight: 0
   muzzleLightColorOverride: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   muzzleLightIntensityOverride: 3
@@ -236,7 +235,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584133894687998895
+  _initializedTimestamp: -8584125957928621947
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -255,7 +254,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 29
+  <PrefabId>k__BackingField: 44
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 14756449130205681927
   SceneId: 0

@@ -21,7 +21,7 @@ MonoBehaviour:
   anchorTreeToBottom: 1
   useLevelZones: 1
   levelZoneBandCount: 11
-  levelsPerBand: 3
+  levelsPerBand: 2
   defaultZoom: 1
   allowZoom: 0
   previewWindowSize: {x: 350, y: 400}
@@ -30,23 +30,26 @@ MonoBehaviour:
   nodes:
   - nodeID: SpearAddSlash_3722
     traitData: {fileID: 11400000, guid: cf560e85430c6b24fa9ecac553bb5d3a, type: 2}
-    position: {x: -112, y: 68}
+    position: {x: -88, y: 28}
     connectedNodeIDs: []
   - nodeID: SpearAttackSpeed_1de6
     traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
-    position: {x: -48, y: 172}
+    position: {x: -128, y: 160}
     connectedNodeIDs:
     - SpearAddSlash_3722
-    - StabAttackSpeed_e45b
+    - SpearAttackSpeed_c1b5
   - nodeID: SpearAttackSpeed_976d
     traitData: {fileID: 11400000, guid: 1c8bba8be5a5b5649b8df2ee4c05d6d4, type: 2}
-    position: {x: -128, y: 172}
+    position: {x: -48, y: 160}
     connectedNodeIDs:
     - SpearAddSlash_3722
-    - StabAttackSpeed_e45b
-  - nodeID: StabAttackSpeed_e45b
-    traitData: {fileID: 11400000, guid: c32ba2349e127314e94900444776d636, type: 2}
-    position: {x: -68, y: 128}
+  - nodeID: SpearAddSlash_ef16
+    traitData: {fileID: 11400000, guid: 7fbe2bb0011d5da43ac33af42bc97b84, type: 2}
+    position: {x: -12, y: 24}
+    connectedNodeIDs: []
+  - nodeID: SpearAttackSpeed_c1b5
+    traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
+    position: {x: -128, y: 100}
     connectedNodeIDs: []
   canvasHeight: 400
   minCanvasWidth: 350
@@ -54,29 +57,16 @@ MonoBehaviour:
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections:
-  - connectionID: conn_45b464ab
+  - connectionID: conn_b38af5e0
     scale: 1
     fromNodeIDs:
     - SpearAttackSpeed_1de6
     toNodeIDs:
-    - StabAttackSpeed_e45b
+    - SpearAttackSpeed_c1b5
     fromBubbleDir: 0
     toBubbleDir: 1
     curveAmount: 4
-    lineWidth: 3
-    lineColor: {r: 1, g: 1, b: 1, a: 1}
-    useDrawnPath: 0
-    paintedPixels: []
-  - connectionID: conn_b3e7614d
-    scale: 1
-    fromNodeIDs:
-    - SpearAttackSpeed_976d
-    toNodeIDs:
-    - StabAttackSpeed_e45b
-    fromBubbleDir: 0
-    toBubbleDir: 1
-    curveAmount: 4
-    lineWidth: 3
+    lineWidth: 1
     lineColor: {r: 1, g: 1, b: 1, a: 1}
     useDrawnPath: 0
     paintedPixels: []

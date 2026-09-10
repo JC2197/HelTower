@@ -34,6 +34,7 @@ MonoBehaviour:
   autocast: 0
   retaliationCast: 0
   castAtFeet: 0
+  maxRange: 0
   castAtTargets: 0
   castAtFriendlyTargets: 0
   autocastRange: 0
@@ -53,7 +54,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: Shoot
-  castSound: {fileID: 8300000, guid: b63c50aed17038f4585f685caaa32624, type: 3}
+  castSound: {fileID: 8300000, guid: b8d2e9ec16fe0024092da61b42b7f7ae, type: 3}
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -79,7 +80,6 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 1
   isAreaAbility: 0
-  isConstructAbility: 0
   isTrapAbility: 0
   isMovementAbility: 0
   areaFollowsProjectile: 0
@@ -286,12 +286,6 @@ MonoBehaviour:
         hitSound: {fileID: 8300000, guid: 423adf8adf90f5f448f4892a6bdaa9ad, type: 3}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0
-    dealsDamageOverTime: 0
-    damagePerTick: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     speed: 35
     useLifetime: 0
     lifetime: 1
@@ -415,12 +409,6 @@ MonoBehaviour:
     duration: 3
     damageInterval: 0.5
     hasDamageTick: 0
-    dealsDamageOverTime: 0
-    damagePerSecond: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     hasFadeIn: 0
     fadeInDuration: 0.5
     spawnSound: {fileID: 0}
@@ -430,42 +418,6 @@ MonoBehaviour:
     lightRadius: 5
     enabled: 1
     offset: {x: 0, y: 0}
-  constructConfig:
-    constructPrefab: {fileID: 0}
-    maxRange: 10
-    spawnAtCaster: 0
-    spawnAtCasterRadius: 0
-    spawnAtMouse: 1
-    maxConstructs: 3
-    limitBehavior: 0
-    lifetime: 30
-    destroyOnLifetimeEnd: 1
-    spawnAnimationName: Spawn
-    activeAnimationName: Idle
-    destructionAnimationName: Destroy
-    fireAnimationName: Fire
-    activationDelay: 0
-    applySpawnKnockback: 0
-    spawnKnockbackForce: 10
-    spawnKnockbackRadius: 1.5
-    collisionRadius: 0.5
-    blockMovement: 1
-    maxHealth: 100
-    healthBarPrefab: {fileID: 0}
-    attackSpeed: 1
-    constructAbilities: []
-    holdToPlace: 0
-    ghostAlpha: 0.45
-    use8WayPlacement: 0
-    directionalPrefabs:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
   trapConfig:
     trapPrefab: {fileID: 0}
     maxRange: 10
@@ -534,12 +486,6 @@ MonoBehaviour:
       duration: 3
       damageInterval: 0.5
       hasDamageTick: 0
-      dealsDamageOverTime: 0
-      damagePerSecond: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       hasFadeIn: 0
       fadeInDuration: 0.5
       spawnSound: {fileID: 0}
@@ -589,12 +535,6 @@ MonoBehaviour:
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
       allowOverride: 0
-      dealsDamageOverTime: 0
-      damagePerTick: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       speed: 15
       useLifetime: 1
       lifetime: 3
@@ -793,7 +733,6 @@ MonoBehaviour:
       stats: []
     healthBarPrefab: {fileID: 0}
     spawnOffset: {x: 1, y: 0, z: 0}
-    isConstruct: 0
     seekBehavior: 0
     followDistance: 3
     slotOffsets:

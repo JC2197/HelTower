@@ -9,6 +9,7 @@ public class EndScreenUI : MonoBehaviour
     [SerializeField] private GameObject endScreenPanel;
     [SerializeField] private TextMeshProUGUI goldEarnedText;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button returnToCampButton;
 
     private int goldEarned;
     private void Awake()
@@ -33,7 +34,14 @@ public class EndScreenUI : MonoBehaviour
     private void OnEnable()
     {
         if (restartButton != null) restartButton.onClick.AddListener(RestartGame);
+        if (returnToCampButton != null) returnToCampButton.onClick.AddListener(ReturnToCamp);
         // Tree content is loaded via Initialize(); tabs just switch data when clicked.
+    }
+
+    private void OnDisable()
+    {
+        if (restartButton != null) restartButton.onClick.RemoveListener(RestartGame);
+        if (returnToCampButton != null) returnToCampButton.onClick.RemoveListener(ReturnToCamp);
     }
 
     private void RestartGame()
@@ -45,8 +53,19 @@ public class EndScreenUI : MonoBehaviour
             return;
         }
 
+        localPlayer.ServerRpcRestartGame();
+    }
+
+    private void ReturnToCamp()
+    {
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        if (localPlayer == null)
+        {
+            Debug.LogWarning("[EndScreenUI] No local player is available to return to Camp.");
+            return;
+        }
+
         localPlayer.ServerRpcReturnToCamp();
-        HideEndScreen();
     }
 
     private void OnActiveSceneChanged(Scene previousScene, Scene activeScene)

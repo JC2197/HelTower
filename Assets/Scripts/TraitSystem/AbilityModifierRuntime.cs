@@ -248,7 +248,7 @@ public static class AbilityModifierRuntime
             foreach (var o in pair.modifier.overrides)
             {
                 if (o.isEmpty) continue;
-                string normalizedPath = NormalizePropertyPath(targetConfig, o.propertyPath);
+                string normalizedPath = o.propertyPath;
                 if (string.IsNullOrEmpty(normalizedPath))
                     continue;
 
@@ -386,22 +386,6 @@ public static class AbilityModifierRuntime
         // Fall back to abilityName matching so trait modifiers still bind correctly.
         return string.Equals(modifierTarget.abilityName, runtimeTarget.abilityName, StringComparison.Ordinal);
     }
-
-    /// <summary>
-    /// Normalizes legacy construct modifier paths to the current indexed constructAbilities format.
-    /// Keeps existing trait assets functional after removing duplicate construct-level sub-config fields.
-    /// </summary>
-    private static string NormalizePropertyPath(AbilityDataConfig targetConfig, string propertyPath)
-    {
-        if (string.IsNullOrEmpty(propertyPath))
-            return propertyPath;
-
-        if (targetConfig == null || !targetConfig.isConstructAbility || targetConfig.constructConfig == null)
-            return propertyPath;
-
-        return propertyPath;
-    }
-
 
     // ══════════════════════════════════════════════════════════════════════════════
     // APPLICATION
@@ -569,7 +553,6 @@ public static class AbilityModifierRuntime
         copy.explosionConfig = BuildEffectiveSubConfig(baseConfig.explosionConfig, "explosionConfig", accumulatedOverrides) ?? copy.explosionConfig;
         copy.movementConfig = BuildEffectiveSubConfig(baseConfig.movementConfig, "movementConfig", accumulatedOverrides) ?? copy.movementConfig;
         copy.summonConfig = BuildEffectiveSubConfig(baseConfig.summonConfig, "summonConfig", accumulatedOverrides) ?? copy.summonConfig;
-        copy.constructConfig = BuildEffectiveSubConfig(baseConfig.constructConfig, "constructConfig", accumulatedOverrides) ?? copy.constructConfig;
         copy.trapConfig = BuildEffectiveSubConfig(baseConfig.trapConfig, "trapConfig", accumulatedOverrides) ?? copy.trapConfig;
         copy.holdChargeConfig = BuildEffectiveSubConfig(baseConfig.holdChargeConfig, "holdChargeConfig", accumulatedOverrides) ?? copy.holdChargeConfig;
         copy.passiveConfig = BuildEffectiveSubConfig(baseConfig.passiveConfig, "passiveConfig", accumulatedOverrides) ?? copy.passiveConfig;
@@ -1283,7 +1266,7 @@ public static class AbilityModifierRuntime
     {
         "attackSpeed", "cooldownTime", "energyCost", "maxCharges", "chargeRechargeTime", "castLockoutDuration",
     "movementBlockDuration", "autocastRange", "autocastTargets", "castAtFeet", "castAtTargets", "castAtFriendlyTargets", "baseCritChance", "baseCritDamageMultiplier",
-         "mainhandAnimationName", "precastAnimationName", "retaliationCast", "isProjectileAbility", "isAreaAbility", "isMeleeAbility", "isBeamAbility", "isChanneled", "isMovementAbility", "isExplosionAbility", "isConstructAbility", "isSummonAbility", "isTrapAbility", "isPassiveAbility", "isCombo"
+         "mainhandAnimationName", "precastAnimationName", "retaliationCast", "castAtFeet", "maxRange", "isProjectileAbility", "isAreaAbility", "isMeleeAbility", "isBeamAbility", "isChanneled", "isMovementAbility", "isExplosionAbility", "isSummonAbility", "isTrapAbility", "isPassiveAbility", "isCombo"
          , "selfEffect"
     };
 
@@ -1364,7 +1347,7 @@ public static class AbilityModifierRuntime
 
     /// <summary>
     /// Returns all effect-data paths that can receive appended triggered abilities.
-    /// Used by the trait drawer to target summon/construct sub-ability sources explicitly.
+    /// Used by the trait drawer to target summon sub-ability sources explicitly.
     /// </summary>
     public static List<string> GetTriggeredAbilityAppendTargets(AbilityDataConfig config)
     {

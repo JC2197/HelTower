@@ -245,7 +245,7 @@ public class AbilityStatusEffectModifier
     [Header("Bleed Effect")]
     [Tooltip("Add bleed effect to this ability?")]
     public bool addBleed = false;
-    public BleedEffect bleedEffect;
+    public DebuffEffect bleedEffect;
     public float bleedDamage = 5f;
     public float bleedDuration = 3f;
     [Range(0f, 1f)]
@@ -254,7 +254,7 @@ public class AbilityStatusEffectModifier
     [Header("Burn Effect")]
     [Tooltip("Add burn effect to this ability?")]
     public bool addBurn = false;
-    public BurningEffect burnEffect;
+    public DebuffEffect burnEffect;
     public float burnDamage = 10f;
     public float burnDuration = 3f;
     [Range(0f, 1f)]
@@ -263,7 +263,7 @@ public class AbilityStatusEffectModifier
     [Header("Poison Effect")]
     [Tooltip("Add poison effect to this ability?")]
     public bool addPoison = false;
-    public PoisonEffect poisonEffect;
+    public DebuffEffect poisonEffect;
     public float poisonDamage = 3f;
     public float poisonDuration = 5f;
     [Range(0f, 1f)]
@@ -397,7 +397,7 @@ public class AbilityConfigModifier
     [FormerlySerializedAs("addTriggeredAbility")]
     [HideInInspector]
     public AbilityDataConfig addTriggeredAbilityLegacy;
-    [Tooltip("Optional target source path for Add Triggered Ability (for example summon/construct sub-abilities). Leave empty to apply to all valid trigger sources.")]
+    [Tooltip("Optional target source path for Add Triggered Ability (for example summon sub-abilities). Leave empty to apply to all valid trigger sources.")]
     public string addTriggeredAbilityPath = "";
     public List<AbilityPropertyOverride> overrides = new List<AbilityPropertyOverride>();
 

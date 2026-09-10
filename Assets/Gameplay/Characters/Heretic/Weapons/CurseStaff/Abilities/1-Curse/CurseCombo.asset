@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461388c03a4c9114e931ee8f23ddee02, type: 3}
   m_Name: CurseCombo
   m_EditorClassIdentifier: Assembly-CSharp::AbilityDataConfig
-  abilityName: Firestarter
+  abilityName: Curse
   abilityIcon: {fileID: 1101298345, guid: 0a7993cc2a6009f49b6ff6eb4e20c72d, type: 3}
   abilityDescription: No description available.
   requiredWeapon: {fileID: 0}
@@ -55,6 +55,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: 
+  castSound: {fileID: 0}
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -80,7 +81,6 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
   isProjectileAbility: 0
   isAreaAbility: 0
-  isConstructAbility: 0
   isTrapAbility: 0
   isMovementAbility: 0
   areaFollowsProjectile: 0
@@ -97,34 +97,56 @@ MonoBehaviour:
   passiveScript: {fileID: 0}
   usesAmmo: 0
   beamConfig:
-    beamRendererPrefab: {fileID: 0}
+    hitbox:
+      prefab: {fileID: 0}
+      scaleX: 1
+      scaleY: 1
+      hitLayers:
+        serializedVersion: 2
+        m_Bits: 6
+      damage: 20
+      damageTypeName: Physical
+      useWeaponDamage: 0
+      percentWeaponDamage: 100
+      lifeSteal:
+        enabled: 0
+        type: 1
+        amount: 5
+      knockback:
+        enabled: 0
+        force: 5
+        directionality: 1
+      pull:
+        enabled: 0
+        force: 5
+      forcedMovementPreference: 0
+      onHitEffects:
+        effects: []
+        triggeredAbilities: []
+      triggerOneTriggeredAbilityOnDestroy: 0
+      positiveHitLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      positiveHealing: 0
+      onHitBuffEffects:
+        effects: []
+        triggeredAbilities: []
+      effects:
+        hitEffectPrefab: {fileID: 0}
+        hitSound: {fileID: 0}
+        hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     targetingMode: 0
     fallbackToCursorWhenNoEnemy: 1
     singleShotDuration: 0.35
     beamWidth: 0.5
     beamColor: {r: 1, g: 1, b: 1, a: 1}
     maxBeamDistance: 20
+    fixedDistance: 0
     beamAmount: 1
     multiBeamAngle: 15
     chain: 0
     chainAmount: 0
-    value: 50
-    canHeal: 0
-    healTargets:
-      serializedVersion: 2
-      m_Bits: 0
     hitsPerSecond: 2
-    damageTypeName: Energy
-    hitLayers:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    onHitEffects:
-      effects: []
-      triggeredAbilities: []
-    lifeSteal:
-      enabled: 0
-      type: 1
-      amount: 5
     canHoldToFire: 1
     channelCostPerSecond: 5
     trackingRadius: 3
@@ -139,7 +161,6 @@ MonoBehaviour:
     impactParticlePrefab: {fileID: 0}
     beamSound: {fileID: 0}
     impactSound: {fileID: 0}
-    hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   channelConfig:
     unlockRotation: 1
     orbitalRadius: 0.4
@@ -266,12 +287,6 @@ MonoBehaviour:
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0
-    dealsDamageOverTime: 0
-    damagePerTick: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     speed: 15
     useLifetime: 1
     lifetime: 3
@@ -341,7 +356,6 @@ MonoBehaviour:
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -396,12 +410,6 @@ MonoBehaviour:
     duration: 3
     damageInterval: 0.5
     hasDamageTick: 0
-    dealsDamageOverTime: 0
-    damagePerSecond: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     hasFadeIn: 0
     fadeInDuration: 0.5
     spawnSound: {fileID: 0}
@@ -411,42 +419,6 @@ MonoBehaviour:
     lightRadius: 5
     enabled: 1
     offset: {x: 0, y: 0}
-  constructConfig:
-    constructPrefab: {fileID: 0}
-    maxRange: 10
-    spawnAtCaster: 0
-    spawnAtCasterRadius: 0
-    spawnAtMouse: 1
-    maxConstructs: 3
-    limitBehavior: 0
-    lifetime: 30
-    destroyOnLifetimeEnd: 1
-    spawnAnimationName: Spawn
-    activeAnimationName: Idle
-    destructionAnimationName: Destroy
-    fireAnimationName: Fire
-    activationDelay: 0
-    applySpawnKnockback: 0
-    spawnKnockbackForce: 10
-    spawnKnockbackRadius: 1.5
-    collisionRadius: 0.5
-    blockMovement: 1
-    maxHealth: 100
-    healthBarPrefab: {fileID: 0}
-    attackSpeed: 1
-    constructAbilities: []
-    holdToPlace: 0
-    ghostAlpha: 0.45
-    use8WayPlacement: 0
-    directionalPrefabs:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
   trapConfig:
     trapPrefab: {fileID: 0}
     maxRange: 10
@@ -515,12 +487,6 @@ MonoBehaviour:
       duration: 3
       damageInterval: 0.5
       hasDamageTick: 0
-      dealsDamageOverTime: 0
-      damagePerSecond: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       hasFadeIn: 0
       fadeInDuration: 0.5
       spawnSound: {fileID: 0}
@@ -570,12 +536,6 @@ MonoBehaviour:
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
       allowOverride: 0
-      dealsDamageOverTime: 0
-      damagePerTick: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       speed: 15
       useLifetime: 1
       lifetime: 3
@@ -645,7 +605,6 @@ MonoBehaviour:
       destroyVisualPrefab: {fileID: 0}
       destroySound: {fileID: 0}
       muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
       enableMuzzleLight: 0
       muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       muzzleLightIntensity: 3
@@ -775,7 +734,6 @@ MonoBehaviour:
       stats: []
     healthBarPrefab: {fileID: 0}
     spawnOffset: {x: 1, y: 0, z: 0}
-    isConstruct: 0
     seekBehavior: 0
     followDistance: 3
     slotOffsets:
@@ -811,6 +769,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}

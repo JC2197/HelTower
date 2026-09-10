@@ -15,24 +15,6 @@ public class ProjectileConfig
     [Tooltip("Allow weapon to override projectile prefab, muzzle flash, and hit effects. If false, always uses ability's configured values.")]
     public bool allowOverride = false;
 
-    [Tooltip("Deal damage over time instead of instant damage on hit")]
-    public bool dealsDamageOverTime = false;
-
-    [Tooltip("Damage per tick when dealsDamageOverTime = true")]
-    public float damagePerTick = 5f;
-
-    [Tooltip("How often DoT damage ticks (e.g., 0.5 = twice per second)")]
-    public float dotInterval = 0.5f;
-
-    [Tooltip("Duration of damage over time effect in seconds")]
-    public float dotDuration = 3f;
-
-    [Tooltip("Particle effect to attach to target while DoT is active")]
-    public ParticleSystem dotParticleEffectPrefab;
-
-    [Tooltip("If true, DoT particle box starts at feet (bottom) of target instead of center")]
-    public bool startParticlesFromFeet = false;
-
     [Tooltip("Speed of the projectile")]
     public float speed = 15f;
 

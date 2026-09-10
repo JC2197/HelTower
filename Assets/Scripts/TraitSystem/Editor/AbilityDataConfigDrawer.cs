@@ -31,6 +31,7 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty autocast;
     private SerializedProperty retaliationCast;
     private SerializedProperty castAtFeet;
+    private SerializedProperty maxRange;
     private SerializedProperty autocastRange;
     private SerializedProperty autocastTargets;
     private SerializedProperty disablesMovementDuringCast;
@@ -67,7 +68,6 @@ public class AbilityDataConfigEditor : Editor
     // Type flags
     private SerializedProperty isProjectileAbility;
     private SerializedProperty isAreaAbility;
-    private SerializedProperty isConstructAbility;
     private SerializedProperty isTrapAbility;
     private SerializedProperty isMovementAbility;
     private SerializedProperty areaFollowsProjectile;
@@ -87,7 +87,6 @@ public class AbilityDataConfigEditor : Editor
     private SerializedProperty beamConfig;
     private SerializedProperty channelConfig;
     private SerializedProperty meleeConfig;
-    private SerializedProperty constructConfig;
     private SerializedProperty trapConfig;
     private SerializedProperty explosionConfig;
     private SerializedProperty passiveConfig;
@@ -108,7 +107,6 @@ public class AbilityDataConfigEditor : Editor
     private bool showWeaponConfig = true;
     private bool showProjectileConfig = true;
     private bool showAreaConfig = true;
-    private bool showConstructConfig = true;
     private bool showTrapConfig = true;
     private bool showMeleeConfig = true;
     private bool showExplosionConfig = true;
@@ -146,6 +144,7 @@ public class AbilityDataConfigEditor : Editor
         autocast = serializedObject.FindProperty("autocast");
         retaliationCast = serializedObject.FindProperty("retaliationCast");
         castAtFeet = serializedObject.FindProperty("castAtFeet");
+        maxRange = serializedObject.FindProperty("maxRange");
         autocastRange = serializedObject.FindProperty("autocastRange");
         autocastTargets = serializedObject.FindProperty("autocastTargets");
         disablesMovementDuringCast = serializedObject.FindProperty("disablesMovementDuringCast");
@@ -181,7 +180,6 @@ public class AbilityDataConfigEditor : Editor
         // Type flags
         isProjectileAbility = serializedObject.FindProperty("isProjectileAbility");
         isAreaAbility = serializedObject.FindProperty("isAreaAbility");
-        isConstructAbility = serializedObject.FindProperty("isConstructAbility");
         isTrapAbility = serializedObject.FindProperty("isTrapAbility");
         isMovementAbility = serializedObject.FindProperty("isMovementAbility");
         areaFollowsProjectile = serializedObject.FindProperty("areaFollowsProjectile");
@@ -201,7 +199,6 @@ public class AbilityDataConfigEditor : Editor
         beamConfig = serializedObject.FindProperty("beamConfig");
         channelConfig = serializedObject.FindProperty("channelConfig");
         meleeConfig = serializedObject.FindProperty("meleeConfig");
-        constructConfig = serializedObject.FindProperty("constructConfig");
         trapConfig = serializedObject.FindProperty("trapConfig");
         explosionConfig = serializedObject.FindProperty("explosionConfig");
         summonConfig = serializedObject.FindProperty("summonConfig");
@@ -255,12 +252,6 @@ public class AbilityDataConfigEditor : Editor
         if (isAreaAbility.boolValue)
         {
             DrawAreaConfiguration();
-            EditorGUILayout.Space(10);
-        }
-
-        if (isConstructAbility.boolValue)
-        {
-            DrawConstructConfiguration();
             EditorGUILayout.Space(10);
         }
 
@@ -422,6 +413,7 @@ public class AbilityDataConfigEditor : Editor
             EditorGUILayout.LabelField("Autocast", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(autocast, new GUIContent("Autocast", "Automatically cast on valid enemies in range — no keybind assigned"));
             EditorGUILayout.PropertyField(castAtFeet, new GUIContent("Cast At Feet", "Cast at player position instead of enemy position"));
+            EditorGUILayout.PropertyField(maxRange, new GUIContent("Maximum Cast Range", "Clamp resolved target positions to this distance from the caster. 0 = unlimited."));
             if (autocast.boolValue)
             {
                 EditorGUI.indentLevel++;
@@ -543,7 +535,6 @@ public class AbilityDataConfigEditor : Editor
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(isProjectileAbility, new GUIContent("Is Projectile Ability"));
             EditorGUILayout.PropertyField(isAreaAbility, new GUIContent("Is Area Ability"));
-            EditorGUILayout.PropertyField(isConstructAbility, new GUIContent("Is Construct Ability"));
             EditorGUILayout.PropertyField(isTrapAbility, new GUIContent("Is Trap Ability"));
             EditorGUILayout.PropertyField(isMovementAbility, new GUIContent("Is Movement Ability"));
             if (isProjectileAbility.boolValue && isAreaAbility.boolValue)
@@ -604,24 +595,6 @@ public class AbilityDataConfigEditor : Editor
             }
 
             EditorGUILayout.PropertyField(areaConfig, new GUIContent("Area Config"));
-
-            EditorGUI.indentLevel--;
-        }
-
-        EditorGUILayout.EndFoldoutHeaderGroup();
-        EditorGUILayout.EndVertical();
-    }
-
-    private void DrawConstructConfiguration()
-    {
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        showConstructConfig = EditorGUILayout.BeginFoldoutHeaderGroup(showConstructConfig, "CONSTRUCT CONFIGURATION");
-
-        if (showConstructConfig)
-        {
-            EditorGUI.indentLevel++;
-
-            EditorGUILayout.PropertyField(constructConfig, new GUIContent("Construct Config"));
 
             EditorGUI.indentLevel--;
         }

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Aura_Speed
   displayName: Tick Speed
-  baseGoldCost: 8
   description: '{v1}% time between damage ticks. '
   traitIcon: {fileID: 7083499335977332664, guid: 149ee1a1821133044b03017839a748ea, type: 3}
   weaponTraitTag: 
@@ -36,11 +35,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: d657da6a66c6d934e86a6b5ecddb965b, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

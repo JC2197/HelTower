@@ -16,16 +16,14 @@ MonoBehaviour:
   displayName: ShadowCrit
   description: Shadows gain {v1}% increased crit chance.
   traitIcon: {fileID: -979466880618098315, guid: 8222516a1e1df8b4daf652f2a2aff086, type: 3}
-  colorTheme: Shadow
-  specializedTraitTag1: Shadow
-  specializedTraitTag2: Command
-  specializedTraitTag3: 
   weaponTraitTag: 
   traitType: 0
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
   requiredAbilityLevel: 0
+  requiredTraits: []
   abilityReplacement:
     requiredAbility: {fileID: 0}
     newAbilityConfig: {fileID: 0}
@@ -37,6 +35,13 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: f9aac04be1324f6498a75c1f510d2118, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
     overrides:
     - propertyPath: baseCritChance
       overrideMode: 0
@@ -44,5 +49,3 @@ MonoBehaviour:
       stringValue: 
       objectValue: {fileID: 0}
   mutuallyExclusiveWith: []
-  tierLevel: 1
-  tierConfig: {fileID: 0}

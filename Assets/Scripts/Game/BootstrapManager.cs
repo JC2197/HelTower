@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using FishNet.Managing;
 using FishNet.Managing.Scened;
 using FishNet.Object;
@@ -19,6 +20,7 @@ public class BootstrapManager : MonoBehaviour
     private static BootstrapManager instance;
     private GameObject gameplaySessionInstance;
     private bool loadingCamp;
+    private bool reloadingGame;
     private bool networkingRequested;
 
     public static BootstrapManager Instance => instance;
@@ -34,6 +36,9 @@ public class BootstrapManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (SceneTransitionCoordinator.Instance == null)
+            gameObject.AddComponent<SceneTransitionCoordinator>();
     }
 
     private void Start()
@@ -84,9 +89,24 @@ public class BootstrapManager : MonoBehaviour
         }
 
         if (!verboseLogging)
+        {
+            if (args.ConnectionState == LocalConnectionState.Started
+                && UnitySceneManager.GetActiveScene().name == campSceneName)
+            {
+                SceneTransitionCoordinator.Instance?.MarkReady();
+            }
+
             return;
+        }
 
         Debug.Log($"[BootstrapManager] CLIENT {args.ConnectionState} | activeScene={UnitySceneManager.GetActiveScene().name}\nStartedBy:\n{StackTraceUtility.ExtractStackTrace()}");
+
+        if (args.ConnectionState == LocalConnectionState.Started
+            && UnitySceneManager.GetActiveScene().name == campSceneName)
+        {
+            Debug.Log("[BootstrapManager] Local client started in Camp; signaling transition readiness.");
+            SceneTransitionCoordinator.Instance?.MarkReady();
+        }
     }
 
     public void LoadMainMenu()
@@ -108,12 +128,70 @@ public class BootstrapManager : MonoBehaviour
         networkingRequested = true;
         if (networkManager.IsServerStarted)
         {
-            LoadCampAsGlobalScene();
+            StartCoroutine(BeginCampSceneLoad());
             return;
         }
 
         networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
+        StartCoroutine(BeginCampConnection());
+    }
+
+    public void ReloadGameScene()
+    {
+        if (reloadingGame || networkManager == null || !networkManager.IsServerStarted)
+            return;
+
+        reloadingGame = true;
+        foreach (PlayerController activePlayer in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+        {
+            activePlayer.Revive();
+            activePlayer.ShowLoadingScreenForTransition();
+        }
+
+        StartCoroutine(BeginGameSceneReload());
+    }
+
+    private IEnumerator BeginGameSceneReload()
+    {
+        SceneTransitionCoordinator coordinator = SceneTransitionCoordinator.Instance;
+        if (coordinator != null)
+            yield return coordinator.Begin(LoadGameSceneAsGlobalScene);
+        else
+            LoadGameSceneAsGlobalScene();
+    }
+
+    private void LoadGameSceneAsGlobalScene()
+    {
+        networkManager.SceneManager.LoadGlobalScenes(new SceneLoadData("GameScene")
+        {
+            ReplaceScenes = ReplaceOption.All,
+            MovedNetworkObjects = GetSpawnedPlayerObjects()
+        });
+        reloadingGame = false;
+    }
+
+    private IEnumerator BeginCampConnection()
+    {
+        SceneTransitionCoordinator coordinator = SceneTransitionCoordinator.Instance;
+        if (coordinator != null)
+        {
+            yield return coordinator.Begin(() => networkManager.ServerManager.StartConnection());
+            yield break;
+        }
+
         networkManager.ServerManager.StartConnection();
+    }
+
+    private IEnumerator BeginCampSceneLoad()
+    {
+        SceneTransitionCoordinator coordinator = SceneTransitionCoordinator.Instance;
+        if (coordinator != null)
+        {
+            yield return coordinator.Begin(LoadCampAsGlobalScene);
+            yield break;
+        }
+
+        LoadCampAsGlobalScene();
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs connectionState)
@@ -130,6 +208,9 @@ public class BootstrapManager : MonoBehaviour
     {
         Log($"Loading '{campSceneName}' as a global scene. activeScene={UnitySceneManager.GetActiveScene().name}");
         networkManager.SceneManager.OnLoadEnd += OnCampLoaded;
+
+        foreach (PlayerController activePlayer in FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+            activePlayer.ShowLoadingScreenForTransition();
 
         bool returningFromGame = UnitySceneManager.GetActiveScene().name == "GameScene";
 
@@ -185,6 +266,11 @@ public class BootstrapManager : MonoBehaviour
             {
                 Log($"Camp is loaded. Starting local client. activeScene={UnitySceneManager.GetActiveScene().name}");
                 networkManager.ClientManager.StartConnection();
+            }
+            else
+            {
+                Debug.Log("[BootstrapManager] Camp loaded with client already started; signaling transition readiness.");
+                SceneTransitionCoordinator.Instance?.MarkReady();
             }
 
             return;

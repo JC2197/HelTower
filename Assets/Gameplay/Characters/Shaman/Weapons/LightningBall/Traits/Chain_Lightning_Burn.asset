@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: Chain_Lightning_Burn
   displayName: Chain Lightning Burn
-  baseGoldCost: 8
   description: 'Chain Lightning now has a {v1}% to inflict {v2}, dealing {v3} damage
     over {v4} seconds. '
   traitIcon: {fileID: 3402156135608667222, guid: 77696bbe53bf33b4ca413b33fed75299, type: 3}
@@ -37,11 +36,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: b20aab40835a4684fbf776eedcb4d150, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

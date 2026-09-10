@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SmashDamage
   displayName: SmashDamage
-  baseGoldCost: 8
   description: Increase the Weapon Damage Scaling of Smash by {v3}%.\nIncrease the
     radius of Smash by {v1}%
   traitIcon: {fileID: 6269333815379761492, guid: bbe837abdc176c744938ba4a6671a447, type: 3}
@@ -37,11 +36,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 9458da9cbcda91f4ea94b972922b3d15, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

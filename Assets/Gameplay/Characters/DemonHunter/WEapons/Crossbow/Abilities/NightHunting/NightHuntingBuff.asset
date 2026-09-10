@@ -31,8 +31,12 @@ MonoBehaviour:
   expireSound: {fileID: 0}
   canBeCleansed: 1
   cleansePriority: 0
-  buffIcon: {fileID: 888901343, guid: b153cf5c7d7f0964aaf27cb982e98d2a, type: 3}
   statModifiers:
   - statID: AttackSpeed
     modifierType: 0
-    value: 0.1
+    value: 0.05
+  nextAttack: 0
+  abilityToCast: {fileID: 0}
+  replaceAttack: 0
+  replacementAbilityToCast: {fileID: 0}
+  triggeredAbilityLifetime: 5

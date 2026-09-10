@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissilesElectric
   displayName: Lightning Orbs
-  baseGoldCost: 8
   description: Magic Missiles now deals {v2} damage and Chains +{v3} times.
   traitIcon: {fileID: 206340116, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
   weaponTraitTag: 
@@ -38,11 +37,11 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: 619b38788da0ba042874e3f2b4cb5b89, type: 2}
     abilityIcon: {fileID: 206340116, guid: 32b40c62c1f43b849a2e93833abb9813, type: 3}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1
       triggerTiming: 0
-      legacyTriggersOnDestroy: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
     overrides:

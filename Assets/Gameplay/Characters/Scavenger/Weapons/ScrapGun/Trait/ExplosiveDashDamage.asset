@@ -18,7 +18,7 @@ MonoBehaviour:
   traitIcon: {fileID: -3261877374244062610, guid: 6ae8986625e0bc74ead7080c2afeb9f4, type: 3}
   weaponTraitTag: 
   traitType: 4
-  maxLevel: 3
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 11400000, guid: d1bdd485290243d40bbdb9d7570c3fa2, type: 2}
@@ -37,6 +37,7 @@ MonoBehaviour:
   abilityConfigModifiers:
   - targetAbility: {fileID: 11400000, guid: e3e9348309add904689960eb85444c58, type: 2}
     abilityIcon: {fileID: 0}
+    comboAbilities: []
     addTriggeredAbilityConfig:
       abilityConfig: {fileID: 0}
       triggerChance: 1

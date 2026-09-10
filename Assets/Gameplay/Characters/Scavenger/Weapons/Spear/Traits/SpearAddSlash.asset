@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: SpearAddSlash
   displayName: SpearAddSlash
-  description: Add a Slash to your Spear Combo
+  description: Add a Sand Slash to your Spear Combo
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
   traitType: 0

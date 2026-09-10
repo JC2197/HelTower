@@ -34,7 +34,6 @@ public class SummonConfigDrawer : PropertyDrawer
             // --- Health Data Container ---
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("statContainer"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("healthBarPrefab"), position, yPos);
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("isConstruct"), position, yPos);
             
             // --- AI Seek & Follow Behaviours ---
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("seekBehavior"), position, yPos);
@@ -102,7 +101,7 @@ SerializedProperty abilitiesProp = property.FindPropertyRelative("summonAbilitie
 
         // Cleaned fields map list matching your active class properties
         string[] fieldsToCalculate = {
-            "summonPrefab", "maxSummons", "limitBehavior", "lifetime", "statContainer", "healthBarPrefab", "isConstruct", 
+            "summonPrefab", "maxSummons", "limitBehavior", "lifetime", "statContainer", "healthBarPrefab",
             "seekBehavior", "followDistance", "slotOffsets", "stopDistance", "moveSpeed", "detectionRange", "attackRange", 
             "pathfindingObstacleLayers", "obstacleAvoidanceStrength", "debugDrawPathfindingRays", "summonAbilities", "isRotationalTurret",
             "idleAnimation", "moveAnimation", "spawnAnimation", "deathAnimation", "spawnOffset", "spawnEffectPrefab", "deathEffectPrefab"

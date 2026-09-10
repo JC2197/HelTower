@@ -26,24 +26,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
             EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, EditorGUI.GetPropertyHeight(hitbox, true)), hitbox, true);
             yPos += EditorGUI.GetPropertyHeight(hitbox, true) + EditorGUIUtility.standardVerticalSpacing;
 
-            SerializedProperty dealsDamageOverTime = property.FindPropertyRelative("dealsDamageOverTime");
-            yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("dealsDamageOverTime"), position, yPos);
-
-            if (dealsDamageOverTime.boolValue)
-            {
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("damagePerTick"), position, yPos);
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("dotInterval"), position, yPos);
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("dotDuration"), position, yPos);
-                yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("dotParticleEffectPrefab"), position, yPos);
-                SerializedProperty dotParticleEffectPrefab = property.FindPropertyRelative("dotParticleEffectPrefab");
-
-                if (dotParticleEffectPrefab.objectReferenceValue != null)
-                {
-                    yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("startParticlesFromFeet"), position, yPos);
-
-                }
-            }
-
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("speed"), position, yPos);
             yPos = DrawerUtil.DrawPropertyAndAdvanceYPos(property.FindPropertyRelative("useLifetime"), position, yPos);
             SerializedProperty useLifetime = property.FindPropertyRelative("useLifetime");
@@ -222,12 +204,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
 
         // Get all property references
         SerializedProperty hitbox = property.FindPropertyRelative("hitbox");
-        SerializedProperty dealsDamageOverTime = property.FindPropertyRelative("dealsDamageOverTime");
-        SerializedProperty damagePerTick = property.FindPropertyRelative("damagePerTick");
-        SerializedProperty dotInterval = property.FindPropertyRelative("dotInterval");
-        SerializedProperty dotDuration = property.FindPropertyRelative("dotDuration");
-        SerializedProperty dotParticleEffectPrefab = property.FindPropertyRelative("dotParticleEffectPrefab");
-        SerializedProperty startParticlesFromFeet = property.FindPropertyRelative("startParticlesFromFeet");
         SerializedProperty speed = property.FindPropertyRelative("speed");
         SerializedProperty useLifetime = property.FindPropertyRelative("useLifetime");
         SerializedProperty lifetime = property.FindPropertyRelative("lifetime");
@@ -259,21 +235,6 @@ public class ProjectileConfigDrawer : PropertyDrawer
 
         // Hitbox
         height += EditorGUI.GetPropertyHeight(hitbox, true) + EditorGUIUtility.standardVerticalSpacing;
-
-        height += EditorGUI.GetPropertyHeight(dealsDamageOverTime) + EditorGUIUtility.standardVerticalSpacing;
-
-        if (dealsDamageOverTime.boolValue)
-        {
-            height += EditorGUI.GetPropertyHeight(damagePerTick) + EditorGUIUtility.standardVerticalSpacing;
-            height += EditorGUI.GetPropertyHeight(dotInterval) + EditorGUIUtility.standardVerticalSpacing;
-            height += EditorGUI.GetPropertyHeight(dotDuration) + EditorGUIUtility.standardVerticalSpacing;
-            height += EditorGUI.GetPropertyHeight(dotParticleEffectPrefab) + EditorGUIUtility.standardVerticalSpacing;
-
-            if (dotParticleEffectPrefab.objectReferenceValue != null)
-            {
-                height += EditorGUI.GetPropertyHeight(startParticlesFromFeet) + EditorGUIUtility.standardVerticalSpacing;
-            }
-        }
 
         // Movement Settings
         height += EditorGUI.GetPropertyHeight(speed) + EditorGUIUtility.standardVerticalSpacing;

@@ -8,6 +8,8 @@ public class PlayerHUD : MonoBehaviour
     [Header("Resource Bars")]
     [SerializeField] private Image healthFillImage;
     [SerializeField] private Image energyFillImage;
+    [SerializeField] private Image shieldFillImage;
+
     [SerializeField] private Image goldIcon;
     [SerializeField] private TextMeshProUGUI totalGold;
     [SerializeField] private TextMeshProUGUI healthText;
@@ -24,6 +26,7 @@ public class PlayerHUD : MonoBehaviour
     {
         Organism.OnHealthChanged += HandleHealthChanged;
         Organism.OnEnergyChanged += HandleEnergyChanged;
+        Organism.OnShieldChanged += HandleShieldChanged;
         StatContainer.OnAnyStatChanged += HandleStatsChanged;
         PlayerController.OnPlayerSpawned += HandlePlayerSpawned;
         PlayerController.OnLocalPlayerSceneChanged += HandlePlayerSceneChanged;
@@ -90,6 +93,7 @@ public class PlayerHUD : MonoBehaviour
     {
         Organism.OnHealthChanged -= HandleHealthChanged;
         Organism.OnEnergyChanged -= HandleEnergyChanged;
+        Organism.OnShieldChanged -= HandleShieldChanged;
         StatContainer.OnAnyStatChanged -= HandleStatsChanged;
         PlayerController.OnPlayerSpawned -= HandlePlayerSpawned;
         PlayerController.OnLocalPlayerSceneChanged -= HandlePlayerSceneChanged;
@@ -110,6 +114,14 @@ public class PlayerHUD : MonoBehaviour
         if (organism == player)
         {
             UpdateEnergyDisplay(organism);
+        }
+    }
+    
+    void HandleShieldChanged(Organism organism, float newShield)
+    {
+        if (organism == player)
+        {
+            UpdateShieldDisplay(organism);
         }
     }
     
@@ -139,6 +151,13 @@ public class PlayerHUD : MonoBehaviour
         if (energyText != null)
             energyText.text = $"{organism.CurrentEnergy:F0}/{organism.MaxEnergy:F0}";
     }
+
+    void UpdateShieldDisplay(Organism organism)
+    {
+        if (shieldFillImage != null)
+            shieldFillImage.fillAmount = organism.GetShieldPercentage();
+
+    }
     
 
     public void UpdateAbilities(CharacterData characterData)
@@ -164,6 +183,7 @@ public class PlayerHUD : MonoBehaviour
         {
             UpdateHealthDisplay(player);
             UpdateEnergyDisplay(player);
+            UpdateShieldDisplay(player);
             SaveFileData saveFileData = player.GetCurrentSaveFileData();
             UpdateGoldDisplay(IsInGameScene() ? player.BagGold : saveFileData != null ? saveFileData.totalGold : 0);
         }

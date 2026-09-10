@@ -46,19 +46,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         (_cachedNetworkManager.IsServerStarted || _cachedNetworkManager.IsClientStarted) &&
         NetworkObject != null;
 
-    // Force field regeneration (built-in, no component needed)
-    [Header("Force Field Regeneration")]
-    [SerializeField] protected float forceFieldRegenDelay = 3f; // Time without damage before regen starts
-    [SerializeField] protected float forceFieldRegenDuration = 2f; // Time to fully regenerate
-    protected float timeSinceLastForceFieldDamage = 0f;
-    protected bool isRegeneratingForceField = false;
-
     public static event Action<Organism> OnOrganismDeath;
     public static event Action<GameObject, Organism> OnOrganismKilled;
     public static event Action<Organism, float> OnHealthChanged;
     public static event Action<Organism, float> OnEnergyChanged;
     public static event Action<Organism, float> OnEnergySpent;
-    public static event Action<Organism, float> OnForceFieldChanged;
+    public static event Action<Organism, float> OnShieldChanged;
+    public event Action<Organism, object> OnShieldDestroyed;
 
     // Event invoked when this organism takes damage (for reactive effects like Thorns)
     // Parameters: (victim, damage, damageTypeName, attackerPosition, attackerObject)
@@ -134,14 +128,38 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
 
     private readonly SyncVar<float> _syncCurrentHealth = new SyncVar<float>();
     private readonly SyncVar<float> _syncCurrentEnergy = new SyncVar<float>();
-    private readonly SyncVar<float> _syncCurrentForceField = new SyncVar<float>();
+    private readonly SyncVar<float> _syncCurrentShield = new SyncVar<float>();
+    private readonly SyncVar<float> _syncMaxShield = new SyncVar<float>();
+
+    private sealed class ShieldGrant
+    {
+        public object source;
+        public float currentAmount;
+        public float maxAmount;
+    }
+
+    private readonly List<ShieldGrant> _shieldGrants = new List<ShieldGrant>();
 
     public float CurrentHealth => _syncCurrentHealth.Value;
-    public float MaxHealth => statContainer?.GetStat("MaxHealth") ?? 100f;
+    public float MaxHealth
+    {
+        get
+        {
+            float configuredMaxHealth = statContainer?.GetStat("MaxHealth") ?? 0f;
+            return configuredMaxHealth > 0f ? configuredMaxHealth : 100f;
+        }
+    }
     public float CurrentEnergy => _syncCurrentEnergy.Value;
-    public float MaxEnergy => statContainer?.GetStat("MaxEnergy") ?? 100f;
-    public float CurrentForceField => _syncCurrentForceField.Value;
-    public float MaxForceField => statContainer?.GetStat("ForceField") ?? 0f;
+    public float MaxEnergy
+    {
+        get
+        {
+            float configuredMaxEnergy = statContainer?.GetStat("MaxEnergy") ?? 0f;
+            return configuredMaxEnergy > 0f ? configuredMaxEnergy : 100f;
+        }
+    }
+    public float CurrentShield => _syncCurrentShield.Value;
+    public float MaxShield => _syncMaxShield.Value;
 
     protected virtual void Awake()
     {
@@ -192,10 +210,11 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             Debug.Log($"[Organism] {gameObject.name} initialized with {statContainer.GetAllStats().Count} stats from database");
         }
 
-        // Initialize current health, energy, and force field from max values
+        // Initialize current health and energy from max values
         _syncCurrentHealth.Value = MaxHealth > 0 ? MaxHealth : 100f;
         _syncCurrentEnergy.Value = MaxEnergy > 0 ? MaxEnergy : 100f;
-        _syncCurrentForceField.Value = MaxForceField;
+        _syncCurrentShield.Value = 0f;
+        _syncMaxShield.Value = 0f;
 
         isAlive = true;
     }
@@ -236,7 +255,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         // Subscribe to SyncVar changes
         _syncCurrentHealth.OnChange += OnHealthSync;
         _syncCurrentEnergy.OnChange += OnEnergySync;
-        _syncCurrentForceField.OnChange += OnForceFieldSync;
+        _syncCurrentShield.OnChange += OnShieldSync;
     }
 
     protected virtual void Start()
@@ -257,9 +276,6 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         // Apply health and energy regeneration
         ApplyRegeneration();
 
-        // Apply force field regeneration
-        ApplyForceFieldRegeneration();
-
         HandleUpdate();
     }
 
@@ -279,14 +295,13 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
     }
 
-    private void OnForceFieldSync(float prev, float next, bool asServer)
+    private void OnShieldSync(float prev, float next, bool asServer)
     {
         if (!asServer)
         {
-            OnForceFieldChanged?.Invoke(this, next);
+            OnShieldChanged?.Invoke(this, next);
         }
     }
-
 
     protected virtual void SetupPhysics()
     {
@@ -297,21 +312,15 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
 
         if (col != null && !isTangible)
-        {
             col.isTrigger = true;
-        }
     }
 
     protected abstract void HandleUpdate();
 
-    /// <summary>
-    /// Apply health and energy regeneration from stat container
-    /// </summary>
     protected virtual void ApplyRegeneration()
     {
         if (statContainer == null) return;
 
-        // Apply health regeneration
         float healthRegen = statContainer.HasStat("HealthRegen") ? statContainer.GetStat("HealthRegen") : 0f;
         if (healthRegen > 0f && _syncCurrentHealth.Value < MaxHealth)
         {
@@ -319,53 +328,11 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             ModifyHealth(healthToRegen);
         }
 
-        // Apply energy regeneration
         float energyRegen = statContainer.HasStat("EnergyRegen") ? statContainer.GetStat("EnergyRegen") : 0f;
         if (energyRegen > 0f && _syncCurrentEnergy.Value < MaxEnergy)
         {
             float energyToRegen = energyRegen * Time.deltaTime;
             ModifyEnergy(energyToRegen);
-        }
-    }
-
-    /// <summary>
-    /// Apply force field regeneration (built-in to Organism)
-    /// Force field regenerates after not taking damage for forceFieldRegenDelay seconds
-    /// </summary>
-    protected virtual void ApplyForceFieldRegeneration()
-    {
-        if (MaxForceField <= 0f) return; // No force field stat
-
-        // If force field is already full, no need to regenerate
-        if (_syncCurrentForceField.Value >= MaxForceField)
-        {
-            isRegeneratingForceField = false;
-            return;
-        }
-
-        // Increment time since last damage
-        timeSinceLastForceFieldDamage += Time.deltaTime;
-
-        // Start regenerating after delay
-        if (timeSinceLastForceFieldDamage >= forceFieldRegenDelay)
-        {
-            if (!isRegeneratingForceField)
-            {
-                isRegeneratingForceField = true;
-                Debug.Log($"[Organism] Starting force field regeneration for {gameObject.name}");
-            }
-
-            // Regenerate over duration
-            float regenRate = MaxForceField / forceFieldRegenDuration;
-            float regenThisFrame = regenRate * Time.deltaTime;
-            ModifyForceField(regenThisFrame);
-
-            // Stop regenerating when full
-            if (_syncCurrentForceField.Value >= MaxForceField)
-            {
-                isRegeneratingForceField = false;
-                Debug.Log($"[Organism] Force field fully regenerated for {gameObject.name}");
-            }
         }
     }
 
@@ -417,28 +384,46 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
     }
 
-    public virtual void ModifyForceField(float amount)
+    public void SetShield(object source, float amount)
     {
-        // Only server can modify in networked games; allow in single-player
-        if (IsNetworkActive && (!IsServerInitialized || !IsSpawned)) return;
+        if (source == null)
+            return;
 
-        _syncCurrentForceField.Value = Mathf.Clamp(_syncCurrentForceField.Value + amount, 0f, MaxForceField);
-        OnForceFieldChanged?.Invoke(this, _syncCurrentForceField.Value);
+        amount = Mathf.Max(0f, amount);
+        ShieldGrant grant = _shieldGrants.Find(candidate => ReferenceEquals(candidate.source, source));
+        if (grant == null)
+        {
+            grant = new ShieldGrant { source = source };
+            _shieldGrants.Add(grant);
+        }
+
+        float increase = amount - grant.maxAmount;
+        grant.maxAmount = amount;
+        grant.currentAmount = increase >= 0f
+            ? grant.currentAmount + increase
+            : Mathf.Min(grant.currentAmount, amount);
+        RefreshShieldTotals();
     }
 
-    /// <summary>
-    /// Reinitialize force field to match new max value (call after traits change max force field)
-    /// Only increases current force field, never decreases
-    /// </summary>
-    public virtual void ReinitializeForceField()
+    public void RemoveShield(object source)
     {
-        float newMax = MaxForceField;
-        if (newMax > _syncCurrentForceField.Value)
+        _shieldGrants.RemoveAll(grant => ReferenceEquals(grant.source, source));
+        RefreshShieldTotals();
+    }
+
+    private void RefreshShieldTotals()
+    {
+        float currentShield = 0f;
+        float maxShield = 0f;
+        foreach (ShieldGrant grant in _shieldGrants)
         {
-            Debug.Log($"[Organism] Force field max increased from {_syncCurrentForceField.Value} to {newMax}, reinitializing");
-            _syncCurrentForceField.Value = newMax;
-            OnForceFieldChanged?.Invoke(this, _syncCurrentForceField.Value);
+            currentShield += grant.currentAmount;
+            maxShield += grant.maxAmount;
         }
+
+        _syncCurrentShield.Value = currentShield;
+        _syncMaxShield.Value = maxShield;
+        OnShieldChanged?.Invoke(this, _syncCurrentShield.Value);
     }
 
     public virtual void ModifyEnergy(float amount)
@@ -638,7 +623,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         }
 
         // Apply damage to force field first, then overflow to health
-        float damageToHealth = ApplyDamageToForceField(finalDamage);
+        float damageToHealth = ApplyDamageToShield(finalDamage);
         if (damageToHealth > 0f)
         {
             ModifyHealth(-damageToHealth);
@@ -717,7 +702,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             return;
         }
 
-        float damageToHealth = ApplyDamageToForceField(finalDamage);
+        float damageToHealth = ApplyDamageToShield(finalDamage);
         if (damageToHealth > 0f)
         {
             ModifyHealth(-damageToHealth);
@@ -802,7 +787,7 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
             return;
         }
 
-        float damageToHealth = ApplyDamageToForceField(finalDamage);
+        float damageToHealth = ApplyDamageToShield(finalDamage);
         if (damageToHealth > 0f)
         {
             ModifyHealth(-damageToHealth);
@@ -1083,32 +1068,34 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     }
 
     /// <summary>
-    /// Apply damage to force field first, return overflow damage that should be applied to health
+    /// Apply damage to shields first, return overflow damage that should be applied to health
     /// </summary>
-    private float ApplyDamageToForceField(float damage)
+    private float ApplyDamageToShield(float damage)
     {
-        // Reset force field regeneration timer when taking damage
-        timeSinceLastForceFieldDamage = 0f;
-        isRegeneratingForceField = false;
-
-        if (_syncCurrentForceField.Value <= 0f)
+        float remainingDamage = damage;
+        List<object> destroyedSources = null;
+        foreach (ShieldGrant grant in _shieldGrants)
         {
-            return damage; // No force field, all damage goes to health
+            float shieldBeforeDamage = grant.currentAmount;
+            float absorbed = Mathf.Min(grant.currentAmount, remainingDamage);
+            grant.currentAmount -= absorbed;
+            remainingDamage -= absorbed;
+            if (shieldBeforeDamage > 0f && grant.currentAmount <= 0f)
+            {
+                destroyedSources ??= new List<object>();
+                destroyedSources.Add(grant.source);
+            }
+            if (remainingDamage <= 0f)
+                break;
         }
 
-        if (_syncCurrentForceField.Value >= damage)
+        RefreshShieldTotals();
+        if (destroyedSources != null)
         {
-            // Force field absorbs all damage
-            ModifyForceField(-damage);
-            return 0f;
+            foreach (object source in destroyedSources)
+                OnShieldDestroyed?.Invoke(this, source);
         }
-        else
-        {
-            // Force field absorbs partial damage, remainder goes to health
-            float overflow = damage - _syncCurrentForceField.Value;
-            ModifyForceField(-_syncCurrentForceField.Value); // Reduces to 0
-            return overflow;
-        }
+        return remainingDamage;
     }
 
     protected virtual float CalculateDamage(float baseDamage, string damageTypeName, float critMultiplier = 1f)
@@ -1154,7 +1141,8 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         isAlive = true;
         _syncCurrentHealth.Value = MaxHealth > 0 ? MaxHealth : 100f;
         _syncCurrentEnergy.Value = MaxEnergy > 0 ? MaxEnergy : 100f;
-        _syncCurrentForceField.Value = MaxForceField;
+        _shieldGrants.Clear();
+        RefreshShieldTotals();
         Debug.Log($"[DEATH-DIAG] [Organism.Revive] COMPLETE for {gameObject.name} — isAlive={isAlive}, health={_syncCurrentHealth.Value}/{MaxHealth}");
     }
 
@@ -1215,9 +1203,9 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
         return MaxEnergy > 0 ? _syncCurrentEnergy.Value / MaxEnergy : 0f;
     }
 
-    public float GetForceFieldPercentage()
+    public float GetShieldPercentage()
     {
-        return MaxForceField > 0 ? _syncCurrentForceField.Value / MaxForceField : 0f;
+        return CurrentShield > 0 ? CurrentShield / MaxHealth*2 : 0f;
     }
 
     protected virtual IEnumerator DamageFlashCoroutine(Color flashColor)

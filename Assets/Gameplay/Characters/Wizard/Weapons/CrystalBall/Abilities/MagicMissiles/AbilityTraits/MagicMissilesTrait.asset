@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
   traitID: MagicMissiles
   displayName: Magic Missiles
-  baseGoldCost: 8
   description: 
   traitIcon: {fileID: 837182417540574282, guid: 4aabc01262b107c42b79cbb82b719b72, type: 3}
   weaponTraitTag: 

@@ -59,6 +59,12 @@ public class Aura : MonoBehaviour, ISubAbility
         if (config == null)
             return;
 
+        if (ownerGameObject == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (isActive && Time.time >= nextEffectTick)
         {
             if (config.hasDamageTick) PlayTickPulseEffect();

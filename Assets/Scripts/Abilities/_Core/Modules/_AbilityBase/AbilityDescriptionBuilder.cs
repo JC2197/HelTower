@@ -53,7 +53,6 @@ public static class AbilityDescriptionBuilder
 
             // Sub-configs without effective copies — gated by ability type flag
             if (config.isBeamAbility && TryGetEffectiveValue(config.beamConfig, fieldName, $"beamConfig.{fieldName}", overrides, out result)) return result;
-            if (config.isConstructAbility && TryGetEffectiveValue(config.constructConfig, fieldName, $"constructConfig.{fieldName}", overrides, out result)) return result;
             if (config.isTrapAbility && TryGetEffectiveValue(config.trapConfig, fieldName, $"trapConfig.{fieldName}", overrides, out result)) return result;
             if (config.isChanneled && TryGetEffectiveValue(config.channelConfig, fieldName, $"channelConfig.{fieldName}", overrides, out result)) return result;
             if (config.isProjectileAbility && TryGetEffectiveValue(config.weaponData, fieldName, $"weaponData.{fieldName}", overrides, out result)) return result;

@@ -8960,7 +8960,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584132371498910725
+  _initializedTimestamp: -8584125262545720137
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -8979,7 +8979,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 7
+  <PrefabId>k__BackingField: 9
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 4625058177620080179
   SceneId: 0
@@ -13045,7 +13045,7 @@ GameObject:
   m_Component:
   - component: {fileID: 273546269720813868}
   m_Layer: 0
-  m_Name: SpawnPoints
+  m_Name: points
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13155,7 +13155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584132371498910725
+      value: -8584125262545720137
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: <IsNested>k__BackingField
@@ -13268,7 +13268,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584132371498910725
+      value: -8584125262545720137
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: <IsNested>k__BackingField

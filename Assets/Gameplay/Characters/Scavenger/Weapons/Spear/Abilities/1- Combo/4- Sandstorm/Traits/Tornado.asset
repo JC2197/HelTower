@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
+  m_Name: Tornado
+  m_EditorClassIdentifier: Assembly-CSharp::TraitData
+  traitID: Tornado
+  displayName: Tornado
+  description: Cyclone now only spawns {v2} area, deals {v3}% damage, gains {v1}%
+    size, and pulls enemies.
+  traitIcon: {fileID: 6992250269280019321, guid: 18baae58c308e6246889e5cc02a0d04d, type: 3}
+  weaponTraitTag: 
+  traitType: 4
+  maxLevel: 1
+  statModifiers: []
+  effectScript: {fileID: 0}
+  requiredAbility: {fileID: 11400000, guid: 6312d1f92d162d24babdb0a59a52f5a7, type: 2}
+  requiredAbilityLevel: 0
+  requiredTraits: []
+  abilityReplacement:
+    requiredAbility: {fileID: 0}
+    newAbilityConfig: {fileID: 0}
+    description: 
+  unlockedAbilities: []
+  weaponAmmoModifier:
+    magazineSizeBonus: 0
+    reloadTimeDelta: 0
+  abilityConfigModifiers:
+  - targetAbility: {fileID: 11400000, guid: 6312d1f92d162d24babdb0a59a52f5a7, type: 2}
+    abilityIcon: {fileID: 6992250269280019321, guid: 18baae58c308e6246889e5cc02a0d04d, type: 3}
+    comboAbilities: []
+    addTriggeredAbilityConfig:
+      abilityConfig: {fileID: 0}
+      triggerChance: 1
+      triggerTiming: 0
+    addTriggeredAbilityLegacy: {fileID: 0}
+    addTriggeredAbilityPath: 
+    overrides:
+    - propertyPath: areaConfig.hitbox.damage
+      overrideMode: 1
+      numericValue: 50
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.areaCount
+      overrideMode: 2
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.scaleX
+      overrideMode: 1
+      numericValue: 100
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.scaleY
+      overrideMode: 1
+      numericValue: 100
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.pull.enabled
+      overrideMode: 0
+      numericValue: 1
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: areaConfig.hitbox.pull.force
+      overrideMode: 0
+      numericValue: 15
+      stringValue: 
+      objectValue: {fileID: 0}
+  mutuallyExclusiveWith: []

@@ -13,9 +13,6 @@ MonoBehaviour:
   m_Name: EffectRegistry
   m_EditorClassIdentifier: Assembly-CSharp::EffectRegistry
   effects:
-  - {fileID: 11400000, guid: d959042579f05cc4d95c18a975fe1e86, type: 2}
-  - {fileID: 11400000, guid: eb9cc8e13c05724499f61b108d6aad58, type: 2}
-  - {fileID: 11400000, guid: c3d8fbbb9762b414590f8429920e05a0, type: 2}
   - {fileID: 11400000, guid: ae8610e9194e4b74898d769101b34200, type: 2}
   - {fileID: 11400000, guid: 791d8c0a7cb4d014e81fed886ec3fb2f, type: 2}
   - {fileID: 11400000, guid: f036fd0549f96d84a8844122d37aa0ac, type: 2}

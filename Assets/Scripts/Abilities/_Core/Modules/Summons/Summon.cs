@@ -48,6 +48,7 @@ public class Summon : Pet
             runtimeAbility.SetAbilityReference(new AbilityReference(abilityConfig));
             runtimeAbility.InitializeAbility();
             runtimeAbility.RebuildConfigModifiers();
+            runtimeAbility.StartAlwaysActiveAura();
             runtimeAbilities.Add(runtimeAbility);
         }
 

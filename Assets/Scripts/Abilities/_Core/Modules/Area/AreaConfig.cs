@@ -40,24 +40,6 @@ public class AreaConfig
 
     [Tooltip("Play the spellPrefab particle systems on each damage tick?")]
     public bool hasDamageTick = false;
-    
-    [Tooltip("Apply damage over time to entities in the area?")]
-    public bool dealsDamageOverTime = false;
-    
-    [Tooltip("Damage per second")]
-    public float damagePerSecond = 5f;
-    
-    [Tooltip("How often DoT damage ticks (e.g., 0.5 = twice per second)")]
-    public float dotInterval = 0.5f;
-    
-    [Tooltip("Duration of damage over time effect in seconds")]
-    public float dotDuration = 3f;
-    
-    [Tooltip("Particle effect to attach to target while DoT is active")]
-    public ParticleSystem dotParticleEffectPrefab;
-
-    [Tooltip("If true, DoT particle spawns at feet (bottom) instead of center")] 
-    public bool startParticlesFromFeet = false;
 
     [Tooltip("Fade in the area visual over time?")]
     public bool hasFadeIn = false;

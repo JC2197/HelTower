@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4847edb348e11b54da26d42562dd7d43, type: 3}
+  m_Name: CycloneGroup
+  m_EditorClassIdentifier: Assembly-CSharp::TraitGroup
+  traits:
+  - {fileID: 11400000, guid: c5c42592d130cbe4b80e46d274e38d40, type: 2}
+  - {fileID: 11400000, guid: 6321e1a7fc4d719438a4d9ec4d220146, type: 2}
+  - {fileID: 11400000, guid: 3884e51612b6fea40bf4aa2e5b324ebf, type: 2}
+  - {fileID: 11400000, guid: fe816c2ae9ce9f84d9a3f86a05dc7400, type: 2}
+  - {fileID: 11400000, guid: def7612f4350aa94298281829ac63d01, type: 2}
+  - {fileID: 11400000, guid: e05b3811ce336bb40a73a812aeadfb7c, type: 2}
+  - {fileID: 11400000, guid: 3ee012978f1060e4daa567992620b583, type: 2}

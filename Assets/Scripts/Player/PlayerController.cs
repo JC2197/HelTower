@@ -160,6 +160,21 @@ public class PlayerController : Organism
         ObserversRpcRestoreAfterRevive();
     }
 
+    public void SyncSpawnPosition(Vector3 position)
+    {
+        if (!IsServerStarted)
+            return;
+
+        transform.position = position;
+        SyncSpawnPositionObserversRpc(position);
+    }
+
+    [ObserversRpc(RunLocally = false)]
+    private void SyncSpawnPositionObserversRpc(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     [ObserversRpc(RunLocally = true)]
     private void ObserversRpcRestoreAfterRevive()
     {
@@ -474,6 +489,18 @@ public class PlayerController : Organism
         BootstrapManager.Instance.LoadCamp();
     }
 
+    [ServerRpc]
+    public void ServerRpcRestartGame()
+    {
+        BootstrapManager.Instance?.ReloadGameScene();
+    }
+
+    [ObserversRpc(ExcludeServer = true)]
+    public void ShowLoadingScreenForTransition()
+    {
+        SceneTransitionCoordinator.Instance?.ShowForRemoteTransition();
+    }
+
     /// <summary>
     /// ServerRpc proxy for DataDrivenAbility projectile spawning. DataDrivenAbility is added via
     /// AddComponent at runtime, so its own [ServerRpc] is a no-op; routing through the registered
@@ -506,7 +533,20 @@ public class PlayerController : Organism
         DataDrivenAbility ability = manager != null ? manager.FindDataDrivenAbility(abilitySlot, abilityName) : null;
         if (ability == null)
         {
-            Debug.LogWarning($"[NET] ServerRpcExecuteMeleeAbility: no ability at slot {abilitySlot} / '{abilityName}' on {gameObject.name}");
+            AbilityDataConfig config = manager?.FindAbilityConfigByName(abilityName);
+            if (config == null)
+            {
+                Debug.LogWarning($"[NET] ServerRpcExecuteMeleeAbility: no ability at slot {abilitySlot} / '{abilityName}' on {gameObject.name}");
+                return;
+            }
+
+            Debug.Log($"[NET] ServerRpcExecuteMeleeAbility: creating server fallback for '{abilityName}' from loadout config.");
+            DataDrivenAbility fallback = gameObject.AddComponent<DataDrivenAbility>();
+            fallback.SetAbilityReference(new AbilityReference(config));
+            fallback.InitializeAbility();
+            fallback.RebuildConfigModifiers();
+            fallback.ExecuteServerMelee(direction, firedFromOffhand);
+            Destroy(fallback, 2f);
             return;
         }
 
@@ -634,6 +674,15 @@ public class PlayerController : Organism
         if (_rigidbody == null)
             _rigidbody = GetComponent<Rigidbody2D>();
 
+        if (_rigidbody != null)
+        {
+            Debug.Log($"[PlayerController] Rigidbody setup on '{name}': object={_rigidbody.gameObject.name}, mass={_rigidbody.mass}, bodyType={_rigidbody.bodyType}, simulated={_rigidbody.simulated}.");
+        }
+        else
+        {
+            Debug.LogError($"[PlayerController] No root Rigidbody2D found on '{name}'. Knockback will not use the authored player physics body.");
+        }
+
         if (_visualTransform == null)
             _visualTransform = transform;
 
@@ -705,6 +754,7 @@ public class PlayerController : Organism
         if (selected != null)
         {
             ApplyCharacterData(selected);
+            Debug.Log($"[PlayerController] Assigned selected character '{selected.characterName}' on {gameObject.name}: health={CurrentHealth}/{MaxHealth}.");
             return;
         }
 
@@ -723,6 +773,7 @@ public class PlayerController : Organism
 
         CharacterSelectionManager.Instance?.SelectCharacter(runtimeCharacter);
         ApplyCharacterData(runtimeCharacter);
+        Debug.Log($"[PlayerController] Assigned generated character '{runtimeCharacter.characterName}' on {gameObject.name}: health={CurrentHealth}/{MaxHealth}.");
     }
 
     private WeaponConfig GetRandomWeaponForClass(ClassData classData)
@@ -1236,6 +1287,15 @@ public class PlayerController : Organism
         if (weapon == null)
             return;
 
+        Transform expectedParent = weaponHolder.EnsureWeaponHolderChildExists();
+        if (weapon.transform.parent != expectedParent)
+        {
+            Debug.LogWarning($"[PlayerController] Repairing remote weapon parent for '{name}': '{weapon.transform.parent?.name}' -> '{expectedParent.name}'.");
+            weapon.transform.SetParent(expectedParent, true);
+            weapon.transform.localPosition = Vector3.zero;
+            weapon.transform.localRotation = Quaternion.identity;
+        }
+
         ApplyFacingVisual(IsFacingLeftFromAngle(weapon.transform.localEulerAngles.z));
     }
 
@@ -1541,7 +1601,6 @@ public class PlayerController : Organism
         if (_bodyAnimator != null)
             _bodyAnimator.Play("Death");
         DisableInputActions();
-        EndScreenUI.Instance.ShowEndScreen(10);
     }
 
     private void InitializeInputActions()

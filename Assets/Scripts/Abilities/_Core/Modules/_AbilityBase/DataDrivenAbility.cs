@@ -51,7 +51,6 @@ public class DataDrivenAbility : Ability
     private MeleeConfig _effectiveMeleeConfig;
     private ExplosionConfig _effectiveExplosionConfig;
     private SummonConfig _effectiveSummonConfig;
-    private ConstructConfig _effectiveConstructConfig;
     private HoldChargeConfig _effectiveHoldChargeConfig;
     private CustomAbility _effectiveCustomAbility;
     private CustomAbility _runtimeCustomAbility;
@@ -71,7 +70,6 @@ public class DataDrivenAbility : Ability
     public MeleeConfig EffectiveMeleeConfig => _effectiveMeleeConfig ?? config?.meleeConfig;
     public ExplosionConfig EffectiveExplosionConfig => _effectiveExplosionConfig ?? config?.explosionConfig;
     public SummonConfig EffectiveSummonConfig => _effectiveSummonConfig ?? config?.summonConfig;
-    public ConstructConfig EffectiveConstructConfig => _effectiveConstructConfig ?? config?.constructConfig;
     public MovementConfig EffectiveMovementConfig => EffectiveAbilityConfig?.movementConfig;
     public CustomAbility EffectiveCustomAbility => _effectiveCustomAbility ?? EffectiveAbilityConfig?.customAbility;
     public AbilityDataConfig EffectiveAbilityConfig => _effectiveAbilityConfig ?? config;
@@ -119,18 +117,10 @@ public class DataDrivenAbility : Ability
     private GameObject activeIndicatorInstance;
     // Player control state
     private bool playerControl = true; // When false, ability has full control of character movement
-    // Construct tracking
-    private List<GameObject> activeConstructs = new List<GameObject>();
     // Summon tracking
     private List<GameObject> activeSummons = new List<GameObject>();
     private SummonAbility _summonAbility; // persistent group manager, created once per ability
-    // Construct placement preview state
-    private bool isPlacingConstruct = false;
-    private Coroutine placementCoroutine = null;
-    private GameObject constructPlacementGhost = null;
-    [Header("Placement Debug")]
-    [Tooltip("Log placement lifecycle events (ghost spawn, cursor tracking, confirm). Disable in production.")]
-    [SerializeField] private bool logPlacement = false;
+    private bool summonAuraSpawned;
     // Trap tracking
     private List<GameObject> activeTraps = new List<GameObject>();
     // Weapon animation idle return tracking
@@ -583,6 +573,26 @@ public class DataDrivenAbility : Ability
     {
         // Initialize if not already done (fallback for player abilities)
         InitializeAbility();
+
+        StartAlwaysActiveAura();
+    }
+
+    private bool IsAlwaysActiveSummonAura()
+    {
+        return GetComponent<Summon>() != null
+            && config != null
+            && config.isAreaAbility
+            && config.areaConfig != null
+            && config.areaConfig.isAura;
+    }
+
+    public void StartAlwaysActiveAura()
+    {
+        if (!IsAlwaysActiveSummonAura() || summonAuraSpawned)
+            return;
+
+        summonAuraSpawned = true;
+        SpawnAreaAbility();
     }
 
     private void InitializePassiveAbility()
@@ -1632,7 +1642,6 @@ public class DataDrivenAbility : Ability
     private MeleeConfig GetEffectiveMeleeConfig() => _effectiveMeleeConfig ?? config?.meleeConfig;
     private ExplosionConfig GetEffectiveExplosionConfig() => _effectiveExplosionConfig ?? config?.explosionConfig;
     private SummonConfig GetEffectiveSummonConfig() => _effectiveSummonConfig ?? config?.summonConfig;
-    private ConstructConfig GetEffectiveConstructConfig() => _effectiveConstructConfig ?? config?.constructConfig;
     private HoldChargeConfig GetEffectiveHoldChargeConfig() => _effectiveHoldChargeConfig ?? config?.holdChargeConfig;
 
     private SubAbilityContext CreateSubAbilityContext() => new SubAbilityContext
@@ -1869,6 +1878,9 @@ public class DataDrivenAbility : Ability
     public override bool TryUseAbility()
     {
         string abilityName = config != null ? config.abilityName : "<null config>";
+        if (IsAlwaysActiveSummonAura())
+            return false;
+
         if (!CanUseAbility(out string blockedReason) || config == null)
         {
             Debug.Log($"Cannot use ability {abilityName}: {blockedReason}");
@@ -1879,12 +1891,6 @@ public class DataDrivenAbility : Ability
             CancelConflictingAbilities();
 
         _movementCastStartingPosition = transform.position;
-
-        if (isPlacingConstruct)
-        {
-            PlacementLog($"TryUseAbility early-exit: isPlacingConstruct=true, ability={abilityName}");
-            return false;
-        }
 
         if (EffectiveAbilityConfig.isCombo)
         {
@@ -2022,27 +2028,22 @@ public class DataDrivenAbility : Ability
             abilityExecuted = ExecuteAreaAbility() || abilityExecuted;
         }
 
-        // 6. Construct/Summon Ability
-        if (effectiveConfig.isConstructAbility)
-        {
-            abilityExecuted = ExecuteConstructAbility() || abilityExecuted;
-        }
-        // 7. Trap Ability
+        // 6. Trap Ability
         if (effectiveConfig.isTrapAbility)
         {
             abilityExecuted = ExecuteTrapAbility() || abilityExecuted;
         }
-        // 9. Explosion Ability
+        // 8. Explosion Ability
         if (effectiveConfig.isExplosionAbility)
         {
             abilityExecuted = ExecuteExplosionAbility() || abilityExecuted;
         }
-        // 10. Melee Ability
+        // 9. Melee Ability
         if (effectiveConfig.isMeleeAbility)
         {
             abilityExecuted = ExecuteMeleeAbility() || abilityExecuted;
         }
-        // 11. Summon Ability
+        // 10. Summon Ability
         if (effectiveConfig.isSummonAbility)
         {
             abilityExecuted = ExecuteSummonAbility() || abilityExecuted;
@@ -2415,10 +2416,9 @@ public class DataDrivenAbility : Ability
         _effectiveMeleeConfig = savedMelee;
         _effectiveAreaConfig = savedArea;
 
-        // Beams, channels, hold-to-place constructs and delayed movement casts bill themselves
+        // Beams, channels and delayed movement casts bill themselves
         // when their own deferred step resolves.
-        bool deferredCost = config.isConstructAbility && (config.constructConfig?.holdToPlace ?? false);
-        bool defersOwnResources = config.isBeamAbility || config.isChanneled || deferredCost
+        bool defersOwnResources = config.isBeamAbility || config.isChanneled
                                   || GetMovementPrecastDelay(config) > 0f;
 
         if (consumeResourcesAtEnd && abilityExecuted && !defersOwnResources)
@@ -3374,7 +3374,6 @@ public class DataDrivenAbility : Ability
         _effectiveMeleeConfig = null;
         _effectiveExplosionConfig = null;
         _effectiveSummonConfig = null;
-        _effectiveConstructConfig = null;
         _effectiveHoldChargeConfig = null;
         _effectiveCustomAbility = null;
         ReleaseRuntimeCustomAbility();
@@ -3472,13 +3471,6 @@ public class DataDrivenAbility : Ability
                 config.summonConfig, "summonConfig", _accumulatedOverrides);
             RefreshActiveSummonConfigs(_effectiveSummonConfig ?? config.summonConfig);
         }
-        if (config.isConstructAbility && config.constructConfig != null)
-            _effectiveConstructConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
-                config.constructConfig, "constructConfig", _accumulatedOverrides);
-
-        // if (config.isConstructAbility)
-        //     RefreshActiveConstructConfigs(_effectiveConstructConfig ?? config.constructConfig);
-
         if (config.holdChargeConfig != null)
             _effectiveHoldChargeConfig = AbilityModifierRuntime.BuildEffectiveSubConfig(
                 config.holdChargeConfig, "holdChargeConfig", _accumulatedOverrides);
@@ -3510,7 +3502,7 @@ public class DataDrivenAbility : Ability
 
 
     /// <summary>
-    /// Pushes the latest construct config to already spawned constructs so trait modifier
+    /// Pushes the latest summon config to already spawned summons so trait modifier
     /// changes (damage, salvo size, attack speed, etc.) apply without re-summoning.
     /// </summary>
     private void RefreshActiveSummonConfigs(SummonConfig refreshedConfig)
@@ -3532,6 +3524,11 @@ public class DataDrivenAbility : Ability
 
             summon.ApplyRuntimeConfig(refreshedConfig);
         }
+    }
+
+    private void CleanupDestroyedSummons()
+    {
+        activeSummons.RemoveAll(summon => summon == null);
     }
 
     private void StartReload()
@@ -3638,7 +3635,7 @@ public class DataDrivenAbility : Ability
     {
         if (_autocastTarget.HasValue)
         {
-            return _autocastTarget.Value;
+            return ClampTargetWorldPosition(_autocastTarget.Value);
         }
         if (config != null && config.castAtFeet)
         {
@@ -3647,9 +3644,9 @@ public class DataDrivenAbility : Ability
         if (ownerAsPlayer != null)
         {
             if (CursorManager.Instance != null && CursorManager.Instance.TargetedOrganism != null)
-                return CursorManager.Instance.TargetedOrganism.transform.position;
+                return ClampTargetWorldPosition(CursorManager.Instance.TargetedOrganism.transform.position);
 
-            return InputUtility.GetMouseWorldPosition();
+            return ClampTargetWorldPosition(InputUtility.GetMouseWorldPosition());
         }
 
         // DATA-DRIVEN HIT LAYER POSITION LOOKUP
@@ -3674,13 +3671,27 @@ public class DataDrivenAbility : Ability
 
         if (closestMatch != null)
         {
-            return closestMatch.transform.position;
+            return ClampTargetWorldPosition(closestMatch.transform.position);
         }
 
         Transform fakeMouse = transform.Find("FakeMouse");
-        if (fakeMouse != null) return fakeMouse.position;
+        if (fakeMouse != null) return ClampTargetWorldPosition(fakeMouse.position);
 
-        return transform.position + transform.right;
+        return ClampTargetWorldPosition(transform.position + transform.right);
+    }
+
+    private Vector3 ClampTargetWorldPosition(Vector3 targetPosition)
+    {
+        float maxRange = EffectiveAbilityConfig?.maxRange ?? 0f;
+        if (maxRange <= 0f)
+            return targetPosition;
+
+        Vector3 casterPosition = transform.position;
+        Vector3 offset = targetPosition - casterPosition;
+        if (offset.sqrMagnitude <= maxRange * maxRange)
+            return targetPosition;
+
+        return casterPosition + offset.normalized * maxRange;
     }
 
     /// <summary>
@@ -3938,7 +3949,8 @@ public class DataDrivenAbility : Ability
             areaAbilityGO.transform.localScale *= sizeMultiplier;
         }
 
-        areaAbilityComponent.Activate();
+        if (!effectiveAreaConfig.isAura)
+            areaAbilityComponent.Activate();
     }
 
     // Area indicator methods moved to AreaAbility class
@@ -3974,440 +3986,6 @@ public class DataDrivenAbility : Ability
 
     #endregion
 
-    #region Construct/Summon Logic
-
-    private bool ExecuteConstructAbility()
-    {
-        if (config.constructConfig == null)
-        {
-            Debug.LogWarning($"{AbilityPipelineTag} ExecuteConstructAbility aborted: ability={config?.abilityName}, constructConfig=NULL");
-            return false;
-        }
-
-        ConstructConfig constructConfig = GetEffectiveConstructConfig();
-
-        PlacementLog($"ExecuteConstructAbility: holdToPlace={constructConfig.holdToPlace}, isPlacingConstruct={isPlacingConstruct}, prefab={(constructConfig.constructPrefab != null ? constructConfig.constructPrefab.name : "NULL")}");
-
-        // ── Hold-to-place mode ───────────────────────────────────────────────
-        // While the ghost is already visible, suppress hold-fire retriggers.
-        if (constructConfig.holdToPlace && isPlacingConstruct)
-        {
-            PlacementLog("Suppressed re-trigger — coroutine already running");
-            return false;
-        }
-
-        OnAbilityActivated();
-
-        Debug.Log($"{AbilityPipelineTag} ExecuteConstructAbility start: ability={config.abilityName}, prefab={(constructConfig.constructPrefab != null ? constructConfig.constructPrefab.name : "NULL")}, maxConstructs={constructConfig.maxConstructs}, abilities={constructConfig.constructAbilities?.Count ?? 0}");
-
-        if (constructConfig.constructPrefab == null)
-        {
-            Debug.LogError($"[DataDrivenAbility] No construct prefab assigned!");
-            return false;
-        }
-
-        if (constructConfig.holdToPlace)
-        {
-            PlacementLog("holdToPlace branch reached — setting isPlacingConstruct=true and starting coroutine");
-            isPlacingConstruct = true;
-            placementCoroutine = StartCoroutine(ConstructPlacementRoutine(constructConfig));
-            return true;
-        }
-        PlacementLog("holdToPlace=false — falling through to immediate spawn");
-
-        // Clean up destroyed constructs
-        //CleanupDestroyedConstructs();
-
-        Debug.Log($"[DataDrivenAbility] ExecuteConstructAbility - Current activeConstructs count: {activeConstructs.Count}, Max: {constructConfig.maxConstructs}");
-        Debug.Log($"[DataDrivenAbility] activeConstructs list instance ID: {activeConstructs.GetHashCode()}");
-
-        // Calculate spawn position
-        Vector3 spawnPosition = CalculateConstructSpawnPosition(constructConfig);
-
-        // Create a ConstructAbility manager to handle this construct
-        GameObject constructManager = new GameObject($"{constructConfig.constructPrefab.name}_Manager");
-        constructManager.transform.SetParent(transform); // Parent to caster for cleanup
-        ConstructAbility constructAbility = constructManager.AddComponent<ConstructAbility>();
-
-        Debug.Log($"[DataDrivenAbility] Passing activeConstructs list (count: {activeConstructs.Count}) to ConstructAbility.SpawnConstruct");
-
-        // Spawn the construct (handles limits, animations, lifetime internally)
-        // Pass the shared activeConstructs list for proper limit enforcement
-        constructAbility.SetContext(CreateSubAbilityContext());
-        constructAbility.SpawnConstruct(constructConfig, spawnPosition, activeConstructs);
-
-        if (constructAbility.ConstructInstance != null)
-        {
-            // Note: construct is already added to activeConstructs in SpawnConstruct method
-            Debug.Log($"[DataDrivenAbility] Construct spawned successfully. Current count: {activeConstructs.Count}");
-
-            // Setup abilities on the construct
-            SetupConstructAbilities(constructAbility.ConstructInstance, constructConfig);
-
-            Debug.Log($"{AbilityPipelineTag} ExecuteConstructAbility success: ability={config.abilityName}, construct={constructAbility.ConstructInstance.name}, spawnPosition={spawnPosition}");
-            Debug.Log($"[DataDrivenAbility] Spawned construct via ConstructAbility at {spawnPosition}");
-            return true;
-        }
-
-        Debug.LogWarning($"{AbilityPipelineTag} ExecuteConstructAbility failed: ability={config.abilityName}, construct instance not created");
-        Debug.Log($"[DataDrivenAbility] ConstructInstance was null, spawn failed");
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns a semi-transparent ghost of the construct prefab that follows the cursor.
-    /// On button release the ghost is destroyed and the real construct is spawned at the same position.
-    /// </summary>
-    private IEnumerator ConstructPlacementRoutine(ConstructConfig constructConfig)
-    {
-        // Stop the hold-fire loop — this coroutine owns button tracking from here.
-        isHoldingFire = false;
-        PlacementLog($"ConstructPlacementRoutine START: ability={config?.abilityName}");
-
-        float alpha = constructConfig.ghostAlpha > 0f ? constructConfig.ghostAlpha : 0.45f;
-
-        // ── Local helpers ────────────────────────────────────────────────────
-        // Spawns (or re-spawns) the ghost from a given prefab at a given position.
-        // Strips NetworkObject, disables gameplay components, sets alpha.
-        System.Func<GameObject, Vector3, GameObject> SpawnGhost = (prefab, pos) =>
-        {
-            var ghost = Instantiate(prefab, pos, Quaternion.identity);
-            ghost.name = $"{prefab.name}_PlacementGhost";
-
-            var no = ghost.GetComponent<NetworkObject>();
-            if (no != null) Destroy(no);
-
-            foreach (var mb in ghost.GetComponentsInChildren<MonoBehaviour>(true))
-                if (mb is Construct) mb.enabled = false;
-            foreach (var col in ghost.GetComponentsInChildren<Collider2D>(true))
-                col.enabled = false;
-            foreach (var rb in ghost.GetComponentsInChildren<Rigidbody2D>(true))
-                rb.simulated = false;
-
-            // alphaMultiplier before Start() so beam sequences use it from frame 1.
-            foreach (var br in ghost.GetComponentsInChildren<BeamRenderer>(true))
-                br.alphaMultiplier = alpha;
-
-            return ghost;
-        };
-
-        // ── Initial ghost ────────────────────────────────────────────────────
-        Vector3 startPos = CalculateConstructSpawnPosition(constructConfig);
-        int currentDirIndex = constructConfig.use8WayPlacement
-            ? ConstructConfig.DirectionIndex(startPos - transform.position)
-            : -1;
-        GameObject currentPrefab = constructConfig.GetDirectionalPrefab(currentDirIndex);
-
-        constructPlacementGhost = SpawnGhost(currentPrefab, startPos);
-        PlacementLog($"Ghost spawned at {startPos}, dir={currentDirIndex}, prefab={currentPrefab.name}");
-
-        // Wait one frame so LightningBoltRenderer.Start() has created its child SpriteRenderers.
-        yield return null;
-
-        foreach (var sr in constructPlacementGhost.GetComponentsInChildren<SpriteRenderer>(true))
-            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
-
-        // ── Track cursor until button released ───────────────────────────────
-        PlacementLog($"Entering tracking loop. Button held={IsAbilityButtonHeld()}, slot={abilitySlotIndex}");
-        while (IsAbilityButtonHeld())
-        {
-            Vector3 pos = CalculateConstructSpawnPosition(constructConfig);
-            pos.z = 0f;
-
-            if (constructConfig.use8WayPlacement)
-            {
-                int newDir = ConstructConfig.DirectionIndex(pos - transform.position);
-                if (newDir != currentDirIndex)
-                {
-                    // Direction changed — swap ghost for the new directional prefab.
-                    GameObject newPrefab = constructConfig.GetDirectionalPrefab(newDir);
-                    Destroy(constructPlacementGhost);
-                    constructPlacementGhost = SpawnGhost(newPrefab, pos);
-
-                    // Tint next frame after Start() runs on the new ghost.
-                    yield return null;
-                    foreach (var sr in constructPlacementGhost.GetComponentsInChildren<SpriteRenderer>(true))
-                        sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
-
-                    currentDirIndex = newDir;
-                    currentPrefab = newPrefab;
-                    PlacementLog($"Direction changed to {newDir}, prefab={newPrefab.name}");
-                }
-            }
-
-            constructPlacementGhost.transform.position = pos;
-            yield return null;
-        }
-        PlacementLog("Button released — confirming placement");
-
-        // ── Swap ghost for real construct at the same position ───────────────
-        Vector3 confirmedPosition = constructPlacementGhost.transform.position;
-        Destroy(constructPlacementGhost);
-        constructPlacementGhost = null;
-
-        //CleanupDestroyedConstructs();
-
-        // Override constructPrefab on a temporary copy so SpawnConstruct uses the directional one.
-        ConstructConfig spawnConfig = constructConfig;
-        if (constructConfig.use8WayPlacement && currentDirIndex >= 0)
-        {
-            spawnConfig = new ConstructConfig();
-            System.Array.Copy(
-                new[] { constructConfig }, new[] { spawnConfig }, 0); // shallow field copy via reflection
-            foreach (var field in typeof(ConstructConfig).GetFields(
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
-                field.SetValue(spawnConfig, field.GetValue(constructConfig));
-            spawnConfig.constructPrefab = currentPrefab;
-        }
-
-        GameObject constructManager = new GameObject($"{currentPrefab.name}_Manager");
-        constructManager.transform.SetParent(transform);
-        ConstructAbility constructAbility = constructManager.AddComponent<ConstructAbility>();
-        constructAbility.SetContext(CreateSubAbilityContext());
-        constructAbility.SpawnConstruct(spawnConfig, confirmedPosition, activeConstructs);
-
-        if (constructAbility.ConstructInstance != null)
-        {
-            SetupConstructAbilities(constructAbility.ConstructInstance, spawnConfig);
-            PlacementLog($"Confirmed at {confirmedPosition}, dir={currentDirIndex}, prefab={currentPrefab.name}");
-        }
-
-        StartCooldown();
-        ConsumeMana();
-
-        isPlacingConstruct = false;
-        placementCoroutine = null;
-        PlacementLog("ConstructPlacementRoutine END");
-    }
-
-    private void PlacementLog(string message) { if (logPlacement) Debug.Log($"[Placement] {message}"); }
-
-    private GameObject GetConstructPrefab(ConstructConfig constructConfig)
-    {
-        // Prefer direct prefab reference
-        if (constructConfig.constructPrefab != null)
-        {
-            return constructConfig.constructPrefab;
-        }
-        return null;
-    }
-
-    private void CleanupDestroyedSummons()
-    {
-        activeConstructs.RemoveAll(c => c == null);
-    }
-
-    private bool HandleConstructLimit(ConstructConfig constructConfig)
-    {
-        switch (constructConfig.limitBehavior)
-        {
-            case ConstructLimitBehavior.DestroyOldest:
-                if (activeConstructs.Count > 0)
-                {
-                    GameObject oldest = activeConstructs[0];
-                    activeConstructs.RemoveAt(0);
-                    if (oldest != null)
-                    {
-                        Destroy(oldest);
-                    }
-                }
-                return true;
-
-            case ConstructLimitBehavior.PreventSpawn:
-                return false;
-
-            case ConstructLimitBehavior.ReplaceClosest:
-                Vector3 spawnPos = CalculateConstructSpawnPosition(constructConfig);
-                GameObject closest = FindClosestConstruct(spawnPos);
-                if (closest != null)
-                {
-                    activeConstructs.Remove(closest);
-                    Destroy(closest);
-                }
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    private GameObject FindClosestConstruct(Vector3 position)
-    {
-        GameObject closest = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (GameObject construct in activeConstructs)
-        {
-            if (construct == null) continue;
-
-            float distance = Vector3.Distance(position, construct.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closest = construct;
-            }
-        }
-
-        return closest;
-    }
-
-    private Vector3 CalculateConstructSpawnPosition(ConstructConfig constructConfig)
-    {
-        if (constructConfig.spawnAtCaster)
-        {
-            if (constructConfig.spawnAtCasterRadius > 0f)
-            {
-                Vector2 randomOffset = Random.insideUnitCircle * constructConfig.spawnAtCasterRadius;
-                return transform.position + new Vector3(randomOffset.x, randomOffset.y, 0f);
-            }
-            return transform.position;
-        }
-
-        if (constructConfig.spawnAtMouse)
-        {
-            Vector3 mousePos = GetTargetWorldPosition();
-            mousePos.z = 0f;
-
-            Vector2 directionToMouse = (mousePos - transform.position);
-            float distanceToMouse = directionToMouse.magnitude;
-
-            float actualDistance = Mathf.Min(distanceToMouse, constructConfig.maxRange);
-            Vector2 direction = directionToMouse.normalized;
-
-            return transform.position + (Vector3)(direction * actualDistance);
-        }
-
-        // Default: spawn at caster position
-        return transform.position;
-    }
-
-    /// <summary>
-    /// Setup abilities on a spawned construct
-    /// </summary>
-    private void SetupConstructAbilities(GameObject construct, ConstructConfig constructConfig)
-    {
-        Debug.Log($"[SetupConstructAbilities] Setting up abilities for {construct.name}");
-
-        // Setup configured abilities
-        if (constructConfig.constructAbilities != null)
-        {
-            foreach (AbilityDataConfig abilityConfig in constructConfig.constructAbilities)
-            {
-                if (abilityConfig == null) continue;
-
-                SetupConstructAbility(construct, abilityConfig);
-            }
-        }
-
-        Debug.Log($"[SetupConstructAbilities] Abilities setup complete");
-    }
-
-    /// <summary>
-    /// Setup an area ability on the construct
-    /// </summary>
-    private void SetupConstructAreaAbility(GameObject construct, AreaConfig areaConfig)
-    {
-        Debug.Log($"[SetupConstructAreaAbility] Setting up AreaAbility on {construct.name}");
-
-        // Create a dedicated child object for the area damage zone so that
-        // AreaAbility never touches the root construct's own Collider2D or scale.
-        // (AreaAbility.Awake() grabs GetComponent<Collider2D>() and CreateCollider()
-        // then destroys it — placing it on the root would wipe the construct's hitbox.)
-        GameObject areaNode = new GameObject("AreaDamageZone");
-        areaNode.transform.SetParent(construct.transform);
-        areaNode.transform.localPosition = Vector3.zero;
-        areaNode.transform.localRotation = Quaternion.identity;
-        areaNode.transform.localScale = Vector3.one;
-
-        GameObject areaEffectObject = null;
-
-        // If a spell prefab is configured, spawn it as a child for visuals
-        if (areaConfig.hitbox.prefab != null)
-        {
-            Debug.Log($"[SetupConstructAreaAbility] Spawning area spell prefab as child: {areaConfig.hitbox.prefab.name}");
-            areaEffectObject = Instantiate(areaConfig.hitbox.prefab, areaNode.transform);
-            areaEffectObject.transform.localPosition = Vector3.zero;
-            areaEffectObject.transform.localRotation = Quaternion.identity;
-            areaEffectObject.name = "AreaEffect";
-        }
-
-        // Add AreaAbility to the dedicated child node, not the construct root
-        AreaAbility areaAbility = areaNode.AddComponent<AreaAbility>();
-        Debug.Log($"[SetupConstructAreaAbility] Added AreaAbility component to AreaDamageZone child");
-
-        // Link caster so aura-follow works correctly
-        areaAbility.SetCaster(construct.transform);
-
-        // Initialize and activate
-        areaAbility.SetContext(CreateSubAbilityContext());
-        areaAbility.InitializeFromConfig(areaConfig);
-        // Configure particle systems to match area shape
-        areaAbility.ConfigureParticles(areaConfig);
-
-        // Start particles in child if present
-        if (areaEffectObject != null)
-        {
-            ParticleSystem[] particleSystems = areaEffectObject.GetComponentsInChildren<ParticleSystem>();
-            foreach (var ps in particleSystems)
-            {
-                ps.Play();
-            }
-        }
-
-        areaAbility.Activate();
-
-        // Setup light if configured
-        if (areaConfig.hasLight)
-        {
-            Debug.Log($"[SetupConstructAreaAbility] Adding Light2D");
-
-            // Create a separate child GameObject for the light to avoid affecting sprite renderer
-            GameObject lightObject = new GameObject("ConstructLight");
-            lightObject.transform.SetParent(construct.transform);
-            lightObject.transform.localPosition = Vector3.zero;
-            lightObject.transform.localRotation = Quaternion.identity;
-
-            Light2D light = lightObject.AddComponent<Light2D>();
-            light.color = areaConfig.lightColor;
-            light.intensity = areaConfig.lightIntensity;
-            light.pointLightOuterRadius = areaConfig.lightRadius;
-
-            // Area shape now comes from prefab collider + scale, so keep light unwarped.
-            lightObject.transform.localScale = Vector3.one;
-
-            Debug.Log($"[SetupConstructAreaAbility] Light2D added with scale {lightObject.transform.localScale}");
-        }
-
-        Debug.Log($"[SetupConstructAreaAbility] AreaAbility setup complete");
-    }
-
-    /// <summary>
-    /// Setup any ability type on the construct (Area, Projectile, etc.)
-    /// </summary>
-    private void SetupConstructAbility(GameObject construct, AbilityDataConfig abilityConfig)
-    {
-        Debug.Log($"[SetupConstructAbility] Setting up {abilityConfig.abilityName} ability on {construct.name}");
-
-        if (abilityConfig.isProjectileAbility)
-        {
-            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a projectile ability");
-        }
-        if (abilityConfig.isAreaAbility)
-        {
-            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is an area ability");
-        }
-        if (abilityConfig.isBeamAbility)
-        {
-            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a beam ability");
-        }
-        if (abilityConfig.isMeleeAbility)
-        {
-            Debug.Log($"[SetupConstructAbility] {abilityConfig.abilityName} is a melee ability");
-        }
-    }
-
-    #endregion
-
     #region Summon Ability Logic
 
     private bool ExecuteSummonAbility()
@@ -4430,8 +4008,11 @@ public class DataDrivenAbility : Ability
         // Clean up destroyed summons
         activeSummons.RemoveAll(s => s == null);
 
-        // Calculate spawn position near the caster
-        Vector3 spawnPosition = transform.position + (Vector3)summonCfg.spawnOffset;
+        // Summons cast at the caster's feet only when explicitly configured.
+        Vector3 spawnOrigin = config.castAtFeet
+            ? transform.position
+            : GetTargetWorldPosition();
+        Vector3 spawnPosition = spawnOrigin + summonCfg.spawnOffset;
 
         // Create the persistent group manager on first use; reuse it on subsequent casts.
         if (_summonAbility == null)
@@ -4706,7 +4287,9 @@ public class DataDrivenAbility : Ability
 
         Debug.Log($"[DmgPipeline] <{config.abilityName}> Explosion | sizeMult={sizeMultiplier:F2}x");
         GameObject explosionGO = new GameObject("ExplosionAbility");
-        explosionGO.transform.position = GetTargetWorldPosition();
+        Vector3 explosionPosition = GetTargetWorldPosition();
+        explosionGO.transform.position = explosionPosition;
+        PlayCastSound(explosionPosition);
 
         ExplosionAbility explosionAbility = explosionGO.AddComponent<ExplosionAbility>();
         explosionAbility.SetContext(CreateSubAbilityContext());
@@ -5207,16 +4790,6 @@ public class DataDrivenAbility : Ability
         {
             Destroy(movementAbility);
         }
-
-        // Clean up all active constructs when ability is destroyed
-        foreach (GameObject construct in activeConstructs)
-        {
-            if (construct != null)
-            {
-                Destroy(construct);
-            }
-        }
-        activeConstructs.Clear();
 
         // Clean up all active summons when ability is destroyed
         foreach (GameObject summon in activeSummons)

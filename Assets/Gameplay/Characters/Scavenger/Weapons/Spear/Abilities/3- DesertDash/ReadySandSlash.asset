@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e3bf3e9387fc854fb349b85eb5cf85f, type: 3}
+  m_Name: ReadySandSlash
+  m_EditorClassIdentifier: Assembly-CSharp::BuffEffect
+  effectName: 'SandSlash: Ready'
+  effectID: SandSlash
+  isBuff: 1
+  canTargetAllies: 0
+  canTargetEnemies: 0
+  canTargetSelf: 1
+  duration: 5
+  stackingBehavior: 1
+  maxStacks: 1
+  refreshDurationOnStack: 1
+  maxDuration: 5
+  particleEffect: {fileID: 0}
+  particleOffset: {x: 0, y: 0, z: 0}
+  entityTint: {r: 1, g: 1, b: 1, a: 1}
+  icon: {fileID: 2098060721, guid: 522beccb2f9aef447ac9cead5d647c60, type: 3}
+  applySound: {fileID: 0}
+  expireSound: {fileID: 0}
+  canBeCleansed: 1
+  cleansePriority: 0
+  statModifiers: []
+  nextAttack: 0
+  abilityToCast: {fileID: 0}
+  replaceAttack: 1
+  replacementAbilityToCast: {fileID: 11400000, guid: 2736e7a4f10588d4387771740932a4cc, type: 2}
+  triggeredAbilityLifetime: 0.15

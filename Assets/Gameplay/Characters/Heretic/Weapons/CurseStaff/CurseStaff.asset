@@ -58,7 +58,7 @@ MonoBehaviour:
   grantedPrimaryAbility: {fileID: 11400000, guid: 3030547a9d678984e8097f97b5627d53, type: 2}
   grantedSecondaryAbility: {fileID: 11400000, guid: 843ece6da9bb8954895f202d7be8d60a, type: 2}
   grantedDashAbility: {fileID: 0}
-  grantedPassiveAbility: {fileID: 0}
+  grantedPassiveAbility: {fileID: 11400000, guid: 8b8755b37b6eba446a91a26e813a6601, type: 2}
   projectilePrefabOverride: {fileID: 0}
   usesAmmo: 0
   ammoConfig:
