@@ -627,6 +627,8 @@ MonoBehaviour:
   mainMenuSceneName: MainMenu
   campSceneName: Camp
   verboseLogging: 1
+  delayCampLoadForClientSaveSelection: 1
+  clientSaveSelectionDelaySeconds: 15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

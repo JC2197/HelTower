@@ -5301,7 +5301,7 @@ GameObject:
   - component: {fileID: 3442679929321104817}
   - component: {fileID: 4999308996956882955}
   - component: {fileID: 5428746167378682971}
-  - component: {fileID: -5880996567682403481}
+  - component: {fileID: 7768478987561876200}
   m_Layer: 3
   m_Name: PlayerCharacterPrefab
   m_TagString: Player
@@ -5544,6 +5544,7 @@ MonoBehaviour:
   - {fileID: -6323806338761550441}
   - {fileID: 7621106317282464732}
   - {fileID: 4999308996956882955}
+  - {fileID: 7768478987561876200}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -5559,18 +5560,18 @@ MonoBehaviour:
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
   NetworkObserver: {fileID: 0}
-  _enablePrediction: 0
-  _predictionType: 0
+  _enablePrediction: 1
+  _predictionType: 2
   _localReconcileCorrectionType: 2
   _graphicalObject: {fileID: 0}
   _detachGraphicalObject: 0
-  _enableStateForwarding: 1
-  _networkTransform: {fileID: 0}
+  _enableStateForwarding: 0
+  _networkTransform: {fileID: 1982527419454777385}
   _ownerInterpolation: 1
-  _ownerSmoothedProperties: 255
-  _adaptiveInterpolation: 3
+  _ownerSmoothedProperties: 0
+  _adaptiveInterpolation: 0
   _spectatorSmoothedProperties: 255
-  _spectatorInterpolation: 2
+  _spectatorInterpolation: 1
   _enableTeleport: 0
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 53
@@ -5612,19 +5613,19 @@ MonoBehaviour:
   _componentIndexCache: 1
   _addedNetworkObject: {fileID: 8054363077136831453}
   _networkObjectCache: {fileID: 8054363077136831453}
-  _componentConfiguration: 0
+  _componentConfiguration: 3
   _synchronizeParent: 0
   _packing:
     Position: 1
     Rotation: 1
     Scale: 0
   _useScaledTime: 1
-  _interpolation: 2
+  _interpolation: 1
   _extrapolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  _clientAuthoritative: 1
-  _sendToOwner: 1
+  _clientAuthoritative: 0
+  _sendToOwner: 0
   _interval: 1
   _synchronizePosition: 1
   _positionSensitivity: 0.001
@@ -5865,7 +5866,7 @@ SortingGroup:
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
---- !u!114 &-5880996567682403481
+--- !u!114 &7768478987561876200
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5874,16 +5875,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5979735782993668707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e08bb003fce297d4086cf8cba5aa459a, type: 3}
+  m_Script: {fileID: 11500000, guid: 3b5ee35ef76a4d64b8f6a246faeaec11, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Managing.Predicting.PredictionManager
-  _reduceReconcilesWithFramerate: 1
-  _minimumClientReconcileFramerate: 50
-  _createLocalStates: 1
-  _stateInterpolation: 2
-  _stateOrder: 1
-  _dropExcessiveReplicates: 1
-  _maximumServerReplicates: 15
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPredictionMotor
+  _componentIndexCache: 6
+  _addedNetworkObject: {fileID: 8054363077136831453}
+  _networkObjectCache: {fileID: 8054363077136831453}
+  _tickCallbacks: 6
+  body: {fileID: 6066638730956382958}
 --- !u!1 &8250924038244619466
 GameObject:
   m_ObjectHideFlags: 0

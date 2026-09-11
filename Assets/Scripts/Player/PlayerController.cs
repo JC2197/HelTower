@@ -41,10 +41,13 @@ public class PlayerController : Organism
     private NetworkObject _currentMainWeaponNob;
     private NetworkObject _currentOffhandWeaponNob;
     private WeaponConfig _equippedMainWeaponConfig;
+    private WeaponConfig _equippedOffhandWeaponConfig;
     private WeaponSettings _currentMainWeaponSettings;
+    private WeaponSettings _currentOffhandWeaponSettings;
     private readonly List<AccessorySettings> _equippedAccessorySettings = new List<AccessorySettings>();
     private WeaponSortingManager _weaponSortingManager;
     private SpriteRenderer _characterSpriteRenderer;
+    private PlayerPredictionMotor _predictionMotor;
     private bool _isFacingLeft;
     private string _assignedCharacterName;
     private bool _hasFacing;
@@ -216,16 +219,32 @@ public class PlayerController : Organism
 
     public WeaponConfig GetEquippedOffhandWeaponConfig()
     {
-        CharacterData characterData = _currentCharacterData;
-        if (characterData != null && characterData.hasDualWeapons && characterData.offHandWeaponConfig != null)
-            return characterData.offHandWeaponConfig;
-
-        return _equippedMainWeaponConfig != null ? _equippedMainWeaponConfig.offhandWeaponConfig : null;
+        return _equippedOffhandWeaponConfig;
     }
 
     public bool ApplyClassAnimator(ClassData classData)
     {
         return ApplyClassAnimator(classData, GetRandomWeaponForClass(classData));
+    }
+
+    public bool SelectClassAndWeapon(ClassData classData, WeaponConfig weaponConfig)
+    {
+        if (classData == null || weaponConfig == null)
+            return false;
+
+        if (IsClientStarted && !IsServerStarted)
+        {
+            RequestClassAndWeaponChangeServerRpc(classData.className, weaponConfig.weaponName);
+            return true;
+        }
+
+        if (!ApplyClassAnimator(classData, weaponConfig))
+            return false;
+
+        if (IsServerStarted)
+            ObserversRpcReplicateClassAndWeapon(classData.className, weaponConfig.weaponName);
+
+        return true;
     }
 
     public bool ApplyClassAnimator(ClassData classData, WeaponConfig selectedWeapon)
@@ -268,11 +287,9 @@ public class PlayerController : Organism
         }
 
         EquipMainHandWeapon(selectedClassWeapon);
-    EquipOffhandWeapon(characterData?.offHandWeaponConfig);
+        EquipOffhandWeapon(selectedClassWeapon != null ? selectedClassWeapon.offhandWeaponConfig : null);
         EquipAccessories(characterData?.accessoryConfigs);
         GetComponent<CharacterAbilityManager>()?.LoadCharacterAbilities(characterData);
-
-        SynchronizeClassVisual(classData.className);
 
         Debug.Log($"[PlayerController] Switched animator to class '{classData.className}'.");
         return true;
@@ -368,8 +385,11 @@ public class PlayerController : Organism
         if (bodyAnimator != null && controller != null)
             bodyAnimator.runtimeAnimatorController = controller;
 
-        if (characterData.classData != null)
-            SynchronizeClassVisual(characterData.classData.className);
+        if (IsServerStarted && characterData.classData != null)
+        {
+            string weaponName = characterData.mainHandWeaponConfig != null ? characterData.mainHandWeaponConfig.weaponName : "";
+            ObserversRpcReplicateClassAndWeapon(characterData.classData.className, weaponName);
+        }
 
         // Main-hand weapon.
         if (characterData.mainHandWeaponConfig != null)
@@ -590,6 +610,7 @@ public class PlayerController : Organism
     private InputAction _moveAction;
     private InputAction _aimAction;
     private InputAction[] _abilityActions = new InputAction[6];
+    private bool[] _queuedAbilityPresses = new bool[6];
     private CharacterAbilityManager _abilityManager;
     // Slot 2 = dash, 0 = primary, 1 = secondary, 3-5 = trait keybinds.
     private static readonly int[] AbilitySlotPriority = { 2, 0, 1, 3, 4, 5 };
@@ -674,6 +695,9 @@ public class PlayerController : Organism
         if (_rigidbody == null)
             _rigidbody = GetComponent<Rigidbody2D>();
 
+        if (_predictionMotor == null)
+            _predictionMotor = GetComponent<PlayerPredictionMotor>();
+
         if (_rigidbody != null)
         {
             Debug.Log($"[PlayerController] Rigidbody setup on '{name}': object={_rigidbody.gameObject.name}, mass={_rigidbody.mass}, bodyType={_rigidbody.bodyType}, simulated={_rigidbody.simulated}.");
@@ -682,6 +706,8 @@ public class PlayerController : Organism
         {
             Debug.LogError($"[PlayerController] No root Rigidbody2D found on '{name}'. Knockback will not use the authored player physics body.");
         }
+
+        _predictionMotor = GetComponent<PlayerPredictionMotor>();
 
         if (_visualTransform == null)
             _visualTransform = transform;
@@ -754,6 +780,7 @@ public class PlayerController : Organism
         if (selected != null)
         {
             ApplyCharacterData(selected);
+            RequestSelectedClassReplication(selected);
             Debug.Log($"[PlayerController] Assigned selected character '{selected.characterName}' on {gameObject.name}: health={CurrentHealth}/{MaxHealth}.");
             return;
         }
@@ -773,7 +800,19 @@ public class PlayerController : Organism
 
         CharacterSelectionManager.Instance?.SelectCharacter(runtimeCharacter);
         ApplyCharacterData(runtimeCharacter);
+        RequestSelectedClassReplication(runtimeCharacter);
         Debug.Log($"[PlayerController] Assigned generated character '{runtimeCharacter.characterName}' on {gameObject.name}: health={CurrentHealth}/{MaxHealth}.");
+    }
+
+    private void RequestSelectedClassReplication(CharacterData characterData)
+    {
+        if (!IsOwner || !IsClientStarted || IsServerStarted || characterData?.classData == null)
+            return;
+
+        string weaponName = characterData.mainHandWeaponConfig != null
+            ? characterData.mainHandWeaponConfig.weaponName
+            : "";
+        RequestClassAndWeaponChangeServerRpc(characterData.classData.className, weaponName);
     }
 
     private WeaponConfig GetRandomWeaponForClass(ClassData classData)
@@ -800,42 +839,47 @@ public class PlayerController : Organism
         }
 
         bodyAnimator.runtimeAnimatorController = classData.animatorController;
+
+        NetworkAnimator networkAnimator = bodyAnimator.GetComponent<NetworkAnimator>();
+        if (networkAnimator != null)
+            networkAnimator.SetAnimator(bodyAnimator);
+
         return true;
     }
 
-    private void SynchronizeClassVisual(string className)
-    {
-        if (string.IsNullOrWhiteSpace(className))
-            return;
-
-        if (IsServerStarted)
-        {
-            ObserversRpcApplyClassVisual(className);
-            return;
-        }
-
-        if (IsOwner && IsClientStarted)
-            ServerRpcSetClassVisual(className);
-    }
-
     [ServerRpc]
-    private void ServerRpcSetClassVisual(string className)
+    public void RequestClassAndWeaponChangeServerRpc(string className, string weaponName)
     {
-        if (FindClassData(className) == null)
+        // 1. Validate the class on the authoritative server
+        ClassData targetClass = FindClassData(className);
+        if (targetClass == null)
         {
-            Debug.LogWarning($"[PlayerController] Cannot synchronize unknown class '{className}'.");
+            Debug.LogWarning($"[PlayerController] Server rejected change: unknown class '{className}'.");
             return;
         }
 
-        ObserversRpcApplyClassVisual(className);
+        // 2. Validate that the weapon belongs to that class config layout
+        WeaponConfig targetWeapon = System.Array.Find(targetClass.availableWeapons, w => w.weaponName == weaponName);
+        if (targetWeapon == null)
+        {
+            Debug.LogWarning($"[PlayerController] Server rejected change: weapon '{weaponName}' not valid for class '{className}'.");
+            return;
+        }
+
+        // Server executes gameplay logic, then observers apply only the replicated presentation.
+        ApplyClassAnimator(targetClass, targetWeapon);
+        ObserversRpcReplicateClassAndWeapon(className, weaponName);
     }
 
     [ObserversRpc(BufferLast = true, RunLocally = true)]
-    private void ObserversRpcApplyClassVisual(string className)
+    private void ObserversRpcReplicateClassAndWeapon(string className, string weaponName)
     {
-        ClassData classData = FindClassData(className);
-        if (classData != null)
-            ApplyClassAnimatorVisual(classData);
+        ClassData targetClass = FindClassData(className);
+        if (targetClass == null) return;
+
+        WeaponConfig targetWeapon = System.Array.Find(targetClass.availableWeapons, w => w.weaponName == weaponName);
+
+        ApplyClassAnimatorVisual(targetClass);
     }
 
     private static ClassData FindClassData(string className)
@@ -913,6 +957,9 @@ public class PlayerController : Organism
             return;
         }
 
+        _equippedOffhandWeaponConfig = weaponConfig;
+        _currentOffhandWeaponSettings = weaponConfig.ToOffhandWeaponSettings();
+
         if (IsServerStarted)
         {
             ServerEquipOffhandWeaponByName(weaponConfig.weaponName);
@@ -942,6 +989,8 @@ public class PlayerController : Organism
             InstanceFinder.ServerManager.Despawn(_currentOffhandWeaponNob);
 
         _currentOffhandWeaponNob = null;
+        _equippedOffhandWeaponConfig = null;
+        _currentOffhandWeaponSettings = null;
         GetComponent<OffHandWeaponHolder>()?.UnequipWeapon();
     }
 
@@ -965,6 +1014,9 @@ public class PlayerController : Organism
 
         UnequipOffhandWeapon();
 
+        _equippedOffhandWeaponConfig = weaponConfig;
+        _currentOffhandWeaponSettings = weaponConfig.ToOffhandWeaponSettings();
+
         GameObject spawnedWeapon = Instantiate(weaponConfig.weaponPrefab);
         NetworkObject weaponNob = spawnedWeapon.GetComponent<NetworkObject>();
         if (weaponNob == null)
@@ -974,8 +1026,15 @@ public class PlayerController : Organism
             return;
         }
 
+        // Spawn it on the network assigned to this connection owner
         InstanceFinder.ServerManager.Spawn(spawnedWeapon, Owner);
-        weaponNob.SetParent(NetworkObject);
+        
+        // FIX: Force explicit parenting through the network identity container 
+        // to maintain transform matching across the server boundary tickrate
+        weaponNob.SetParent(this.NetworkObject);
+        spawnedWeapon.transform.localPosition = Vector3.zero;
+        spawnedWeapon.transform.localRotation = Quaternion.identity;
+
         _currentOffhandWeaponNob = weaponNob;
         ObserversRpcSetupOffhandWeaponVisuals(weaponNob, weaponName);
     }
@@ -989,6 +1048,9 @@ public class PlayerController : Organism
         WeaponConfig weaponConfig = WeaponConfigRegistry.GetConfig(weaponName);
         if (weaponConfig == null)
             return;
+
+        _equippedOffhandWeaponConfig = weaponConfig;
+        _currentOffhandWeaponSettings = weaponConfig.ToOffhandWeaponSettings();
 
         OffHandWeaponHolder holder = GetComponent<OffHandWeaponHolder>();
         if (holder == null)
@@ -1270,6 +1332,8 @@ public class PlayerController : Organism
             return;
 
         ReadInputs();
+        Vector2 desiredVelocity = _moveInput * MoveSpeed;
+        _predictionMotor?.SetDesiredVelocity(GetPredictedMovementVelocity());
         UpdateMainWeaponPresentation();
         HandleAbilityInput();
     }
@@ -1304,6 +1368,23 @@ public class PlayerController : Organism
         if (!isAlive || !InputEnabled || !IsOwner || _rigidbody == null)
             return;
 
+        Vector2 velocity = GetPredictedMovementVelocity();
+        MovementAbility[] movementAbilities = GetComponents<MovementAbility>();
+        for (int i = 0; i < movementAbilities.Length; i++)
+        {
+            MovementAbility movementAbility = movementAbilities[i];
+            if (movementAbility == null || !movementAbility.HasPendingTeleport)
+                continue;
+
+            _predictionMotor?.SetTeleportRequest(movementAbility.PendingTeleportDestination);
+            movementAbility.MarkTeleportApplied();
+            break;
+        }
+        UpdateMovementPresentation(velocity);
+    }
+
+    public Vector2 GetPredictedMovementVelocity()
+    {
         Vector2 additiveVelocity = Vector2.zero;
         bool movementAbilityActive = false;
         MovementAbility[] movementAbilities = GetComponents<MovementAbility>();
@@ -1327,18 +1408,11 @@ public class PlayerController : Organism
             }
         }
 
-        // An ability holding movement control drives the body itself, so leave the rigidbody
-        // alone — unless a dash/teleport is mid-flight, whose velocity still has to land.
         if (!playerDrivesMovement && !movementAbilityActive)
-            return;
+            return Vector2.zero;
 
-        // Use Organism.MoveSpeed so runtime stat modifiers (slow, root, cast penalties)
-        // immediately affect player movement without duplicating speed state.
         Vector2 velocity = playerDrivesMovement ? _moveInput * MoveSpeed : Vector2.zero;
-        velocity += additiveVelocity;
-
-        _rigidbody.linearVelocity = velocity;
-        UpdateMovementPresentation(velocity);
+        return velocity + additiveVelocity;
     }
 
     private void ReadInputs()
@@ -1358,8 +1432,13 @@ public class PlayerController : Organism
             int slot = AbilitySlotPriority[i];
             if (slot < _abilityActions.Length && _abilityActions[slot] != null && _abilityActions[slot].WasPressedThisFrame())
             {
-                TriggerAbility(slot);
-                return;
+                if (TriggerAbility(slot))
+                {
+                    _queuedAbilityPresses[slot] = false;
+                    return;
+                }
+
+                _queuedAbilityPresses[slot] = true;
             }
         }
 
@@ -1371,18 +1450,22 @@ public class PlayerController : Organism
         for (int i = 0; i < AbilitySlotPriority.Length; i++)
         {
             int slot = AbilitySlotPriority[i];
-            if (slot >= _abilityActions.Length || _abilityActions[slot] == null || !_abilityActions[slot].IsPressed())
+            if (slot >= _abilityActions.Length || _abilityActions[slot] == null)
                 continue;
 
             DataDrivenAbility ability = ResolveAbilityManager()?.GetDataDrivenAbilityAtSlot(slot);
-            if (ability == null || !ability.IsReadyForHeldRetrigger)
+            bool wantsRetry = _queuedAbilityPresses[slot] || _abilityActions[slot].IsPressed();
+            if (!wantsRetry || ability == null || !ability.IsReadyForHeldRetrigger)
                 continue;
 
             if (casterBusy && !ability.OverridesOtherAbilities)
                 continue;
 
             if (TriggerAbility(slot))
+            {
+                _queuedAbilityPresses[slot] = false;
                 return;
+            }
         }
     }
 
@@ -1522,7 +1605,7 @@ public class PlayerController : Organism
         if (offhandConfig == null || offhandWeapon == null)
             return;
 
-        WeaponSettings offhandSettings = offhandConfig.ToOffhandWeaponSettings();
+        WeaponSettings offhandSettings = _currentOffhandWeaponSettings ?? offhandConfig.ToOffhandWeaponSettings();
         _weaponSortingManager.UpdateActiveAimingWeapon(
             offhandWeapon.transform,
             offhandSettings,

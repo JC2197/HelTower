@@ -22,6 +22,10 @@ public class MovementAbility : MonoBehaviour
 
     private Vector2 movementDirection;
     private Vector2 baseAdditiveVelocity;
+    private bool teleportPending;
+
+    public bool HasPendingTeleport => teleportPending;
+    public Vector2 PendingTeleportDestination => teleportDestination;
 
     public bool IsExecuting => isExecuting;
     public Vector2 AdditiveVelocity
@@ -88,6 +92,7 @@ public class MovementAbility : MonoBehaviour
         startTime = Time.time;
         movementDirection = GetMovementDirection();
         baseAdditiveVelocity = Vector2.zero;
+        teleportPending = false;
 
         float distanceMultiplier = GetDashDistanceMultiplier();
 
@@ -136,7 +141,7 @@ public class MovementAbility : MonoBehaviour
                     cachedRenderers = caster.GetComponentsInChildren<SpriteRenderer>();
                     SetRenderersEnabled(false);
                 }
-                rb.transform.position = teleportDestination; // Move immediately to destination
+                teleportPending = true;
                 break;
             default:
                 Debug.LogWarning($"[MovementAbility] Unknown movement type {config.movementConfig.movementType} for {config.abilityName}");
@@ -206,6 +211,11 @@ public class MovementAbility : MonoBehaviour
 
     }
 
+    public void MarkTeleportApplied()
+    {
+        teleportPending = false;
+    }
+
     private void OnDisable()
     {
         End();
@@ -216,8 +226,6 @@ public class MovementAbility : MonoBehaviour
     /// </summary>
     private void CompleteTeleport()
     {
-        // Move character to destination
-        transform.position = (Vector3)teleportDestination;
         Debug.Log($"[MovementAbility] Teleport complete for {config.abilityName}: arrived at {teleportDestination}");
 
         // Spawn animation prefab at end position

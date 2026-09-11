@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
-  m_Name: StabAttackSpeed
+  m_Name: StabSpeed
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
-  traitID: StabAttackSpeed
-  displayName: Gust
-  description: Stab gains {v1}% Attack Speed.
+  traitID: SpearAttackSpeed
+  displayName: Swift Sands
+  description: Stabs gain {v1}% attack speed.
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 2
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -37,10 +37,15 @@ MonoBehaviour:
     abilityIcon: {fileID: 0}
     comboAbilities: []
     addTriggeredAbilityConfig:
-      abilityConfig: {fileID: 0}
+      abilityConfig: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
       triggerChance: 0
       triggerTiming: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
-    overrides: []
+    overrides:
+    - propertyPath: attackSpeed
+      overrideMode: 1
+      numericValue: 25
+      stringValue: 
+      objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

@@ -76,7 +76,10 @@ public class FloorPortal : Interactable
         }
     }
 
-    public void Enable()
+
+
+    [ObserversRpc(BufferLast = true)]
+    public void EnablePortalObserversRpc()
     {
         SetInteractable(true);
         SetVisible(true);

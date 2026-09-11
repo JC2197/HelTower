@@ -8960,7 +8960,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584125262545720137
+  _initializedTimestamp: -8584124702443365148
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -13155,7 +13155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584125262545720137
+      value: -8584124702443365148
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 54267e7ab32046240a911a600f8593cd, type: 3}
       propertyPath: <IsNested>k__BackingField
@@ -13268,7 +13268,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: _initializedTimestamp
-      value: -8584125262545720137
+      value: -8584124702443365148
       objectReference: {fileID: 0}
     - target: {fileID: 8196381907642124221, guid: 7e34cfacfe00d0c4995a1026d0a29baf, type: 3}
       propertyPath: <IsNested>k__BackingField

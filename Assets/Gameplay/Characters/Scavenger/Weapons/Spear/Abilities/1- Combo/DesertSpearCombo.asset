@@ -26,7 +26,7 @@ MonoBehaviour:
   attackSpeed: 1
   cooldownTime: 0
   energyCost: 0
-  castLockoutDuration: 1
+  castLockoutDuration: 0.5
   scaleLockoutWithAttackSpeed: 1
   cancelActions: 0
   baseCritChance: 0
@@ -34,6 +34,7 @@ MonoBehaviour:
   autocast: 0
   retaliationCast: 0
   castAtFeet: 0
+  maxRange: 0
   castAtTargets: 0
   castAtFriendlyTargets: 0
   autocastRange: 0
@@ -55,6 +56,7 @@ MonoBehaviour:
   characterAnimationUp: 
   characterPrecastAnimationName: 
   mainhandAnimationName: 
+  castSound: {fileID: 0}
   offhandAnimationName: 
   preAnimationName: 
   activateOnButtonRelease: 0
@@ -286,12 +288,6 @@ MonoBehaviour:
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
     allowOverride: 0
-    dealsDamageOverTime: 0
-    damagePerTick: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     speed: 15
     useLifetime: 1
     lifetime: 3
@@ -361,7 +357,6 @@ MonoBehaviour:
     destroyVisualPrefab: {fileID: 0}
     destroySound: {fileID: 0}
     muzzleFlashPrefab: {fileID: 0}
-    muzzleFlashSound: {fileID: 0}
     enableMuzzleLight: 0
     muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     muzzleLightIntensity: 3
@@ -416,12 +411,6 @@ MonoBehaviour:
     duration: 3
     damageInterval: 0.5
     hasDamageTick: 0
-    dealsDamageOverTime: 0
-    damagePerSecond: 5
-    dotInterval: 0.5
-    dotDuration: 3
-    dotParticleEffectPrefab: {fileID: 0}
-    startParticlesFromFeet: 0
     hasFadeIn: 0
     fadeInDuration: 0.5
     spawnSound: {fileID: 0}
@@ -499,12 +488,6 @@ MonoBehaviour:
       duration: 3
       damageInterval: 0.5
       hasDamageTick: 0
-      dealsDamageOverTime: 0
-      damagePerSecond: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       hasFadeIn: 0
       fadeInDuration: 0.5
       spawnSound: {fileID: 0}
@@ -554,12 +537,6 @@ MonoBehaviour:
           hitSound: {fileID: 0}
           hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
       allowOverride: 0
-      dealsDamageOverTime: 0
-      damagePerTick: 5
-      dotInterval: 0.5
-      dotDuration: 3
-      dotParticleEffectPrefab: {fileID: 0}
-      startParticlesFromFeet: 0
       speed: 15
       useLifetime: 1
       lifetime: 3
@@ -629,7 +606,6 @@ MonoBehaviour:
       destroyVisualPrefab: {fileID: 0}
       destroySound: {fileID: 0}
       muzzleFlashPrefab: {fileID: 0}
-      muzzleFlashSound: {fileID: 0}
       enableMuzzleLight: 0
       muzzleLightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       muzzleLightIntensity: 3
@@ -794,6 +770,7 @@ MonoBehaviour:
     teleportAnimationPrefab: {fileID: 0}
     disappearDuringTeleport: 1
     dashSound: {fileID: 0}
+  selfEffect: {fileID: 0}
   customAbility: {fileID: 0}
   hitVisualPrefab: {fileID: 0}
   hitVisualSound: {fileID: 0}

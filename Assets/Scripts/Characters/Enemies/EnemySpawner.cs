@@ -336,18 +336,20 @@ public class EnemySpawner : NetworkBehaviour
         EnableTeleporters();
     }
 
+    
+
     private void EnableTeleporters()
     {
         // find all FloorPortal.cs
         FloorPortal[] portals = FindObjectsByType<FloorPortal>(FindObjectsSortMode.None);
         foreach (var portal in portals)
         {
-            portal.Enable();
+            portal.EnablePortalObserversRpc();
         }
         Anvil anvil = FindFirstObjectByType<Anvil>();
         if (anvil != null)
         {
-            anvil.Enable();
+            anvil.EnableAnvilObserversRpc();
         }
     }
 

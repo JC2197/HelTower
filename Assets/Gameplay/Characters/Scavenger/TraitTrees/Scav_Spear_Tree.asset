@@ -28,28 +28,57 @@ MonoBehaviour:
   connectionLineWidth: 3
   canvasWidth: 350
   nodes:
-  - nodeID: SpearAddSlash_3722
-    traitData: {fileID: 11400000, guid: cf560e85430c6b24fa9ecac553bb5d3a, type: 2}
-    position: {x: -88, y: 28}
-    connectedNodeIDs: []
   - nodeID: SpearAttackSpeed_1de6
     traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
-    position: {x: -128, y: 160}
+    position: {x: -136, y: 96}
     connectedNodeIDs:
-    - SpearAddSlash_3722
-    - SpearAttackSpeed_c1b5
+    - SpearAddSlash_9e32
+    - StabRange_dba7
   - nodeID: SpearAttackSpeed_976d
     traitData: {fileID: 11400000, guid: 1c8bba8be5a5b5649b8df2ee4c05d6d4, type: 2}
-    position: {x: -48, y: 160}
+    position: {x: -104, y: 168}
     connectedNodeIDs:
-    - SpearAddSlash_3722
+    - SpearAttackSpeed_a8a6
+    - SpearAttackSpeed_1de6
   - nodeID: SpearAddSlash_ef16
     traitData: {fileID: 11400000, guid: 7fbe2bb0011d5da43ac33af42bc97b84, type: 2}
-    position: {x: -12, y: 24}
+    position: {x: 136, y: 32}
     connectedNodeIDs: []
-  - nodeID: SpearAttackSpeed_c1b5
-    traitData: {fileID: 11400000, guid: daa2e2c14517eef46ae7d9b0ed757361, type: 2}
-    position: {x: -128, y: 100}
+  - nodeID: SlashDamage_af27
+    traitData: {fileID: 11400000, guid: 7747c80ebd240434c9a84022a0bdc806, type: 2}
+    position: {x: 136, y: 160}
+    connectedNodeIDs:
+    - SlashDamage_7c0b
+    - SlashSize_2938
+  - nodeID: SlashDamage_7c0b
+    traitData: {fileID: 11400000, guid: 7b7870e3b60686f4287a79e4806f7d80, type: 2}
+    position: {x: 136, y: 96}
+    connectedNodeIDs:
+    - SpearAddSlash_ef16
+    - SpearAddSlash_9e32
+  - nodeID: SlashSize_2938
+    traitData: {fileID: 11400000, guid: 43a86289a662c4e4b91331a85de9b591, type: 2}
+    position: {x: 72, y: 96}
+    connectedNodeIDs: []
+  - nodeID: SpearAttackSpeed_a8a6
+    traitData: {fileID: 11400000, guid: 7ab5ff75277ace54d94538032230f806, type: 2}
+    position: {x: -72, y: 96}
+    connectedNodeIDs:
+    - SpearAddSlash_9e32
+  - nodeID: SpearAddSlash_9e32
+    traitData: {fileID: 11400000, guid: cf560e85430c6b24fa9ecac553bb5d3a, type: 2}
+    position: {x: -72, y: 32}
+    connectedNodeIDs:
+    - StabDamage_d7c6
+  - nodeID: StabRange_dba7
+    traitData: {fileID: 11400000, guid: a1ffd99c8615d9641a3aedd5dd7f9ded, type: 2}
+    position: {x: -136, y: 32}
+    connectedNodeIDs:
+    - SpearAddSlash_9e32
+    - StabDamage_d7c6
+  - nodeID: StabDamage_d7c6
+    traitData: {fileID: 11400000, guid: 8ebb87aa3c1c60a4788d722d1da1dfa5, type: 2}
+    position: {x: -72, y: -48}
     connectedNodeIDs: []
   canvasHeight: 400
   minCanvasWidth: 350
@@ -57,16 +86,120 @@ MonoBehaviour:
   autoCanvasSize: 0
   autoCanvasPadding: 80
   connections:
-  - connectionID: conn_b38af5e0
+  - connectionID: conn_c566636f
+    scale: 1
+    fromNodeIDs:
+    - SlashDamage_af27
+    toNodeIDs:
+    - SlashDamage_7c0b
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_684598e9
+    scale: 1
+    fromNodeIDs:
+    - SlashDamage_7c0b
+    toNodeIDs:
+    - SpearAddSlash_ef16
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_3b0d4336
+    scale: 1
+    fromNodeIDs:
+    - SlashDamage_af27
+    toNodeIDs:
+    - SlashSize_2938
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_0a91b140
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_976d
+    toNodeIDs:
+    - SpearAttackSpeed_a8a6
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_9cf9de1b
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_976d
+    toNodeIDs:
+    - SpearAttackSpeed_1de6
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_59357e64
+    scale: 1
+    fromNodeIDs:
+    - SpearAttackSpeed_a8a6
+    toNodeIDs:
+    - SpearAddSlash_9e32
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_53410239
     scale: 1
     fromNodeIDs:
     - SpearAttackSpeed_1de6
     toNodeIDs:
-    - SpearAttackSpeed_c1b5
+    - StabRange_dba7
     fromBubbleDir: 0
     toBubbleDir: 1
     curveAmount: 4
-    lineWidth: 1
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_b0cc04f9
+    scale: 1
+    fromNodeIDs:
+    - StabRange_dba7
+    toNodeIDs:
+    - StabDamage_d7c6
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
+    lineColor: {r: 1, g: 1, b: 1, a: 1}
+    useDrawnPath: 0
+    paintedPixels: []
+  - connectionID: conn_06999e5d
+    scale: 1
+    fromNodeIDs:
+    - SpearAddSlash_9e32
+    toNodeIDs:
+    - StabDamage_d7c6
+    fromBubbleDir: 0
+    toBubbleDir: 1
+    curveAmount: 4
+    lineWidth: 3
     lineColor: {r: 1, g: 1, b: 1, a: 1}
     useDrawnPath: 0
     paintedPixels: []

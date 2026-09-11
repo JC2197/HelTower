@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
-  m_Name: StabAttackSpeed
+  m_Name: StabDamage2
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
-  traitID: StabAttackSpeed
-  displayName: Gust
-  description: Stab gains {v1}% Attack Speed.
+  traitID: StabDamage
+  displayName: Piercing II
+  description: Stab gains +{v1} Damage.
   traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 2
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -42,5 +42,10 @@ MonoBehaviour:
       triggerTiming: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
-    overrides: []
+    overrides:
+    - propertyPath: meleeConfig.hitbox.damage
+      overrideMode: 0
+      numericValue: 4
+      stringValue: 
+      objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

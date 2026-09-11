@@ -18,7 +18,7 @@ MonoBehaviour:
   traitIcon: {fileID: -1781296285, guid: 3c2141e251cc12344822fc754659503b, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 1
+  maxLevel: 2
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}

@@ -12,7 +12,7 @@ public class GameplaySessionRoot : MonoBehaviour
 
     private void Awake()
     {
-        // Scene-authored copies are intentionally scene-local. Bootstrap calls BeginSession on its prefab instance.
+        BeginSession();
     }
 
     public bool BeginSession()
@@ -22,6 +22,9 @@ public class GameplaySessionRoot : MonoBehaviour
             Destroy(gameObject);
             return false;
         }
+
+        if (Instance == this)
+            return true;
 
         Instance = this;
         DontDestroyOnLoad(gameObject);

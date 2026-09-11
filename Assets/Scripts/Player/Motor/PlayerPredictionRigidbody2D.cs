@@ -39,6 +39,18 @@ public sealed class PlayerPredictionRigidbody2D
         predictionRigidbody.Velocity(velocity);
     }
 
+    public void SetMovementVelocity(Vector2 velocity)
+    {
+        if (!IsInitialized)
+            return;
+
+#if UNITY_6000_1_OR_NEWER
+        Rigidbody2D.linearVelocity = velocity;
+#else
+        Rigidbody2D.velocity = velocity;
+#endif
+    }
+
     public void Simulate()
     {
         if (!IsInitialized)

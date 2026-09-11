@@ -235,7 +235,7 @@ MonoBehaviour:
         hitEffectPrefab: {fileID: 0}
         hitSound: {fileID: 0}
         hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-    meleeFXRadiusDistance: 0.5
+    meleeFXRadiusDistance: 0
     meleeFXSpeed: 0
     flipMeleeFX: 0
     flipMeleeFXY: 0

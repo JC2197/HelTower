@@ -52,6 +52,7 @@ public class BootstrapManager : MonoBehaviour
 
         networkManager.ServerManager.OnServerConnectionState += LogServerConnectionState;
         networkManager.ClientManager.OnClientConnectionState += LogClientConnectionState;
+        networkManager.SceneManager.OnLoadEnd += OnClientSceneLoadEnd;
 
         StopUnexpectedNetwork();
         LoadMainMenu();
@@ -64,6 +65,7 @@ public class BootstrapManager : MonoBehaviour
 
         networkManager.ServerManager.OnServerConnectionState -= LogServerConnectionState;
         networkManager.ClientManager.OnClientConnectionState -= LogClientConnectionState;
+        networkManager.SceneManager.OnLoadEnd -= OnClientSceneLoadEnd;
     }
 
     private void LogServerConnectionState(ServerConnectionStateArgs args)
@@ -88,6 +90,12 @@ public class BootstrapManager : MonoBehaviour
             StopUnexpectedNetwork();
         }
 
+        if (args.ConnectionState == LocalConnectionState.Started
+            && UnitySceneManager.GetActiveScene().name == campSceneName)
+        {
+            EnsureGameplaySession();
+        }
+
         if (!verboseLogging)
         {
             if (args.ConnectionState == LocalConnectionState.Started
@@ -95,7 +103,6 @@ public class BootstrapManager : MonoBehaviour
             {
                 SceneTransitionCoordinator.Instance?.MarkReady();
             }
-
             return;
         }
 
@@ -106,6 +113,22 @@ public class BootstrapManager : MonoBehaviour
         {
             Debug.Log("[BootstrapManager] Local client started in Camp; signaling transition readiness.");
             SceneTransitionCoordinator.Instance?.MarkReady();
+        }
+    }
+
+    private void OnClientSceneLoadEnd(SceneLoadEndEventArgs args)
+    {
+        if (!networkManager.IsClientStarted)
+            return;
+
+        foreach (UnityEngine.SceneManagement.Scene scene in args.LoadedScenes)
+        {
+            if (scene.name != campSceneName)
+                continue;
+
+            EnsureGameplaySession();
+            SceneTransitionCoordinator.Instance?.MarkReady();
+            return;
         }
     }
 

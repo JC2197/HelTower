@@ -33,7 +33,7 @@ public class PauseMenuManager : MonoBehaviour
     [Tooltip("Name of the action (bound to ESC) that opens/closes the pause menu.")]
     [SerializeField] private string menuActionName = "Menu";
 
-    private InputAction menuAction;
+    private InputAction _menuAction;
     private bool isPaused = false;
     private bool _pausedTimeScale = false;
     private bool _classButtonsBuilt = false;
@@ -67,6 +67,7 @@ public class PauseMenuManager : MonoBehaviour
     private void OnEnable()
     {
         PlayerController.OnPlayerSpawned += HandlePlayerSpawned;
+        TryBindLocalPlayer();
     }
 
     private void OnDisable()
@@ -76,11 +77,21 @@ public class PauseMenuManager : MonoBehaviour
 
     private void HandlePlayerSpawned(PlayerController newPlayer)
     {
-        if (newPlayer == null || ((newPlayer.IsServerStarted || newPlayer.IsClientStarted) && !newPlayer.IsOwner))
-            return;
+        if (newPlayer == null) return;
 
-        BindMenuAction();
-        Debug.Log($"[PauseMenuManager] Bound local player pause input for '{newPlayer.name}'.");
+        // Only bind input if the player object belongs to THIS local client instance
+        if (newPlayer.IsOwner)
+        {
+            BindMenuAction();
+            Debug.Log($"[PauseMenuManager] Bound local player pause input for owned player '{newPlayer.name}'.");
+        }
+    }
+
+    private void TryBindLocalPlayer()
+    {
+        PlayerController localPlayer = PlayerController.GetLocalPlayer();
+        if (localPlayer != null && localPlayer.IsOwner)
+            BindMenuAction();
     }
 
     private void BindMenuAction()
@@ -90,42 +101,32 @@ public class PauseMenuManager : MonoBehaviour
 #if UNITY_EDITOR
             inputActions = UnityEditor.AssetDatabase.LoadAssetAtPath<InputActionAsset>("Assets/HeltowerInputs.inputactions");
 #endif
-            if (inputActions == null)
-            {
-                Debug.LogWarning("[PauseMenuManager] No InputActionAsset assigned \u2014 cannot bind menu action.");
-                return;
-            }
+            if (inputActions == null) return;
         }
 
         InputAction resolved = inputActions.FindAction(menuActionName);
-        if (resolved == null)
+        if (resolved == null) return;
+        if (_menuAction == resolved) return;
+
+        // Clean up pre-existing event bindings before applying new ones
+        if (_menuAction != null)
         {
-            Debug.LogWarning($"[PauseMenuManager] Action '{menuActionName}' not found in {inputActions.name}.");
-            return;
+            _menuAction.started -= OnPauseStarted;
+            _menuAction.canceled -= OnPauseCanceled;
         }
 
-        if (menuAction == resolved)
-            return;
-
-        if (menuAction != null)
-        {
-            menuAction.started -= OnPauseStarted;
-            menuAction.canceled -= OnPauseCanceled;
-        }
-
-        menuAction = resolved;
-        menuAction.started += OnPauseStarted;
-        menuAction.canceled += OnPauseCanceled;
-        menuAction.Enable();
-        Debug.Log($"[PauseMenuManager] Bound pause toggle to '{menuActionName}' action.");
+        _menuAction = resolved;
+        _menuAction.started += OnPauseStarted;
+        _menuAction.canceled += OnPauseCanceled;
+        _menuAction.Enable();
     }
 
     private void OnDestroy()
     {
-        if (menuAction != null)
+        if (_menuAction != null)
         {
-            menuAction.started -= OnPauseStarted;
-            menuAction.canceled -= OnPauseCanceled;
+            _menuAction.started -= OnPauseStarted;
+            _menuAction.canceled -= OnPauseCanceled;
         }
 
         UnregisterPausePanel();
@@ -140,7 +141,7 @@ public class PauseMenuManager : MonoBehaviour
 
         Debug.Log("ESC key pressed!");
 
-        
+
         if (isPaused)
             ResumeGame();
         else
@@ -174,8 +175,6 @@ public class PauseMenuManager : MonoBehaviour
         }
 
         isPaused = true;
-
-        Debug.Log("Pause menu opened - Player input disabled, enemies still active");
     }
 
     private void ResumeGame()
@@ -190,7 +189,7 @@ public class PauseMenuManager : MonoBehaviour
 
         if (classListPanel != null)
             classListPanel.SetActive(false);
-        if(weaponListPanel != null)
+        if (weaponListPanel != null)
             weaponListPanel.SetActive(false);
         if (firstPanel != null)
             firstPanel.SetActive(true);
@@ -241,7 +240,7 @@ public class PauseMenuManager : MonoBehaviour
 
         if (characterSelectionConfig == null || classButtonPrefab == null)
         {
-            Debug.LogWarning("[PauseMenuManager] Missing characterSelectionConfig or classButtonPrefab \u2014 cannot build class buttons.");
+            Debug.LogWarning("[PauseMenuManager] Missing characterSelectionConfig or classButtonPrefab — cannot build class buttons.");
             return;
         }
 
@@ -251,6 +250,9 @@ public class PauseMenuManager : MonoBehaviour
             Debug.LogWarning("[PauseMenuManager] CharacterSelectionConfig has no available classes.");
             return;
         }
+
+        // FIX: Ensure the source template is temporarily active so duplicates are visible
+        classButtonPrefab.gameObject.SetActive(true);
 
         Transform parent = classListPanel.transform;
         foreach (ClassData classData in classes)
@@ -300,9 +302,9 @@ public class PauseMenuManager : MonoBehaviour
             return;
         }
 
-        if (!player.ApplyClassAnimator(classData, weaponConfig))
+        if (!player.SelectClassAndWeapon(classData, weaponConfig))
             return;
-        
+
         ResumeGame();
         Debug.Log($"[PauseMenuManager] Switched to class '{classData.className}'.");
     }
@@ -323,6 +325,9 @@ public class PauseMenuManager : MonoBehaviour
             Debug.LogWarning($"[PauseMenuManager] Class '{classData.className}' has no available weapons.");
             return;
         }
+
+        // FIX: Ensure the template remains available for cloning before hiding it again
+        classButtonPrefab.gameObject.SetActive(true);
 
         Transform parent = weaponListPanel.transform;
         for (int i = parent.childCount - 1; i >= 0; i--)

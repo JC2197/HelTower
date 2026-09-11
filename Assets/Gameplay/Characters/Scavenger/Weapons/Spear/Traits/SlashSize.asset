@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32890fab5be9def458a53d3f649a92f7, type: 3}
-  m_Name: StabAttackSpeed
+  m_Name: SlashSize
   m_EditorClassIdentifier: Assembly-CSharp::TraitData
-  traitID: StabAttackSpeed
-  displayName: Gust
-  description: Stab gains {v1}% Attack Speed.
-  traitIcon: {fileID: 720839724, guid: cbc8b03a9cad2d44994ba7432a62f232, type: 3}
+  traitID: SlashSize
+  displayName: Expanse
+  description: Slice gains +{v1}% Size.
+  traitIcon: {fileID: 2098060721, guid: 522beccb2f9aef447ac9cead5d647c60, type: 3}
   weaponTraitTag: 
   traitType: 0
-  maxLevel: 2
+  maxLevel: 1
   statModifiers: []
   effectScript: {fileID: 0}
   requiredAbility: {fileID: 0}
@@ -33,7 +33,7 @@ MonoBehaviour:
     magazineSizeBonus: 0
     reloadTimeDelta: 0
   abilityConfigModifiers:
-  - targetAbility: {fileID: 11400000, guid: 9ffff653794d60d4baa88cbe4caf30a6, type: 2}
+  - targetAbility: {fileID: 11400000, guid: 2736e7a4f10588d4387771740932a4cc, type: 2}
     abilityIcon: {fileID: 0}
     comboAbilities: []
     addTriggeredAbilityConfig:
@@ -42,5 +42,15 @@ MonoBehaviour:
       triggerTiming: 0
     addTriggeredAbilityLegacy: {fileID: 0}
     addTriggeredAbilityPath: 
-    overrides: []
+    overrides:
+    - propertyPath: meleeConfig.hitbox.scaleX
+      overrideMode: 1
+      numericValue: 33
+      stringValue: 
+      objectValue: {fileID: 0}
+    - propertyPath: meleeConfig.hitbox.scaleY
+      overrideMode: 1
+      numericValue: 33
+      stringValue: 
+      objectValue: {fileID: 0}
   mutuallyExclusiveWith: []

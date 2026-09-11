@@ -3,15 +3,16 @@ using System.Collections;
 using FishNet;
 using FishNet.Object;
 using FishNet.Connection;
-using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
 
 [RequireComponent(typeof(Animator))]
 public class Anvil : Interactable
 {
 
-    private FloorManager floorManager;
+    private FloorManager _floorManager;
     private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
+    private Collider2D _collider;
     private bool traitTreeOpened = false;
     public string startAnimationName = "start";
      [Header("Interaction")]
@@ -19,15 +20,25 @@ public class Anvil : Interactable
     [Tooltip("If true, teleporter is interactable from the start (for CommandScene). If false, requires floorClearWatcher to enable it.")]
 
     
-    private void Awake()
+    protected override void Awake()
     {
         base.Awake();
-        floorManager = FloorManager.Instance;
+        _floorManager = FloorManager.Instance;
         controlledByFloorClear = true;
         _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _collider = GetComponent<Collider2D>();
         SetInteractable(startEnabled);
         SetVisible(startEnabled);
         traitTreeOpened = false;
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        _floorManager = FloorManager.Instance;
+        SetInteractable(startEnabled);
+        SetVisible(startEnabled);
     }
 
     public override void OnInteract(GameObject player)
@@ -44,6 +55,13 @@ public class Anvil : Interactable
         }
     }
 
+    [ObserversRpc(BufferLast = true)]
+    public void EnableAnvilObserversRpc() 
+    {
+        SetInteractable(true);
+        SetVisible(true);
+    }
+
     public void Enable()
     {
         SetInteractable(true);
@@ -52,8 +70,8 @@ public class Anvil : Interactable
 
     private void SetVisible(bool visible)
     {
-        gameObject.GetComponent<SpriteRenderer>().enabled = visible;
-        gameObject.GetComponent<Collider2D>().enabled = visible;
+        _spriteRenderer.enabled = visible;
+        _collider.enabled = visible;
         if (visible)
         {
             _animator.Play(startAnimationName);
