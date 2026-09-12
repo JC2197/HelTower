@@ -450,7 +450,7 @@ public class MeleeVisualStickyFollow : MonoBehaviour
     {
         if (_followTarget == null)
         {
-            Destroy(gameObject);
+            Destroy(this);
             return;
         }
 
