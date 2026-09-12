@@ -28,6 +28,10 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     private static readonly List<Collider2D> _cachedColliders = new List<Collider2D>();
     private readonly HashSet<IDamageable> _hitDamageables = new HashSet<IDamageable>();
     private readonly HashSet<GameObject> _hitPositiveObjects = new HashSet<GameObject>();
+    private Transform stickyFollowTarget;
+    private Vector3 stickyLocalOffset;
+    private float stickyLocalAngle;
+    private Rigidbody2D stickyRigidbody;
 
 
     public void SetContext(SubAbilityContext context)
@@ -70,7 +74,9 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
         if (config.stickToCharacter)
         {
-            hitboxInstance.transform.SetParent(ownerTransform, true);
+            Vector3 localOffset = ownerTransform.InverseTransformPoint(spawnPos);
+            float localAngle = Mathf.DeltaAngle(ownerTransform.eulerAngles.z, angle);
+            ConfigureStickyFollow(ownerTransform, localOffset, localAngle);
         }
         ApplyFlipAndScale(hitboxInstance, config, angle);
 
@@ -98,7 +104,18 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
             AudioManager.Instance.PlaySpatialSound(config.meleeSound, spawnPos, 1f, 1f);
 
         if (InstanceFinder.IsServerStarted)
-            owner?.GetComponent<Organism>()?.ObserversRpcSpawnMeleeSwingVisual(abilityName, spawnPos, angle, firedFromOffhand);
+        {
+            NetworkObject ownerNob = owner != null ? owner.GetComponent<NetworkObject>() : null;
+            owner?.GetComponent<Organism>()?.ObserversRpcSpawnMeleeSwingVisual(
+                abilityName,
+                spawnPos,
+                angle,
+                firedFromOffhand,
+                ownerNob,
+                config.stickToCharacter,
+                stickyLocalOffset,
+                stickyLocalAngle);
+        }
 
         // 5. Geometry Processing
         hitboxInstance.GetComponentsInChildren<Collider2D>(true, _cachedColliders);
@@ -192,7 +209,27 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
     /// </summary>
     public static void SpawnVisualOnly(MeleeConfig config, Vector3 spawnPos, Quaternion spawnRotation)
     {
-        HitVisualHelper.SpawnEffect(config.hitbox.prefab, spawnPos, spawnRotation);
+        SpawnVisualOnly(config, spawnPos, spawnRotation, null, Vector3.zero, 0f, false);
+    }
+
+    public static void SpawnVisualOnly(
+        MeleeConfig config,
+        Vector3 spawnPos,
+        Quaternion spawnRotation,
+        Transform stickyOwner,
+        Vector3 stickyLocalOffset,
+        float stickyLocalAngle,
+        bool stickToCharacter)
+    {
+        GameObject visual = HitVisualHelper.SpawnEffect(config.hitbox.prefab, spawnPos, spawnRotation);
+        if (visual == null) return;
+
+        if (!stickToCharacter || stickyOwner == null) return;
+
+        MeleeVisualStickyFollow follow = visual.GetComponent<MeleeVisualStickyFollow>();
+        if (follow == null)
+            follow = visual.AddComponent<MeleeVisualStickyFollow>();
+        follow.Initialize(stickyOwner, stickyLocalOffset, stickyLocalAngle);
     }
 
     private Transform ResolveMeleeSpawnOrigin()
@@ -229,8 +266,20 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
             return;
         }
 
+        if (config.stickToCharacter)
+        {
+            if (stickyFollowTarget == null)
+            {
+                DestroyHitbox();
+                return;
+            }
+
+            if (stickyRigidbody == null || stickyRigidbody.bodyType != RigidbodyType2D.Dynamic)
+                ApplyStickyFollowPose();
+        }
+
         // Translate meleeFX along attack direction if speed > 0
-        if (config.meleeFXSpeed > 0f)
+        if (!config.stickToCharacter && config.meleeFXSpeed > 0f)
             hitboxInstance.transform.position += (Vector3)attackDirection * config.meleeFXSpeed * Time.deltaTime;
 
         // Auto-destroy when animation completes
@@ -320,6 +369,47 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
             hitboxInstance = null;
         }
     }
+
+    private void ConfigureStickyFollow(Transform followTarget, Vector3 localOffset, float localAngle)
+    {
+        stickyFollowTarget = followTarget;
+        stickyLocalOffset = localOffset;
+        stickyLocalAngle = localAngle;
+        stickyRigidbody = hitboxInstance != null
+            ? (hitboxInstance.GetComponent<Rigidbody2D>() ?? hitboxInstance.GetComponentInChildren<Rigidbody2D>())
+            : null;
+
+        if (stickyRigidbody != null && stickyRigidbody.bodyType == RigidbodyType2D.Dynamic)
+        {
+            Debug.LogWarning(
+                $"[Melee] Sticky swing '{hitboxInstance.name}' uses Dynamic Rigidbody2D. Applying explicit follow pose each frame to keep it attached.");
+        }
+
+        ApplyStickyFollowPose();
+    }
+
+    private void FixedUpdate()
+    {
+        if (config == null || !config.stickToCharacter || hitboxInstance == null || stickyFollowTarget == null)
+            return;
+        if (stickyRigidbody == null || stickyRigidbody.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        Vector3 targetPosition = stickyFollowTarget.TransformPoint(stickyLocalOffset);
+        float targetAngle = stickyFollowTarget.eulerAngles.z + stickyLocalAngle;
+        stickyRigidbody.MovePosition(targetPosition);
+        stickyRigidbody.MoveRotation(targetAngle);
+    }
+
+    private void ApplyStickyFollowPose()
+    {
+        if (hitboxInstance == null || stickyFollowTarget == null)
+            return;
+
+        Vector3 targetPosition = stickyFollowTarget.TransformPoint(stickyLocalOffset);
+        float targetAngle = stickyFollowTarget.eulerAngles.z + stickyLocalAngle;
+        hitboxInstance.transform.SetPositionAndRotation(targetPosition, Quaternion.Euler(0f, 0f, targetAngle));
+    }
 }
 
 /// <summary>
@@ -332,5 +422,61 @@ public class TriggerHandler : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         onTriggerEnter?.Invoke(other);
+    }
+}
+
+public class MeleeVisualStickyFollow : MonoBehaviour
+{
+    private Transform _followTarget;
+    private Vector3 _localOffset;
+    private float _localAngle;
+    private Rigidbody2D _body;
+
+    public void Initialize(Transform followTarget, Vector3 localOffset, float localAngle)
+    {
+        _followTarget = followTarget;
+        _localOffset = localOffset;
+        _localAngle = localAngle;
+        _body = GetComponent<Rigidbody2D>() ?? GetComponentInChildren<Rigidbody2D>();
+        if (_body != null && _body.bodyType == RigidbodyType2D.Dynamic)
+        {
+            Debug.LogWarning(
+                $"[Melee] Sticky visual '{gameObject.name}' uses Dynamic Rigidbody2D. Applying explicit follow pose each frame.");
+        }
+        ApplyPose();
+    }
+
+    private void LateUpdate()
+    {
+        if (_followTarget == null)
+        {
+            Destroy(this);
+            return;
+        }
+
+        if (_body == null || _body.bodyType != RigidbodyType2D.Dynamic)
+            ApplyPose();
+    }
+
+    private void FixedUpdate()
+    {
+        if (_followTarget == null || _body == null || _body.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        Vector3 targetPosition = _followTarget.TransformPoint(_localOffset);
+        float targetAngle = _followTarget.eulerAngles.z + _localAngle;
+        _body.MovePosition(targetPosition);
+        _body.MoveRotation(targetAngle);
+    }
+
+    private void ApplyPose()
+    {
+        if (_followTarget == null)
+            return;
+
+        Vector3 targetPosition = _followTarget.TransformPoint(_localOffset);
+        float targetAngle = _followTarget.eulerAngles.z + _localAngle;
+
+        transform.SetPositionAndRotation(targetPosition, Quaternion.Euler(0f, 0f, targetAngle));
     }
 }

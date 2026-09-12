@@ -886,15 +886,32 @@ public abstract class Organism : NetworkBehaviour, IDamageable, IDamageFloaterSo
     /// enemies, owner for players) already shows its own local copy, so this is skipped there.
     /// </summary>
     [ObserversRpc]
-    public void ObserversRpcSpawnMeleeSwingVisual(string abilityName, Vector3 spawnPos, float angle, bool firedFromOffhand)
+    public void ObserversRpcSpawnMeleeSwingVisual(
+        string abilityName,
+        Vector3 spawnPos,
+        float angle,
+        bool firedFromOffhand,
+        NetworkObject ownerNob,
+        bool stickToCharacter,
+        Vector3 stickyLocalOffset,
+        float stickyLocalAngle)
     {
         if (InstanceFinder.IsServerStarted) return; // host already showed it locally
         if (IsOwner) return; // owner already showed it locally
 
-        MeleeConfig meleeConfig = NetworkVisualEffects.ResolveAbilityConfig(this, abilityName)?.meleeConfig;
+        Organism configOwner = ownerNob != null ? ownerNob.GetComponent<Organism>() : this;
+        MeleeConfig meleeConfig = NetworkVisualEffects.ResolveAbilityConfig(configOwner, abilityName)?.meleeConfig;
 
         if (meleeConfig == null || meleeConfig.hitbox.prefab == null) return;
-        MeleeAbility.SpawnVisualOnly(meleeConfig, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        Transform stickyOwner = stickToCharacter && ownerNob != null ? ownerNob.transform : null;
+        MeleeAbility.SpawnVisualOnly(
+            meleeConfig,
+            spawnPos,
+            Quaternion.Euler(0f, 0f, angle),
+            stickyOwner,
+            stickyLocalOffset,
+            stickyLocalAngle,
+            stickToCharacter);
     }
 
     /// <summary>
