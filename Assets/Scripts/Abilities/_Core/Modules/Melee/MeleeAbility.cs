@@ -274,7 +274,8 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
                 return;
             }
 
-            ApplyStickyFollowPose();
+            if (stickyRigidbody == null || stickyRigidbody.bodyType != RigidbodyType2D.Dynamic)
+                ApplyStickyFollowPose();
         }
 
         // Translate meleeFX along attack direction if speed > 0
@@ -387,6 +388,19 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
         ApplyStickyFollowPose();
     }
 
+    private void FixedUpdate()
+    {
+        if (config == null || !config.stickToCharacter || hitboxInstance == null || stickyFollowTarget == null)
+            return;
+        if (stickyRigidbody == null || stickyRigidbody.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        Vector3 targetPosition = stickyFollowTarget.TransformPoint(stickyLocalOffset);
+        float targetAngle = stickyFollowTarget.eulerAngles.z + stickyLocalAngle;
+        stickyRigidbody.MovePosition(targetPosition);
+        stickyRigidbody.MoveRotation(targetAngle);
+    }
+
     private void ApplyStickyFollowPose()
     {
         if (hitboxInstance == null || stickyFollowTarget == null)
@@ -394,14 +408,6 @@ public class MeleeAbility : MonoBehaviour, ISubAbility
 
         Vector3 targetPosition = stickyFollowTarget.TransformPoint(stickyLocalOffset);
         float targetAngle = stickyFollowTarget.eulerAngles.z + stickyLocalAngle;
-
-        if (stickyRigidbody != null && stickyRigidbody.bodyType == RigidbodyType2D.Dynamic)
-        {
-            stickyRigidbody.position = targetPosition;
-            stickyRigidbody.rotation = targetAngle;
-            return;
-        }
-
         hitboxInstance.transform.SetPositionAndRotation(targetPosition, Quaternion.Euler(0f, 0f, targetAngle));
     }
 }
@@ -448,7 +454,19 @@ public class MeleeVisualStickyFollow : MonoBehaviour
             return;
         }
 
-        ApplyPose();
+        if (_body == null || _body.bodyType != RigidbodyType2D.Dynamic)
+            ApplyPose();
+    }
+
+    private void FixedUpdate()
+    {
+        if (_followTarget == null || _body == null || _body.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        Vector3 targetPosition = _followTarget.TransformPoint(_localOffset);
+        float targetAngle = _followTarget.eulerAngles.z + _localAngle;
+        _body.MovePosition(targetPosition);
+        _body.MoveRotation(targetAngle);
     }
 
     private void ApplyPose()
@@ -458,13 +476,6 @@ public class MeleeVisualStickyFollow : MonoBehaviour
 
         Vector3 targetPosition = _followTarget.TransformPoint(_localOffset);
         float targetAngle = _followTarget.eulerAngles.z + _localAngle;
-
-        if (_body != null && _body.bodyType == RigidbodyType2D.Dynamic)
-        {
-            _body.position = targetPosition;
-            _body.rotation = targetAngle;
-            return;
-        }
 
         transform.SetPositionAndRotation(targetPosition, Quaternion.Euler(0f, 0f, targetAngle));
     }
